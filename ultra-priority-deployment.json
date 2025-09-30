@@ -1,0 +1,10 @@
+{
+  "txHash": "0x979b26e4ff13567a1cc367a0793e1ab5b41cb43660ddb50fca51cb8818abcf5e",
+  "from": "0x26A8401287cE33CC4aeb5a106cd6D282a92Cf51d",
+  "nonce": 0,
+  "gasPrice": "30.0",
+  "gasLimit": "3000000",
+  "timestamp": "2025-04-23T05:48:05.856Z",
+  "network": "Polygon Mainnet",
+  "contractBytecode": "0x6101006040527f6e71edae12b1b97f4d1f60370fef10105fa2faae0126114a169c64845d6126c960e09081525034801562..."
+}

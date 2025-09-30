@@ -1,0 +1,14 @@
+{
+  "contractAddress": "0xa0b0AaCbf4E7261691689e5F240C278fB295edF7",
+  "transactionHash": "0xf6d4c55c82faa26c99dbbf1fb3982a10e1a84cc7c3bfc13f184362790d2ef145",
+  "creatorAddress": "0xCe36333A88c2EA01f28f63131fA7dfa80AD021F6",
+  "contractCreation": true,
+  "blockNumber": 70793832,
+  "verificationSuggestions": [
+    "Use Solidity compiler v0.8.17+commit.8df45f5f",
+    "Enable optimization with 200 runs",
+    "Use 'UNLICENSED' license type (1)",
+    "Try the full flattened contract in contracts/verified/SovranWealthFund.flat.sol",
+    "If the above fails, try compiler version 0.8.26"
+  ]
+}

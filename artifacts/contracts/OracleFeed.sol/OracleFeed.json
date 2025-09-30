@@ -1,0 +1,10 @@
+{
+  "_format": "hh-sol-artifact-1",
+  "contractName": "OracleFeed",
+  "sourceName": "contracts/OracleFeed.sol",
+  "abi": [],
+  "bytecode": "0x6080604052348015600f57600080fd5b50603f80601d6000396000f3fe6080604052600080fdfea2646970667358221220b05b9e63422acf7a97cefcf7e9ddf4417c467d861679abbd56b1e7ed1dd58f2c64736f6c634300081a0033",
+  "deployedBytecode": "0x6080604052600080fdfea2646970667358221220b05b9e63422acf7a97cefcf7e9ddf4417c467d861679abbd56b1e7ed1dd58f2c64736f6c634300081a0033",
+  "linkReferences": {},
+  "deployedLinkReferences": {}
+}

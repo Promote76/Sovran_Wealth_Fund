@@ -1,0 +1,10 @@
+{
+  "_format": "hh-sol-artifact-1",
+  "contractName": "PropertySharesToken",
+  "sourceName": "contracts/PropertySharesToken.sol",
+  "abi": [],
+  "bytecode": "0x6080604052348015600f57600080fd5b50603f80601d6000396000f3fe6080604052600080fdfea264697066735822122065a7ed25c76e3d23fb6ec48c9741f889b9facc3d0e771e31cd87bb62431cbe7f64736f6c634300081a0033",
+  "deployedBytecode": "0x6080604052600080fdfea264697066735822122065a7ed25c76e3d23fb6ec48c9741f889b9facc3d0e771e31cd87bb62431cbe7f64736f6c634300081a0033",
+  "linkReferences": {},
+  "deployedLinkReferences": {}
+}

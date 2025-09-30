@@ -1,0 +1,10 @@
+{
+  "_format": "hh-sol-artifact-1",
+  "contractName": "GoldNFTMinter",
+  "sourceName": "contracts/GoldNFTMinter.sol",
+  "abi": [],
+  "bytecode": "0x6080604052348015600f57600080fd5b50603f80601d6000396000f3fe6080604052600080fdfea264697066735822122086c55739dbaa00a215068547d357cfdb4f579160347de6d7bf18a3401d318d4d64736f6c634300081a0033",
+  "deployedBytecode": "0x6080604052600080fdfea264697066735822122086c55739dbaa00a215068547d357cfdb4f579160347de6d7bf18a3401d318d4d64736f6c634300081a0033",
+  "linkReferences": {},
+  "deployedLinkReferences": {}
+}

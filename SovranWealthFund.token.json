@@ -1,0 +1,32 @@
+{
+  "network": "mainnet",
+  "token": {
+    "address": "0xa0b0AaCbf4E7261691689e5F240C278fB295edF7",
+    "name": "Sovran Wealth Fund",
+    "symbol": "SWF",
+    "totalSupply": "1000000000.0",
+    "decimals": 18,
+    "updatedAt": "2025-04-27T10:15:00.000Z"
+  },
+  "metadata": {
+    "chainId": 137,
+    "verificationStatus": {
+      "verified": true,
+      "date": "2025-04-27T10:15:00.000Z",
+      "method": "Direct blockchain interaction"
+    },
+    "abi": [
+      "function name() view returns (string)",
+      "function symbol() view returns (string)",
+      "function decimals() view returns (uint8)",
+      "function totalSupply() view returns (uint256)",
+      "function balanceOf(address) view returns (uint256)",
+      "function transfer(address, uint256) returns (bool)",
+      "function allowance(address, address) view returns (uint256)",
+      "function approve(address, uint256) returns (bool)",
+      "function transferFrom(address, address, uint256) returns (bool)",
+      "event Transfer(address indexed from, address indexed to, uint256 value)",
+      "event Approval(address indexed owner, address indexed spender, uint256 value)"
+    ]
+  }
+}

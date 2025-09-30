@@ -1,0 +1,10 @@
+{
+  "network": "Polygon Mainnet",
+  "contractType": "SovranWealthFundMinimal",
+  "contractAddress": "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0",
+  "transactionHash": "0x58b1c5645921ac9723be02dfd0afac4fb18e1d214efeea401049eec920611dee",
+  "deployer": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+  "timestamp": "2025-04-23T06:21:50.852Z",
+  "gasUsed": "3500000",
+  "gasPrice": "1.889020499 gwei"
+}

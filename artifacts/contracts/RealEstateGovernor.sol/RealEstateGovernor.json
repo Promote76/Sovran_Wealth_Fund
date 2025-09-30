@@ -1,0 +1,10 @@
+{
+  "_format": "hh-sol-artifact-1",
+  "contractName": "RealEstateGovernor",
+  "sourceName": "contracts/RealEstateGovernor.sol",
+  "abi": [],
+  "bytecode": "0x6080604052348015600f57600080fd5b50603f80601d6000396000f3fe6080604052600080fdfea26469706673582212202a82b5dee09dbc33e349333ccd0097436522b9c91a8d030bafd71b1f9468766464736f6c634300081a0033",
+  "deployedBytecode": "0x6080604052600080fdfea26469706673582212202a82b5dee09dbc33e349333ccd0097436522b9c91a8d030bafd71b1f9468766464736f6c634300081a0033",
+  "linkReferences": {},
+  "deployedLinkReferences": {}
+}
