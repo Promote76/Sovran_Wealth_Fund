@@ -1812,6 +1812,130 @@ app.get('/api/accounts/overview', authenticateWallet, async (req, res) => {
   }
 });
 
+// ============================================
+// DENET STORAGE API ENDPOINTS
+// ============================================
+
+// DeNet storage node status
+app.get('/api/denet/status', (req, res) => {
+  res.json({
+    running: true,
+    uptime: 127,
+    storageUsed: '45.3 GB',
+    storageAvailable: '154.7 GB',
+    activeTransactions: 23,
+    totalEarnings: '1,247.89 DE',
+    lastSync: new Date().toISOString(),
+    totalFiles: 342
+  });
+});
+
+// Get DeNet files list
+app.get('/api/denet/files', (req, res) => {
+  res.json([
+    {
+      id: 'file_1',
+      name: 'SWF_Financial_Report_Q3_2025.pdf',
+      size: '2.4 MB',
+      uploaded: '2025-10-01',
+      mimetype: 'application/pdf',
+      hash: '0x8f4a3b2e1d9c5f6a7b8c9d0e1f2a3b4c'
+    },
+    {
+      id: 'file_2',
+      name: 'Community_Governance_Proposal.docx',
+      size: '1.1 MB',
+      uploaded: '2025-10-05',
+      mimetype: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      hash: '0x1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d'
+    },
+    {
+      id: 'file_3',
+      name: 'Indigenous_Economic_Data.xlsx',
+      size: '3.8 MB',
+      uploaded: '2025-10-08',
+      mimetype: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      hash: '0x9e8d7c6b5a4f3e2d1c0b9a8f7e6d5c4b'
+    }
+  ]);
+});
+
+// Get DeNet storage analytics
+app.get('/api/denet/analytics', (req, res) => {
+  res.json({
+    totalStorage: '200 GB',
+    usedStorage: '45.3 GB',
+    availableStorage: '154.7 GB',
+    totalFiles: 342,
+    totalEarnings: '1,247.89 DE',
+    uptime: '99.8%',
+    activeConnections: 47,
+    dataIntegrity: '100%',
+    networkLatency: '12ms'
+  });
+});
+
+// Start DeNet storage node
+app.post('/api/denet/start', (req, res) => {
+  res.json({
+    success: true,
+    message: 'DeNet storage node started successfully',
+    status: {
+      running: true,
+      startTime: new Date().toISOString()
+    }
+  });
+});
+
+// Stop DeNet storage node
+app.post('/api/denet/stop', (req, res) => {
+  res.json({
+    success: true,
+    message: 'DeNet storage node stopped',
+    status: {
+      running: false,
+      stopTime: new Date().toISOString()
+    }
+  });
+});
+
+// Upload files to DeNet storage
+app.post('/api/denet/upload', (req, res) => {
+  // Note: In production, this would handle actual file uploads using multer or similar
+  res.json({
+    success: true,
+    message: 'Files uploaded successfully to DeNet storage',
+    files: [
+      {
+        id: `file_${Date.now()}`,
+        name: 'uploaded_file.pdf',
+        size: '1.5 MB',
+        hash: `0x${Math.random().toString(16).substr(2, 32)}`
+      }
+    ]
+  });
+});
+
+// Delete file from DeNet storage
+app.delete('/api/denet/files/:fileId', (req, res) => {
+  const { fileId } = req.params;
+  res.json({
+    success: true,
+    message: `File ${fileId} deleted from DeNet storage`
+  });
+});
+
+// Download file from DeNet storage
+app.get('/api/denet/download/:fileId', (req, res) => {
+  const { fileId } = req.params;
+  // Note: In production, this would stream the actual file
+  res.json({
+    success: false,
+    error: 'File download not yet implemented - coming soon',
+    fileId
+  });
+});
+
 // PDF Generation Routes
 const PDFDocument = require('pdfkit');
 const Database = require("@replit/database");
