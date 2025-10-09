@@ -317,8 +317,8 @@ export default function DeNetStoragePage() {
               disabled={nodeStatus?.running}
               className={`flex items-center px-6 py-2 rounded-lg font-semibold transition-colors ${
                 nodeStatus?.running
-                  ? 'bg-gray-600 text-gray-500 cursor-not-allowed'
-                  : 'bg-green-600 hover:bg-green-700 text-gray-900'
+                  ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
+                  : 'bg-green-600 hover:bg-green-700 text-white'
               }`}
             >
               <PlayIcon className="w-4 h-4 mr-2" />
@@ -383,8 +383,8 @@ export default function DeNetStoragePage() {
               disabled={!selectedFiles || selectedFiles.length === 0 || isUploading}
               className={`w-full py-3 px-4 rounded-lg font-semibold transition-colors ${
                 !selectedFiles || selectedFiles.length === 0 || isUploading
-                  ? 'bg-gray-600 text-gray-500 cursor-not-allowed'
-                  : 'bg-golden hover:bg-golden/80 text-black'
+                  ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
+                  : 'bg-green-600 hover:bg-green-700 text-white'
               }`}
             >
               {isUploading ? 'Uploading...' : `Upload ${selectedFiles?.length || 0} File(s)`}
