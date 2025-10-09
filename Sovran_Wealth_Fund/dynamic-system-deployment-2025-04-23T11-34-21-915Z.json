@@ -1,0 +1,27 @@
+{
+  "network": "localhost",
+  "deploymentTime": "2025-04-23T11:34:21.915Z",
+  "deployer": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+  "contracts": {
+    "swfToken": {
+      "address": "0x15AD65Fb62CD9147Aa4443dA89828A693228b5F7",
+      "notes": "Pre-existing SWF token"
+    },
+    "swfBasketVault": {
+      "address": "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",
+      "deployTransaction": "0x621d1844dcedd8386524fd10928e2acbca6ffa2c0db12e7e0d2a2f17c48fee11"
+    },
+    "soloMethodEngine": {
+      "address": "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0",
+      "deployTransaction": "0xfcea8d07cb341da03bd8a3972a96e3ecfe3e00aac7ba1d3ed7974bacd06a1992"
+    },
+    "dynamicAPRController": {
+      "address": "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9",
+      "deployTransaction": "0x3c1c78a2546b4229bf9c4edc0b69c844832657561c4a4b1db595946e7d094fe4",
+      "initialAPR": 2000
+    }
+  },
+  "transactions": {
+    "ownershipTransfer": "0x883001ef64e6c349f99311df1154b239004179b435864fffa8c882c55bdc8b7d"
+  }
+}

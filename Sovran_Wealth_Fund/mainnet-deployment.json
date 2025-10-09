@@ -1,0 +1,9 @@
+{
+  "network": "Polygon Mainnet",
+  "contractAddress": "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",
+  "transactionHash": "0x91e7bc4e702f7b8833269f1819a86d835a08fa7f61b6e9a65c65e65d34f92260",
+  "deployer": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+  "timestamp": "2025-04-23T06:21:43.946Z",
+  "gasUsed": "5000000",
+  "gasPrice": "1.96625 gwei"
+}

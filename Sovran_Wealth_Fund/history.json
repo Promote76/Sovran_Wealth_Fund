@@ -1,0 +1,23 @@
+[
+  {
+    "date": "2025-04-28",
+    "totalSWF": "99989768.37",
+    "totalUSD": "256439305.71",
+    "totalLiquidity": "403.45",
+    "growthRate": "3.43"
+  },
+  {
+    "date": "2025-04-29",
+    "totalSWF": "99989768.37",
+    "totalUSD": "256439305.71",
+    "totalLiquidity": "403.45",
+    "growthRate": "3.55"
+  },
+  {
+    "date": "2025-06-15",
+    "totalSWF": "0.00",
+    "totalUSD": "Data unavailable without external price API",
+    "totalLiquidity": "No liquidity pool found",
+    "growthRate": "Data unavailable"
+  }
+]

@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import Layout from '../components/Layout';
 
 interface LiquidityPool {
   id: number;
@@ -87,8 +86,7 @@ const LiquidityManagementPage: React.FC = () => {
   };
 
   return (
-    <Layout title="SWF Liquidity Management" themeColor="blue">
-      <div className="bg-gradient-to-br from-white via-blue-50 to-white min-h-screen">
+    <div className="bg-gradient-to-br from-white via-blue-50 to-white min-h-screen">
 
       {/* Hero Section */}
       <div className="container mx-auto px-4 py-12">
@@ -370,8 +368,7 @@ const LiquidityManagementPage: React.FC = () => {
           </div>
         </div>
       )}
-      </div>
-    </Layout>
+    </div>
   );
 };
 

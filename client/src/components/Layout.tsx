@@ -203,7 +203,8 @@ const Layout: React.FC<LayoutProps> = ({
     { path: '/dao-dashboard', label: 'DAO' },
     { path: '/risk-dashboard', label: 'Risk' },
     { path: '/gold-certificates', label: 'Gold' },
-    { path: '/liquidity-management', label: 'Liquidity' }
+    { path: '/liquidity-management', label: 'Liquidity' },
+    { path: '/denet-storage', label: 'Storage' }
   ];
 
   // Transparency links for hamburger menu

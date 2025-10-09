@@ -1,0 +1,109 @@
+# .replit
+run = "npm run dev"
+modules = ["nodejs-20", "postgresql-16", "python-3.11", "python3"]
+
+[nix]
+channel = "stable-22_11"
+packages = ["cairo", "giflib", "jq", "libjpeg", "librsvg", "libuuid", "pango", "pkg-config", "unzip", "zip"]
+
+[env]
+NODE_ENV = "development"
+CHAIN = "ethereum" 
+PROJECT = "sovran-wealth-fund"
+
+[workflows]
+runButton = "Project"
+
+[[workflows.workflow]]
+name = "Project"
+mode = "parallel"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Transparency API"
+
+[[workflows.workflow]]
+name = "Transparency API"
+author = "agent"
+
+[workflows.workflow.metadata]
+outputType = "webview"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd /home/runner/workspace && npm run legacy-start"
+waitForPort = 5000
+
+[deployment]
+deploymentTarget = "autoscale"
+run = ["npm", "run", "legacy-start"]
+build = ["npm", "ci"]
+
+[[ports]]
+localPort = 3000
+externalPort = 3000
+
+[[ports]]
+localPort = 5000
+externalPort = 80
+
+[[ports]]
+localPort = 36475
+externalPort = 8000
+
+[[ports]]
+localPort = 37067
+externalPort = 3002
+
+[[ports]]
+localPort = 37257
+externalPort = 6000
+
+[[ports]]
+localPort = 37737
+externalPort = 5000
+
+[[ports]]
+localPort = 39467
+externalPort = 8081
+
+[[ports]]
+localPort = 40593
+externalPort = 8080
+
+[[ports]]
+localPort = 40765
+externalPort = 8008
+
+[[ports]]
+localPort = 41047
+externalPort = 9000
+
+[[ports]]
+localPort = 41783
+externalPort = 3003
+
+[[ports]]
+localPort = 44909
+externalPort = 4200
+
+[[ports]]
+localPort = 44943
+externalPort = 8099
+
+[[ports]]
+localPort = 45961
+externalPort = 6800
+
+[[ports]]
+localPort = 46363
+externalPort = 5173
+
+[[ports]]
+localPort = 46373
+externalPort = 3001
+
+[agent]
+expertMode = true
+integrations = ["javascript_object_storage:1.0.0"]

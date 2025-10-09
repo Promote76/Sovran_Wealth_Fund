@@ -1,0 +1,37 @@
+{
+  "token": {
+    "address": "0xe0Ccb1B8C480b238792Edd5b67aD007001e360e8",
+    "transactionHash": "0x0ac75e83b1ddb5261c96d6bf73deded44fe069b96bfec13a0a34ea1c84fcbf73",
+    "network": "polygon",
+    "chainId": 137
+  },
+  "liquidityVaults": {
+    "eth": {
+      "address": "0x4083c8FA1a8e7C85eAe8e357F98a5b2b6A06ac88",
+      "transactionHash": "0xf50bd25792a554dd6baba71a6965c81b0ec23a763d7ac2a175025ba55d8b6acf",
+      "lpTokenAddress": "0xb23F5d348fa157393E75Bc80C92516F81786Fc28"
+    },
+    "usdc": {
+      "address": "0xd73747d390c8FDACac9478695d6e6B1510C78f54",
+      "transactionHash": "0xeb8c8aed7df3543329973e5a94483fe7c0c68308f764863ef8b593a1b14bc364",
+      "lpTokenAddress": "0x7f47199A8a5ff683FeDb86c782adb80eF598D5E0"
+    }
+  },
+  "governance": {
+    "address": "0x454255E70f87B2bAa8C0c19c5534D96f5eaE80C5",
+    "transactionHash": "0x0dd180c72c34e0487a122e2a111dab39b2c0bcbc6a580937e8815e349510e10b"
+  },
+  "vaultAdapter": {
+    "address": "0xcEF473825550dEE99080500e2949Af8003C1b797",
+    "transactionHash": "0xc87d2b9d34fab2d188fdfcb271b4408f46e1e1550359d290465b30fea3fa3692"
+  },
+  "wallets": {
+    "treasury": "0x26a8401287ce33cc4AEb5a106cD6D282a9c2f51D",
+    "distributor": "0xCe36333A88c2EA01f28f63131fA7dfa80AD021F6"
+  },
+  "deployment": {
+    "date": "2025-04-24",
+    "initialSupply": "500000000000000000000000",
+    "monthlyRewardRate": "10000000000000000"
+  }
+}

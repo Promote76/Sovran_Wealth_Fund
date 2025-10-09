@@ -1,0 +1,7 @@
+{
+  "network": "localhost",
+  "swfTokenAddress": "0x3Aa5ebB10DC797CAC828524e59A333d0A371443c",
+  "basketVaultAddress": "0x4ed7c70F96B99c776995fB64377f0d4aB3B0e1C1",
+  "deploymentTime": "2025-04-23T12:00:00.000Z",
+  "deployer": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
+}

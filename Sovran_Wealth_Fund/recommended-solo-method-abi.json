@@ -1,0 +1,20 @@
+[
+  "function deposit() external",
+  "function withdraw() external",
+  "function claim() external",
+  "function stake() external",
+  "function claimRewards() external",
+  "function balanceOf() external",
+  "function getBalance() external",
+  "function getStaked() external",
+  "function getTotalStaked() external",
+  "function totalStaked() external",
+  "function earned() external",
+  "function getEarned() external",
+  "function getAPR() external",
+  "function getCurrentAPR() external",
+  "function aprBasisPoints() external",
+  "function owner() external",
+  "function setAPR() external",
+  "function recoverERC20() external"
+]

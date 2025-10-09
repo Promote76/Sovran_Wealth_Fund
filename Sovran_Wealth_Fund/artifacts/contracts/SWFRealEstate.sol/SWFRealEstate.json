@@ -1,0 +1,10 @@
+{
+  "_format": "hh-sol-artifact-1",
+  "contractName": "SWFRealEstate",
+  "sourceName": "contracts/SWFRealEstate.sol",
+  "abi": [],
+  "bytecode": "0x6080604052348015600f57600080fd5b50603f80601d6000396000f3fe6080604052600080fdfea2646970667358221220bc7df4e28876d4e3092e95352a3353a441194242270d9504b9c6fd04cee481ef64736f6c634300081a0033",
+  "deployedBytecode": "0x6080604052600080fdfea2646970667358221220bc7df4e28876d4e3092e95352a3353a441194242270d9504b9c6fd04cee481ef64736f6c634300081a0033",
+  "linkReferences": {},
+  "deployedLinkReferences": {}
+}

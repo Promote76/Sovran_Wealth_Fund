@@ -1,0 +1,15 @@
+{
+  "0x02514Df630f9d9F6Aaff8a89b9caF3E34c0Fc1c1": {
+    "totalStaked": 55,
+    "stakes": [
+      {
+        "amount": 55,
+        "timestamp": 1749411667407,
+        "txHash": "0xc54b15ba5cb7cc86748f56e7622c6587da56d3f690de74d52d955e212b7f5ef3",
+        "active": true
+      }
+    ],
+    "rewards": 0,
+    "lastRewardTime": 1749411667407
+  }
+}
