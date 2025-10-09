@@ -336,6 +336,35 @@ const complianceAudit = pgTable('compliance_audit', {
   timestamp: timestamp('timestamp').defaultNow().notNull()
 });
 
+// DeNet Storage Files table (matching existing database structure)
+const deNetFiles = pgTable('denet_files', {
+  id: serial('id').primaryKey(),
+  fileId: varchar('file_id', { length: 255 }),
+  filename: varchar('filename', { length: 255 }),
+  originalName: varchar('original_name', { length: 255 }),
+  fileSize: integer('file_size'),
+  mimeType: varchar('mime_type', { length: 255 }),
+  uploadDate: timestamp('upload_date').defaultNow(),
+  userAddress: varchar('user_address', { length: 42 }),
+  fileHash: varchar('file_hash', { length: 100 }),
+  storagePath: text('storage_path'),
+  isActive: boolean('is_active').default(true),
+  createdAt: timestamp('created_at').defaultNow(),
+  updatedAt: timestamp('updated_at').defaultNow()
+});
+
+// DeNet Node State table
+const deNetNodeState = pgTable('denet_node_state', {
+  id: serial('id').primaryKey(),
+  running: boolean('running').default(false).notNull(),
+  startTime: timestamp('start_time'),
+  storageUsed: decimal('storage_used', { precision: 10, scale: 2 }).default('0.00').notNull(),
+  storageAvailable: decimal('storage_available', { precision: 10, scale: 2 }).default('200.00').notNull(),
+  activeTransactions: integer('active_transactions').default(0).notNull(),
+  totalEarnings: decimal('total_earnings', { precision: 15, scale: 2 }).default('0.00').notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull()
+});
+
 module.exports = {
   users,
   savingsAccounts,
@@ -360,5 +389,7 @@ module.exports = {
   marketDataSnapshots,
   userInvestingSettings,
   adminControls,
-  complianceAudit
+  complianceAudit,
+  deNetFiles,
+  deNetNodeState
 };

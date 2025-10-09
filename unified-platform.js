@@ -16,7 +16,8 @@ const Decimal = require('decimal.js');
 const { 
   savingsAccounts, savingsTransactions, savingsAccountSettings,
   checkingAccounts, checkingTransactions, transfers, payees, scheduledPayments,
-  investmentAccounts, instruments, positions, orders, executions, investmentLedger
+  investmentAccounts, instruments, positions, orders, executions, investmentLedger,
+  deNetFiles, deNetNodeState
 } = require('./shared/schema');
 const { eq, and, desc, sql } = require('drizzle-orm');
 
@@ -2414,111 +2415,178 @@ app.get('/api/investments/accounts/:accountId/ledger', authenticateWallet, async
 // DENET STORAGE API ENDPOINTS
 // ============================================
 
-// DeNet storage node state management
-let deNetNodeState = {
-  running: false,
-  startTime: null,
-  storageUsed: '0 GB',
-  storageAvailable: '200 GB',
-  activeTransactions: 0,
-  totalEarnings: '0 DE',
-  totalFiles: 0
-};
-
-let deNetFiles = [];
-
 // DeNet storage node status
-app.get('/api/denet/status', (req, res) => {
-  const uptime = deNetNodeState.running && deNetNodeState.startTime 
-    ? Math.floor((Date.now() - deNetNodeState.startTime) / (1000 * 60 * 60)) 
-    : 0;
+app.get('/api/denet/status', async (req, res) => {
+  try {
+    const [nodeState] = await db.select().from(deNetNodeState).limit(1);
+    const files = await db.select().from(deNetFiles);
 
-  res.json({
-    running: deNetNodeState.running,
-    uptime: uptime,
-    storageUsed: deNetNodeState.storageUsed,
-    storageAvailable: deNetNodeState.storageAvailable,
-    activeTransactions: deNetNodeState.activeTransactions,
-    totalEarnings: deNetNodeState.totalEarnings,
-    lastSync: new Date().toISOString(),
-    totalFiles: deNetFiles.length
-  });
+    if (!nodeState) {
+      return res.json({
+        running: false,
+        uptime: 0,
+        storageUsed: '0 GB',
+        storageAvailable: '200 GB',
+        activeTransactions: 0,
+        totalEarnings: '0 DE',
+        lastSync: new Date().toISOString(),
+        totalFiles: 0
+      });
+    }
+
+    const uptime = nodeState.running && nodeState.startTime 
+      ? Math.floor((Date.now() - new Date(nodeState.startTime).getTime()) / (1000 * 60 * 60)) 
+      : 0;
+
+    res.json({
+      running: nodeState.running,
+      uptime: uptime,
+      storageUsed: `${nodeState.storageUsed} GB`,
+      storageAvailable: `${nodeState.storageAvailable} GB`,
+      activeTransactions: nodeState.activeTransactions,
+      totalEarnings: `${nodeState.totalEarnings} DE`,
+      lastSync: new Date().toISOString(),
+      totalFiles: files.length
+    });
+  } catch (error) {
+    console.error('❌ Error fetching DeNet status:', error);
+    res.status(500).json({ error: 'Failed to fetch node status' });
+  }
 });
 
 // Get DeNet files list
-app.get('/api/denet/files', (req, res) => {
-  res.json(deNetFiles);
+app.get('/api/denet/files', async (req, res) => {
+  try {
+    const files = await db.select().from(deNetFiles).where(eq(deNetFiles.isActive, true));
+    
+    const formattedFiles = files.map(file => ({
+      id: file.fileId || file.id.toString(),
+      name: file.originalName || file.filename,
+      size: file.fileSize ? `${(file.fileSize / (1024 * 1024)).toFixed(2)} MB` : '0 MB',
+      uploaded: file.uploadDate ? new Date(file.uploadDate).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+      mimetype: file.mimeType,
+      hash: file.fileHash
+    }));
+
+    res.json(formattedFiles);
+  } catch (error) {
+    console.error('❌ Error fetching DeNet files:', error);
+    res.status(500).json({ error: 'Failed to fetch files' });
+  }
 });
 
 // Get DeNet storage analytics
-app.get('/api/denet/analytics', (req, res) => {
-  const uptime = deNetNodeState.running && deNetNodeState.startTime 
-    ? Math.floor((Date.now() - deNetNodeState.startTime) / (1000 * 60 * 60)) 
-    : 0;
-  
-  const uptimePercentage = deNetNodeState.running ? '99.8%' : '0%';
+app.get('/api/denet/analytics', async (req, res) => {
+  try {
+    const [nodeState] = await db.select().from(deNetNodeState).limit(1);
+    const files = await db.select().from(deNetFiles);
 
-  res.json({
-    totalStorage: '200 GB',
-    usedStorage: deNetNodeState.storageUsed,
-    availableStorage: deNetNodeState.storageAvailable,
-    totalFiles: deNetFiles.length,
-    totalEarnings: deNetNodeState.totalEarnings,
-    uptime: uptimePercentage,
-    activeConnections: deNetNodeState.running ? 47 : 0,
-    dataIntegrity: '100%',
-    networkLatency: deNetNodeState.running ? '12ms' : 'N/A'
-  });
+    if (!nodeState) {
+      return res.json({
+        totalStorage: '200 GB',
+        usedStorage: '0 GB',
+        availableStorage: '200 GB',
+        totalFiles: 0,
+        totalEarnings: '0 DE',
+        uptime: '0%',
+        activeConnections: 0,
+        dataIntegrity: '100%',
+        networkLatency: 'N/A'
+      });
+    }
+
+    const uptimePercentage = nodeState.running ? '99.8%' : '0%';
+
+    res.json({
+      totalStorage: '200 GB',
+      usedStorage: `${nodeState.storageUsed} GB`,
+      availableStorage: `${nodeState.storageAvailable} GB`,
+      totalFiles: files.length,
+      totalEarnings: `${nodeState.totalEarnings} DE`,
+      uptime: uptimePercentage,
+      activeConnections: nodeState.running ? 47 : 0,
+      dataIntegrity: '100%',
+      networkLatency: nodeState.running ? '12ms' : 'N/A'
+    });
+  } catch (error) {
+    console.error('❌ Error fetching DeNet analytics:', error);
+    res.status(500).json({ error: 'Failed to fetch analytics' });
+  }
 });
 
 // Start DeNet storage node
-app.post('/api/denet/start', (req, res) => {
-  if (deNetNodeState.running) {
-    return res.json({
-      success: false,
-      error: 'Node is already running'
-    });
-  }
+app.post('/api/denet/start', async (req, res) => {
+  try {
+    const [nodeState] = await db.select().from(deNetNodeState).limit(1);
 
-  deNetNodeState.running = true;
-  deNetNodeState.startTime = Date.now();
-  deNetNodeState.activeTransactions = Math.floor(Math.random() * 50);
-
-  console.log('✅ DeNet storage node started');
-
-  res.json({
-    success: true,
-    message: 'DeNet storage node started successfully',
-    status: {
-      running: true,
-      startTime: new Date().toISOString()
+    if (nodeState && nodeState.running) {
+      return res.json({
+        success: false,
+        error: 'Node is already running'
+      });
     }
-  });
+
+    const startTime = new Date();
+    const activeTransactions = Math.floor(Math.random() * 50);
+
+    await db.update(deNetNodeState)
+      .set({
+        running: true,
+        startTime: startTime,
+        activeTransactions: activeTransactions,
+        updatedAt: new Date()
+      });
+
+    console.log('✅ DeNet storage node started');
+
+    res.json({
+      success: true,
+      message: 'DeNet storage node started successfully',
+      status: {
+        running: true,
+        startTime: startTime.toISOString()
+      }
+    });
+  } catch (error) {
+    console.error('❌ Error starting DeNet node:', error);
+    res.status(500).json({ success: false, error: 'Failed to start node' });
+  }
 });
 
 // Stop DeNet storage node
-app.post('/api/denet/stop', (req, res) => {
-  if (!deNetNodeState.running) {
-    return res.json({
-      success: false,
-      error: 'Node is not running'
-    });
-  }
+app.post('/api/denet/stop', async (req, res) => {
+  try {
+    const [nodeState] = await db.select().from(deNetNodeState).limit(1);
 
-  deNetNodeState.running = false;
-  deNetNodeState.startTime = null;
-  deNetNodeState.activeTransactions = 0;
-
-  console.log('⏸️ DeNet storage node stopped');
-
-  res.json({
-    success: true,
-    message: 'DeNet storage node stopped',
-    status: {
-      running: false,
-      stopTime: new Date().toISOString()
+    if (!nodeState || !nodeState.running) {
+      return res.json({
+        success: false,
+        error: 'Node is not running'
+      });
     }
-  });
+
+    await db.update(deNetNodeState)
+      .set({
+        running: false,
+        startTime: null,
+        activeTransactions: 0,
+        updatedAt: new Date()
+      });
+
+    console.log('⏸️ DeNet storage node stopped');
+
+    res.json({
+      success: true,
+      message: 'DeNet storage node stopped',
+      status: {
+        running: false,
+        stopTime: new Date().toISOString()
+      }
+    });
+  } catch (error) {
+    console.error('❌ Error stopping DeNet node:', error);
+    res.status(500).json({ success: false, error: 'Failed to stop node' });
+  }
 });
 
 // Upload files to DeNet storage (with multer support)
@@ -2528,7 +2596,7 @@ const upload = multer({
   limits: { fileSize: 100 * 1024 * 1024 } // 100MB limit
 });
 
-app.post('/api/denet/upload', upload.array('files', 10), (req, res) => {
+app.post('/api/denet/upload', upload.array('files', 10), async (req, res) => {
   try {
     if (!req.files || req.files.length === 0) {
       return res.status(400).json({
@@ -2537,31 +2605,45 @@ app.post('/api/denet/upload', upload.array('files', 10), (req, res) => {
       });
     }
 
-    const uploadedFiles = req.files.map(file => {
+    const uploadedFiles = [];
+
+    for (const file of req.files) {
       const fileId = `file_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-      const fileSize = (file.size / (1024 * 1024)).toFixed(2) + ' MB';
       const fileHash = `0x${Math.random().toString(16).substr(2, 32)}`;
 
-      const fileRecord = {
+      const [insertedFile] = await db.insert(deNetFiles).values({
+        fileId: fileId,
+        filename: file.originalname.replace(/\s+/g, '_'),
+        originalName: file.originalname,
+        fileSize: file.size,
+        mimeType: file.mimetype,
+        fileHash: fileHash,
+        isActive: true
+      }).returning();
+
+      uploadedFiles.push({
         id: fileId,
         name: file.originalname,
-        size: fileSize,
-        uploaded: new Date().toISOString().split('T')[0],
+        size: `${(file.size / (1024 * 1024)).toFixed(2)} MB`,
         mimetype: file.mimetype,
         hash: fileHash
-      };
+      });
+    }
 
-      deNetFiles.push(fileRecord);
-      return fileRecord;
-    });
+    // Update storage metrics in database
+    const [nodeState] = await db.select().from(deNetNodeState).limit(1);
+    const totalSizeBytes = req.files.reduce((sum, f) => sum + f.size, 0);
+    const totalSizeGB = totalSizeBytes / (1024 * 1024 * 1024);
+    const currentUsed = parseFloat(nodeState.storageUsed) || 0;
+    const newUsed = currentUsed + totalSizeGB;
+    const newAvailable = 200 - newUsed;
 
-    // Update storage metrics
-    const totalSizeMB = req.files.reduce((sum, f) => sum + f.size, 0) / (1024 * 1024);
-    const currentUsed = parseFloat(deNetNodeState.storageUsed) || 0;
-    deNetNodeState.storageUsed = (currentUsed + totalSizeMB).toFixed(1) + ' GB';
-    
-    const available = 200 - parseFloat(deNetNodeState.storageUsed);
-    deNetNodeState.storageAvailable = available.toFixed(1) + ' GB';
+    await db.update(deNetNodeState)
+      .set({
+        storageUsed: newUsed.toFixed(2),
+        storageAvailable: newAvailable.toFixed(2),
+        updatedAt: new Date()
+      });
 
     console.log(`✅ Uploaded ${uploadedFiles.length} file(s) to DeNet storage`);
 
@@ -2582,34 +2664,52 @@ app.post('/api/denet/upload', upload.array('files', 10), (req, res) => {
 });
 
 // Delete file from DeNet storage
-app.delete('/api/denet/files/:fileId', (req, res) => {
-  const { fileId } = req.params;
-  
-  const fileIndex = deNetFiles.findIndex(f => f.id === fileId);
-  
-  if (fileIndex === -1) {
-    return res.status(404).json({
+app.delete('/api/denet/files/:fileId', async (req, res) => {
+  try {
+    const { fileId } = req.params;
+    
+    const [file] = await db.select().from(deNetFiles).where(eq(deNetFiles.fileId, fileId));
+    
+    if (!file) {
+      return res.status(404).json({
+        success: false,
+        error: 'File not found'
+      });
+    }
+
+    // Soft delete - mark as inactive
+    await db.update(deNetFiles)
+      .set({ isActive: false, updatedAt: new Date() })
+      .where(eq(deNetFiles.fileId, fileId));
+    
+    // Update storage metrics in database
+    const [nodeState] = await db.select().from(deNetNodeState).limit(1);
+    const fileSizeGB = (file.fileSize || 0) / (1024 * 1024 * 1024);
+    const currentUsed = parseFloat(nodeState.storageUsed) || 0;
+    const newUsed = Math.max(0, currentUsed - fileSizeGB);
+    const newAvailable = 200 - newUsed;
+
+    await db.update(deNetNodeState)
+      .set({
+        storageUsed: newUsed.toFixed(2),
+        storageAvailable: newAvailable.toFixed(2),
+        updatedAt: new Date()
+      });
+
+    console.log(`🗑️ Deleted file ${file.originalName || file.filename} from DeNet storage`);
+
+    res.json({
+      success: true,
+      message: `File ${file.originalName || file.filename} deleted from DeNet storage`
+    });
+  } catch (error) {
+    console.error('❌ Error deleting file:', error);
+    res.status(500).json({
       success: false,
-      error: 'File not found'
+      error: 'Failed to delete file',
+      details: error.message
     });
   }
-
-  const deletedFile = deNetFiles.splice(fileIndex, 1)[0];
-  
-  // Update storage metrics
-  const fileSizeMB = parseFloat(deletedFile.size) || 0;
-  const currentUsed = parseFloat(deNetNodeState.storageUsed) || 0;
-  deNetNodeState.storageUsed = Math.max(0, currentUsed - fileSizeMB).toFixed(1) + ' GB';
-  
-  const available = 200 - parseFloat(deNetNodeState.storageUsed);
-  deNetNodeState.storageAvailable = available.toFixed(1) + ' GB';
-
-  console.log(`🗑️ Deleted file ${deletedFile.name} from DeNet storage`);
-
-  res.json({
-    success: true,
-    message: `File ${deletedFile.name} deleted from DeNet storage`
-  });
 });
 
 // Download file from DeNet storage
