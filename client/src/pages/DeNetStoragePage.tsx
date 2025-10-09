@@ -233,28 +233,28 @@ export default function DeNetStoragePage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center">
+      <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-golden mx-auto mb-4"></div>
-          <p className="text-white">Loading DeNet Storage...</p>
+          <p className="text-gray-900">Loading DeNet Storage...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+    <div className="min-h-screen bg-white" style={{ backgroundColor: '#ffffff', backgroundImage: 'none' }}>
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-4xl font-bold text-white mb-2 flex items-center">
+          <h1 className="text-4xl font-bold text-gray-900 mb-2 flex items-center">
             <ServerIcon className="w-10 h-10 text-golden mr-3" />
             DeNet Storage Manager
           </h1>
-          <p className="text-gray-300 text-lg mb-6">Decentralized storage node management and file operations on the DeNet Protocol</p>
+          <p className="text-gray-600 text-lg mb-6">Decentralized storage node management and file operations on the DeNet Protocol</p>
           
           {/* Navigation Tabs */}
-          <div className="flex flex-wrap mt-6 space-x-1 bg-black/20 backdrop-blur-sm rounded-lg p-1 border border-golden/20">
+          <div className="flex flex-wrap mt-6 space-x-1 bg-gray-100 rounded-lg p-1 border border-gray-300">
             {[
               { id: 'overview', label: 'Node Overview', icon: ServerIcon },
               { id: 'instructions', label: 'How to Use', icon: InformationCircleIcon },
@@ -266,7 +266,7 @@ export default function DeNetStoragePage() {
                 className={`flex items-center px-4 py-2 rounded-lg font-medium transition-all ${
                   activeTab === tab.id
                     ? 'bg-golden text-black'
-                    : 'text-gray-300 hover:text-white hover:bg-white/10'
+                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-200'
                 }`}
               >
                 <tab.icon className="w-4 h-4 mr-2" />
@@ -280,34 +280,34 @@ export default function DeNetStoragePage() {
         {activeTab === 'overview' && (
           <>
             {/* Node Status Card */}
-            <div className="bg-black/20 backdrop-blur-sm rounded-xl p-6 mb-8 border border-golden/20">
+            <div className="bg-white rounded-xl p-6 mb-8 border-2 border-gray-200 shadow-sm">
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-2xl font-semibold text-white flex items-center">
+            <h2 className="text-2xl font-semibold text-gray-900 flex items-center">
               <ServerIcon className="w-6 h-6 text-golden mr-2" />
               Node Status
             </h2>
             <div className="flex items-center space-x-2">
               <div className={`w-3 h-3 rounded-full ${nodeStatus?.running ? 'bg-green-500' : 'bg-red-500'}`}></div>
-              <span className="text-white">{nodeStatus?.running ? 'Running' : 'Stopped'}</span>
+              <span className="text-gray-900 font-medium">{nodeStatus?.running ? 'Running' : 'Stopped'}</span>
             </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-            <div className="bg-golden/10 rounded-lg p-4 text-center">
-              <div className="text-2xl font-bold text-golden">{nodeStatus?.uptime || 0}h</div>
-              <div className="text-gray-300 text-sm">Uptime</div>
+            <div className="bg-golden/20 rounded-lg p-4 text-center border border-golden/30">
+              <div className="text-2xl font-bold text-gray-900">{nodeStatus?.uptime || 0}h</div>
+              <div className="text-gray-600 text-sm">Uptime</div>
             </div>
-            <div className="bg-golden/10 rounded-lg p-4 text-center">
-              <div className="text-2xl font-bold text-golden">{nodeStatus?.storageUsed || '0 GB'}</div>
-              <div className="text-gray-300 text-sm">Storage Used</div>
+            <div className="bg-golden/20 rounded-lg p-4 text-center border border-golden/30">
+              <div className="text-2xl font-bold text-gray-900">{nodeStatus?.storageUsed || '0 GB'}</div>
+              <div className="text-gray-600 text-sm">Storage Used</div>
             </div>
-            <div className="bg-golden/10 rounded-lg p-4 text-center">
-              <div className="text-2xl font-bold text-golden">{nodeStatus?.activeTransactions || 0}</div>
-              <div className="text-gray-300 text-sm">Active Transactions</div>
+            <div className="bg-golden/20 rounded-lg p-4 text-center border border-golden/30">
+              <div className="text-2xl font-bold text-gray-900">{nodeStatus?.activeTransactions || 0}</div>
+              <div className="text-gray-600 text-sm">Active Transactions</div>
             </div>
-            <div className="bg-golden/10 rounded-lg p-4 text-center">
-              <div className="text-2xl font-bold text-golden">{nodeStatus?.totalEarnings || '0 DE'}</div>
-              <div className="text-gray-300 text-sm">Total Earnings</div>
+            <div className="bg-golden/20 rounded-lg p-4 text-center border border-golden/30">
+              <div className="text-2xl font-bold text-gray-900">{nodeStatus?.totalEarnings || '0 DE'}</div>
+              <div className="text-gray-600 text-sm">Total Earnings</div>
             </div>
           </div>
 
@@ -317,8 +317,8 @@ export default function DeNetStoragePage() {
               disabled={nodeStatus?.running}
               className={`flex items-center px-6 py-2 rounded-lg font-semibold transition-colors ${
                 nodeStatus?.running
-                  ? 'bg-gray-600 text-gray-400 cursor-not-allowed'
-                  : 'bg-green-600 hover:bg-green-700 text-white'
+                  ? 'bg-gray-600 text-gray-500 cursor-not-allowed'
+                  : 'bg-green-600 hover:bg-green-700 text-gray-900'
               }`}
             >
               <PlayIcon className="w-4 h-4 mr-2" />
@@ -329,8 +329,8 @@ export default function DeNetStoragePage() {
               disabled={!nodeStatus?.running}
               className={`flex items-center px-6 py-2 rounded-lg font-semibold transition-colors ${
                 !nodeStatus?.running
-                  ? 'bg-gray-600 text-gray-400 cursor-not-allowed'
-                  : 'bg-red-600 hover:bg-red-700 text-white'
+                  ? 'bg-gray-600 text-gray-500 cursor-not-allowed'
+                  : 'bg-red-600 hover:bg-red-700 text-gray-900'
               }`}
             >
               <StopIcon className="w-4 h-4 mr-2" />
@@ -341,13 +341,13 @@ export default function DeNetStoragePage() {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* File Upload Section */}
-          <div className="bg-black/20 backdrop-blur-sm rounded-xl p-6 border border-golden/20">
-            <h2 className="text-2xl font-semibold text-white mb-4 flex items-center">
+          <div className="bg-white rounded-xl p-6 border-2 border-gray-200 shadow-sm">
+            <h2 className="text-2xl font-semibold text-gray-900 mb-4 flex items-center">
               <CloudUploadIcon className="w-6 h-6 text-golden mr-2" />
               Upload Files
             </h2>
             
-            <div className="border-2 border-dashed border-golden/40 rounded-lg p-8 text-center mb-4 hover:border-golden/60 transition-colors">
+            <div className="border-2 border-dashed border-golden/60 rounded-lg p-8 text-center mb-4 hover:border-golden transition-colors bg-gray-50">
               <CloudUploadIcon className="w-16 h-16 text-golden mx-auto mb-4" />
               <input
                 type="file"
@@ -358,19 +358,19 @@ export default function DeNetStoragePage() {
               />
               <label
                 htmlFor="file-input"
-                className="cursor-pointer text-white hover:text-golden transition-colors"
+                className="cursor-pointer text-gray-900 hover:text-golden transition-colors"
               >
                 <h3 className="text-lg font-semibold mb-2">Click to select files</h3>
-                <p className="text-gray-300">Support for any file type, max 100MB per file</p>
+                <p className="text-gray-600">Support for any file type, max 100MB per file</p>
               </label>
             </div>
 
             {selectedFiles && selectedFiles.length > 0 && (
               <div className="mb-4">
-                <h4 className="text-white font-semibold mb-2">Selected Files:</h4>
+                <h4 className="text-gray-900 font-semibold mb-2">Selected Files:</h4>
                 <div className="space-y-1">
                   {Array.from(selectedFiles).map((file, index) => (
-                    <div key={index} className="text-gray-300 text-sm">
+                    <div key={index} className="text-gray-600 text-sm">
                       {file.name} ({(file.size / 1024 / 1024).toFixed(2)} MB)
                     </div>
                   ))}
@@ -383,7 +383,7 @@ export default function DeNetStoragePage() {
               disabled={!selectedFiles || selectedFiles.length === 0 || isUploading}
               className={`w-full py-3 px-4 rounded-lg font-semibold transition-colors ${
                 !selectedFiles || selectedFiles.length === 0 || isUploading
-                  ? 'bg-gray-600 text-gray-400 cursor-not-allowed'
+                  ? 'bg-gray-600 text-gray-500 cursor-not-allowed'
                   : 'bg-golden hover:bg-golden/80 text-black'
               }`}
             >
@@ -392,8 +392,8 @@ export default function DeNetStoragePage() {
           </div>
 
           {/* Storage Analytics */}
-          <div className="bg-black/20 backdrop-blur-sm rounded-xl p-6 border border-golden/20">
-            <h2 className="text-2xl font-semibold text-white mb-4 flex items-center">
+          <div className="bg-white rounded-xl p-6 border-2 border-gray-200 shadow-sm">
+            <h2 className="text-2xl font-semibold text-gray-900 mb-4 flex items-center">
               <ChartBarIcon className="w-6 h-6 text-golden mr-2" />
               Storage Analytics
             </h2>
@@ -401,32 +401,32 @@ export default function DeNetStoragePage() {
             {analytics && (
               <div className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
-                  <div className="bg-golden/10 rounded-lg p-3 text-center">
-                    <div className="text-lg font-bold text-golden">{analytics.totalStorage}</div>
-                    <div className="text-gray-300 text-sm">Total Capacity</div>
+                  <div className="bg-golden/20 rounded-lg p-3 text-center border border-golden/30">
+                    <div className="text-lg font-bold text-gray-900">{analytics.totalStorage}</div>
+                    <div className="text-gray-600 text-sm">Total Capacity</div>
                   </div>
-                  <div className="bg-golden/10 rounded-lg p-3 text-center">
-                    <div className="text-lg font-bold text-golden">{analytics.uptime}</div>
-                    <div className="text-gray-300 text-sm">Uptime</div>
+                  <div className="bg-golden/20 rounded-lg p-3 text-center border border-golden/30">
+                    <div className="text-lg font-bold text-gray-900">{analytics.uptime}</div>
+                    <div className="text-gray-600 text-sm">Uptime</div>
                   </div>
-                  <div className="bg-golden/10 rounded-lg p-3 text-center">
-                    <div className="text-lg font-bold text-golden">{analytics.totalFiles}</div>
-                    <div className="text-gray-300 text-sm">Total Files</div>
+                  <div className="bg-golden/20 rounded-lg p-3 text-center border border-golden/30">
+                    <div className="text-lg font-bold text-gray-900">{analytics.totalFiles}</div>
+                    <div className="text-gray-600 text-sm">Total Files</div>
                   </div>
-                  <div className="bg-golden/10 rounded-lg p-3 text-center">
-                    <div className="text-lg font-bold text-golden">{analytics.activeConnections}</div>
-                    <div className="text-gray-300 text-sm">Connections</div>
+                  <div className="bg-golden/20 rounded-lg p-3 text-center border border-golden/30">
+                    <div className="text-lg font-bold text-gray-900">{analytics.activeConnections}</div>
+                    <div className="text-gray-600 text-sm">Connections</div>
                   </div>
                 </div>
                 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <div className="text-gray-300 text-sm mb-1">Data Integrity</div>
-                    <div className="text-green-400 font-semibold">{analytics.dataIntegrity}</div>
+                    <div className="text-gray-600 text-sm mb-1">Data Integrity</div>
+                    <div className="text-green-600 font-semibold">{analytics.dataIntegrity}</div>
                   </div>
                   <div>
-                    <div className="text-gray-300 text-sm mb-1">Network Latency</div>
-                    <div className="text-blue-400 font-semibold">{analytics.networkLatency}</div>
+                    <div className="text-gray-600 text-sm mb-1">Network Latency</div>
+                    <div className="text-blue-600 font-semibold">{analytics.networkLatency}</div>
                   </div>
                 </div>
               </div>
@@ -435,14 +435,14 @@ export default function DeNetStoragePage() {
         </div>
 
         {/* Files List */}
-        <div className="mt-8 bg-black/20 backdrop-blur-sm rounded-xl p-6 border border-golden/20">
-          <h2 className="text-2xl font-semibold text-white mb-4 flex items-center">
+        <div className="mt-8 bg-white rounded-xl p-6 border-2 border-gray-200 shadow-sm">
+          <h2 className="text-2xl font-semibold text-gray-900 mb-4 flex items-center">
             <DocumentIcon className="w-6 h-6 text-golden mr-2" />
             Stored Files ({files.length})
           </h2>
           
           {files.length === 0 ? (
-            <div className="text-center py-8 text-gray-400">
+            <div className="text-center py-8 text-gray-500">
               <DocumentIcon className="w-16 h-16 mx-auto mb-4 opacity-50" />
               <p>No files uploaded yet</p>
             </div>
@@ -450,33 +450,33 @@ export default function DeNetStoragePage() {
             <div className="overflow-x-auto">
               <table className="w-full text-left">
                 <thead>
-                  <tr className="border-b border-golden/20">
-                    <th className="pb-2 text-gray-300">Name</th>
-                    <th className="pb-2 text-gray-300">Size</th>
-                    <th className="pb-2 text-gray-300">Uploaded</th>
-                    <th className="pb-2 text-gray-300">Hash</th>
-                    <th className="pb-2 text-gray-300">Actions</th>
+                  <tr className="border-b border-gray-300">
+                    <th className="pb-2 text-gray-700 font-semibold">Name</th>
+                    <th className="pb-2 text-gray-700 font-semibold">Size</th>
+                    <th className="pb-2 text-gray-700 font-semibold">Uploaded</th>
+                    <th className="pb-2 text-gray-700 font-semibold">Hash</th>
+                    <th className="pb-2 text-gray-700 font-semibold">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
                   {files.map((file) => (
-                    <tr key={file.id} className="border-b border-gray-700/50">
-                      <td className="py-3 text-white">{file.name}</td>
-                      <td className="py-3 text-gray-300">{file.size}</td>
-                      <td className="py-3 text-gray-300">{file.uploaded}</td>
-                      <td className="py-3 text-gray-300 font-mono text-xs">{file.hash}</td>
+                    <tr key={file.id} className="border-b border-gray-200">
+                      <td className="py-3 text-gray-900">{file.name}</td>
+                      <td className="py-3 text-gray-600">{file.size}</td>
+                      <td className="py-3 text-gray-600">{file.uploaded}</td>
+                      <td className="py-3 text-gray-600 font-mono text-xs">{file.hash}</td>
                       <td className="py-3">
                         <div className="flex space-x-2">
                           <button
                             onClick={() => downloadFile(file.id, file.name)}
-                            className="p-2 text-blue-400 hover:text-blue-300 transition-colors"
+                            className="p-2 text-blue-600 hover:text-blue-500 transition-colors"
                             title="Download"
                           >
                             <DownloadIcon className="w-4 h-4" />
                           </button>
                           <button
                             onClick={() => deleteFile(file.id)}
-                            className="p-2 text-red-400 hover:text-red-300 transition-colors"
+                            className="p-2 text-red-600 hover:text-red-500 transition-colors"
                             title="Delete"
                           >
                             <TrashIcon className="w-4 h-4" />
@@ -497,12 +497,12 @@ export default function DeNetStoragePage() {
         {activeTab === 'instructions' && (
           <div className="space-y-8">
             {/* What is DeNet Storage */}
-            <div className="bg-black/20 backdrop-blur-sm rounded-xl p-6 border border-golden/20">
-              <h2 className="text-2xl font-semibold text-white mb-4 flex items-center">
+            <div className="bg-white rounded-xl p-6 border-2 border-gray-200 shadow-sm">
+              <h2 className="text-2xl font-semibold text-gray-900 mb-4 flex items-center">
                 <InformationCircleIcon className="w-6 h-6 text-golden mr-2" />
                 What is DeNet Storage?
               </h2>
-              <div className="text-gray-300 space-y-4">
+              <div className="text-gray-700 space-y-4">
                 <p>
                   DeNet is a decentralized storage protocol that allows you to store files across a network of distributed nodes. 
                   Unlike traditional cloud storage, your files are encrypted, fragmented, and distributed across multiple nodes, 
@@ -512,26 +512,26 @@ export default function DeNetStoragePage() {
                 <div className="grid md:grid-cols-3 gap-4 mt-6">
                   <div className="bg-blue-500/10 rounded-lg p-4 text-center">
                     <ShieldCheckIcon className="w-8 h-8 text-blue-400 mx-auto mb-2" />
-                    <h3 className="text-white font-semibold mb-1">Secure & Private</h3>
-                    <p className="text-gray-400 text-sm">End-to-end encryption with zero-knowledge architecture</p>
+                    <h3 className="text-gray-900 font-semibold mb-1">Secure & Private</h3>
+                    <p className="text-gray-500 text-sm">End-to-end encryption with zero-knowledge architecture</p>
                   </div>
                   <div className="bg-green-500/10 rounded-lg p-4 text-center">
                     <GlobeIcon className="w-8 h-8 text-green-400 mx-auto mb-2" />
-                    <h3 className="text-white font-semibold mb-1">Decentralized</h3>
-                    <p className="text-gray-400 text-sm">No single point of failure, distributed globally</p>
+                    <h3 className="text-gray-900 font-semibold mb-1">Decentralized</h3>
+                    <p className="text-gray-500 text-sm">No single point of failure, distributed globally</p>
                   </div>
                   <div className="bg-purple-500/10 rounded-lg p-4 text-center">
                     <CurrencyDollarIcon className="w-8 h-8 text-purple-400 mx-auto mb-2" />
-                    <h3 className="text-white font-semibold mb-1">Earn Rewards</h3>
-                    <p className="text-gray-400 text-sm">Get paid for providing storage to the network</p>
+                    <h3 className="text-gray-900 font-semibold mb-1">Earn Rewards</h3>
+                    <p className="text-gray-500 text-sm">Get paid for providing storage to the network</p>
                   </div>
                 </div>
               </div>
             </div>
 
             {/* Getting Started Guide */}
-            <div className="bg-black/20 backdrop-blur-sm rounded-xl p-6 border border-golden/20">
-              <h2 className="text-2xl font-semibold text-white mb-4 flex items-center">
+            <div className="bg-white rounded-xl p-6 border-2 border-gray-200 shadow-sm">
+              <h2 className="text-2xl font-semibold text-gray-900 mb-4 flex items-center">
                 <LightningBoltIcon className="w-6 h-6 text-golden mr-2" />
                 Getting Started Guide
               </h2>
@@ -541,9 +541,9 @@ export default function DeNetStoragePage() {
                 <div className="border-l-4 border-golden/50 pl-6">
                   <div className="flex items-center mb-2">
                     <div className="bg-golden text-black rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold mr-3">1</div>
-                    <h3 className="text-white font-semibold">Start Your Storage Node</h3>
+                    <h3 className="text-gray-900 font-semibold">Start Your Storage Node</h3>
                   </div>
-                  <p className="text-gray-300 mb-2">
+                  <p className="text-gray-700 mb-2">
                     Click the "Start Node" button to begin running your DeNet storage node. This will make your allocated storage space available to the network.
                   </p>
                   <div className="bg-yellow-500/10 rounded-lg p-3 border border-yellow-500/20">
@@ -557,12 +557,12 @@ export default function DeNetStoragePage() {
                 <div className="border-l-4 border-golden/50 pl-6">
                   <div className="flex items-center mb-2">
                     <div className="bg-golden text-black rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold mr-3">2</div>
-                    <h3 className="text-white font-semibold">Upload Files</h3>
+                    <h3 className="text-gray-900 font-semibold">Upload Files</h3>
                   </div>
-                  <p className="text-gray-300 mb-2">
+                  <p className="text-gray-700 mb-2">
                     Use the file upload section to store your files on the DeNet network. Files are automatically encrypted and distributed across multiple nodes.
                   </p>
-                  <ul className="text-gray-400 text-sm space-y-1 ml-4">
+                  <ul className="text-gray-500 text-sm space-y-1 ml-4">
                     <li>• Maximum file size: 100MB per file</li>
                     <li>• Supported formats: All file types</li>
                     <li>• Files are automatically backed up across 3+ nodes</li>
@@ -573,9 +573,9 @@ export default function DeNetStoragePage() {
                 <div className="border-l-4 border-golden/50 pl-6">
                   <div className="flex items-center mb-2">
                     <div className="bg-golden text-black rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold mr-3">3</div>
-                    <h3 className="text-white font-semibold">Monitor & Manage</h3>
+                    <h3 className="text-gray-900 font-semibold">Monitor & Manage</h3>
                   </div>
-                  <p className="text-gray-300 mb-2">
+                  <p className="text-gray-700 mb-2">
                     Track your node's performance, earnings, and storage usage through the analytics dashboard. Download or delete files as needed.
                   </p>
                   <div className="bg-green-500/10 rounded-lg p-3 border border-green-500/20">
@@ -589,12 +589,12 @@ export default function DeNetStoragePage() {
                 <div className="border-l-4 border-golden/50 pl-6">
                   <div className="flex items-center mb-2">
                     <div className="bg-golden text-black rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold mr-3">4</div>
-                    <h3 className="text-white font-semibold">Earn Rewards</h3>
+                    <h3 className="text-gray-900 font-semibold">Earn Rewards</h3>
                   </div>
-                  <p className="text-gray-300 mb-2">
+                  <p className="text-gray-700 mb-2">
                     As your node provides storage services to the network, you'll earn DE tokens. Rewards are calculated based on:
                   </p>
-                  <ul className="text-gray-400 text-sm space-y-1 ml-4">
+                  <ul className="text-gray-500 text-sm space-y-1 ml-4">
                     <li>• Amount of storage provided</li>
                     <li>• Node uptime and reliability</li>
                     <li>• Network demand for storage</li>
@@ -605,12 +605,12 @@ export default function DeNetStoragePage() {
             </div>
 
             {/* Best Practices */}
-            <div className="bg-black/20 backdrop-blur-sm rounded-xl p-6 border border-golden/20">
-              <h2 className="text-2xl font-semibold text-white mb-4">Best Practices</h2>
+            <div className="bg-white rounded-xl p-6 border-2 border-gray-200 shadow-sm">
+              <h2 className="text-2xl font-semibold text-gray-900 mb-4">Best Practices</h2>
               <div className="grid md:grid-cols-2 gap-6">
                 <div>
-                  <h3 className="text-white font-semibold mb-3 text-green-400">✅ Do's</h3>
-                  <ul className="text-gray-300 space-y-2 text-sm">
+                  <h3 className="text-gray-900 font-semibold mb-3 text-green-400">✅ Do's</h3>
+                  <ul className="text-gray-700 space-y-2 text-sm">
                     <li>• Keep your node running continuously</li>
                     <li>• Maintain stable internet connection</li>
                     <li>• Monitor storage usage regularly</li>
@@ -619,8 +619,8 @@ export default function DeNetStoragePage() {
                   </ul>
                 </div>
                 <div>
-                  <h3 className="text-white font-semibold mb-3 text-red-400">❌ Don'ts</h3>
-                  <ul className="text-gray-300 space-y-2 text-sm">
+                  <h3 className="text-gray-900 font-semibold mb-3 text-red-400">❌ Don'ts</h3>
+                  <ul className="text-gray-700 space-y-2 text-sm">
                     <li>• Don't store illegal or copyrighted content</li>
                     <li>• Don't frequently start/stop your node</li>
                     <li>• Don't exceed your allocated storage</li>
@@ -636,8 +636,8 @@ export default function DeNetStoragePage() {
         {/* FAQ Tab */}
         {activeTab === 'faq' && (
           <div className="space-y-6">
-            <div className="bg-black/20 backdrop-blur-sm rounded-xl p-6 border border-golden/20">
-              <h2 className="text-2xl font-semibold text-white mb-6 flex items-center">
+            <div className="bg-white rounded-xl p-6 border-2 border-gray-200 shadow-sm">
+              <h2 className="text-2xl font-semibold text-gray-900 mb-6 flex items-center">
                 <QuestionMarkCircleIcon className="w-6 h-6 text-golden mr-2" />
                 Frequently Asked Questions
               </h2>
@@ -685,19 +685,19 @@ export default function DeNetStoragePage() {
                     answer: "Yes, you can stop your node anytime through the control panel. However, frequent interruptions will lower your reliability score and reduce potential earnings. For maintenance, it's better to schedule brief, infrequent downtime rather than frequent starts and stops."
                   }
                 ].map((faq, index) => (
-                  <div key={index} className="border border-golden/20 rounded-lg overflow-hidden">
+                  <div key={index} className="border-2 border-gray-200 shadow-sm rounded-lg overflow-hidden">
                     <button
                       onClick={() => setShowFAQ(showFAQ === index ? -1 : index)}
                       className="w-full text-left p-4 bg-black/10 hover:bg-black/20 transition-colors flex justify-between items-center"
                     >
-                      <h3 className="text-white font-semibold pr-4">{faq.question}</h3>
+                      <h3 className="text-gray-900 font-semibold pr-4">{faq.question}</h3>
                       <span className="text-golden text-xl">
                         {showFAQ === index ? '−' : '+'}
                       </span>
                     </button>
                     {showFAQ === index && (
                       <div className="p-4 bg-black/5 border-t border-golden/10">
-                        <p className="text-gray-300 leading-relaxed">{faq.answer}</p>
+                        <p className="text-gray-700 leading-relaxed">{faq.answer}</p>
                       </div>
                     )}
                   </div>
@@ -706,12 +706,12 @@ export default function DeNetStoragePage() {
 
               {/* Contact Support */}
               <div className="mt-8 bg-gradient-to-r from-blue-500/10 to-purple-500/10 rounded-lg p-6 border border-blue-500/20">
-                <h3 className="text-white font-semibold mb-2">Need More Help?</h3>
-                <p className="text-gray-300 mb-4">
+                <h3 className="text-gray-900 font-semibold mb-2">Need More Help?</h3>
+                <p className="text-gray-700 mb-4">
                   Can't find the answer you're looking for? Our support team is here to help you with any DeNet storage questions.
                 </p>
                 <div className="flex flex-wrap gap-3">
-                  <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors">
+                  <button className="bg-blue-600 hover:bg-blue-700 text-gray-900 px-4 py-2 rounded-lg transition-colors">
                     Contact Support
                   </button>
                   <button className="bg-transparent border border-blue-500 hover:bg-blue-500/10 text-blue-300 px-4 py-2 rounded-lg transition-colors">

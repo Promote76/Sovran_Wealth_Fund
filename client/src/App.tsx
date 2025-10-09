@@ -419,6 +419,11 @@ function App() {
                         <Route path="/circles" element={<CirclesHub />} />
                         <Route path="/circles/create" element={<CreateCirclePage />} />
                         <Route path="/circles/:circleId" element={<CirclePage />} />
+                        <Route path="/denet-storage" element={
+                          <Layout themeColor="white" showWalletConnect={false}>
+                            <DeNetStoragePage />
+                          </Layout>
+                        } />
                         
                         {/* All other routes WITH single Layout wrapper */}
                         <Route path="/*" element={
@@ -442,7 +447,6 @@ function App() {
                               <Route path="/gold-certificates" element={<GoldCertificatesPage />} />
                               <Route path="/admin" element={<AdminDashboardPage />} />
                               <Route path="/liquidity-management" element={<LiquidityManagementPage />} />
-                              <Route path="/denet-storage" element={<DeNetStoragePage />} />
                               <Route path="/premium-courses" element={<PremiumCoursesPage />} />
                               <Route path="/learn-how-it-works" element={<LearnHowItWorksPage />} />
                               <Route path="/contact-us" element={<ContactUsPage />} />

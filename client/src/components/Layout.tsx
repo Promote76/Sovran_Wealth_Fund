@@ -66,28 +66,40 @@ const Layout: React.FC<LayoutProps> = ({
           primary: 'text-blue-400',
           border: 'border-blue-500/30',
           button: 'bg-blue-500 hover:bg-blue-400',
-          accent: 'text-blue-500'
+          accent: 'text-blue-500',
+          background: 'bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900'
         };
       case 'green':
         return {
           primary: 'text-green-400', 
           border: 'border-green-500/30',
           button: 'bg-green-500 hover:bg-green-400',
-          accent: 'text-green-500'
+          accent: 'text-green-500',
+          background: 'bg-gradient-to-br from-slate-900 via-green-900 to-slate-900'
         };
       case 'purple':
         return {
           primary: 'text-purple-400',
           border: 'border-purple-500/30', 
           button: 'bg-purple-500 hover:bg-purple-400',
-          accent: 'text-purple-500'
+          accent: 'text-purple-500',
+          background: 'bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900'
+        };
+      case 'white':
+        return {
+          primary: 'text-gray-900',
+          border: 'border-gray-300',
+          button: 'bg-golden hover:bg-golden/80 text-black',
+          accent: 'text-golden',
+          background: 'bg-white'
         };
       default: // yellow
         return {
           primary: 'text-yellow-500',
           border: 'border-yellow-500/30',
           button: 'bg-yellow-500 hover:bg-yellow-400 text-black',
-          accent: 'text-yellow-500'
+          accent: 'text-yellow-500',
+          background: 'bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900'
         };
     }
   };
@@ -230,7 +242,7 @@ const Layout: React.FC<LayoutProps> = ({
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-white via-blue-50 to-white">
+    <div className={`min-h-screen ${theme.background}`}>
       {/* Navigation */}
       <nav className="relative z-[1000] bg-white border-b-2 border-blue-300 shadow-lg p-4 pt-safe">
         <div className="container mx-auto flex justify-between items-center">
