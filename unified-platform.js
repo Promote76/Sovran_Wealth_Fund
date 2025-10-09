@@ -1813,6 +1813,604 @@ app.get('/api/accounts/overview', authenticateWallet, async (req, res) => {
 });
 
 // ============================================
+// INVESTMENT PLATFORM API ENDPOINTS
+// ============================================
+
+// Create investment account
+app.post('/api/investments/accounts', authenticateWallet, async (req, res) => {
+  try {
+    const { accountName, accountType } = req.body;
+    const walletAddress = req.walletAddress;
+
+    if (!accountName || !accountType) {
+      return res.status(400).json({ 
+        success: false, 
+        error: 'Account name and type are required' 
+      });
+    }
+
+    const validTypes = ['individual', 'traditional_ira', 'roth_ira', 'sep_ira', 'simple_ira'];
+    if (!validTypes.includes(accountType)) {
+      return res.status(400).json({ 
+        success: false, 
+        error: `Invalid account type. Must be one of: ${validTypes.join(', ')}` 
+      });
+    }
+
+    const accountNumber = `INV-${Date.now()}-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
+
+    const [newAccount] = await db.insert(investmentAccounts).values({
+      walletAddress,
+      accountName,
+      accountType,
+      accountNumber,
+      cashBalance: '0.00',
+      totalValue: '0.00',
+      status: 'active',
+      createdAt: new Date(),
+      updatedAt: new Date()
+    }).returning();
+
+    console.log(`✅ Investment account created: ${newAccount.id} - ${accountNumber} (${accountType}) for ${walletAddress}`);
+    
+    res.json({
+      success: true,
+      data: newAccount
+    });
+
+  } catch (error) {
+    console.error('❌ Error creating investment account:', error);
+    res.status(500).json({ 
+      success: false, 
+      error: 'Failed to create investment account', 
+      details: error.message 
+    });
+  }
+});
+
+// Get all investment accounts for a wallet
+app.get('/api/investments/accounts', authenticateWallet, async (req, res) => {
+  try {
+    const walletAddress = req.walletAddress;
+    
+    const accounts = await db.select()
+      .from(investmentAccounts)
+      .where(eq(investmentAccounts.walletAddress, walletAddress))
+      .orderBy(investmentAccounts.createdAt);
+
+    const accountsWithPositions = await Promise.all(accounts.map(async (account) => {
+      const accountPositions = await db.select()
+        .from(positions)
+        .where(eq(positions.accountId, account.id));
+      
+      return {
+        ...account,
+        positionCount: accountPositions.length,
+        totalPositionValue: accountPositions.reduce((sum, p) => 
+          sum + parseFloat(p.marketValue || 0), 0
+        ).toFixed(2)
+      };
+    }));
+
+    res.json({
+      success: true,
+      data: accountsWithPositions
+    });
+
+  } catch (error) {
+    console.error('❌ Error fetching investment accounts:', error);
+    res.status(500).json({ 
+      success: false, 
+      error: 'Failed to fetch investment accounts', 
+      details: error.message 
+    });
+  }
+});
+
+// Fund investment account from checking/savings
+app.post('/api/investments/accounts/:accountId/deposit', authenticateWallet, async (req, res) => {
+  const client = await pool.connect();
+  
+  try {
+    const { accountId } = req.params;
+    const { amount, sourceType, sourceAccountId } = req.body;
+    const walletAddress = req.walletAddress;
+
+    if (!amount || !sourceType || !sourceAccountId) {
+      return res.status(400).json({ 
+        success: false, 
+        error: 'Amount, source type, and source account ID are required' 
+      });
+    }
+
+    if (!['checking', 'savings'].includes(sourceType)) {
+      return res.status(400).json({ 
+        success: false, 
+        error: 'Source type must be checking or savings' 
+      });
+    }
+
+    const depositAmount = new Decimal(amount);
+    
+    if (depositAmount.lte(0)) {
+      return res.status(400).json({ 
+        success: false, 
+        error: 'Deposit amount must be greater than 0' 
+      });
+    }
+
+    await client.query('BEGIN');
+
+    const invAccountResult = await client.query(
+      'SELECT * FROM investment_accounts WHERE id = $1 AND wallet_address = $2 FOR UPDATE',
+      [accountId, walletAddress]
+    );
+
+    if (invAccountResult.rows.length === 0) {
+      await client.query('ROLLBACK');
+      return res.status(404).json({ 
+        success: false, 
+        error: 'Investment account not found' 
+      });
+    }
+
+    const invAccount = invAccountResult.rows[0];
+    
+    if (invAccount.status !== 'active') {
+      await client.query('ROLLBACK');
+      return res.status(400).json({ 
+        success: false, 
+        error: 'Investment account is not active' 
+      });
+    }
+
+    let sourceAccount;
+    if (sourceType === 'checking') {
+      const checkingResult = await client.query(
+        'SELECT * FROM checking_accounts WHERE id = $1 AND wallet_address = $2 FOR UPDATE',
+        [sourceAccountId, walletAddress]
+      );
+      
+      if (checkingResult.rows.length === 0) {
+        await client.query('ROLLBACK');
+        return res.status(404).json({ 
+          success: false, 
+          error: 'Checking account not found' 
+        });
+      }
+      sourceAccount = checkingResult.rows[0];
+      
+      const availableBalance = new Decimal(sourceAccount.available_balance || 0);
+      
+      if (availableBalance.lt(depositAmount)) {
+        await client.query('ROLLBACK');
+        return res.status(400).json({ 
+          success: false, 
+          error: 'Insufficient funds in checking account' 
+        });
+      }
+
+      const newLedgerBalance = new Decimal(sourceAccount.ledger_balance).minus(depositAmount);
+      const newAvailableBalance = availableBalance.minus(depositAmount);
+
+      await client.query(
+        `UPDATE checking_accounts 
+         SET ledger_balance = $1, available_balance = $2, updated_at = NOW()
+         WHERE id = $3 AND available_balance = $4`,
+        [newLedgerBalance.toString(), newAvailableBalance.toString(), sourceAccountId, sourceAccount.available_balance]
+      );
+
+      await client.query(
+        `INSERT INTO checking_transactions 
+         (account_id, transaction_type, amount, balance_after, description, status, created_at)
+         VALUES ($1, $2, $3, $4, $5, $6, NOW())`,
+        [
+          sourceAccountId,
+          'withdrawal',
+          depositAmount.neg().toString(),
+          newLedgerBalance.toString(),
+          `Transfer to investment account ${accountId}`,
+          'completed',
+        ]
+      );
+
+    } else {
+      const savingsResult = await client.query(
+        'SELECT * FROM savings_accounts WHERE id = $1 AND wallet_address = $2 FOR UPDATE',
+        [sourceAccountId, walletAddress]
+      );
+      
+      if (savingsResult.rows.length === 0) {
+        await client.query('ROLLBACK');
+        return res.status(404).json({ 
+          success: false, 
+          error: 'Savings account not found' 
+        });
+      }
+      sourceAccount = savingsResult.rows[0];
+      
+      const currentBalance = new Decimal(sourceAccount.balance || 0);
+      
+      if (currentBalance.lt(depositAmount)) {
+        await client.query('ROLLBACK');
+        return res.status(400).json({ 
+          success: false, 
+          error: 'Insufficient funds in savings account' 
+        });
+      }
+
+      const newBalance = currentBalance.minus(depositAmount);
+
+      await client.query(
+        `UPDATE savings_accounts 
+         SET balance = $1, updated_at = NOW()
+         WHERE id = $2 AND balance = $3`,
+        [newBalance.toString(), sourceAccountId, sourceAccount.balance]
+      );
+
+      await client.query(
+        `INSERT INTO savings_transactions 
+         (savings_account_id, tx_type, amount, balance_after, note)
+         VALUES ($1, $2, $3, $4, $5)`,
+        [
+          sourceAccountId,
+          'withdrawal',
+          depositAmount.neg().toString(),
+          newBalance.toString(),
+          `Transfer to investment account ${accountId}`
+        ]
+      );
+    }
+
+    const newCashBalance = new Decimal(invAccount.cash_balance).plus(depositAmount);
+    const newTotalValue = new Decimal(invAccount.total_value).plus(depositAmount);
+
+    await client.query(
+      `UPDATE investment_accounts 
+       SET cash_balance = $1, total_value = $2, updated_at = NOW()
+       WHERE id = $3 AND cash_balance = $4`,
+      [newCashBalance.toString(), newTotalValue.toString(), accountId, invAccount.cash_balance]
+    );
+
+    await client.query(
+      `INSERT INTO investment_ledger 
+       (account_id, type, amount, description)
+       VALUES ($1, $2, $3, $4)`,
+      [
+        accountId,
+        'CONTRIBUTION',
+        depositAmount.toString(),
+        `Deposit from ${sourceType} account ${sourceAccountId}`
+      ]
+    );
+
+    await client.query('COMMIT');
+
+    console.log(`✅ Investment account ${accountId} funded: $${depositAmount} from ${sourceType} ${sourceAccountId}`);
+
+    res.json({
+      success: true,
+      data: {
+        accountId,
+        newCashBalance: newCashBalance.toString(),
+        newTotalValue: newTotalValue.toString(),
+        depositAmount: depositAmount.toString()
+      }
+    });
+
+  } catch (error) {
+    await client.query('ROLLBACK');
+    console.error('❌ Error depositing to investment account:', error);
+    res.status(500).json({ 
+      success: false, 
+      error: 'Failed to deposit to investment account', 
+      details: error.message 
+    });
+  } finally {
+    client.release();
+  }
+});
+
+// Withdraw from investment account to checking/savings
+app.post('/api/investments/accounts/:accountId/withdraw', authenticateWallet, async (req, res) => {
+  const client = await pool.connect();
+  
+  try {
+    const { accountId } = req.params;
+    const { amount, destinationType, destinationAccountId } = req.body;
+    const walletAddress = req.walletAddress;
+
+    if (!amount || !destinationType || !destinationAccountId) {
+      return res.status(400).json({ 
+        success: false, 
+        error: 'Amount, destination type, and destination account ID are required' 
+      });
+    }
+
+    if (!['checking', 'savings'].includes(destinationType)) {
+      return res.status(400).json({ 
+        success: false, 
+        error: 'Destination type must be checking or savings' 
+      });
+    }
+
+    const withdrawAmount = new Decimal(amount);
+    
+    if (withdrawAmount.lte(0)) {
+      return res.status(400).json({ 
+        success: false, 
+        error: 'Withdrawal amount must be greater than 0' 
+      });
+    }
+
+    await client.query('BEGIN');
+
+    const invAccountResult = await client.query(
+      'SELECT * FROM investment_accounts WHERE id = $1 AND wallet_address = $2 FOR UPDATE',
+      [accountId, walletAddress]
+    );
+
+    if (invAccountResult.rows.length === 0) {
+      await client.query('ROLLBACK');
+      return res.status(404).json({ 
+        success: false, 
+        error: 'Investment account not found' 
+      });
+    }
+
+    const invAccount = invAccountResult.rows[0];
+    
+    if (invAccount.status !== 'active') {
+      await client.query('ROLLBACK');
+      return res.status(400).json({ 
+        success: false, 
+        error: 'Investment account is not active' 
+      });
+    }
+
+    const cashBalance = new Decimal(invAccount.cash_balance || 0);
+    
+    if (cashBalance.lt(withdrawAmount)) {
+      await client.query('ROLLBACK');
+      return res.status(400).json({ 
+        success: false, 
+        error: 'Insufficient cash balance in investment account' 
+      });
+    }
+
+    let destinationAccount;
+    if (destinationType === 'checking') {
+      const checkingResult = await client.query(
+        'SELECT * FROM checking_accounts WHERE id = $1 AND wallet_address = $2 FOR UPDATE',
+        [destinationAccountId, walletAddress]
+      );
+      
+      if (checkingResult.rows.length === 0) {
+        await client.query('ROLLBACK');
+        return res.status(404).json({ 
+          success: false, 
+          error: 'Checking account not found' 
+        });
+      }
+      destinationAccount = checkingResult.rows[0];
+
+      const newLedgerBalance = new Decimal(destinationAccount.ledger_balance).plus(withdrawAmount);
+      const newAvailableBalance = new Decimal(destinationAccount.available_balance).plus(withdrawAmount);
+
+      await client.query(
+        `UPDATE checking_accounts 
+         SET ledger_balance = $1, available_balance = $2, updated_at = NOW()
+         WHERE id = $3`,
+        [newLedgerBalance.toString(), newAvailableBalance.toString(), destinationAccountId]
+      );
+
+      await client.query(
+        `INSERT INTO checking_transactions 
+         (account_id, transaction_type, amount, balance_after, description, status, created_at)
+         VALUES ($1, $2, $3, $4, $5, $6, NOW())`,
+        [
+          destinationAccountId,
+          'deposit',
+          withdrawAmount.toString(),
+          newLedgerBalance.toString(),
+          `Transfer from investment account ${accountId}`,
+          'completed',
+        ]
+      );
+
+    } else {
+      const savingsResult = await client.query(
+        'SELECT * FROM savings_accounts WHERE id = $1 AND wallet_address = $2 FOR UPDATE',
+        [destinationAccountId, walletAddress]
+      );
+      
+      if (savingsResult.rows.length === 0) {
+        await client.query('ROLLBACK');
+        return res.status(404).json({ 
+          success: false, 
+          error: 'Savings account not found' 
+        });
+      }
+      destinationAccount = savingsResult.rows[0];
+
+      const newBalance = new Decimal(destinationAccount.balance).plus(withdrawAmount);
+
+      await client.query(
+        `UPDATE savings_accounts 
+         SET balance = $1, updated_at = NOW()
+         WHERE id = $2`,
+        [newBalance.toString(), destinationAccountId]
+      );
+
+      await client.query(
+        `INSERT INTO savings_transactions 
+         (savings_account_id, tx_type, amount, balance_after, note)
+         VALUES ($1, $2, $3, $4, $5)`,
+        [
+          destinationAccountId,
+          'deposit',
+          withdrawAmount.toString(),
+          newBalance.toString(),
+          `Transfer from investment account ${accountId}`
+        ]
+      );
+    }
+
+    const newCashBalance = cashBalance.minus(withdrawAmount);
+    const newTotalValue = new Decimal(invAccount.total_value).minus(withdrawAmount);
+
+    await client.query(
+      `UPDATE investment_accounts 
+       SET cash_balance = $1, total_value = $2, updated_at = NOW()
+       WHERE id = $3 AND cash_balance = $4`,
+      [newCashBalance.toString(), newTotalValue.toString(), accountId, invAccount.cash_balance]
+    );
+
+    await client.query(
+      `INSERT INTO investment_ledger 
+       (account_id, type, amount, description)
+       VALUES ($1, $2, $3, $4)`,
+      [
+        accountId,
+        'WITHDRAWAL',
+        withdrawAmount.neg().toString(),
+        `Withdrawal to ${destinationType} account ${destinationAccountId}`
+      ]
+    );
+
+    await client.query('COMMIT');
+
+    console.log(`✅ Investment account ${accountId} withdrawal: $${withdrawAmount} to ${destinationType} ${destinationAccountId}`);
+
+    res.json({
+      success: true,
+      data: {
+        accountId,
+        newCashBalance: newCashBalance.toString(),
+        newTotalValue: newTotalValue.toString(),
+        withdrawAmount: withdrawAmount.toString()
+      }
+    });
+
+  } catch (error) {
+    await client.query('ROLLBACK');
+    console.error('❌ Error withdrawing from investment account:', error);
+    res.status(500).json({ 
+      success: false, 
+      error: 'Failed to withdraw from investment account', 
+      details: error.message 
+    });
+  } finally {
+    client.release();
+  }
+});
+
+// Get investment account details with positions
+app.get('/api/investments/accounts/:accountId', authenticateWallet, async (req, res) => {
+  try {
+    const { accountId } = req.params;
+    const walletAddress = req.walletAddress;
+    
+    const [account] = await db.select()
+      .from(investmentAccounts)
+      .where(
+        and(
+          eq(investmentAccounts.id, accountId),
+          eq(investmentAccounts.walletAddress, walletAddress)
+        )
+      );
+
+    if (!account) {
+      return res.status(404).json({ 
+        success: false, 
+        error: 'Investment account not found' 
+      });
+    }
+
+    const accountPositions = await db.select()
+      .from(positions)
+      .where(eq(positions.accountId, accountId))
+      .orderBy(positions.updatedAt);
+
+    const ledger = await db.select()
+      .from(investmentLedger)
+      .where(eq(investmentLedger.accountId, accountId))
+      .orderBy(desc(investmentLedger.timestamp))
+      .limit(50);
+
+    res.json({
+      success: true,
+      data: {
+        account,
+        positions: accountPositions,
+        ledger,
+        summary: {
+          totalPositions: accountPositions.length,
+          totalPositionValue: accountPositions.reduce((sum, p) => 
+            sum + parseFloat(p.marketValue || 0), 0
+          ).toFixed(2),
+          cashBalance: account.cashBalance,
+          totalValue: account.totalValue
+        }
+      }
+    });
+
+  } catch (error) {
+    console.error('❌ Error fetching investment account details:', error);
+    res.status(500).json({ 
+      success: false, 
+      error: 'Failed to fetch investment account details', 
+      details: error.message 
+    });
+  }
+});
+
+// Get investment ledger with pagination
+app.get('/api/investments/accounts/:accountId/ledger', authenticateWallet, async (req, res) => {
+  try {
+    const { accountId } = req.params;
+    const { limit = 50, offset = 0 } = req.query;
+    const walletAddress = req.walletAddress;
+
+    const [account] = await db.select()
+      .from(investmentAccounts)
+      .where(
+        and(
+          eq(investmentAccounts.id, accountId),
+          eq(investmentAccounts.walletAddress, walletAddress)
+        )
+      );
+
+    if (!account) {
+      return res.status(404).json({ 
+        success: false, 
+        error: 'Investment account not found' 
+      });
+    }
+
+    const ledger = await db.select()
+      .from(investmentLedger)
+      .where(eq(investmentLedger.accountId, accountId))
+      .orderBy(desc(investmentLedger.timestamp))
+      .limit(parseInt(limit))
+      .offset(parseInt(offset));
+
+    res.json({
+      success: true,
+      data: ledger
+    });
+
+  } catch (error) {
+    console.error('❌ Error fetching investment ledger:', error);
+    res.status(500).json({ 
+      success: false, 
+      error: 'Failed to fetch investment ledger', 
+      details: error.message 
+    });
+  }
+});
+
+// ============================================
 // DENET STORAGE API ENDPOINTS
 // ============================================
 

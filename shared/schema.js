@@ -147,8 +147,11 @@ const investmentAccounts = pgTable('investment_accounts', {
   id: serial('id').primaryKey(),
   userId: integer('user_id'),
   walletAddress: varchar('wallet_address', { length: 42 }).notNull(),
+  accountName: varchar('account_name', { length: 100 }),
   accountType: varchar('account_type', { length: 20 }).notNull(), // crypto, etf, retirement, reit, bonds, commodities, index, options
   accountNumber: varchar('account_number', { length: 20 }).notNull().unique(),
+  cashBalance: decimal('cash_balance', { precision: 20, scale: 8 }).default('0').notNull(),
+  totalValue: decimal('total_value', { precision: 20, scale: 8 }).default('0').notNull(),
   baseCurrency: varchar('base_currency', { length: 10 }).default('USD'),
   status: varchar('status', { length: 20 }).default('active').notNull(),
   metadata: jsonb('metadata'),
