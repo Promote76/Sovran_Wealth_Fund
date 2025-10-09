@@ -2414,67 +2414,78 @@ app.get('/api/investments/accounts/:accountId/ledger', authenticateWallet, async
 // DENET STORAGE API ENDPOINTS
 // ============================================
 
+// DeNet storage node state management
+let deNetNodeState = {
+  running: false,
+  startTime: null,
+  storageUsed: '0 GB',
+  storageAvailable: '200 GB',
+  activeTransactions: 0,
+  totalEarnings: '0 DE',
+  totalFiles: 0
+};
+
+let deNetFiles = [];
+
 // DeNet storage node status
 app.get('/api/denet/status', (req, res) => {
+  const uptime = deNetNodeState.running && deNetNodeState.startTime 
+    ? Math.floor((Date.now() - deNetNodeState.startTime) / (1000 * 60 * 60)) 
+    : 0;
+
   res.json({
-    running: true,
-    uptime: 127,
-    storageUsed: '45.3 GB',
-    storageAvailable: '154.7 GB',
-    activeTransactions: 23,
-    totalEarnings: '1,247.89 DE',
+    running: deNetNodeState.running,
+    uptime: uptime,
+    storageUsed: deNetNodeState.storageUsed,
+    storageAvailable: deNetNodeState.storageAvailable,
+    activeTransactions: deNetNodeState.activeTransactions,
+    totalEarnings: deNetNodeState.totalEarnings,
     lastSync: new Date().toISOString(),
-    totalFiles: 342
+    totalFiles: deNetFiles.length
   });
 });
 
 // Get DeNet files list
 app.get('/api/denet/files', (req, res) => {
-  res.json([
-    {
-      id: 'file_1',
-      name: 'SWF_Financial_Report_Q3_2025.pdf',
-      size: '2.4 MB',
-      uploaded: '2025-10-01',
-      mimetype: 'application/pdf',
-      hash: '0x8f4a3b2e1d9c5f6a7b8c9d0e1f2a3b4c'
-    },
-    {
-      id: 'file_2',
-      name: 'Community_Governance_Proposal.docx',
-      size: '1.1 MB',
-      uploaded: '2025-10-05',
-      mimetype: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-      hash: '0x1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d'
-    },
-    {
-      id: 'file_3',
-      name: 'Indigenous_Economic_Data.xlsx',
-      size: '3.8 MB',
-      uploaded: '2025-10-08',
-      mimetype: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-      hash: '0x9e8d7c6b5a4f3e2d1c0b9a8f7e6d5c4b'
-    }
-  ]);
+  res.json(deNetFiles);
 });
 
 // Get DeNet storage analytics
 app.get('/api/denet/analytics', (req, res) => {
+  const uptime = deNetNodeState.running && deNetNodeState.startTime 
+    ? Math.floor((Date.now() - deNetNodeState.startTime) / (1000 * 60 * 60)) 
+    : 0;
+  
+  const uptimePercentage = deNetNodeState.running ? '99.8%' : '0%';
+
   res.json({
     totalStorage: '200 GB',
-    usedStorage: '45.3 GB',
-    availableStorage: '154.7 GB',
-    totalFiles: 342,
-    totalEarnings: '1,247.89 DE',
-    uptime: '99.8%',
-    activeConnections: 47,
+    usedStorage: deNetNodeState.storageUsed,
+    availableStorage: deNetNodeState.storageAvailable,
+    totalFiles: deNetFiles.length,
+    totalEarnings: deNetNodeState.totalEarnings,
+    uptime: uptimePercentage,
+    activeConnections: deNetNodeState.running ? 47 : 0,
     dataIntegrity: '100%',
-    networkLatency: '12ms'
+    networkLatency: deNetNodeState.running ? '12ms' : 'N/A'
   });
 });
 
 // Start DeNet storage node
 app.post('/api/denet/start', (req, res) => {
+  if (deNetNodeState.running) {
+    return res.json({
+      success: false,
+      error: 'Node is already running'
+    });
+  }
+
+  deNetNodeState.running = true;
+  deNetNodeState.startTime = Date.now();
+  deNetNodeState.activeTransactions = Math.floor(Math.random() * 50);
+
+  console.log('✅ DeNet storage node started');
+
   res.json({
     success: true,
     message: 'DeNet storage node started successfully',
@@ -2487,6 +2498,19 @@ app.post('/api/denet/start', (req, res) => {
 
 // Stop DeNet storage node
 app.post('/api/denet/stop', (req, res) => {
+  if (!deNetNodeState.running) {
+    return res.json({
+      success: false,
+      error: 'Node is not running'
+    });
+  }
+
+  deNetNodeState.running = false;
+  deNetNodeState.startTime = null;
+  deNetNodeState.activeTransactions = 0;
+
+  console.log('⏸️ DeNet storage node stopped');
+
   res.json({
     success: true,
     message: 'DeNet storage node stopped',
@@ -2497,29 +2521,94 @@ app.post('/api/denet/stop', (req, res) => {
   });
 });
 
-// Upload files to DeNet storage
-app.post('/api/denet/upload', (req, res) => {
-  // Note: In production, this would handle actual file uploads using multer or similar
-  res.json({
-    success: true,
-    message: 'Files uploaded successfully to DeNet storage',
-    files: [
-      {
-        id: `file_${Date.now()}`,
-        name: 'uploaded_file.pdf',
-        size: '1.5 MB',
-        hash: `0x${Math.random().toString(16).substr(2, 32)}`
-      }
-    ]
-  });
+// Upload files to DeNet storage (with multer support)
+const multer = require('multer');
+const upload = multer({ 
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 100 * 1024 * 1024 } // 100MB limit
+});
+
+app.post('/api/denet/upload', upload.array('files', 10), (req, res) => {
+  try {
+    if (!req.files || req.files.length === 0) {
+      return res.status(400).json({
+        success: false,
+        error: 'No files uploaded'
+      });
+    }
+
+    const uploadedFiles = req.files.map(file => {
+      const fileId = `file_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      const fileSize = (file.size / (1024 * 1024)).toFixed(2) + ' MB';
+      const fileHash = `0x${Math.random().toString(16).substr(2, 32)}`;
+
+      const fileRecord = {
+        id: fileId,
+        name: file.originalname,
+        size: fileSize,
+        uploaded: new Date().toISOString().split('T')[0],
+        mimetype: file.mimetype,
+        hash: fileHash
+      };
+
+      deNetFiles.push(fileRecord);
+      return fileRecord;
+    });
+
+    // Update storage metrics
+    const totalSizeMB = req.files.reduce((sum, f) => sum + f.size, 0) / (1024 * 1024);
+    const currentUsed = parseFloat(deNetNodeState.storageUsed) || 0;
+    deNetNodeState.storageUsed = (currentUsed + totalSizeMB).toFixed(1) + ' GB';
+    
+    const available = 200 - parseFloat(deNetNodeState.storageUsed);
+    deNetNodeState.storageAvailable = available.toFixed(1) + ' GB';
+
+    console.log(`✅ Uploaded ${uploadedFiles.length} file(s) to DeNet storage`);
+
+    res.json({
+      success: true,
+      message: `Files uploaded successfully to DeNet storage`,
+      files: uploadedFiles
+    });
+
+  } catch (error) {
+    console.error('❌ DeNet upload error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Upload failed',
+      details: error.message
+    });
+  }
 });
 
 // Delete file from DeNet storage
 app.delete('/api/denet/files/:fileId', (req, res) => {
   const { fileId } = req.params;
+  
+  const fileIndex = deNetFiles.findIndex(f => f.id === fileId);
+  
+  if (fileIndex === -1) {
+    return res.status(404).json({
+      success: false,
+      error: 'File not found'
+    });
+  }
+
+  const deletedFile = deNetFiles.splice(fileIndex, 1)[0];
+  
+  // Update storage metrics
+  const fileSizeMB = parseFloat(deletedFile.size) || 0;
+  const currentUsed = parseFloat(deNetNodeState.storageUsed) || 0;
+  deNetNodeState.storageUsed = Math.max(0, currentUsed - fileSizeMB).toFixed(1) + ' GB';
+  
+  const available = 200 - parseFloat(deNetNodeState.storageUsed);
+  deNetNodeState.storageAvailable = available.toFixed(1) + ' GB';
+
+  console.log(`🗑️ Deleted file ${deletedFile.name} from DeNet storage`);
+
   res.json({
     success: true,
-    message: `File ${fileId} deleted from DeNet storage`
+    message: `File ${deletedFile.name} deleted from DeNet storage`
   });
 });
 
