@@ -77,21 +77,62 @@ class InvestmentService {
         throw new Error('Account is not active');
       }
       
+      // Get current market price
+      const quoteResponse = await marketDataService.getQuote(symbol);
+      const quoteData = quoteResponse.data || quoteResponse;
+      if (!quoteData || !quoteData.price) {
+        throw new Error(`Failed to get price for ${symbol}`);
+      }
+      const currentMarketPrice = new Decimal(quoteData.price);
+      
       let executionPrice;
+      let shouldExecuteNow = true;
+      
       if (orderType === 'MARKET') {
-        const quoteResponse = await marketDataService.getQuote(symbol);
-        const quoteData = quoteResponse.data || quoteResponse;
-        if (!quoteData || !quoteData.price) {
-          throw new Error(`Failed to get price for ${symbol}`);
-        }
-        executionPrice = new Decimal(quoteData.price);
+        executionPrice = currentMarketPrice;
       } else if (orderType === 'LIMIT') {
         if (!limitPrice) {
           throw new Error('Limit price required for LIMIT orders');
         }
-        executionPrice = new Decimal(limitPrice);
+        const limitPriceDecimal = new Decimal(limitPrice);
+        
+        // For BUY limit orders: only execute if market price <= limit price
+        if (currentMarketPrice.greaterThan(limitPriceDecimal)) {
+          shouldExecuteNow = false;
+        } else {
+          executionPrice = currentMarketPrice; // Execute at market price, not limit price
+        }
       } else {
         throw new Error(`Unsupported order type: ${orderType}`);
+      }
+      
+      // If limit order conditions not met, create pending order
+      if (!shouldExecuteNow) {
+        const [pendingOrder] = await db.insert(orders).values({
+          accountId,
+          instrumentId: instrument.id,
+          side: 'BUY',
+          orderType,
+          quantity: new Decimal(quantity).toString(),
+          limitPrice: new Decimal(limitPrice).toString(),
+          tif: 'GTC',
+          status: 'pending',
+          filledQty: '0',
+          avgFillPrice: null,
+          createdBy,
+          metadata: { 
+            instrument: symbol, 
+            currentMarketPrice: currentMarketPrice.toString(),
+            reason: `Market price $${currentMarketPrice} exceeds buy limit $${limitPrice}`
+          }
+        }).returning();
+        
+        return {
+          success: true,
+          pending: true,
+          order: pendingOrder,
+          message: `Buy limit order pending. Will execute when market price drops to $${limitPrice} or below. Current market: $${currentMarketPrice}`
+        };
       }
       
       const qty = new Decimal(quantity);
@@ -242,21 +283,62 @@ class InvestmentService {
         throw new Error(`Insufficient shares. Available: ${currentQty}, Requested: ${sellQty}`);
       }
       
+      // Get current market price
+      const quoteResponse = await marketDataService.getQuote(symbol);
+      const quoteData = quoteResponse.data || quoteResponse;
+      if (!quoteData || !quoteData.price) {
+        throw new Error(`Failed to get price for ${symbol}`);
+      }
+      const currentMarketPrice = new Decimal(quoteData.price);
+      
       let executionPrice;
+      let shouldExecuteNow = true;
+      
       if (orderType === 'MARKET') {
-        const quoteResponse = await marketDataService.getQuote(symbol);
-        const quoteData = quoteResponse.data || quoteResponse;
-        if (!quoteData || !quoteData.price) {
-          throw new Error(`Failed to get price for ${symbol}`);
-        }
-        executionPrice = new Decimal(quoteData.price);
+        executionPrice = currentMarketPrice;
       } else if (orderType === 'LIMIT') {
         if (!limitPrice) {
           throw new Error('Limit price required for LIMIT orders');
         }
-        executionPrice = new Decimal(limitPrice);
+        const limitPriceDecimal = new Decimal(limitPrice);
+        
+        // For SELL limit orders: only execute if market price >= limit price
+        if (currentMarketPrice.lessThan(limitPriceDecimal)) {
+          shouldExecuteNow = false;
+        } else {
+          executionPrice = currentMarketPrice; // Execute at market price, not limit price
+        }
       } else {
         throw new Error(`Unsupported order type: ${orderType}`);
+      }
+      
+      // If limit order conditions not met, create pending order
+      if (!shouldExecuteNow) {
+        const [pendingOrder] = await db.insert(orders).values({
+          accountId,
+          instrumentId: instrument.id,
+          side: 'SELL',
+          orderType,
+          quantity: sellQty.toString(),
+          limitPrice: new Decimal(limitPrice).toString(),
+          tif: 'GTC',
+          status: 'pending',
+          filledQty: '0',
+          avgFillPrice: null,
+          createdBy,
+          metadata: { 
+            instrument: symbol, 
+            currentMarketPrice: currentMarketPrice.toString(),
+            reason: `Market price $${currentMarketPrice} below sell limit $${limitPrice}`
+          }
+        }).returning();
+        
+        return {
+          success: true,
+          pending: true,
+          order: pendingOrder,
+          message: `Sell limit order pending. Will execute when market price rises to $${limitPrice} or above. Current market: $${currentMarketPrice}`
+        };
       }
       
       const totalProceeds = executionPrice.times(sellQty);
@@ -381,7 +463,8 @@ class InvestmentService {
           }
           
           try {
-            const quoteData = await marketDataService.getQuote(instrument.symbol);
+            const quoteResponse = await marketDataService.getQuote(instrument.symbol);
+            const quoteData = quoteResponse.data || quoteResponse;
             const currentPrice = new Decimal(quoteData.price);
             const avgCost = new Decimal(position.avgCost);
             const marketValue = currentPrice.times(qty);
