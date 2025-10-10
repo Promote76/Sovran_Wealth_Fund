@@ -210,7 +210,80 @@ const SWFBankingPage: React.FC = () => {
   ];
 
   // Real blockchain investments - SWF staking shown from blockchain data
-  const investments: Investment[] = [];
+  const investments: Investment[] = React.useMemo(() => {
+    const investmentsList: Investment[] = [];
+    
+    // SWF Staking Investment - sum both multi-pool and auto-staking
+    const multiPoolStaked = parseFloat(contractData?.multiPoolStaking?.totalStaked || '0');
+    const multiPoolRewards = parseFloat(contractData?.multiPoolStaking?.totalRewards || '0');
+    const autoStaked = parseFloat(contractData?.autoStaking?.autoStakedAmount || '0');
+    const autoRewards = parseFloat(contractData?.autoStaking?.pendingRewards || '0');
+    
+    const totalStakedAmount = multiPoolStaked + autoStaked;
+    const totalRewards = multiPoolRewards + autoRewards;
+    const swfPrice = 0.50; // Default SWF price, could be fetched from oracle
+    
+    if (totalStakedAmount > 0) {
+      const totalValue = (totalStakedAmount + totalRewards) * swfPrice;
+      const gainLoss = totalRewards * swfPrice;
+      const gainLossPercent = totalStakedAmount > 0 ? (totalRewards / totalStakedAmount) * 100 : 0;
+      
+      investmentsList.push({
+        symbol: 'SWF',
+        name: 'SWF Token Staking',
+        shares: totalStakedAmount,
+        currentPrice: swfPrice,
+        totalValue: totalValue,
+        gainLoss: gainLoss,
+        gainLossPercent: gainLossPercent,
+        sector: 'DeFi Staking'
+      });
+    }
+    
+    // Venus Protocol Investments
+    if (contractData?.vTokenBalances && Object.keys(contractData.vTokenBalances).length > 0) {
+      Object.entries(contractData.vTokenBalances).forEach(([symbol, data]: [string, any]) => {
+        const supplied = parseFloat(data.supplied || '0');
+        const borrowed = parseFloat(data.borrowed || '0');
+        
+        if (supplied > 0) {
+          const price = parseFloat(data.priceUSD || '1');
+          const totalValue = supplied * price;
+          const earnedInterest = parseFloat(data.earnedInterest || '0');
+          
+          investmentsList.push({
+            symbol: symbol,
+            name: `${symbol} Supply`,
+            shares: supplied,
+            currentPrice: price,
+            totalValue: totalValue,
+            gainLoss: earnedInterest * price,
+            gainLossPercent: supplied > 0 ? (earnedInterest / supplied) * 100 : 0,
+            sector: 'Venus Protocol'
+          });
+        }
+      });
+    }
+    
+    // SWF Basket Vault Investment
+    if (contractData?.vaultDeposits && parseFloat(contractData.vaultDeposits) > 0) {
+      const vaultAmount = parseFloat(contractData.vaultDeposits);
+      const basketPrice = 1.0; // SWF-BASKET is 1:1 with deposits
+      
+      investmentsList.push({
+        symbol: 'SWF-BASKET',
+        name: 'SWF Basket Vault',
+        shares: vaultAmount,
+        currentPrice: basketPrice,
+        totalValue: vaultAmount * basketPrice,
+        gainLoss: 0, // Vault doesn't show gains, but earns APR
+        gainLossPercent: 0,
+        sector: 'Liquidity Vault'
+      });
+    }
+    
+    return investmentsList;
+  }, [contractData]);
 
   // State for server-fetched blockchain data
   const [blockchainData, setBlockchainData] = useState<{
@@ -2007,40 +2080,56 @@ const SWFBankingPage: React.FC = () => {
                         </tr>
                       </thead>
                       <tbody>
-                        {investments.map((investment, index) => (
-                          <tr key={index} className="border-b border-gray-100 hover:bg-blue-50">
-                            <td className="py-4 px-4">
-                              <div>
-                                <div className="font-semibold">{investment.symbol}</div>
-                                <div className="text-sm text-gray-600">{investment.name}</div>
-                                <div className="text-xs text-blue-600">{investment.sector}</div>
-                              </div>
-                            </td>
-                            <td className="text-right py-4 px-4">
-                              {investment.shares % 1 === 0 ? investment.shares : investment.shares.toFixed(4)}
-                            </td>
-                            <td className="text-right py-4 px-4">
-                              ${investment.currentPrice.toLocaleString()}
-                            </td>
-                            <td className="text-right py-4 px-4 font-semibold">
-                              ${investment.totalValue.toLocaleString()}
-                            </td>
-                            <td className={`text-right py-4 px-4 font-semibold ${
-                              investment.gainLoss >= 0 ? 'text-green-600' : 'text-red-600'
-                            }`}>
-                              {investment.gainLoss >= 0 ? '+' : ''}${investment.gainLoss.toFixed(2)}
-                              <div className="text-sm">
-                                ({investment.gainLossPercent >= 0 ? '+' : ''}{investment.gainLossPercent.toFixed(1)}%)
-                              </div>
-                            </td>
-                            <td className="text-right py-4 px-4">
-                              <div className="space-x-2">
-                                <button className="text-blue-600 hover:text-blue-800 text-sm">Buy</button>
-                                <button className="text-red-600 hover:text-red-800 text-sm">Sell</button>
+                        {investments.length === 0 ? (
+                          <tr>
+                            <td colSpan={6} className="py-12 text-center">
+                              <div className="text-gray-400">
+                                <div className="text-5xl mb-4">📊</div>
+                                <div className="text-lg font-medium mb-2">No Active Investments</div>
+                                <div className="text-sm">
+                                  {!walletConnected ? 'Connect your wallet to view your staking positions' :
+                                   !isLoggedIn ? 'Authenticate to view your portfolio' :
+                                   'Start staking SWF tokens or supply assets to Venus Protocol to see your investments here'}
+                                </div>
                               </div>
                             </td>
                           </tr>
-                        ))}
+                        ) : (
+                          investments.map((investment, index) => (
+                            <tr key={index} className="border-b border-gray-100 hover:bg-blue-50">
+                              <td className="py-4 px-4">
+                                <div>
+                                  <div className="font-semibold">{investment.symbol}</div>
+                                  <div className="text-sm text-gray-600">{investment.name}</div>
+                                  <div className="text-xs text-blue-600">{investment.sector}</div>
+                                </div>
+                              </td>
+                              <td className="text-right py-4 px-4">
+                                {investment.shares % 1 === 0 ? investment.shares : investment.shares.toFixed(4)}
+                              </td>
+                              <td className="text-right py-4 px-4">
+                                ${investment.currentPrice.toLocaleString()}
+                              </td>
+                              <td className="text-right py-4 px-4 font-semibold">
+                                ${investment.totalValue.toLocaleString()}
+                              </td>
+                              <td className={`text-right py-4 px-4 font-semibold ${
+                                investment.gainLoss >= 0 ? 'text-green-600' : 'text-red-600'
+                              }`}>
+                                {investment.gainLoss >= 0 ? '+' : ''}${investment.gainLoss.toFixed(2)}
+                                <div className="text-sm">
+                                  ({investment.gainLossPercent >= 0 ? '+' : ''}{investment.gainLossPercent.toFixed(1)}%)
+                                </div>
+                              </td>
+                              <td className="text-right py-4 px-4">
+                                <div className="space-x-2">
+                                  <button className="text-blue-600 hover:text-blue-800 text-sm">Buy</button>
+                                  <button className="text-red-600 hover:text-red-800 text-sm">Sell</button>
+                                </div>
+                              </td>
+                            </tr>
+                          ))
+                        )}
                       </tbody>
                     </table>
                   </div>
