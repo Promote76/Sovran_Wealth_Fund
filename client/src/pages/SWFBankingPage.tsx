@@ -489,6 +489,7 @@ const SWFBankingPage: React.FC = () => {
       console.log('✅ Loaded', allTransactions.length, 'transactions from checking accounts');
     } catch (error) {
       console.error('❌ Error fetching transactions:', error);
+      showError('Error', 'Failed to load transaction history');
     } finally {
       setTransactionsLoading(false);
     }
@@ -715,9 +716,11 @@ const SWFBankingPage: React.FC = () => {
         console.log('✅ Savings goals loaded:', data.data);
       } else {
         console.error('❌ Failed to load savings goals:', data.error);
+        showError('Error', data.error || 'Failed to load savings goals');
       }
     } catch (error) {
       console.error('❌ Error fetching savings goals:', error);
+      showError('Error', 'Failed to load savings goals');
     } finally {
       setGoalsLoading(false);
     }
