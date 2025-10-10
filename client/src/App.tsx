@@ -61,6 +61,7 @@ import RoadmapPage from './pages/RoadmapPage';
 import TeamPage from './pages/TeamPage';
 import DownloadLogsPage from './pages/DownloadLogsPage';
 import { KYCVerificationPage } from './components/kyc';
+import UserGuidePage from './pages/UserGuidePage';
 
 // Legacy component for KeyGrow integration
 function KeyGrowPage() {
@@ -432,6 +433,7 @@ function App() {
                             <Routes>
                               {/* Main pages */}
                               <Route path="/" element={<HomePage />} />
+                              <Route path="/user-guide" element={<UserGuidePage />} />
                               <Route path="/about" element={<AboutUsPage />} />
                               <Route path="/investors" element={<InvestorPage />} />
                               <Route path="/dashboard" element={<DashboardPage />} />
