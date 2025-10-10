@@ -38,6 +38,39 @@ The platform now includes a comprehensive digital banking system with:
   - ✅ **Compare-and-Swap Updates**: Race condition prevention with conditional WHERE clauses
   - ✅ **Idempotency Keys**: Duplicate transfer prevention with unique transaction identifiers
 
+#### Investment Platform Infrastructure (October 2025)
+The platform now includes a comprehensive investment management system supporting 8 investment product types:
+
+- **Investment Products Supported**:
+  1. **Crypto Trading**: Bitcoin, Ethereum, and other cryptocurrencies via CoinGecko API
+  2. **Stock Trading**: Individual stocks (AAPL, TSLA, etc.) via Alpha Vantage/FMP APIs
+  3. **ETF Portfolios**: Exchange-traded funds with index/sector classification
+  4. **Retirement Accounts**: IRA/401k support using stock market proxies
+  5. **REITs**: Real estate investment trusts (VNQ, IYR, etc.) with dedicated type detection
+  6. **Bonds**: Corporate and government bonds (TLT, AGG, etc.) with intelligent classification
+  7. **Commodities**: Gold, silver, oil, etc. (GLD, SLV, USO) with symbol-based detection
+  8. **Index Funds**: Market indexes (SPY, QQQ, DIA) with automatic type identification
+  9. **Options Trading**: Options contracts using underlying stock quotes as proxy
+
+- **Market Data Provider** (services/marketDataService.js):
+  - ✅ **Multi-Provider Architecture**: CoinGecko (crypto), Alpha Vantage (stocks), FMP (fallback)
+  - ✅ **Intelligent Type Detection**: Symbol-based classification for bonds, commodities, REITs, indexes
+  - ✅ **Database Caching**: 5-minute TTL with automatic stale entry cleanup via market_quotes table
+  - ✅ **Rate Limit Protection**: Per-provider throttling (CoinGecko: 30/min, Alpha Vantage: 5/min, FMP: 250/day)
+  - ✅ **Decimal Precision**: Decimal.js for accurate financial calculations
+  - ✅ **Real-time Quotes**: Live market data for all 8 investment product categories
+
+- **Investment Database Tables**:
+  - `investment_accounts`: Master account records with type, balance, and status tracking
+  - `investment_transactions`: Buy/sell/dividend transactions with audit trail
+  - `investment_holdings`: Current positions with cost basis and quantity
+  - `investment_performance`: Historical performance metrics and returns
+  - `market_quotes`: Real-time price data with provider tracking and caching
+
+- **API Endpoints**:
+  - Investment Management: `/api/investments/*` (accounts, transactions, holdings, performance, analytics, reports)
+  - Market Data: `/api/market/*` (quote, quotes batch, search, clear-cache)
+
 ### Smart Contract System
 The smart contract ecosystem includes multiple interconnected contracts: the main SWF token with minting and burning capabilities, SoloMethodEngine for staking with dynamic APR (10-30%), SWFBasketVault for token deposits with 1:1 SWF-BASKET token minting, DynamicAPRController for automated reward adjustments, and governance systems with role-based permissions. Contracts support multiple liquidity pool integrations and automated reward distribution.
 
@@ -54,6 +87,9 @@ The smart contract ecosystem includes multiple interconnected contracts: the mai
 - **BSCScan/Polygonscan**: Contract verification and blockchain data APIs
 - **SendGrid**: Email service integration for notifications and communications
 - **Stripe**: Payment processing for fiat onramps and premium features
+- **CoinGecko API**: Real-time cryptocurrency market data for crypto trading products
+- **Alpha Vantage API**: Stock market data for equities, ETFs, and other securities
+- **Financial Modeling Prep (FMP)**: Fallback market data provider for comprehensive coverage
 
 ### Cloud Storage
 - **Google Cloud Storage**: Document and asset storage with IPFS integration
