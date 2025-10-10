@@ -198,6 +198,7 @@ const Layout: React.FC<LayoutProps> = ({
 
   const navigationItems: NavigationItem[] = [
     { path: '/', label: 'Home' },
+    { path: '/user-guide', label: 'User Guide' },
     { path: '/investors', label: 'Investors' },
     { path: '/dashboard', label: 'Dashboard' },
     { 
