@@ -36,6 +36,7 @@ import Layout from './components/Layout';
 import EnhancedStakingPage from './pages/EnhancedStakingPage';
 import AirdropPage from './pages/AirdropPage';
 import SWFBankingPage from './pages/SWFBankingPage';
+import InvestmentsPage from './pages/InvestmentsPage';
 import RealEstatePage from './pages/RealEstatePage';
 import SouSouCirclePage from './pages/SouSouCirclePage';
 import OracleDashboardPage from './pages/OracleDashboardPage';
@@ -439,6 +440,7 @@ function App() {
                               <Route path="/enhanced-staking" element={<EnhancedStakingPage />} />
                               <Route path="/airdrop" element={<AirdropPage />} />
                               <Route path="/swf-banking" element={<SWFBankingPage />} />
+                              <Route path="/investments" element={<InvestmentsPage />} />
                               <Route path="/real-estate" element={<RealEstatePage />} />
                               <Route path="/sousou-circle" element={<SouSouCirclePage />} />
                               <Route path="/oracle-dashboard" element={<OracleDashboardPage />} />

@@ -209,6 +209,7 @@ const Layout: React.FC<LayoutProps> = ({
     { path: '/enhanced-staking', label: 'Staking' },
     { path: '/airdrop', label: 'Airdrop' },
     { path: '/swf-banking', label: 'Banking' },
+    { path: '/investments', label: 'Investments' },
     { path: '/real-estate', label: 'Real Estate' },
     { path: '/sousou-circle', label: 'SouSou' },
     { path: '/oracle-dashboard', label: 'Oracle' },
