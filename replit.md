@@ -67,9 +67,23 @@ The platform now includes a comprehensive investment management system supportin
   - `investment_performance`: Historical performance metrics and returns
   - `market_quotes`: Real-time price data with provider tracking and caching
 
+- **Investment Transaction Engine** (services/investmentService.js):
+  - ✅ **Market Orders**: Instant execution at current market price for buy/sell operations
+  - ✅ **Limit Orders**: Price-triggered orders with proper pending/filled workflow
+    - Buy limits: Execute when market price ≤ limit price
+    - Sell limits: Execute when market price ≥ limit price
+    - Pending orders stored in database until conditions met
+  - ✅ **Position Management**: Automatic cost basis tracking with FIFO/weighted average
+  - ✅ **P&L Calculations**: Real-time realized and unrealized gains/losses
+  - ✅ **Fee Handling**: 0.1% transaction fees on all trades
+  - ✅ **SQL Transaction Safety**: All operations wrapped in database transactions (ACID compliance)
+  - ✅ **Decimal Precision**: Decimal.js for accurate financial calculations
+  - ✅ **Cash Balance Protection**: Insufficient funds validation before execution
+
 - **API Endpoints**:
   - Investment Management: `/api/investments/*` (accounts, transactions, holdings, performance, analytics, reports)
   - Market Data: `/api/market/*` (quote, quotes batch, search, clear-cache)
+  - Transaction Execution: `/api/investments/buy`, `/api/investments/sell` with market/limit order support
 
 ### Smart Contract System
 The smart contract ecosystem includes multiple interconnected contracts: the main SWF token with minting and burning capabilities, SoloMethodEngine for staking with dynamic APR (10-30%), SWFBasketVault for token deposits with 1:1 SWF-BASKET token minting, DynamicAPRController for automated reward adjustments, and governance systems with role-based permissions. Contracts support multiple liquidity pool integrations and automated reward distribution.
