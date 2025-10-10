@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import Layout from '../components/Layout';
 
 interface Account {
   id: number;
@@ -151,8 +150,7 @@ const InvestmentsPage: React.FC = () => {
   const currentAccount = accounts.find(a => a.id === selectedAccount);
 
   return (
-    <Layout title="SWF Investments" themeColor="blue">
-      <div className="min-h-screen bg-gradient-to-b from-blue-900 via-blue-800 to-black py-12">
+    <div className="min-h-screen bg-gradient-to-b from-blue-900 via-blue-800 to-black py-12">
         <div className="container mx-auto px-4">
           <div className="max-w-7xl mx-auto">
             
@@ -515,8 +513,7 @@ const InvestmentsPage: React.FC = () => {
 
           </div>
         </div>
-      </div>
-    </Layout>
+    </div>
   );
 };
 
