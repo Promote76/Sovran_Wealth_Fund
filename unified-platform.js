@@ -2511,6 +2511,238 @@ app.get('/api/investments/accounts/:accountId/ledger', authenticateWallet, async
 });
 
 // ============================================
+// INVESTMENT TRANSACTION API ENDPOINTS
+// ============================================
+
+const investmentService = require('./services/investmentService');
+
+// Execute buy order
+app.post('/api/investments/buy', authenticateWallet, async (req, res) => {
+  try {
+    const { accountId, symbol, quantity, orderType = 'MARKET', limitPrice } = req.body;
+    const walletAddress = req.walletAddress;
+    
+    if (!accountId || !symbol || !quantity) {
+      return res.status(400).json({
+        success: false,
+        error: 'Missing required fields: accountId, symbol, quantity'
+      });
+    }
+    
+    // Verify account ownership
+    const [account] = await db.select()
+      .from(investmentAccounts)
+      .where(
+        and(
+          eq(investmentAccounts.id, accountId),
+          eq(investmentAccounts.walletAddress, walletAddress)
+        )
+      );
+    
+    if (!account) {
+      return res.status(404).json({
+        success: false,
+        error: 'Investment account not found or access denied'
+      });
+    }
+    
+    const result = await investmentService.executeBuyOrder(
+      accountId,
+      symbol,
+      quantity,
+      orderType,
+      limitPrice,
+      walletAddress
+    );
+    
+    res.json({
+      success: true,
+      data: result,
+      message: `Successfully bought ${quantity} shares of ${symbol}`
+    });
+    
+  } catch (error) {
+    console.error('❌ Buy order error:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to execute buy order'
+    });
+  }
+});
+
+// Execute sell order
+app.post('/api/investments/sell', authenticateWallet, async (req, res) => {
+  try {
+    const { accountId, symbol, quantity, orderType = 'MARKET', limitPrice } = req.body;
+    const walletAddress = req.walletAddress;
+    
+    if (!accountId || !symbol || !quantity) {
+      return res.status(400).json({
+        success: false,
+        error: 'Missing required fields: accountId, symbol, quantity'
+      });
+    }
+    
+    // Verify account ownership
+    const [account] = await db.select()
+      .from(investmentAccounts)
+      .where(
+        and(
+          eq(investmentAccounts.id, accountId),
+          eq(investmentAccounts.walletAddress, walletAddress)
+        )
+      );
+    
+    if (!account) {
+      return res.status(404).json({
+        success: false,
+        error: 'Investment account not found or access denied'
+      });
+    }
+    
+    const result = await investmentService.executeSellOrder(
+      accountId,
+      symbol,
+      quantity,
+      orderType,
+      limitPrice,
+      walletAddress
+    );
+    
+    res.json({
+      success: true,
+      data: result,
+      message: `Successfully sold ${quantity} shares of ${symbol}`
+    });
+    
+  } catch (error) {
+    console.error('❌ Sell order error:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to execute sell order'
+    });
+  }
+});
+
+// Get account positions with P&L
+app.get('/api/investments/positions/:accountId', authenticateWallet, async (req, res) => {
+  try {
+    const { accountId } = req.params;
+    const walletAddress = req.walletAddress;
+    
+    // Verify account ownership
+    const [account] = await db.select()
+      .from(investmentAccounts)
+      .where(
+        and(
+          eq(investmentAccounts.id, accountId),
+          eq(investmentAccounts.walletAddress, walletAddress)
+        )
+      );
+    
+    if (!account) {
+      return res.status(404).json({
+        success: false,
+        error: 'Investment account not found or access denied'
+      });
+    }
+    
+    const positions = await investmentService.getAccountPositions(accountId);
+    
+    res.json({
+      success: true,
+      data: positions
+    });
+    
+  } catch (error) {
+    console.error('❌ Error fetching positions:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to fetch positions'
+    });
+  }
+});
+
+// Get order history
+app.get('/api/investments/orders/:accountId', authenticateWallet, async (req, res) => {
+  try {
+    const { accountId } = req.params;
+    const { limit = 50 } = req.query;
+    const walletAddress = req.walletAddress;
+    
+    // Verify account ownership
+    const [account] = await db.select()
+      .from(investmentAccounts)
+      .where(
+        and(
+          eq(investmentAccounts.id, accountId),
+          eq(investmentAccounts.walletAddress, walletAddress)
+        )
+      );
+    
+    if (!account) {
+      return res.status(404).json({
+        success: false,
+        error: 'Investment account not found or access denied'
+      });
+    }
+    
+    const orders = await investmentService.getOrderHistory(accountId, parseInt(limit));
+    
+    res.json({
+      success: true,
+      data: orders
+    });
+    
+  } catch (error) {
+    console.error('❌ Error fetching order history:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to fetch order history'
+    });
+  }
+});
+
+// Get account summary
+app.get('/api/investments/summary/:accountId', authenticateWallet, async (req, res) => {
+  try {
+    const { accountId } = req.params;
+    const walletAddress = req.walletAddress;
+    
+    // Verify account ownership
+    const [account] = await db.select()
+      .from(investmentAccounts)
+      .where(
+        and(
+          eq(investmentAccounts.id, accountId),
+          eq(investmentAccounts.walletAddress, walletAddress)
+        )
+      );
+    
+    if (!account) {
+      return res.status(404).json({
+        success: false,
+        error: 'Investment account not found or access denied'
+      });
+    }
+    
+    const summary = await investmentService.getAccountSummary(accountId);
+    
+    res.json({
+      success: true,
+      data: summary
+    });
+    
+  } catch (error) {
+    console.error('❌ Error fetching account summary:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to fetch account summary'
+    });
+  }
+});
+
+// ============================================
 // DENET STORAGE API ENDPOINTS
 // ============================================
 
