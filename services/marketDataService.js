@@ -118,6 +118,45 @@ async function fetchCryptoQuote(symbol) {
 }
 
 /**
+ * Detect instrument type from symbol
+ */
+function detectInstrumentType(symbol) {
+  const sym = symbol.toUpperCase();
+  
+  // Bonds - treasury and bond ETFs
+  const bondSymbols = ['TLT', 'IEF', 'SHY', 'AGG', 'BND', 'LQD', 'HYG', 'TIP', 'MUB', 'VCIT', 'VCSH'];
+  if (bondSymbols.includes(sym) || sym.includes('BOND') || sym.includes('TREASURY')) {
+    return 'bond';
+  }
+  
+  // Commodities - gold, silver, oil ETFs
+  const commoditySymbols = ['GLD', 'SLV', 'USO', 'UNG', 'DBA', 'DBC', 'GC', 'SI', 'CL', 'NG'];
+  if (commoditySymbols.includes(sym) || sym.includes('GOLD') || sym.includes('SILVER')) {
+    return 'commodity';
+  }
+  
+  // REITs - real estate ETFs and known REITs
+  const reitSymbols = ['VNQ', 'IYR', 'SCHH', 'XLRE', 'RWR', 'ICF', 'AMT', 'PLD', 'CCI', 'EQIX', 'PSA', 'O', 'WELL', 'DLR', 'SPG'];
+  if (reitSymbols.includes(sym) || sym.includes('REIT')) {
+    return 'reit';
+  }
+  
+  // Indexes - major index ETFs
+  const indexSymbols = ['SPY', 'QQQ', 'DIA', 'IWM', 'SPX', 'NDX', 'DJI', 'VTI', 'VOO'];
+  if (indexSymbols.includes(sym)) {
+    return 'index';
+  }
+  
+  // ETFs - common ETF symbols (check after specific categories)
+  const etfSymbols = ['SPY', 'QQQ', 'DIA', 'IWM', 'VTI', 'VOO', 'VEA', 'VWO', 'AGG', 'LQD', 'HYG', 'TIP', 'GDX', 'XLF', 'XLE', 'XLK', 'XLV'];
+  if (etfSymbols.includes(sym) || sym.endsWith('ETF')) {
+    return 'etf';
+  }
+  
+  return 'stock'; // default
+}
+
+/**
  * Fetch stock/ETF quote from Alpha Vantage
  */
 async function fetchStockQuote(symbol) {
@@ -146,7 +185,7 @@ async function fetchStockQuote(symbol) {
   return {
     symbol: symbol.toUpperCase(),
     name: symbol.toUpperCase(),
-    type: 'stock',
+    type: detectInstrumentType(symbol), // Use intelligent type detection
     price: new Decimal(quote['05. price'] || 0).toFixed(8),
     change: new Decimal(quote['09. change'] || 0).toFixed(8),
     changePercent: new Decimal((quote['10. change percent'] || '0').replace('%', '')).toFixed(4),
