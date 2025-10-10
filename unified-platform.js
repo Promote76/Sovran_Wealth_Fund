@@ -2949,6 +2949,76 @@ app.post('/api/reports/transparency-reports', async (req, res) => {
   }
 });
 
+// ============================================================================
+// Market Data API
+// ============================================================================
+
+const marketDataService = require('./services/marketDataService');
+
+// Get single quote
+app.get('/api/market/quote/:symbol', async (req, res) => {
+  try {
+    const { symbol } = req.params;
+    const { type } = req.query;
+    
+    const result = await marketDataService.getQuote(symbol, type);
+    
+    if (result.success) {
+      res.json(result);
+    } else {
+      res.status(404).json(result);
+    }
+  } catch (error) {
+    console.error('❌ Market quote error:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Get multiple quotes
+app.post('/api/market/quotes', async (req, res) => {
+  try {
+    const { symbols, type } = req.body;
+    
+    if (!Array.isArray(symbols) || symbols.length === 0) {
+      return res.status(400).json({ success: false, error: 'Symbols array required' });
+    }
+    
+    const result = await marketDataService.getMultipleQuotes(symbols, type);
+    res.json(result);
+  } catch (error) {
+    console.error('❌ Multiple quotes error:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Search instruments
+app.get('/api/market/search', async (req, res) => {
+  try {
+    const { q } = req.query;
+    
+    if (!q || q.trim().length === 0) {
+      return res.status(400).json({ success: false, error: 'Search query required' });
+    }
+    
+    const result = await marketDataService.searchInstruments(q);
+    res.json(result);
+  } catch (error) {
+    console.error('❌ Market search error:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Clear stale cache (admin endpoint)
+app.post('/api/market/clear-cache', async (req, res) => {
+  try {
+    const result = await marketDataService.clearStaleCache();
+    res.json(result);
+  } catch (error) {
+    console.error('❌ Clear cache error:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
 // Debug endpoint removed for security
 
 // Serve static files from React build

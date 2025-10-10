@@ -1,4 +1,4 @@
-const { pgTable, serial, text, boolean, timestamp, varchar, decimal, integer, jsonb } = require('drizzle-orm/pg-core');
+const { pgTable, serial, text, boolean, timestamp, varchar, decimal, integer, jsonb, index } = require('drizzle-orm/pg-core');
 
 // User table - match the exact column names in the database
 const users = pgTable('users', {
@@ -321,6 +321,33 @@ const marketDataSnapshots = pgTable('market_data_snapshots', {
   impliedVolatility: decimal('implied_volatility', { precision: 8, scale: 4 })
 });
 
+// Market Quotes Cache table (for real-time quote caching with TTL)
+const marketQuotes = pgTable('market_quotes', {
+  id: serial('id').primaryKey(),
+  symbol: varchar('symbol', { length: 20 }).notNull().unique(),
+  name: text('name'),
+  type: varchar('type', { length: 20 }).notNull(), // crypto, stock, etf, bond, commodity, index, option, reit
+  price: decimal('price', { precision: 20, scale: 8 }).notNull(),
+  change: decimal('change', { precision: 15, scale: 8 }),
+  changePercent: decimal('change_percent', { precision: 10, scale: 4 }),
+  volume: decimal('volume', { precision: 20, scale: 2 }),
+  marketCap: decimal('market_cap', { precision: 20, scale: 2 }),
+  high24h: decimal('high_24h', { precision: 20, scale: 8 }),
+  low24h: decimal('low_24h', { precision: 20, scale: 8 }),
+  open: decimal('open', { precision: 20, scale: 8 }),
+  previousClose: decimal('previous_close', { precision: 20, scale: 8 }),
+  exchange: varchar('exchange', { length: 50 }),
+  currency: varchar('currency', { length: 10 }).default('USD'),
+  provider: varchar('provider', { length: 30 }), // coingecko, alphavantage, fmp
+  rawData: jsonb('raw_data'),
+  lastUpdated: timestamp('last_updated').defaultNow().notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull()
+}, (table) => ({
+  symbolIdx: index('idx_market_quotes_symbol').on(table.symbol),
+  typeIdx: index('idx_market_quotes_type').on(table.type),
+  lastUpdatedIdx: index('idx_market_quotes_last_updated').on(table.lastUpdated)
+}));
+
 // User Investment Settings table
 const userInvestingSettings = pgTable('user_investing_settings', {
   id: serial('id').primaryKey(),
@@ -403,6 +430,7 @@ module.exports = {
   dividendsDistributions,
   performanceSnapshots,
   marketDataSnapshots,
+  marketQuotes,
   userInvestingSettings,
   adminControls,
   complianceAudit,
