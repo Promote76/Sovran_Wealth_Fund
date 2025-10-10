@@ -111,7 +111,6 @@ const SWFBankingPage: React.FC = () => {
   const [loanAmount, setLoanAmount] = useState('50000');
   const [loanTerm, setLoanTerm] = useState('30');
   const [interestRate, setInterestRate] = useState('6.5');
-  const [showTransferModal, setShowTransferModal] = useState(false);
   const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
   const [filterCategory, setFilterCategory] = useState('all');
   const [newGoalName, setNewGoalName] = useState('');
@@ -162,6 +161,17 @@ const SWFBankingPage: React.FC = () => {
     target: '',
     deadline: '',
     monthlyContribution: ''
+  });
+
+  // Transfer state
+  const [showTransferModal, setShowTransferModal] = useState(false);
+  const [transferData, setTransferData] = useState({
+    fromAccountType: 'checking',
+    fromAccountId: '',
+    toAccountType: 'savings',
+    toAccountId: '',
+    amount: '',
+    description: ''
   });
 
   const loanProducts: LoanProduct[] = [
@@ -678,6 +688,68 @@ const SWFBankingPage: React.FC = () => {
     } catch (error) {
       console.error('❌ Error creating savings goal:', error);
       showError('Error', 'Failed to create goal');
+    }
+  };
+
+  // Handle inter-account transfer
+  const handleTransfer = async () => {
+    const token = localStorage.getItem('auth-token');
+    if (!token) return;
+    
+    if (!transferData.fromAccountId || !transferData.toAccountId || !transferData.amount) {
+      showWarning('Missing Information', 'Please fill in all required fields');
+      return;
+    }
+    
+    if (parseFloat(transferData.amount) <= 0) {
+      showWarning('Invalid Amount', 'Transfer amount must be greater than zero');
+      return;
+    }
+    
+    try {
+      // Generate idempotency key to prevent duplicate transfers
+      const idempotencyKey = `transfer-${Date.now()}-${Math.random().toString(36).substring(7)}`;
+      
+      const response = await fetch('/api/transfers', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          fromAccountType: transferData.fromAccountType,
+          fromAccountId: transferData.fromAccountId,
+          toAccountType: transferData.toAccountType,
+          toAccountId: transferData.toAccountId,
+          amount: transferData.amount,
+          description: transferData.description || `Transfer from ${transferData.fromAccountType} to ${transferData.toAccountType}`,
+          idempotencyKey
+        })
+      });
+      
+      const data = await response.json();
+      
+      if (data.success) {
+        showSuccess('Transfer Complete!', `$${transferData.amount} transferred successfully`);
+        setShowTransferModal(false);
+        setTransferData({
+          fromAccountType: 'checking',
+          fromAccountId: '',
+          toAccountType: 'savings',
+          toAccountId: '',
+          amount: '',
+          description: ''
+        });
+        
+        // Refresh accounts (fetchCheckingAccounts already refreshes transactions)
+        fetchCheckingAccounts();
+        fetchSavingsAccounts();
+      } else {
+        showError('Transfer Failed', data.error || 'Failed to complete transfer');
+      }
+    } catch (error) {
+      console.error('❌ Error processing transfer:', error);
+      showError('Error', 'Failed to process transfer');
     }
   };
 
@@ -3254,56 +3326,120 @@ const SWFBankingPage: React.FC = () => {
             <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
               <div className="bg-white rounded-xl max-w-md w-full p-6">
                 <div className="flex justify-between items-center mb-6">
-                  <h3 className="text-xl font-bold text-blue-800">Transfer Money</h3>
+                  <h3 className="text-xl font-bold text-blue-800">Transfer Between Accounts</h3>
                   <button 
                     onClick={() => setShowTransferModal(false)}
-                    className="text-gray-500 hover:text-gray-700"
+                    className="text-gray-500 hover:text-gray-700 text-3xl"
                   >
-                    ✕
+                    ×
                   </button>
                 </div>
+                
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">From / To</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">From Account *</label>
                     <select 
-                      value={transferType} 
-                      onChange={(e) => setTransferType(e.target.value)}
+                      value={`${transferData.fromAccountType}-${transferData.fromAccountId}`}
+                      onChange={(e) => {
+                        const [type, id] = e.target.value.split('-');
+                        setTransferData({...transferData, fromAccountType: type, fromAccountId: id});
+                      }}
                       className="w-full px-4 py-2 border border-blue-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                     >
-                      <option value="checking-to-savings">Checking to Savings</option>
-                      <option value="savings-to-checking">Savings to Checking</option>
+                      <option value="-">Select source account</option>
+                      <optgroup label="Checking Accounts">
+                        {checkingAccounts.map(acc => (
+                          <option key={`checking-${acc.id}`} value={`checking-${acc.id}`}>
+                            {acc.accountName} - ${parseFloat(acc.availableBalance || 0).toFixed(2)}
+                          </option>
+                        ))}
+                      </optgroup>
+                      <optgroup label="Savings Accounts">
+                        {savingsAccounts.map(acc => (
+                          <option key={`savings-${acc.id}`} value={`savings-${acc.id}`}>
+                            {acc.accountName} - ${parseFloat(acc.balance || 0).toFixed(2)}
+                          </option>
+                        ))}
+                      </optgroup>
                     </select>
                   </div>
+                  
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Amount</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">To Account *</label>
+                    <select 
+                      value={`${transferData.toAccountType}-${transferData.toAccountId}`}
+                      onChange={(e) => {
+                        const [type, id] = e.target.value.split('-');
+                        setTransferData({...transferData, toAccountType: type, toAccountId: id});
+                      }}
+                      className="w-full px-4 py-2 border border-blue-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    >
+                      <option value="-">Select destination account</option>
+                      <optgroup label="Checking Accounts">
+                        {checkingAccounts.map(acc => (
+                          <option key={`checking-${acc.id}`} value={`checking-${acc.id}`}>
+                            {acc.accountName}
+                          </option>
+                        ))}
+                      </optgroup>
+                      <optgroup label="Savings Accounts">
+                        {savingsAccounts.map(acc => (
+                          <option key={`savings-${acc.id}`} value={`savings-${acc.id}`}>
+                            {acc.accountName}
+                          </option>
+                        ))}
+                      </optgroup>
+                    </select>
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Amount ($) *</label>
                     <input
                       type="number"
-                      value={transferAmount}
-                      onChange={(e) => setTransferAmount(e.target.value)}
+                      value={transferData.amount}
+                      onChange={(e) => setTransferData({...transferData, amount: e.target.value})}
                       className="w-full px-4 py-2 border border-blue-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                       placeholder="0.00"
+                      min="0"
+                      step="0.01"
                     />
                   </div>
-                  <div className="flex space-x-4">
-                    <button 
-                      onClick={() => setShowTransferModal(false)}
-                      className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
-                    >
-                      Cancel
-                    </button>
-                    <button 
-                      onClick={() => {
-                        if (transferAmount) {
-                          showSuccess('Transfer Initiated', `Transfer of $${transferAmount} initiated successfully!`);
-                          setShowTransferModal(false);
-                          setTransferAmount('');
-                        }
-                      }}
-                      className="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
-                    >
-                      Transfer
-                    </button>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Description (Optional)</label>
+                    <input
+                      type="text"
+                      value={transferData.description}
+                      onChange={(e) => setTransferData({...transferData, description: e.target.value})}
+                      className="w-full px-4 py-2 border border-blue-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      placeholder="What's this transfer for?"
+                    />
                   </div>
+                </div>
+                
+                <div className="flex space-x-3 mt-6">
+                  <button 
+                    onClick={() => {
+                      setShowTransferModal(false);
+                      setTransferData({
+                        fromAccountType: 'checking',
+                        fromAccountId: '',
+                        toAccountType: 'savings',
+                        toAccountId: '',
+                        amount: '',
+                        description: ''
+                      });
+                    }}
+                    className="flex-1 px-4 py-2 bg-gray-300 hover:bg-gray-400 text-gray-800 rounded-lg transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button 
+                    onClick={handleTransfer}
+                    className="flex-1 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors"
+                  >
+                    Transfer Funds
+                  </button>
                 </div>
               </div>
             </div>
