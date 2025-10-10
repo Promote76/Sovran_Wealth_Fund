@@ -14,7 +14,7 @@ const { Pool, neonConfig } = require('@neondatabase/serverless');
 const ws = require('ws');
 const Decimal = require('decimal.js');
 const { 
-  savingsAccounts, savingsTransactions, savingsAccountSettings,
+  savingsAccounts, savingsTransactions, savingsAccountSettings, savingsGoals,
   checkingAccounts, checkingTransactions, transfers, payees, scheduledPayments,
   investmentAccounts, instruments, positions, orders, executions, investmentLedger,
   deNetFiles, deNetNodeState
@@ -924,6 +924,105 @@ app.put('/api/savings/accounts/:id/settings', authenticateWallet, async (req, re
   } catch (error) {
     console.error('❌ Error updating settings:', error);
     res.status(500).json({ success: false, error: 'Failed to update settings', details: error.message });
+  }
+});
+
+// ========================================
+// SAVINGS GOALS API ENDPOINTS
+// ========================================
+
+// Create new savings goal
+app.post('/api/savings/goals', authenticateWallet, async (req, res) => {
+  try {
+    const { goalName, targetAmount, targetDate, monthlyContribution } = req.body;
+    const walletAddress = req.walletAddress;
+    
+    if (!goalName || !targetAmount || !targetDate) {
+      return res.status(400).json({ success: false, error: 'Missing required fields' });
+    }
+    
+    const [newGoal] = await db.insert(savingsGoals).values({
+      walletAddress,
+      goalName,
+      targetAmount: parseFloat(targetAmount).toFixed(2),
+      currentAmount: '0.00',
+      targetDate: new Date(targetDate),
+      monthlyContribution: monthlyContribution ? parseFloat(monthlyContribution).toFixed(2) : '0.00',
+      status: 'active'
+    }).returning();
+    
+    res.json({ success: true, data: newGoal, message: 'Savings goal created successfully' });
+  } catch (error) {
+    console.error('❌ Error creating savings goal:', error);
+    res.status(500).json({ success: false, error: 'Failed to create goal' });
+  }
+});
+
+// Get all savings goals for user
+app.get('/api/savings/goals', authenticateWallet, async (req, res) => {
+  try {
+    const walletAddress = req.walletAddress;
+    
+    const goals = await db.select().from(savingsGoals)
+      .where(eq(savingsGoals.walletAddress, walletAddress))
+      .orderBy(savingsGoals.createdAt);
+    
+    res.json({ success: true, data: goals });
+  } catch (error) {
+    console.error('❌ Error fetching savings goals:', error);
+    res.status(500).json({ success: false, error: 'Failed to fetch goals' });
+  }
+});
+
+// Update savings goal progress
+app.put('/api/savings/goals/:id', authenticateWallet, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { currentAmount, monthlyContribution, status } = req.body;
+    const walletAddress = req.walletAddress;
+    
+    // Verify goal ownership
+    const [goal] = await db.select().from(savingsGoals).where(eq(savingsGoals.id, parseInt(id)));
+    if (!goal || goal.walletAddress !== walletAddress) {
+      return res.status(403).json({ success: false, error: 'Access denied' });
+    }
+    
+    const updateData = {};
+    if (currentAmount !== undefined) updateData.currentAmount = parseFloat(currentAmount).toFixed(2);
+    if (monthlyContribution !== undefined) updateData.monthlyContribution = parseFloat(monthlyContribution).toFixed(2);
+    if (status) updateData.status = status;
+    updateData.updatedAt = new Date();
+    
+    const [updated] = await db.update(savingsGoals)
+      .set(updateData)
+      .where(eq(savingsGoals.id, parseInt(id)))
+      .returning();
+    
+    res.json({ success: true, data: updated, message: 'Goal updated successfully' });
+  } catch (error) {
+    console.error('❌ Error updating savings goal:', error);
+    res.status(500).json({ success: false, error: 'Failed to update goal' });
+  }
+});
+
+// Delete savings goal
+app.delete('/api/savings/goals/:id', authenticateWallet, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const walletAddress = req.walletAddress;
+    
+    // Verify goal ownership
+    const [goal] = await db.select().from(savingsGoals).where(eq(savingsGoals.id, parseInt(id)));
+    if (!goal || goal.walletAddress !== walletAddress) {
+      return res.status(403).json({ success: false, error: 'Access denied' });
+    }
+    
+    await db.delete(savingsGoals).where(eq(savingsGoals.id, parseInt(id)));
+    
+    res.json({ success: true, message: 'Goal deleted successfully' });
+  } catch (error) {
+    console.error('❌ Error deleting savings goal:', error);
+    res.status(500).json({ success: false, error: 'Failed to delete goal' });
   }
 });
 

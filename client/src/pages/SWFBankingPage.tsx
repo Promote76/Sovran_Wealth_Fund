@@ -11,6 +11,7 @@ interface Transaction {
   amount: number;
   description: string;
   date: string;
+  timestamp: string; // Raw ISO timestamp for sorting
   balance: number;
   category?: string;
 }
@@ -148,11 +149,20 @@ const SWFBankingPage: React.FC = () => {
   const [withdrawAmount, setWithdrawAmount] = useState('');
   const [accountsLoading, setAccountsLoading] = useState(false);
 
-  // Real blockchain transactions - will be fetched from on-chain events in the future
-  const transactions: Transaction[] = [];
+  // State for transactions from all checking accounts
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [transactionsLoading, setTransactionsLoading] = useState(false);
 
-  // User-created savings goals (stored in database)
-  const savingsGoals: SavingsGoal[] = [];
+  // Savings goals state
+  const [savingsGoals, setSavingsGoals] = useState<SavingsGoal[]>([]);
+  const [goalsLoading, setGoalsLoading] = useState(false);
+  const [showCreateGoalModal, setShowCreateGoalModal] = useState(false);
+  const [newGoalData, setNewGoalData] = useState({
+    name: '',
+    target: '',
+    deadline: '',
+    monthlyContribution: ''
+  });
 
   const loanProducts: LoanProduct[] = [
     { 
@@ -342,6 +352,11 @@ const SWFBankingPage: React.FC = () => {
       if (data.success) {
         setCheckingAccounts(data.data);
         console.log('✅ Checking accounts loaded:', data.data);
+        
+        // Fetch transactions for all checking accounts
+        if (data.data && data.data.length > 0) {
+          fetchAllTransactions(data.data);
+        }
       } else {
         showError('Error', data.error || 'Failed to load checking accounts');
       }
@@ -350,6 +365,49 @@ const SWFBankingPage: React.FC = () => {
       showError('Error', 'Failed to load checking accounts');
     } finally {
       setAccountsLoading(false);
+    }
+  };
+  
+  const fetchAllTransactions = async (accounts: any[]) => {
+    const token = localStorage.getItem('auth-token');
+    if (!token || accounts.length === 0) return;
+    
+    setTransactionsLoading(true);
+    try {
+      const allTransactions: Transaction[] = [];
+      
+      for (const account of accounts) {
+        const response = await fetch(`/api/checking/accounts/${account.id}/transactions`, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+        const data = await response.json();
+        
+        if (data.success && data.data) {
+          // Transform API transactions to match UI format
+          const transformedTx = data.data.map((tx: any) => ({
+            id: tx.id.toString(),
+            type: tx.txType as 'deposit' | 'withdrawal' | 'transfer' | 'payment',
+            amount: parseFloat(tx.amount),
+            description: tx.description || tx.txType,
+            date: new Date(tx.createdAt).toLocaleDateString(),
+            timestamp: tx.createdAt, // Store raw ISO timestamp for reliable sorting
+            balance: parseFloat(tx.balanceAfter || account.ledgerBalance),
+            category: tx.category || 'general'
+          }));
+          allTransactions.push(...transformedTx);
+        }
+      }
+      
+      // Sort by timestamp (most recent first) - using raw ISO timestamp for reliable cross-locale sorting
+      allTransactions.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+      setTransactions(allTransactions);
+      console.log('✅ Loaded', allTransactions.length, 'transactions from checking accounts');
+    } catch (error) {
+      console.error('❌ Error fetching transactions:', error);
+    } finally {
+      setTransactionsLoading(false);
     }
   };
 
@@ -555,11 +613,80 @@ const SWFBankingPage: React.FC = () => {
     }
   };
 
+  // Fetch savings goals
+  const fetchSavingsGoals = async () => {
+    const token = localStorage.getItem('auth-token');
+    if (!walletConnected || !isLoggedIn || !token) return;
+    
+    setGoalsLoading(true);
+    try {
+      const response = await fetch('/api/savings/goals', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      const data = await response.json();
+      
+      if (data.success) {
+        setSavingsGoals(data.data);
+        console.log('✅ Savings goals loaded:', data.data);
+      } else {
+        console.error('❌ Failed to load savings goals:', data.error);
+      }
+    } catch (error) {
+      console.error('❌ Error fetching savings goals:', error);
+    } finally {
+      setGoalsLoading(false);
+    }
+  };
+
+  // Create new savings goal
+  const createSavingsGoal = async () => {
+    const token = localStorage.getItem('auth-token');
+    if (!token) return;
+    
+    if (!newGoalData.name || !newGoalData.target || !newGoalData.deadline) {
+      showWarning('Missing Information', 'Please fill in all required fields');
+      return;
+    }
+    
+    try {
+      const response = await fetch('/api/savings/goals', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          goalName: newGoalData.name,
+          targetAmount: newGoalData.target,
+          targetDate: newGoalData.deadline,
+          monthlyContribution: newGoalData.monthlyContribution || '0'
+        })
+      });
+      
+      const data = await response.json();
+      
+      if (data.success) {
+        showSuccess('Goal Created!', `Your savings goal "${newGoalData.name}" has been created`);
+        setShowCreateGoalModal(false);
+        setNewGoalData({ name: '', target: '', deadline: '', monthlyContribution: '' });
+        fetchSavingsGoals();
+      } else {
+        showError('Error', data.error || 'Failed to create goal');
+      }
+    } catch (error) {
+      console.error('❌ Error creating savings goal:', error);
+      showError('Error', 'Failed to create goal');
+    }
+  };
+
   // Fetch checking and savings accounts when wallet is connected
   useEffect(() => {
     if (walletConnected && isLoggedIn) {
       fetchCheckingAccounts();
       fetchSavingsAccounts();
+      fetchSavingsGoals();
     }
   }, [walletConnected, isLoggedIn]);
 
@@ -1049,8 +1176,18 @@ const SWFBankingPage: React.FC = () => {
                       View All
                     </button>
                   </div>
-                  <div className="space-y-4">
-                    {transactions.slice(0, 4).map((transaction) => (
+                  
+                  {transactionsLoading ? (
+                    <div className="text-center py-8 text-gray-600">Loading transactions...</div>
+                  ) : transactions.length === 0 ? (
+                    <div className="text-center py-8 text-gray-600">
+                      <div className="text-5xl mb-4">📊</div>
+                      <div className="text-lg font-medium mb-2">No Transactions Yet</div>
+                      <div className="text-sm">Your recent transactions will appear here</div>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {transactions.slice(0, 4).map((transaction) => (
                       <div key={transaction.id} className="flex items-center justify-between p-4 bg-white border border-blue-200 rounded-lg shadow-sm hover:shadow-md transition-all">
                         <div className="flex items-center space-x-4">
                           <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white ${
@@ -1074,7 +1211,8 @@ const SWFBankingPage: React.FC = () => {
                         </div>
                       </div>
                     ))}
-                  </div>
+                    </div>
+                  )}
                 </div>
               </div>
             )}
@@ -1385,7 +1523,14 @@ const SWFBankingPage: React.FC = () => {
                           </div>
                           
                           <div className="pt-4 border-t border-gray-200">
-                            <button className="w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors text-sm">
+                            <button 
+                              onClick={() => {
+                                setSelectedAccount(account);
+                                fetchAccountDetails(account.id);
+                                setShowAccountDetailModal(true);
+                              }}
+                              className="w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors text-sm"
+                            >
                               View Account Details
                             </button>
                           </div>
@@ -1400,34 +1545,39 @@ const SWFBankingPage: React.FC = () => {
                   <div className="flex justify-between items-center mb-6">
                     <h3 className="text-xl font-bold text-blue-800">Savings Goals</h3>
                     <button 
-                      onClick={() => {
-                        const name = prompt('Goal name:');
-                        const target = prompt('Target amount:');
-                        const deadline = prompt('Target date (YYYY-MM-DD):');
-                        if (name && target && deadline) {
-                          showInfo('Goal Created', `Goal "${name}" for $${target} by ${deadline} would be created!`);
-                        }
-                      }}
+                      onClick={() => setShowCreateGoalModal(true)}
                       className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors"
                     >
-                      Add New Goal
+                      + Add New Goal
                     </button>
                   </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {savingsGoals.map((goal) => {
-                      const progress = (goal.current / goal.target) * 100;
-                      const monthsLeft = Math.ceil((new Date(goal.deadline).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24 * 30));
+                  
+                  {goalsLoading ? (
+                    <div className="text-center py-8 text-gray-600">Loading goals...</div>
+                  ) : savingsGoals.length === 0 ? (
+                    <div className="text-center py-8 text-gray-600">
+                      <div className="text-5xl mb-4">🎯</div>
+                      <div className="text-lg font-medium mb-2">No Savings Goals Yet</div>
+                      <div className="text-sm">Create your first savings goal to start tracking progress</div>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      {savingsGoals.map((goal: any) => {
+                      const current = parseFloat(goal.currentAmount || 0);
+                      const target = parseFloat(goal.targetAmount || 0);
+                      const progress = target > 0 ? (current / target) * 100 : 0;
+                      const monthsLeft = Math.ceil((new Date(goal.targetDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24 * 30));
                       
                       return (
                         <div key={goal.id} className="bg-white border border-blue-200 rounded-lg p-6 shadow-sm">
                           <div className="flex justify-between items-start mb-4">
-                            <h4 className="font-semibold text-gray-800">{goal.name}</h4>
-                            <span className="text-sm text-gray-600">{monthsLeft} months left</span>
+                            <h4 className="font-semibold text-gray-800">{goal.goalName}</h4>
+                            <span className="text-sm text-gray-600">{monthsLeft > 0 ? `${monthsLeft} months left` : 'Overdue'}</span>
                           </div>
                           <div className="mb-4">
                             <div className="flex justify-between text-sm text-gray-600 mb-2">
-                              <span>${goal.current.toLocaleString()}</span>
-                              <span>${goal.target.toLocaleString()}</span>
+                              <span>${current.toLocaleString()}</span>
+                              <span>${target.toLocaleString()}</span>
                             </div>
                             <div className="w-full bg-gray-200 rounded-full h-3">
                               <div 
@@ -1440,15 +1590,16 @@ const SWFBankingPage: React.FC = () => {
                             </div>
                           </div>
                           <div className="text-sm text-gray-600">
-                            Monthly Contribution: ${goal.monthlyContribution}
+                            Monthly Contribution: ${parseFloat(goal.monthlyContribution || 0).toFixed(2)}
                           </div>
                           <div className="text-sm text-gray-600">
-                            Target Date: {goal.deadline}
+                            Target Date: {new Date(goal.targetDate).toLocaleDateString()}
                           </div>
                         </div>
                       );
                     })}
-                  </div>
+                    </div>
+                  )}
                 </div>
 
                 {/* Savings Products */}
@@ -3557,6 +3708,90 @@ const SWFBankingPage: React.FC = () => {
                   </button>
                 </div>
               )}
+            </div>
+          </div>
+        )}
+
+        {/* Create Savings Goal Modal */}
+        {showCreateGoalModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+            <div className="bg-white rounded-xl max-w-md w-full p-6">
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="text-2xl font-bold text-blue-800">Create Savings Goal</h3>
+                <button
+                  onClick={() => setShowCreateGoalModal(false)}
+                  className="text-gray-500 hover:text-gray-700 text-3xl"
+                >
+                  ×
+                </button>
+              </div>
+              
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Goal Name *</label>
+                  <input
+                    type="text"
+                    value={newGoalData.name}
+                    onChange={(e) => setNewGoalData({...newGoalData, name: e.target.value})}
+                    className="w-full px-4 py-2 border border-blue-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="e.g., Emergency Fund, Vacation, Down Payment"
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Target Amount ($) *</label>
+                  <input
+                    type="number"
+                    value={newGoalData.target}
+                    onChange={(e) => setNewGoalData({...newGoalData, target: e.target.value})}
+                    className="w-full px-4 py-2 border border-blue-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="10000"
+                    min="0"
+                    step="0.01"
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Target Date *</label>
+                  <input
+                    type="date"
+                    value={newGoalData.deadline}
+                    onChange={(e) => setNewGoalData({...newGoalData, deadline: e.target.value})}
+                    className="w-full px-4 py-2 border border-blue-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Monthly Contribution ($)</label>
+                  <input
+                    type="number"
+                    value={newGoalData.monthlyContribution}
+                    onChange={(e) => setNewGoalData({...newGoalData, monthlyContribution: e.target.value})}
+                    className="w-full px-4 py-2 border border-blue-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="500"
+                    min="0"
+                    step="0.01"
+                  />
+                </div>
+              </div>
+              
+              <div className="flex space-x-3 mt-6">
+                <button
+                  onClick={() => {
+                    setShowCreateGoalModal(false);
+                    setNewGoalData({ name: '', target: '', deadline: '', monthlyContribution: '' });
+                  }}
+                  className="flex-1 px-4 py-2 bg-gray-300 hover:bg-gray-400 text-gray-800 rounded-lg transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={createSavingsGoal}
+                  className="flex-1 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors"
+                >
+                  Create Goal
+                </button>
+              </div>
             </div>
           </div>
         )}

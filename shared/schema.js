@@ -55,6 +55,21 @@ const savingsAccountSettings = pgTable('savings_account_settings', {
   updatedAt: timestamp('updated_at').defaultNow().notNull()
 });
 
+// Savings Goals table
+const savingsGoals = pgTable('savings_goals', {
+  id: serial('id').primaryKey(),
+  userId: integer('user_id'),
+  walletAddress: varchar('wallet_address', { length: 42 }).notNull(),
+  goalName: varchar('goal_name', { length: 255 }).notNull(),
+  targetAmount: decimal('target_amount', { precision: 15, scale: 2 }).notNull(),
+  currentAmount: decimal('current_amount', { precision: 15, scale: 2 }).default('0.00').notNull(),
+  targetDate: timestamp('target_date').notNull(),
+  monthlyContribution: decimal('monthly_contribution', { precision: 15, scale: 2 }).default('0.00'),
+  status: varchar('status', { length: 20 }).default('active').notNull(), // active, achieved, cancelled
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow()
+});
+
 // Checking Accounts table
 const checkingAccounts = pgTable('checking_accounts', {
   id: serial('id').primaryKey(),
@@ -370,6 +385,7 @@ module.exports = {
   savingsAccounts,
   savingsTransactions,
   savingsAccountSettings,
+  savingsGoals,
   checkingAccounts,
   checkingTransactions,
   transfers,
