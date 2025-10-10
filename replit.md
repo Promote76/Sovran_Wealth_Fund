@@ -17,7 +17,16 @@ The platform is built on Node.js with Express.js serving as the primary backend 
 The system operates across multiple blockchain networks with the main SWF token deployed on both BSC Mainnet (`0x83E17aeB148d9b4b7Be0Be7C87dd73531a5a5738`) and Polygon Mainnet (`0x15AD65Fb62CD9147Aa4443dA89828A693228b5F7`). Smart contracts include role-based ERC20 tokens, staking engines (SoloMethodEngine), liquidity vaults, governance systems, and NFT contracts. The architecture supports dynamic APR adjustments based on vault deposits and implements a 16-wallet distribution system for token management.
 
 ### Frontend Architecture
-The frontend uses vanilla JavaScript with modular components for wallet connectivity, navigation, and blockchain interactions. Key modules include `unified-metamask-connector.js` for wallet management, navigation systems with mobile optimization, and specialized dashboards for staking, banking, and NFT operations. The UI implements a professional gold/black theme with responsive design patterns.
+The frontend uses React with TypeScript, featuring a comprehensive component library for wallet connectivity, navigation, and blockchain interactions. Key modules include unified wallet management via WalletContext, responsive navigation with mobile optimization, and specialized pages for staking, banking, investments, and NFT operations. The UI implements a professional blue/white theme with responsive design patterns.
+
+#### User Guide System (October 2025)
+The platform includes a comprehensive User Guide page (`/user-guide`) designed to help users earn an extra $500/month:
+- **Navigation**: Prominently positioned second in main navigation (after Home)
+- **Content Sections**: Getting Started, $500/Month Income Strategy, Banking Features, Investment Platform, Advanced Features
+- **Income Breakdown**: Detailed strategies combining savings interest (4.25-6.25% APY), strategic investments (8-20% annual returns), and staking rewards (10-30% APR)
+- **Interactive Elements**: Smooth scrolling navigation sidebar, clickable section links, direct routing to platform features
+- **Educational Focus**: Step-by-step instructions, beginner-friendly explanations, portfolio recommendations, success stories
+- **Mobile Responsive**: Fully optimized for desktop, tablet, and mobile viewing
 
 ### Database Layer
 The system uses PostgreSQL as the primary database with Drizzle ORM for database operations. Database schemas are defined in `shared/schema.js` with configurations in `drizzle.config.ts`. Session management is handled through connect-pg-simple for PostgreSQL-backed sessions, and the system includes user authentication with bcrypt password hashing.
