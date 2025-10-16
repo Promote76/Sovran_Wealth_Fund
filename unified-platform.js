@@ -108,9 +108,11 @@ console.log('🏛️ =====================================');
 // Health check endpoint with comprehensive service status
 app.get('/health', async (req, res) => {
   const startTime = Date.now();
+  const services = [];
+  
+  // 1. Database Health Check
   let dbHealthy = false;
   let dbResponseTime = 0;
-  
   try {
     const dbStart = Date.now();
     await pool.query('SELECT 1');
@@ -119,48 +121,116 @@ app.get('/health', async (req, res) => {
   } catch (error) {
     console.error('❌ Database health check failed:', error);
   }
+  services.push({
+    name: 'Database',
+    status: dbHealthy ? 'operational' : 'down',
+    uptime: dbHealthy ? '99.9%' : '0%',
+    responseTime: `${dbResponseTime}ms`
+  });
   
-  const services = [
-    {
-      name: 'Database',
-      status: dbHealthy ? 'operational' : 'down',
-      uptime: dbHealthy ? '99.9%' : '0%',
-      responseTime: `${dbResponseTime}ms`
-    },
-    {
-      name: 'API Server',
-      status: 'operational',
-      uptime: '99.9%',
-      responseTime: `${Date.now() - startTime}ms`
-    },
-    {
-      name: 'Blockchain RPC',
-      status: 'operational',
-      uptime: '99.8%',
-      responseTime: '180ms'
-    },
-    {
-      name: 'Authentication',
-      status: 'operational',
-      uptime: '99.9%',
-      responseTime: '45ms'
-    },
-    {
-      name: 'Payment Processing',
-      status: 'operational',
-      uptime: '99.95%',
-      responseTime: '120ms'
-    },
-    {
-      name: 'Market Data Feed',
-      status: 'operational',
-      uptime: '99.7%',
-      responseTime: '250ms'
+  // 2. API Server Health Check (self-check)
+  const apiResponseTime = Date.now() - startTime;
+  services.push({
+    name: 'API Server',
+    status: 'operational',
+    uptime: '99.9%',
+    responseTime: `${apiResponseTime}ms`
+  });
+  
+  // 3. Blockchain RPC Health Check (BSC)
+  let blockchainHealthy = false;
+  let blockchainResponseTime = 0;
+  try {
+    const { ethers } = require('ethers');
+    const rpcStart = Date.now();
+    const provider = new ethers.JsonRpcProvider('https://bsc-dataseed1.binance.org');
+    await provider.getBlockNumber();
+    blockchainResponseTime = Date.now() - rpcStart;
+    blockchainHealthy = true;
+  } catch (error) {
+    console.error('❌ Blockchain RPC health check failed:', error);
+    blockchainResponseTime = 0;
+  }
+  services.push({
+    name: 'Blockchain RPC',
+    status: blockchainHealthy ? 'operational' : 'down',
+    uptime: blockchainHealthy ? '99.8%' : '0%',
+    responseTime: `${blockchainResponseTime}ms`
+  });
+  
+  // 4. Authentication Health Check
+  let authHealthy = false;
+  try {
+    authHealthy = !!(process.env.JWT_SECRET && process.env.JWT_SECRET.length > 0);
+  } catch (error) {
+    console.error('❌ Authentication health check failed:', error);
+  }
+  services.push({
+    name: 'Authentication',
+    status: authHealthy ? 'operational' : 'down',
+    uptime: authHealthy ? '99.9%' : '0%',
+    responseTime: '< 10ms'
+  });
+  
+  // 5. Payment Processing Health Check (Stripe)
+  let paymentsHealthy = false;
+  let paymentsResponseTime = 0;
+  try {
+    if (process.env.STRIPE_SECRET_KEY) {
+      const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+      const paymentsStart = Date.now();
+      await stripe.balance.retrieve();
+      paymentsResponseTime = Date.now() - paymentsStart;
+      paymentsHealthy = true;
     }
-  ];
+  } catch (error) {
+    console.error('❌ Payment processing health check failed:', error);
+    paymentsResponseTime = 0;
+  }
+  services.push({
+    name: 'Payment Processing',
+    status: paymentsHealthy ? 'operational' : 'degraded',
+    uptime: paymentsHealthy ? '99.95%' : '95%',
+    responseTime: paymentsHealthy ? `${paymentsResponseTime}ms` : 'N/A'
+  });
   
-  const allOperational = services.every(s => s.status === 'operational');
-  const overallStatus = allOperational ? 'healthy' : 'degraded';
+  // 6. Market Data Feed Health Check (CoinGecko)
+  let marketDataHealthy = false;
+  let marketDataResponseTime = 0;
+  try {
+    const axios = require('axios');
+    const marketStart = Date.now();
+    const response = await axios.get('https://api.coingecko.com/api/v3/ping', {
+      timeout: 5000
+    });
+    marketDataResponseTime = Date.now() - marketStart;
+    marketDataHealthy = response.status === 200;
+  } catch (error) {
+    console.error('❌ Market data feed health check failed:', error);
+    marketDataResponseTime = 0;
+  }
+  services.push({
+    name: 'Market Data Feed',
+    status: marketDataHealthy ? 'operational' : 'degraded',
+    uptime: marketDataHealthy ? '99.7%' : '95%',
+    responseTime: marketDataHealthy ? `${marketDataResponseTime}ms` : 'N/A'
+  });
+  
+  // Determine overall system status
+  const criticalServices = ['Database', 'API Server', 'Authentication'];
+  const criticalDown = services.filter(s => 
+    criticalServices.includes(s.name) && s.status === 'down'
+  ).length;
+  
+  const anyDown = services.filter(s => s.status === 'down').length;
+  const anyDegraded = services.filter(s => s.status === 'degraded').length;
+  
+  let overallStatus = 'healthy';
+  if (criticalDown > 0 || anyDown >= 2) {
+    overallStatus = 'down';
+  } else if (anyDown > 0 || anyDegraded > 0) {
+    overallStatus = 'degraded';
+  }
   
   res.json({
     status: overallStatus,
