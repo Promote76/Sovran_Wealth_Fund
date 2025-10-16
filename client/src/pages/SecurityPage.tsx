@@ -1,10 +1,8 @@
 import React from 'react';
-import Layout from '../components/Layout';
 
 const SecurityPage: React.FC = () => {
   return (
-    <Layout title="Security - Sovran Wealth Fund">
-      <div className="min-h-screen bg-gradient-to-br from-white via-blue-50 to-white py-12">
+    <div className="min-h-screen bg-gradient-to-br from-white via-blue-50 to-white py-12">
         <div className="container mx-auto px-4 max-w-4xl">
           <div className="text-center mb-12">
             <h1 className="text-4xl md:text-5xl font-bold text-blue-800 mb-6">
@@ -234,7 +232,6 @@ const SecurityPage: React.FC = () => {
           </div>
         </div>
       </div>
-    </Layout>
   );
 };
 
