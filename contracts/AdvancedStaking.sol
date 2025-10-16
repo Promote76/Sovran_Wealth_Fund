@@ -2,7 +2,9 @@
 pragma solidity ^0.8.20;
 
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
+import "@openzeppelin/contracts/token/ERC721/utils/ERC721Holder.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/utils/Pausable.sol";
 import "@openzeppelin/contracts/access/AccessControl.sol";
@@ -10,8 +12,10 @@ import "@openzeppelin/contracts/access/AccessControl.sol";
 /**
  * @title Advanced Staking for MetalOfTheGods NFTs
  * @dev Multi-tier staking with governance and dynamic rewards
+ * SECURITY: Implements ERC721Holder to accept NFT transfers and SafeERC20 for reward transfers
  */
-contract AdvancedStaking is ReentrancyGuard, Pausable, AccessControl {
+contract AdvancedStaking is ERC721Holder, ReentrancyGuard, Pausable, AccessControl {
+    using SafeERC20 for IERC20;
     bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
     bytes32 public constant MODERATOR_ROLE = keccak256("MODERATOR_ROLE");
 
@@ -228,12 +232,12 @@ contract AdvancedStaking is ReentrancyGuard, Pausable, AccessControl {
         uint256 rewards = calculateRewards(tokenId);
         stake.accumulatedRewards += rewards;
 
-        // Transfer NFT back to owner
-        IERC721(nftContract).safeTransferFrom(address(this), msg.sender, tokenId);
+        // Transfer NFT back to owner (using regular transferFrom to avoid re-entry)
+        IERC721(nftContract).transferFrom(address(this), msg.sender, tokenId);
 
-        // Transfer rewards
+        // Transfer rewards using SafeERC20
         if (stake.accumulatedRewards > 0) {
-            IERC20(rewardToken).transfer(msg.sender, stake.accumulatedRewards);
+            IERC20(rewardToken).safeTransfer(msg.sender, stake.accumulatedRewards);
         }
 
         // Update voting power
@@ -264,7 +268,7 @@ contract AdvancedStaking is ReentrancyGuard, Pausable, AccessControl {
         stake.accumulatedRewards += rewards;
         stake.startTime = block.timestamp; // Reset reward calculation
 
-        IERC20(rewardToken).transfer(msg.sender, rewards);
+        IERC20(rewardToken).safeTransfer(msg.sender, rewards);
 
         emit RewardsClaimed(msg.sender, rewards);
     }
@@ -409,7 +413,7 @@ contract AdvancedStaking is ReentrancyGuard, Pausable, AccessControl {
      * @dev Add rewards to pool (admin only)
      */
     function addRewards(uint256 amount) external onlyRole(ADMIN_ROLE) {
-        IERC20(rewardToken).transferFrom(msg.sender, address(this), amount);
+        IERC20(rewardToken).safeTransferFrom(msg.sender, address(this), amount);
         totalRewardPool += amount;
     }
 
@@ -472,6 +476,6 @@ contract AdvancedStaking is ReentrancyGuard, Pausable, AccessControl {
      * @dev Emergency withdrawal (admin only)
      */
     function emergencyWithdraw(address token, uint256 amount) external onlyRole(ADMIN_ROLE) {
-        IERC20(token).transfer(msg.sender, amount);
+        IERC20(token).safeTransfer(msg.sender, amount);
     }
 }

@@ -3,14 +3,17 @@ pragma solidity ^0.8.20;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
 /**
  * @title BasketIndex
  * @notice ERC20 token that represents a basket of underlying tokens with weighted allocations
  * @dev Allows for creating a token backed by multiple underlying assets
+ * SECURITY: Uses SafeERC20 for safe token transfers
  */
 contract BasketIndex is ERC20, Ownable {
+    using SafeERC20 for IERC20;
     // Array of underlying asset addresses
     address[] public underlyingAssets;
     
@@ -87,11 +90,8 @@ contract BasketIndex is ERC20, Ownable {
             // Calculate amount of this asset needed
             uint256 assetAmount = (amount * weight) / BASIS_POINTS;
             
-            // Transfer the asset from the user to this contract
-            require(
-                IERC20(asset).transferFrom(msg.sender, address(this), assetAmount),
-                "Transfer of underlying asset failed"
-            );
+            // Transfer the asset from the user to this contract using SafeERC20
+            IERC20(asset).safeTransferFrom(msg.sender, address(this), assetAmount);
         }
         
         // Mint the basket tokens to the user
@@ -117,11 +117,8 @@ contract BasketIndex is ERC20, Ownable {
             // Calculate amount of this asset to return
             uint256 assetAmount = (amount * weight) / BASIS_POINTS;
             
-            // Transfer the asset from this contract to the user
-            require(
-                IERC20(asset).transfer(msg.sender, assetAmount),
-                "Transfer of underlying asset failed"
-            );
+            // Transfer the asset from this contract to the user using SafeERC20
+            IERC20(asset).safeTransfer(msg.sender, assetAmount);
         }
     }
     
