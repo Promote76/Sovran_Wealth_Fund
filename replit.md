@@ -105,6 +105,40 @@ The platform now includes a comprehensive investment management system supportin
 ### Smart Contract System
 The smart contract ecosystem includes multiple interconnected contracts: the main SWF token with minting and burning capabilities, SoloMethodEngine for staking with dynamic APR (10-30%), SWFBasketVault for token deposits with 1:1 SWF-BASKET token minting, DynamicAPRController for automated reward adjustments, and governance systems with role-based permissions. Contracts support multiple liquidity pool integrations and automated reward distribution.
 
+#### BSC Smart Contract Deployment Infrastructure (October 16, 2025)
+The platform now includes comprehensive deployment infrastructure for 5 production-ready smart contracts:
+
+- **Deployment-Ready Contracts** (contracts/ directory):
+  1. **AdvancedStaking.sol** (484 lines): NFT staking with multi-tier rewards (10-50% APR), ERC721Holder for NFT reception, SafeERC20 for secure transfers
+  2. **BasketIndex.sol** (177 lines): Weighted basket token for asset portfolios with SafeERC20 protection
+  3. **CombinedStakingContracts.sol** (131 lines): Three-contract system (LiquidityVault, GovernanceDividendPool, SWFVaultAdapter) for LP/governance staking
+  4. **DynamicAPRController.sol** (255 lines): Automated APR adjustment (10-30%) based on vault deposits
+  5. **EnhancedNFTMarketplace.sol** (429 lines): NFT marketplace with batch auctions and 2.5% platform fees
+
+- **Security Enhancements Applied**:
+  - ✅ **ERC721Holder**: AdvancedStaking can now receive NFTs via safeTransferFrom (CRITICAL FIX)
+  - ✅ **SafeERC20**: All ERC20 operations use safe wrappers preventing token transfer failures
+  - ✅ **ReentrancyGuard**: All state-changing functions protected against reentrancy attacks
+  - ✅ **Role-Based Access**: Admin functions restricted with AccessControl
+  - ✅ **OpenZeppelin v5**: All contracts migrated to latest security-audited libraries
+
+- **Deployment Tooling** (scripts/ directory):
+  - `deploy-all-5-contracts.js`: Comprehensive deployment script with parameter validation and JSON export
+  - `verify-all-5-contracts.js`: BSCScan verification automation for all deployed contracts
+  - `DEPLOYMENT_SUMMARY.md`: Complete deployment guide with prerequisites, gas estimates, and post-deployment checklist
+
+- **Hardhat Configuration** (hardhat.config.js):
+  - ✅ **BSC Mainnet**: Configured with Alchemy RPC (https://bnb-mainnet.g.alchemy.com/v2/...)
+  - ✅ **Deployer Wallet**: 0xEcDdb7dFF2f61E1caC7AC767337A38E1aD851eD6
+  - ✅ **BSCScan API**: Ready for contract verification with API key integration
+  - ✅ **Compilation**: Clean build confirmed (all artifacts generated Oct 16 23:15)
+
+- **Deployment Status**: 
+  - ⏳ READY - All contracts compiled and security-enhanced
+  - ⏳ READY - Deployment scripts created and validated
+  - ⏳ AWAITING USER - Required addresses (NFT contract, LP token, vault addresses)
+  - ⏳ AWAITING USER - 0.05-0.1 BNB for deployment gas
+
 ## External Dependencies
 
 ### Blockchain Services
