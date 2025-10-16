@@ -824,7 +824,7 @@ const Layout: React.FC<LayoutProps> = ({
             <Link to="/dashboard" className="text-sm hover:text-blue-800 transition-colors font-medium">Dashboard</Link>
             <Link to="/learn-how-it-works" className="text-sm hover:text-blue-800 transition-colors font-medium">Learn How It Works</Link>
             <Link to="/admin" className="text-sm hover:text-blue-800 transition-colors font-medium">Admin</Link>
-            <Link to="/health" className="text-sm hover:text-blue-800 transition-colors font-medium">Status</Link>
+            <Link to="/status" className="text-sm hover:text-blue-800 transition-colors font-medium">Status</Link>
           </div>
           <div className="text-center">
             <p className="text-sm text-gray-500">

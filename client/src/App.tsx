@@ -62,6 +62,7 @@ import TeamPage from './pages/TeamPage';
 import DownloadLogsPage from './pages/DownloadLogsPage';
 import { KYCVerificationPage } from './components/kyc';
 import UserGuidePage from './pages/UserGuidePage';
+import StatusPage from './pages/StatusPage';
 
 // Legacy component for KeyGrow integration
 function KeyGrowPage() {
@@ -471,6 +472,8 @@ function App() {
                               <Route path="/terms-and-conditions" element={<TermsAndConditionsPage />} />
                               <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
                               <Route path="/security" element={<SecurityPage />} />
+                              <Route path="/health" element={<StatusPage />} />
+                              <Route path="/status" element={<StatusPage />} />
                               
                               <Route path="/education" element={<Navigate to="/learn-how-it-works" replace />} />
                               <Route path="/academy" element={<Navigate to="/learn-how-it-works" replace />} />
