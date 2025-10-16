@@ -29,12 +29,11 @@ contract PropertySharesToken is ERC20, Ownable, ReentrancyGuard {
         uint256 _tokenPrice,
         string memory _description,
         address _owner
-    ) ERC20(_name, _symbol) {
+    ) ERC20(_name, _symbol) Ownable(_owner) {
         totalTokens = _totalTokens;
         tokenPrice = _tokenPrice;
         tokensAvailable = _totalTokens;
         propertyDescription = _description;
-        _transferOwnership(_owner);
     }
     
     /**

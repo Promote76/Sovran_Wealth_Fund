@@ -421,11 +421,11 @@ contract AdvancedStaking is ERC721Holder, ReentrancyGuard, Pausable, AccessContr
      * @dev Helper function to remove token from user stakes array
      */
     function _removeFromUserStakes(address user, uint256 tokenId) private {
-        uint256[] storage stakes = userStakes[user];
-        for (uint256 i = 0; i < stakes.length; i++) {
-            if (stakes[i] == tokenId) {
-                stakes[i] = stakes[stakes.length - 1];
-                stakes.pop();
+        uint256[] storage userTokens = userStakes[user];
+        for (uint256 i = 0; i < userTokens.length; i++) {
+            if (userTokens[i] == tokenId) {
+                userTokens[i] = userTokens[userTokens.length - 1];
+                userTokens.pop();
                 break;
             }
         }

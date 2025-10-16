@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import "@openzeppelin/contracts-upgradeable/token/ERC721/IERC721Upgradeable.sol";
+import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import "@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/PausableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
@@ -59,7 +59,7 @@ contract NFTMarketplace is
     }
 
     // Contract state
-    IERC721Upgradeable public nftContract;
+    IERC721 public nftContract;
     IERC20 public swfToken;
     
     uint256 public marketplaceFee; // Basis points (e.g., 250 = 2.5%)
@@ -115,7 +115,7 @@ contract NFTMarketplace is
         require(_marketplaceFee <= 1000, "Fee too high"); // Max 10%
         require(_royaltyFee <= 1000, "Royalty too high"); // Max 10%
 
-        nftContract = IERC721Upgradeable(_nftContract);
+        nftContract = IERC721(_nftContract);
         swfToken = IERC20(_swfToken);
         feeRecipient = _feeRecipient;
         royaltyRecipient = _royaltyRecipient;
