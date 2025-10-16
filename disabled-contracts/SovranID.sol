@@ -4,8 +4,7 @@ pragma solidity ^0.8.20;
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/access/AccessControl.sol";
-import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
-import "@openzeppelin/contracts/utils/Counters.sol";
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import "./MoabiteConstitution.sol";
 
 /**
@@ -14,7 +13,6 @@ import "./MoabiteConstitution.sol";
  * Each SovranID represents a citizen with tribal metadata and governance rights
  */
 contract SovranID is ERC721, ERC721URIStorage, AccessControl, ReentrancyGuard {
-    using Counters for Counters.Counter;
     
     // Role definitions
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
@@ -45,7 +43,7 @@ contract SovranID is ERC721, ERC721URIStorage, AccessControl, ReentrancyGuard {
     
     // State variables
     MoabiteConstitution public constitution;
-    Counters.Counter private _tokenIdCounter;
+    uint256 private _tokenIdCounter;
     
     mapping(uint256 => CitizenProfile) public citizens;
     mapping(address => uint256) public addressToTokenId;
@@ -82,7 +80,7 @@ contract SovranID is ERC721, ERC721URIStorage, AccessControl, ReentrancyGuard {
         _grantRole(REGISTRAR_ROLE, msg.sender);
         
         // Start token IDs at 1
-        _tokenIdCounter.increment();
+        _tokenIdCounter++;
     }
     
     /**
@@ -104,10 +102,10 @@ contract SovranID is ERC721, ERC721URIStorage, AccessControl, ReentrancyGuard {
         require(!sovereignNameTaken[sovereignName], "SovranID: Sovereign name taken");
         require(bytes(sovereignName).length > 0, "SovranID: Sovereign name required");
         require(bytes(tribeName).length > 0, "SovranID: Tribe name required");
-        require(_tokenIdCounter.current() <= MAX_SUPPLY, "SovranID: Max supply reached");
+        require(_tokenIdCounter <= MAX_SUPPLY, "SovranID: Max supply reached");
         
-        uint256 tokenId = _tokenIdCounter.current();
-        _tokenIdCounter.increment();
+        uint256 tokenId = _tokenIdCounter;
+        _tokenIdCounter++;
         
         // Create citizen profile
         citizens[tokenId] = CitizenProfile({
@@ -221,7 +219,7 @@ contract SovranID is ERC721, ERC721URIStorage, AccessControl, ReentrancyGuard {
      * @dev Revoke citizenship
      */
     function revokeCitizenship(uint256 tokenId, string memory reason) external onlyRole(REGISTRAR_ROLE) {
-        require(_exists(tokenId), "SovranID: Token does not exist");
+        require(_ownerOf(tokenId) != address(0), "SovranID: Token does not exist");
         
         CitizenProfile storage citizen = citizens[tokenId];
         citizen.isActive = false;
@@ -250,7 +248,7 @@ contract SovranID is ERC721, ERC721URIStorage, AccessControl, ReentrancyGuard {
         bool hasVotingRights,
         bool isTribalLeader
     ) {
-        require(_exists(tokenId), "SovranID: Token does not exist");
+        require(_ownerOf(tokenId) != address(0), "SovranID: Token does not exist");
         CitizenProfile storage citizen = citizens[tokenId];
         
         return (
@@ -287,7 +285,7 @@ contract SovranID is ERC721, ERC721URIStorage, AccessControl, ReentrancyGuard {
      * @dev Verify biometric hash
      */
     function verifyBiometric(uint256 tokenId, bytes32 hash) external view returns (bool) {
-        require(_exists(tokenId), "SovranID: Token does not exist");
+        require(_ownerOf(tokenId) != address(0), "SovranID: Token does not exist");
         return citizens[tokenId].biometricHash == hash && citizens[tokenId].isActive;
     }
     

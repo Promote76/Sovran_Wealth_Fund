@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import "@openzeppelin/contracts/access/AccessControl.sol";
-import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/access/extensions/AccessControlEnumerable.sol";
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/utils/Pausable.sol";
 
 /**
@@ -10,7 +10,7 @@ import "@openzeppelin/contracts/utils/Pausable.sol";
  * @dev Constitutional foundation contract for The Moabite Federation digital nation-state
  * Stores constitutional documents on IPFS and enforces governance rules across all sub-DAOs
  */
-contract MoabiteConstitution is AccessControl, ReentrancyGuard, Pausable {
+contract MoabiteConstitution is AccessControlEnumerable, ReentrancyGuard, Pausable {
     
     // Role definitions for The Moabite Federation
     bytes32 public constant GRAND_VIZIER_ROLE = keccak256("GRAND_VIZIER_ROLE");

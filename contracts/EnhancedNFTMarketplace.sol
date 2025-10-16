@@ -3,23 +3,20 @@ pragma solidity ^0.8.20;
 
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
-import "@openzeppelin/contracts/security/Pausable.sol";
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/utils/Pausable.sol";
 import "@openzeppelin/contracts/access/AccessControl.sol";
-import "@openzeppelin/contracts/utils/Counters.sol";
 
 /**
  * @title Enhanced NFT Marketplace for MetalOfTheGods
  * @dev Advanced marketplace with batch auctions, dynamic fees, and collection-wide features
  */
 contract EnhancedNFTMarketplace is ReentrancyGuard, Pausable, AccessControl {
-    using Counters for Counters.Counter;
-
     bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
     bytes32 public constant MODERATOR_ROLE = keccak256("MODERATOR_ROLE");
 
-    Counters.Counter private _listingIds;
-    Counters.Counter private _auctionIds;
+    uint256 private _listingIdCounter;
+    uint256 private _auctionIdCounter;
 
     struct Listing {
         uint256 listingId;
@@ -97,8 +94,8 @@ contract EnhancedNFTMarketplace is ReentrancyGuard, Pausable, AccessControl {
         require(IERC721(nftContract).ownerOf(tokenId) == msg.sender, "Not token owner");
         require(IERC721(nftContract).isApprovedForAll(msg.sender, address(this)), "Contract not approved");
 
-        _listingIds.increment();
-        uint256 listingId = _listingIds.current();
+        _listingIdCounter++;
+        uint256 listingId = _listingIdCounter;
 
         listings[listingId] = Listing({
             listingId: listingId,
@@ -135,8 +132,8 @@ contract EnhancedNFTMarketplace is ReentrancyGuard, Pausable, AccessControl {
         require(IERC721(nftContract).isApprovedForAll(msg.sender, address(this)), "Contract not approved");
 
         for (uint256 i = 0; i < tokenIds.length; i++) {
-            _listingIds.increment();
-            uint256 listingId = _listingIds.current();
+            _listingIdCounter++;
+            uint256 listingId = _listingIdCounter;
 
             listings[listingId] = Listing({
                 listingId: listingId,
@@ -210,8 +207,8 @@ contract EnhancedNFTMarketplace is ReentrancyGuard, Pausable, AccessControl {
         require(startingBid > 0, "Invalid starting bid");
         require(duration >= 3600 && duration <= 7 days, "Invalid duration");
 
-        _auctionIds.increment();
-        uint256 auctionId = _auctionIds.current();
+        _auctionIdCounter++;
+        uint256 auctionId = _auctionIdCounter;
 
         auctions[auctionId] = Auction({
             auctionId: auctionId,
@@ -250,8 +247,8 @@ contract EnhancedNFTMarketplace is ReentrancyGuard, Pausable, AccessControl {
         }
         require(IERC721(nftContract).isApprovedForAll(msg.sender, address(this)), "Contract not approved");
 
-        _auctionIds.increment();
-        uint256 auctionId = _auctionIds.current();
+        _auctionIdCounter++;
+        uint256 auctionId = _auctionIdCounter;
 
         auctions[auctionId] = Auction({
             auctionId: auctionId,
@@ -392,14 +389,14 @@ contract EnhancedNFTMarketplace is ReentrancyGuard, Pausable, AccessControl {
      * @dev Get active listings count
      */
     function getActiveListingsCount() external view returns (uint256) {
-        return _listingIds.current();
+        return _listingIdCounter;
     }
 
     /**
      * @dev Get active auctions count
      */
     function getActiveAuctionsCount() external view returns (uint256) {
-        return _auctionIds.current();
+        return _auctionIdCounter;
     }
 
     /**

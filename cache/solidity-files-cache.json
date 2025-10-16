@@ -12,6 +12,7 @@
             "enabled": true,
             "runs": 200
           },
+          "viaIR": true,
           "evmVersion": "paris",
           "outputSelection": {
             "*": {
@@ -20,8 +21,7 @@
                 "evm.bytecode",
                 "evm.deployedBytecode",
                 "evm.methodIdentifiers",
-                "metadata",
-                "storageLayout"
+                "metadata"
               ],
               "": [
                 "ast"
@@ -43,7 +43,7 @@
       ]
     },
     "/home/runner/workspace/node_modules/@openzeppelin/contracts/access/Ownable.sol": {
-      "lastModificationDate": 1749603769546,
+      "lastModificationDate": 1759073821059,
       "contentHash": "d3c790edc9ccf808a17c5a6cd13614fd",
       "sourceName": "@openzeppelin/contracts/access/Ownable.sol",
       "solcConfig": {
@@ -53,6 +53,7 @@
             "enabled": true,
             "runs": 200
           },
+          "viaIR": true,
           "evmVersion": "paris",
           "outputSelection": {
             "*": {
@@ -61,8 +62,7 @@
                 "evm.bytecode",
                 "evm.deployedBytecode",
                 "evm.methodIdentifiers",
-                "metadata",
-                "storageLayout"
+                "metadata"
               ],
               "": [
                 "ast"
@@ -82,8 +82,8 @@
       ]
     },
     "/home/runner/workspace/node_modules/@openzeppelin/contracts/token/ERC20/ERC20.sol": {
-      "lastModificationDate": 1749603768550,
-      "contentHash": "57d79df281f57bbb1b09214c7914f877",
+      "lastModificationDate": 1759073819190,
+      "contentHash": "59dfce11284f2636db261df9b6a18f81",
       "sourceName": "@openzeppelin/contracts/token/ERC20/ERC20.sol",
       "solcConfig": {
         "version": "0.8.26",
@@ -92,6 +92,7 @@
             "enabled": true,
             "runs": 200
           },
+          "viaIR": true,
           "evmVersion": "paris",
           "outputSelection": {
             "*": {
@@ -100,8 +101,7 @@
                 "evm.bytecode",
                 "evm.deployedBytecode",
                 "evm.methodIdentifiers",
-                "metadata",
-                "storageLayout"
+                "metadata"
               ],
               "": [
                 "ast"
@@ -124,8 +124,8 @@
       ]
     },
     "/home/runner/workspace/node_modules/@openzeppelin/contracts/token/ERC20/IERC20.sol": {
-      "lastModificationDate": 1749603769250,
-      "contentHash": "8f19f64d2adadf448840908bbaf431c8",
+      "lastModificationDate": 1759073820533,
+      "contentHash": "9261adf6457863de3e9892f51317ec89",
       "sourceName": "@openzeppelin/contracts/token/ERC20/IERC20.sol",
       "solcConfig": {
         "version": "0.8.26",
@@ -134,6 +134,7 @@
             "enabled": true,
             "runs": 200
           },
+          "viaIR": true,
           "evmVersion": "paris",
           "outputSelection": {
             "*": {
@@ -142,8 +143,7 @@
                 "evm.bytecode",
                 "evm.deployedBytecode",
                 "evm.methodIdentifiers",
-                "metadata",
-                "storageLayout"
+                "metadata"
               ],
               "": [
                 "ast"
@@ -154,14 +154,14 @@
       },
       "imports": [],
       "versionPragmas": [
-        "^0.8.20"
+        ">=0.4.16"
       ],
       "artifacts": [
         "IERC20"
       ]
     },
     "/home/runner/workspace/node_modules/@openzeppelin/contracts/utils/Context.sol": {
-      "lastModificationDate": 1749603767848,
+      "lastModificationDate": 1759073818376,
       "contentHash": "67bfbc07588eb8683b3fd8f6f909563e",
       "sourceName": "@openzeppelin/contracts/utils/Context.sol",
       "solcConfig": {
@@ -171,6 +171,7 @@
             "enabled": true,
             "runs": 200
           },
+          "viaIR": true,
           "evmVersion": "paris",
           "outputSelection": {
             "*": {
@@ -179,8 +180,7 @@
                 "evm.bytecode",
                 "evm.deployedBytecode",
                 "evm.methodIdentifiers",
-                "metadata",
-                "storageLayout"
+                "metadata"
               ],
               "": [
                 "ast"
@@ -198,8 +198,8 @@
       ]
     },
     "/home/runner/workspace/node_modules/@openzeppelin/contracts/interfaces/draft-IERC6093.sol": {
-      "lastModificationDate": 1749603768138,
-      "contentHash": "267d92fe4de67b1bdb3302c08f387dbf",
+      "lastModificationDate": 1759073818794,
+      "contentHash": "5041977bbe908de2e6ed0270447f79ad",
       "sourceName": "@openzeppelin/contracts/interfaces/draft-IERC6093.sol",
       "solcConfig": {
         "version": "0.8.26",
@@ -208,6 +208,7 @@
             "enabled": true,
             "runs": 200
           },
+          "viaIR": true,
           "evmVersion": "paris",
           "outputSelection": {
             "*": {
@@ -216,8 +217,7 @@
                 "evm.bytecode",
                 "evm.deployedBytecode",
                 "evm.methodIdentifiers",
-                "metadata",
-                "storageLayout"
+                "metadata"
               ],
               "": [
                 "ast"
@@ -228,7 +228,7 @@
       },
       "imports": [],
       "versionPragmas": [
-        "^0.8.20"
+        ">=0.8.4"
       ],
       "artifacts": [
         "IERC1155Errors",
@@ -237,8 +237,8 @@
       ]
     },
     "/home/runner/workspace/node_modules/@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol": {
-      "lastModificationDate": 1749603769267,
-      "contentHash": "794db3115001aa372c79326fcfd44b1f",
+      "lastModificationDate": 1759073820559,
+      "contentHash": "513778b30d2750f5d2b9b19bbcf748a5",
       "sourceName": "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol",
       "solcConfig": {
         "version": "0.8.26",
@@ -247,6 +247,7 @@
             "enabled": true,
             "runs": 200
           },
+          "viaIR": true,
           "evmVersion": "paris",
           "outputSelection": {
             "*": {
@@ -255,8 +256,7 @@
                 "evm.bytecode",
                 "evm.deployedBytecode",
                 "evm.methodIdentifiers",
-                "metadata",
-                "storageLayout"
+                "metadata"
               ],
               "": [
                 "ast"
@@ -269,7 +269,7 @@
         "../IERC20.sol"
       ],
       "versionPragmas": [
-        "^0.8.20"
+        ">=0.6.2"
       ],
       "artifacts": [
         "IERC20Metadata"
@@ -286,6 +286,7 @@
             "enabled": true,
             "runs": 200
           },
+          "viaIR": true,
           "evmVersion": "paris",
           "outputSelection": {
             "*": {
@@ -294,8 +295,7 @@
                 "evm.bytecode",
                 "evm.deployedBytecode",
                 "evm.methodIdentifiers",
-                "metadata",
-                "storageLayout"
+                "metadata"
               ],
               "": [
                 "ast"
@@ -329,6 +329,7 @@
             "enabled": true,
             "runs": 200
           },
+          "viaIR": true,
           "evmVersion": "paris",
           "outputSelection": {
             "*": {
@@ -337,8 +338,7 @@
                 "evm.bytecode",
                 "evm.deployedBytecode",
                 "evm.methodIdentifiers",
-                "metadata",
-                "storageLayout"
+                "metadata"
               ],
               "": [
                 "ast"
@@ -359,8 +359,8 @@
       ]
     },
     "/home/runner/workspace/contracts/SoloMethodEngineV2.sol": {
-      "lastModificationDate": 1745733567622,
-      "contentHash": "80975624b92a29c297db335012927856",
+      "lastModificationDate": 1757994127940,
+      "contentHash": "22b9cd048e19df0d94fd14ab3e836f8e",
       "sourceName": "contracts/SoloMethodEngineV2.sol",
       "solcConfig": {
         "version": "0.8.26",
@@ -369,6 +369,7 @@
             "enabled": true,
             "runs": 200
           },
+          "viaIR": true,
           "evmVersion": "paris",
           "outputSelection": {
             "*": {
@@ -377,8 +378,7 @@
                 "evm.bytecode",
                 "evm.deployedBytecode",
                 "evm.methodIdentifiers",
-                "metadata",
-                "storageLayout"
+                "metadata"
               ],
               "": [
                 "ast"
@@ -390,6 +390,7 @@
       "imports": [
         "@openzeppelin/contracts/token/ERC20/IERC20.sol",
         "@openzeppelin/contracts/access/Ownable.sol",
+        "@openzeppelin/contracts/access/AccessControl.sol",
         "./interfaces/ISovranWealthFund.sol"
       ],
       "versionPragmas": [
@@ -410,6 +411,7 @@
             "enabled": true,
             "runs": 200
           },
+          "viaIR": true,
           "evmVersion": "paris",
           "outputSelection": {
             "*": {
@@ -418,8 +420,7 @@
                 "evm.bytecode",
                 "evm.deployedBytecode",
                 "evm.methodIdentifiers",
-                "metadata",
-                "storageLayout"
+                "metadata"
               ],
               "": [
                 "ast"
@@ -440,7 +441,7 @@
       ]
     },
     "/home/runner/workspace/node_modules/@openzeppelin/contracts/token/ERC20/extensions/ERC20Burnable.sol": {
-      "lastModificationDate": 1749603768568,
+      "lastModificationDate": 1759073819207,
       "contentHash": "273d8d24b06f67207dd5f35c3a0c1086",
       "sourceName": "@openzeppelin/contracts/token/ERC20/extensions/ERC20Burnable.sol",
       "solcConfig": {
@@ -450,6 +451,7 @@
             "enabled": true,
             "runs": 200
           },
+          "viaIR": true,
           "evmVersion": "paris",
           "outputSelection": {
             "*": {
@@ -458,8 +460,7 @@
                 "evm.bytecode",
                 "evm.deployedBytecode",
                 "evm.methodIdentifiers",
-                "metadata",
-                "storageLayout"
+                "metadata"
               ],
               "": [
                 "ast"
@@ -480,8 +481,8 @@
       ]
     },
     "/home/runner/workspace/node_modules/@openzeppelin/contracts/access/AccessControl.sol": {
-      "lastModificationDate": 1749603766780,
-      "contentHash": "849b15469d8e2bd01b49e6c632e448e7",
+      "lastModificationDate": 1759073817916,
+      "contentHash": "d0e2c05f09a3aea7cd299bbd4a435ee2",
       "sourceName": "@openzeppelin/contracts/access/AccessControl.sol",
       "solcConfig": {
         "version": "0.8.26",
@@ -490,6 +491,7 @@
             "enabled": true,
             "runs": 200
           },
+          "viaIR": true,
           "evmVersion": "paris",
           "outputSelection": {
             "*": {
@@ -498,8 +500,7 @@
                 "evm.bytecode",
                 "evm.deployedBytecode",
                 "evm.methodIdentifiers",
-                "metadata",
-                "storageLayout"
+                "metadata"
               ],
               "": [
                 "ast"
@@ -521,8 +522,8 @@
       ]
     },
     "/home/runner/workspace/node_modules/@openzeppelin/contracts/utils/introspection/ERC165.sol": {
-      "lastModificationDate": 1749603768459,
-      "contentHash": "7c03c1e37c3dc24eafb76dc2b8a5c3a6",
+      "lastModificationDate": 1759073819121,
+      "contentHash": "0906d06dca25210d4696dcef6dad2909",
       "sourceName": "@openzeppelin/contracts/utils/introspection/ERC165.sol",
       "solcConfig": {
         "version": "0.8.26",
@@ -531,6 +532,7 @@
             "enabled": true,
             "runs": 200
           },
+          "viaIR": true,
           "evmVersion": "paris",
           "outputSelection": {
             "*": {
@@ -539,8 +541,7 @@
                 "evm.bytecode",
                 "evm.deployedBytecode",
                 "evm.methodIdentifiers",
-                "metadata",
-                "storageLayout"
+                "metadata"
               ],
               "": [
                 "ast"
@@ -560,8 +561,8 @@
       ]
     },
     "/home/runner/workspace/node_modules/@openzeppelin/contracts/access/IAccessControl.sol": {
-      "lastModificationDate": 1749603769065,
-      "contentHash": "80621031deacf7066ec81277f9b1463a",
+      "lastModificationDate": 1759073819859,
+      "contentHash": "def1e8f7b6cac577cf2600655bf3bdf8",
       "sourceName": "@openzeppelin/contracts/access/IAccessControl.sol",
       "solcConfig": {
         "version": "0.8.26",
@@ -570,6 +571,7 @@
             "enabled": true,
             "runs": 200
           },
+          "viaIR": true,
           "evmVersion": "paris",
           "outputSelection": {
             "*": {
@@ -578,8 +580,7 @@
                 "evm.bytecode",
                 "evm.deployedBytecode",
                 "evm.methodIdentifiers",
-                "metadata",
-                "storageLayout"
+                "metadata"
               ],
               "": [
                 "ast"
@@ -590,15 +591,15 @@
       },
       "imports": [],
       "versionPragmas": [
-        "^0.8.20"
+        ">=0.8.4"
       ],
       "artifacts": [
         "IAccessControl"
       ]
     },
     "/home/runner/workspace/node_modules/@openzeppelin/contracts/utils/introspection/IERC165.sol": {
-      "lastModificationDate": 1749603769207,
-      "contentHash": "bf0119eb2a570f219729ff38b6cd1df8",
+      "lastModificationDate": 1759073820104,
+      "contentHash": "7074c93b1ea0a122063f26ddd1db1032",
       "sourceName": "@openzeppelin/contracts/utils/introspection/IERC165.sol",
       "solcConfig": {
         "version": "0.8.26",
@@ -607,6 +608,7 @@
             "enabled": true,
             "runs": 200
           },
+          "viaIR": true,
           "evmVersion": "paris",
           "outputSelection": {
             "*": {
@@ -615,8 +617,7 @@
                 "evm.bytecode",
                 "evm.deployedBytecode",
                 "evm.methodIdentifiers",
-                "metadata",
-                "storageLayout"
+                "metadata"
               ],
               "": [
                 "ast"
@@ -627,7 +628,7 @@
       },
       "imports": [],
       "versionPragmas": [
-        "^0.8.20"
+        ">=0.4.16"
       ],
       "artifacts": [
         "IERC165"
@@ -644,6 +645,7 @@
             "enabled": true,
             "runs": 200
           },
+          "viaIR": true,
           "evmVersion": "paris",
           "outputSelection": {
             "*": {
@@ -652,8 +654,7 @@
                 "evm.bytecode",
                 "evm.deployedBytecode",
                 "evm.methodIdentifiers",
-                "metadata",
-                "storageLayout"
+                "metadata"
               ],
               "": [
                 "ast"
@@ -688,6 +689,7 @@
             "enabled": true,
             "runs": 200
           },
+          "viaIR": true,
           "evmVersion": "paris",
           "outputSelection": {
             "*": {
@@ -696,8 +698,7 @@
                 "evm.bytecode",
                 "evm.deployedBytecode",
                 "evm.methodIdentifiers",
-                "metadata",
-                "storageLayout"
+                "metadata"
               ],
               "": [
                 "ast"
@@ -725,6 +726,7 @@
             "enabled": true,
             "runs": 200
           },
+          "viaIR": true,
           "evmVersion": "paris",
           "outputSelection": {
             "*": {
@@ -733,8 +735,7 @@
                 "evm.bytecode",
                 "evm.deployedBytecode",
                 "evm.methodIdentifiers",
-                "metadata",
-                "storageLayout"
+                "metadata"
               ],
               "": [
                 "ast"
@@ -752,7 +753,7 @@
       ]
     },
     "/home/runner/workspace/node_modules/@openzeppelin/contracts/utils/Pausable.sol": {
-      "lastModificationDate": 1749603769619,
+      "lastModificationDate": 1759073821125,
       "contentHash": "0d47b53e10b1985efbb396f937626279",
       "sourceName": "@openzeppelin/contracts/utils/Pausable.sol",
       "solcConfig": {
@@ -762,6 +763,7 @@
             "enabled": true,
             "runs": 200
           },
+          "viaIR": true,
           "evmVersion": "paris",
           "outputSelection": {
             "*": {
@@ -770,8 +772,7 @@
                 "evm.bytecode",
                 "evm.deployedBytecode",
                 "evm.methodIdentifiers",
-                "metadata",
-                "storageLayout"
+                "metadata"
               ],
               "": [
                 "ast"
@@ -791,7 +792,7 @@
       ]
     },
     "/home/runner/workspace/node_modules/@openzeppelin/contracts/utils/math/Math.sol": {
-      "lastModificationDate": 1749603769501,
+      "lastModificationDate": 1759073820936,
       "contentHash": "5ec781e33d3a9ac91ffdc83d94420412",
       "sourceName": "@openzeppelin/contracts/utils/math/Math.sol",
       "solcConfig": {
@@ -801,6 +802,7 @@
             "enabled": true,
             "runs": 200
           },
+          "viaIR": true,
           "evmVersion": "paris",
           "outputSelection": {
             "*": {
@@ -809,8 +811,7 @@
                 "evm.bytecode",
                 "evm.deployedBytecode",
                 "evm.methodIdentifiers",
-                "metadata",
-                "storageLayout"
+                "metadata"
               ],
               "": [
                 "ast"
@@ -831,7 +832,7 @@
       ]
     },
     "/home/runner/workspace/node_modules/@openzeppelin/contracts/utils/Panic.sol": {
-      "lastModificationDate": 1749603769615,
+      "lastModificationDate": 1759073821121,
       "contentHash": "2133dc13536b4a6a98131e431fac59e1",
       "sourceName": "@openzeppelin/contracts/utils/Panic.sol",
       "solcConfig": {
@@ -841,6 +842,7 @@
             "enabled": true,
             "runs": 200
           },
+          "viaIR": true,
           "evmVersion": "paris",
           "outputSelection": {
             "*": {
@@ -849,8 +851,7 @@
                 "evm.bytecode",
                 "evm.deployedBytecode",
                 "evm.methodIdentifiers",
-                "metadata",
-                "storageLayout"
+                "metadata"
               ],
               "": [
                 "ast"
@@ -868,7 +869,7 @@
       ]
     },
     "/home/runner/workspace/node_modules/@openzeppelin/contracts/utils/math/SafeCast.sol": {
-      "lastModificationDate": 1749603769682,
+      "lastModificationDate": 1759073821191,
       "contentHash": "2adca1150f58fc6f3d1f0a0f22ee7cca",
       "sourceName": "@openzeppelin/contracts/utils/math/SafeCast.sol",
       "solcConfig": {
@@ -878,6 +879,7 @@
             "enabled": true,
             "runs": 200
           },
+          "viaIR": true,
           "evmVersion": "paris",
           "outputSelection": {
             "*": {
@@ -886,8 +888,7 @@
                 "evm.bytecode",
                 "evm.deployedBytecode",
                 "evm.methodIdentifiers",
-                "metadata",
-                "storageLayout"
+                "metadata"
               ],
               "": [
                 "ast"
@@ -915,6 +916,7 @@
             "enabled": true,
             "runs": 200
           },
+          "viaIR": true,
           "evmVersion": "paris",
           "outputSelection": {
             "*": {
@@ -923,8 +925,7 @@
                 "evm.bytecode",
                 "evm.deployedBytecode",
                 "evm.methodIdentifiers",
-                "metadata",
-                "storageLayout"
+                "metadata"
               ],
               "": [
                 "ast"
@@ -955,6 +956,7 @@
             "enabled": true,
             "runs": 200
           },
+          "viaIR": true,
           "evmVersion": "paris",
           "outputSelection": {
             "*": {
@@ -963,8 +965,7 @@
                 "evm.bytecode",
                 "evm.deployedBytecode",
                 "evm.methodIdentifiers",
-                "metadata",
-                "storageLayout"
+                "metadata"
               ],
               "": [
                 "ast"
@@ -995,6 +996,7 @@
             "enabled": true,
             "runs": 200
           },
+          "viaIR": true,
           "evmVersion": "paris",
           "outputSelection": {
             "*": {
@@ -1003,8 +1005,7 @@
                 "evm.bytecode",
                 "evm.deployedBytecode",
                 "evm.methodIdentifiers",
-                "metadata",
-                "storageLayout"
+                "metadata"
               ],
               "": [
                 "ast"
@@ -1035,6 +1036,7 @@
             "enabled": true,
             "runs": 200
           },
+          "viaIR": true,
           "evmVersion": "paris",
           "outputSelection": {
             "*": {
@@ -1043,8 +1045,7 @@
                 "evm.bytecode",
                 "evm.deployedBytecode",
                 "evm.methodIdentifiers",
-                "metadata",
-                "storageLayout"
+                "metadata"
               ],
               "": [
                 "ast"
@@ -1078,6 +1079,7 @@
             "enabled": true,
             "runs": 200
           },
+          "viaIR": true,
           "evmVersion": "paris",
           "outputSelection": {
             "*": {
@@ -1086,8 +1088,7 @@
                 "evm.bytecode",
                 "evm.deployedBytecode",
                 "evm.methodIdentifiers",
-                "metadata",
-                "storageLayout"
+                "metadata"
               ],
               "": [
                 "ast"
@@ -1121,6 +1122,7 @@
             "enabled": true,
             "runs": 200
           },
+          "viaIR": true,
           "evmVersion": "paris",
           "outputSelection": {
             "*": {
@@ -1129,8 +1131,7 @@
                 "evm.bytecode",
                 "evm.deployedBytecode",
                 "evm.methodIdentifiers",
-                "metadata",
-                "storageLayout"
+                "metadata"
               ],
               "": [
                 "ast"
@@ -1162,6 +1163,7 @@
             "enabled": true,
             "runs": 200
           },
+          "viaIR": true,
           "evmVersion": "paris",
           "outputSelection": {
             "*": {
@@ -1170,8 +1172,7 @@
                 "evm.bytecode",
                 "evm.deployedBytecode",
                 "evm.methodIdentifiers",
-                "metadata",
-                "storageLayout"
+                "metadata"
               ],
               "": [
                 "ast"
@@ -1192,8 +1193,8 @@
       ]
     },
     "/home/runner/workspace/contracts/DynamicAPRController.sol": {
-      "lastModificationDate": 1745733567663,
-      "contentHash": "9bd62f9ee9d53b7394a0b0592f75f671",
+      "lastModificationDate": 1757994151135,
+      "contentHash": "0675ca9c728af632e825bbe3b7a2e6e6",
       "sourceName": "contracts/DynamicAPRController.sol",
       "solcConfig": {
         "version": "0.8.26",
@@ -1202,6 +1203,7 @@
             "enabled": true,
             "runs": 200
           },
+          "viaIR": true,
           "evmVersion": "paris",
           "outputSelection": {
             "*": {
@@ -1210,8 +1212,7 @@
                 "evm.bytecode",
                 "evm.deployedBytecode",
                 "evm.methodIdentifiers",
-                "metadata",
-                "storageLayout"
+                "metadata"
               ],
               "": [
                 "ast"
@@ -1223,7 +1224,9 @@
       "imports": [
         "@openzeppelin/contracts/access/Ownable.sol",
         "@openzeppelin/contracts/token/ERC20/IERC20.sol",
-        "./SWFBasketVault.sol"
+        "@openzeppelin/contracts/access/AccessControl.sol",
+        "./SWFBasketVault.sol",
+        "./SoloMethodEngineV2.sol"
       ],
       "versionPragmas": [
         "^0.8.20"
@@ -1233,8 +1236,8 @@
       ]
     },
     "/home/runner/workspace/contracts/SWFBasketVault.sol": {
-      "lastModificationDate": 1745733567656,
-      "contentHash": "5347755f07dcd632890fcd70ed433aa4",
+      "lastModificationDate": 1760654746151,
+      "contentHash": "10d147ec62ceeb25ccd6245895f8712f",
       "sourceName": "contracts/SWFBasketVault.sol",
       "solcConfig": {
         "version": "0.8.26",
@@ -1243,6 +1246,7 @@
             "enabled": true,
             "runs": 200
           },
+          "viaIR": true,
           "evmVersion": "paris",
           "outputSelection": {
             "*": {
@@ -1251,8 +1255,7 @@
                 "evm.bytecode",
                 "evm.deployedBytecode",
                 "evm.methodIdentifiers",
-                "metadata",
-                "storageLayout"
+                "metadata"
               ],
               "": [
                 "ast"
@@ -1263,7 +1266,11 @@
       },
       "imports": [
         "@openzeppelin/contracts/token/ERC20/IERC20.sol",
-        "@openzeppelin/contracts/token/ERC20/ERC20.sol"
+        "@openzeppelin/contracts/token/ERC20/ERC20.sol",
+        "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol",
+        "@openzeppelin/contracts/utils/ReentrancyGuard.sol",
+        "@openzeppelin/contracts/utils/Pausable.sol",
+        "@openzeppelin/contracts/access/Ownable.sol"
       ],
       "versionPragmas": [
         "^0.8.20"
@@ -1283,6 +1290,7 @@
             "enabled": true,
             "runs": 200
           },
+          "viaIR": true,
           "evmVersion": "paris",
           "outputSelection": {
             "*": {
@@ -1291,8 +1299,7 @@
                 "evm.bytecode",
                 "evm.deployedBytecode",
                 "evm.methodIdentifiers",
-                "metadata",
-                "storageLayout"
+                "metadata"
               ],
               "": [
                 "ast"
@@ -1329,6 +1336,7 @@
             "enabled": true,
             "runs": 200
           },
+          "viaIR": true,
           "evmVersion": "paris",
           "outputSelection": {
             "*": {
@@ -1337,8 +1345,7 @@
                 "evm.bytecode",
                 "evm.deployedBytecode",
                 "evm.methodIdentifiers",
-                "metadata",
-                "storageLayout"
+                "metadata"
               ],
               "": [
                 "ast"
@@ -1368,6 +1375,7 @@
             "enabled": true,
             "runs": 200
           },
+          "viaIR": true,
           "evmVersion": "paris",
           "outputSelection": {
             "*": {
@@ -1376,8 +1384,7 @@
                 "evm.bytecode",
                 "evm.deployedBytecode",
                 "evm.methodIdentifiers",
-                "metadata",
-                "storageLayout"
+                "metadata"
               ],
               "": [
                 "ast"
@@ -1405,6 +1412,7 @@
             "enabled": true,
             "runs": 200
           },
+          "viaIR": true,
           "evmVersion": "paris",
           "outputSelection": {
             "*": {
@@ -1413,8 +1421,7 @@
                 "evm.bytecode",
                 "evm.deployedBytecode",
                 "evm.methodIdentifiers",
-                "metadata",
-                "storageLayout"
+                "metadata"
               ],
               "": [
                 "ast"
@@ -1442,6 +1449,7 @@
             "enabled": true,
             "runs": 200
           },
+          "viaIR": true,
           "evmVersion": "paris",
           "outputSelection": {
             "*": {
@@ -1450,8 +1458,7 @@
                 "evm.bytecode",
                 "evm.deployedBytecode",
                 "evm.methodIdentifiers",
-                "metadata",
-                "storageLayout"
+                "metadata"
               ],
               "": [
                 "ast"
@@ -1468,43 +1475,6 @@
         "OracleFeed"
       ]
     },
-    "/home/runner/workspace/contracts/PropertySharesToken.sol": {
-      "lastModificationDate": 1749594438380,
-      "contentHash": "4594aabb6b51b8ab47377ac519324a7f",
-      "sourceName": "contracts/PropertySharesToken.sol",
-      "solcConfig": {
-        "version": "0.8.26",
-        "settings": {
-          "optimizer": {
-            "enabled": true,
-            "runs": 200
-          },
-          "evmVersion": "paris",
-          "outputSelection": {
-            "*": {
-              "*": [
-                "abi",
-                "evm.bytecode",
-                "evm.deployedBytecode",
-                "evm.methodIdentifiers",
-                "metadata",
-                "storageLayout"
-              ],
-              "": [
-                "ast"
-              ]
-            }
-          }
-        }
-      },
-      "imports": [],
-      "versionPragmas": [
-        "^0.8.20"
-      ],
-      "artifacts": [
-        "PropertySharesToken"
-      ]
-    },
     "/home/runner/workspace/contracts/PropertyVault.sol": {
       "lastModificationDate": 1749594438380,
       "contentHash": "d117e42fa9057f956fe028be9bc4b448",
@@ -1516,6 +1486,7 @@
             "enabled": true,
             "runs": 200
           },
+          "viaIR": true,
           "evmVersion": "paris",
           "outputSelection": {
             "*": {
@@ -1524,8 +1495,7 @@
                 "evm.bytecode",
                 "evm.deployedBytecode",
                 "evm.methodIdentifiers",
-                "metadata",
-                "storageLayout"
+                "metadata"
               ],
               "": [
                 "ast"
@@ -1553,6 +1523,7 @@
             "enabled": true,
             "runs": 200
           },
+          "viaIR": true,
           "evmVersion": "paris",
           "outputSelection": {
             "*": {
@@ -1561,8 +1532,7 @@
                 "evm.bytecode",
                 "evm.deployedBytecode",
                 "evm.methodIdentifiers",
-                "metadata",
-                "storageLayout"
+                "metadata"
               ],
               "": [
                 "ast"
@@ -1590,6 +1560,7 @@
             "enabled": true,
             "runs": 200
           },
+          "viaIR": true,
           "evmVersion": "paris",
           "outputSelection": {
             "*": {
@@ -1598,8 +1569,7 @@
                 "evm.bytecode",
                 "evm.deployedBytecode",
                 "evm.methodIdentifiers",
-                "metadata",
-                "storageLayout"
+                "metadata"
               ],
               "": [
                 "ast"
@@ -1627,6 +1597,7 @@
             "enabled": true,
             "runs": 200
           },
+          "viaIR": true,
           "evmVersion": "paris",
           "outputSelection": {
             "*": {
@@ -1635,8 +1606,7 @@
                 "evm.bytecode",
                 "evm.deployedBytecode",
                 "evm.methodIdentifiers",
-                "metadata",
-                "storageLayout"
+                "metadata"
               ],
               "": [
                 "ast"
@@ -1664,6 +1634,7 @@
             "enabled": true,
             "runs": 200
           },
+          "viaIR": true,
           "evmVersion": "paris",
           "outputSelection": {
             "*": {
@@ -1672,8 +1643,7 @@
                 "evm.bytecode",
                 "evm.deployedBytecode",
                 "evm.methodIdentifiers",
-                "metadata",
-                "storageLayout"
+                "metadata"
               ],
               "": [
                 "ast"
@@ -1701,6 +1671,7 @@
             "enabled": true,
             "runs": 200
           },
+          "viaIR": true,
           "evmVersion": "paris",
           "outputSelection": {
             "*": {
@@ -1709,8 +1680,7 @@
                 "evm.bytecode",
                 "evm.deployedBytecode",
                 "evm.methodIdentifiers",
-                "metadata",
-                "storageLayout"
+                "metadata"
               ],
               "": [
                 "ast"
@@ -1738,6 +1708,7 @@
             "enabled": true,
             "runs": 200
           },
+          "viaIR": true,
           "evmVersion": "paris",
           "outputSelection": {
             "*": {
@@ -1746,8 +1717,7 @@
                 "evm.bytecode",
                 "evm.deployedBytecode",
                 "evm.methodIdentifiers",
-                "metadata",
-                "storageLayout"
+                "metadata"
               ],
               "": [
                 "ast"
@@ -1775,6 +1745,7 @@
             "enabled": true,
             "runs": 200
           },
+          "viaIR": true,
           "evmVersion": "paris",
           "outputSelection": {
             "*": {
@@ -1783,8 +1754,7 @@
                 "evm.bytecode",
                 "evm.deployedBytecode",
                 "evm.methodIdentifiers",
-                "metadata",
-                "storageLayout"
+                "metadata"
               ],
               "": [
                 "ast"
@@ -1812,6 +1782,7 @@
             "enabled": true,
             "runs": 200
           },
+          "viaIR": true,
           "evmVersion": "paris",
           "outputSelection": {
             "*": {
@@ -1820,8 +1791,7 @@
                 "evm.bytecode",
                 "evm.deployedBytecode",
                 "evm.methodIdentifiers",
-                "metadata",
-                "storageLayout"
+                "metadata"
               ],
               "": [
                 "ast"
@@ -1844,7 +1814,7 @@
       ]
     },
     "/home/runner/workspace/node_modules/@thirdweb-dev/contracts/extension/PermissionsEnumerable.sol": {
-      "lastModificationDate": 1749603774974,
+      "lastModificationDate": 1759073830159,
       "contentHash": "590e25b81efc9a3a059e69c0c2a004f2",
       "sourceName": "@thirdweb-dev/contracts/extension/PermissionsEnumerable.sol",
       "solcConfig": {
@@ -1854,6 +1824,7 @@
             "enabled": true,
             "runs": 200
           },
+          "viaIR": true,
           "evmVersion": "paris",
           "outputSelection": {
             "*": {
@@ -1862,8 +1833,7 @@
                 "evm.bytecode",
                 "evm.deployedBytecode",
                 "evm.methodIdentifiers",
-                "metadata",
-                "storageLayout"
+                "metadata"
               ],
               "": [
                 "ast"
@@ -1884,7 +1854,7 @@
       ]
     },
     "/home/runner/workspace/node_modules/@thirdweb-dev/contracts/base/ERC20Base.sol": {
-      "lastModificationDate": 1749603774399,
+      "lastModificationDate": 1759073828612,
       "contentHash": "1422f9ba655cd2fb686482b702c9fea9",
       "sourceName": "@thirdweb-dev/contracts/base/ERC20Base.sol",
       "solcConfig": {
@@ -1894,6 +1864,7 @@
             "enabled": true,
             "runs": 200
           },
+          "viaIR": true,
           "evmVersion": "paris",
           "outputSelection": {
             "*": {
@@ -1902,8 +1873,7 @@
                 "evm.bytecode",
                 "evm.deployedBytecode",
                 "evm.methodIdentifiers",
-                "metadata",
-                "storageLayout"
+                "metadata"
               ],
               "": [
                 "ast"
@@ -1928,7 +1898,7 @@
       ]
     },
     "/home/runner/workspace/node_modules/@thirdweb-dev/contracts/eip/interface/IERC20.sol": {
-      "lastModificationDate": 1749603774688,
+      "lastModificationDate": 1759073829250,
       "contentHash": "921ac6705bd4d6bdfa74d59e9f6fdd58",
       "sourceName": "@thirdweb-dev/contracts/eip/interface/IERC20.sol",
       "solcConfig": {
@@ -1938,6 +1908,7 @@
             "enabled": true,
             "runs": 200
           },
+          "viaIR": true,
           "evmVersion": "paris",
           "outputSelection": {
             "*": {
@@ -1946,8 +1917,7 @@
                 "evm.bytecode",
                 "evm.deployedBytecode",
                 "evm.methodIdentifiers",
-                "metadata",
-                "storageLayout"
+                "metadata"
               ],
               "": [
                 "ast"
@@ -1965,7 +1935,7 @@
       ]
     },
     "/home/runner/workspace/node_modules/@thirdweb-dev/contracts/extension/Permissions.sol": {
-      "lastModificationDate": 1749603774969,
+      "lastModificationDate": 1759073830141,
       "contentHash": "3cbb384c4cc59bb17d28ca69397eecd7",
       "sourceName": "@thirdweb-dev/contracts/extension/Permissions.sol",
       "solcConfig": {
@@ -1975,6 +1945,7 @@
             "enabled": true,
             "runs": 200
           },
+          "viaIR": true,
           "evmVersion": "paris",
           "outputSelection": {
             "*": {
@@ -1983,8 +1954,7 @@
                 "evm.bytecode",
                 "evm.deployedBytecode",
                 "evm.methodIdentifiers",
-                "metadata",
-                "storageLayout"
+                "metadata"
               ],
               "": [
                 "ast"
@@ -2005,7 +1975,7 @@
       ]
     },
     "/home/runner/workspace/node_modules/@thirdweb-dev/contracts/extension/interface/IPermissionsEnumerable.sol": {
-      "lastModificationDate": 1749603774748,
+      "lastModificationDate": 1759073829648,
       "contentHash": "ff6b5ef2ffcc2863fe5e113927f29c79",
       "sourceName": "@thirdweb-dev/contracts/extension/interface/IPermissionsEnumerable.sol",
       "solcConfig": {
@@ -2015,6 +1985,7 @@
             "enabled": true,
             "runs": 200
           },
+          "viaIR": true,
           "evmVersion": "paris",
           "outputSelection": {
             "*": {
@@ -2023,8 +1994,7 @@
                 "evm.bytecode",
                 "evm.deployedBytecode",
                 "evm.methodIdentifiers",
-                "metadata",
-                "storageLayout"
+                "metadata"
               ],
               "": [
                 "ast"
@@ -2044,7 +2014,7 @@
       ]
     },
     "/home/runner/workspace/node_modules/@thirdweb-dev/contracts/lib/Strings.sol": {
-      "lastModificationDate": 1749603775221,
+      "lastModificationDate": 1759073830717,
       "contentHash": "96ccf769fa54976a6d439d8fe2cb0f93",
       "sourceName": "@thirdweb-dev/contracts/lib/Strings.sol",
       "solcConfig": {
@@ -2054,6 +2024,7 @@
             "enabled": true,
             "runs": 200
           },
+          "viaIR": true,
           "evmVersion": "paris",
           "outputSelection": {
             "*": {
@@ -2062,8 +2033,7 @@
                 "evm.bytecode",
                 "evm.deployedBytecode",
                 "evm.methodIdentifiers",
-                "metadata",
-                "storageLayout"
+                "metadata"
               ],
               "": [
                 "ast"
@@ -2081,7 +2051,7 @@
       ]
     },
     "/home/runner/workspace/node_modules/@thirdweb-dev/contracts/extension/interface/IPermissions.sol": {
-      "lastModificationDate": 1749603774746,
+      "lastModificationDate": 1759073829647,
       "contentHash": "ef35644c1d475faa91ee1d776c69bf81",
       "sourceName": "@thirdweb-dev/contracts/extension/interface/IPermissions.sol",
       "solcConfig": {
@@ -2091,6 +2061,7 @@
             "enabled": true,
             "runs": 200
           },
+          "viaIR": true,
           "evmVersion": "paris",
           "outputSelection": {
             "*": {
@@ -2099,8 +2070,7 @@
                 "evm.bytecode",
                 "evm.deployedBytecode",
                 "evm.methodIdentifiers",
-                "metadata",
-                "storageLayout"
+                "metadata"
               ],
               "": [
                 "ast"
@@ -2118,7 +2088,7 @@
       ]
     },
     "/home/runner/workspace/node_modules/@thirdweb-dev/contracts/extension/Ownable.sol": {
-      "lastModificationDate": 1749603774920,
+      "lastModificationDate": 1759073830057,
       "contentHash": "7ed798e3340425ef1defca6f2bdaca06",
       "sourceName": "@thirdweb-dev/contracts/extension/Ownable.sol",
       "solcConfig": {
@@ -2128,6 +2098,7 @@
             "enabled": true,
             "runs": 200
           },
+          "viaIR": true,
           "evmVersion": "paris",
           "outputSelection": {
             "*": {
@@ -2136,8 +2107,7 @@
                 "evm.bytecode",
                 "evm.deployedBytecode",
                 "evm.methodIdentifiers",
-                "metadata",
-                "storageLayout"
+                "metadata"
               ],
               "": [
                 "ast"
@@ -2157,7 +2127,7 @@
       ]
     },
     "/home/runner/workspace/node_modules/@thirdweb-dev/contracts/extension/ContractMetadata.sol": {
-      "lastModificationDate": 1749603774224,
+      "lastModificationDate": 1759073828008,
       "contentHash": "1c7afe0dd66e6175f9f601acb92917ea",
       "sourceName": "@thirdweb-dev/contracts/extension/ContractMetadata.sol",
       "solcConfig": {
@@ -2167,6 +2137,7 @@
             "enabled": true,
             "runs": 200
           },
+          "viaIR": true,
           "evmVersion": "paris",
           "outputSelection": {
             "*": {
@@ -2175,8 +2146,7 @@
                 "evm.bytecode",
                 "evm.deployedBytecode",
                 "evm.methodIdentifiers",
-                "metadata",
-                "storageLayout"
+                "metadata"
               ],
               "": [
                 "ast"
@@ -2196,7 +2166,7 @@
       ]
     },
     "/home/runner/workspace/node_modules/@thirdweb-dev/contracts/extension/Multicall.sol": {
-      "lastModificationDate": 1749603774877,
+      "lastModificationDate": 1759073829975,
       "contentHash": "c4d4a9bf7e77098451db819ce6c358a5",
       "sourceName": "@thirdweb-dev/contracts/extension/Multicall.sol",
       "solcConfig": {
@@ -2206,6 +2176,7 @@
             "enabled": true,
             "runs": 200
           },
+          "viaIR": true,
           "evmVersion": "paris",
           "outputSelection": {
             "*": {
@@ -2214,8 +2185,7 @@
                 "evm.bytecode",
                 "evm.deployedBytecode",
                 "evm.methodIdentifiers",
-                "metadata",
-                "storageLayout"
+                "metadata"
               ],
               "": [
                 "ast"
@@ -2236,7 +2206,7 @@
       ]
     },
     "/home/runner/workspace/node_modules/@thirdweb-dev/contracts/extension/interface/IMintableERC20.sol": {
-      "lastModificationDate": 1749603774728,
+      "lastModificationDate": 1759073829471,
       "contentHash": "968f2007799a9bc14031c88bf3bdf1d0",
       "sourceName": "@thirdweb-dev/contracts/extension/interface/IMintableERC20.sol",
       "solcConfig": {
@@ -2246,6 +2216,7 @@
             "enabled": true,
             "runs": 200
           },
+          "viaIR": true,
           "evmVersion": "paris",
           "outputSelection": {
             "*": {
@@ -2254,8 +2225,7 @@
                 "evm.bytecode",
                 "evm.deployedBytecode",
                 "evm.methodIdentifiers",
-                "metadata",
-                "storageLayout"
+                "metadata"
               ],
               "": [
                 "ast"
@@ -2273,7 +2243,7 @@
       ]
     },
     "/home/runner/workspace/node_modules/@thirdweb-dev/contracts/extension/interface/IBurnableERC20.sol": {
-      "lastModificationDate": 1749603774590,
+      "lastModificationDate": 1759073829020,
       "contentHash": "341a97b2e29fff01bc530eab6003e7fe",
       "sourceName": "@thirdweb-dev/contracts/extension/interface/IBurnableERC20.sol",
       "solcConfig": {
@@ -2283,6 +2253,7 @@
             "enabled": true,
             "runs": 200
           },
+          "viaIR": true,
           "evmVersion": "paris",
           "outputSelection": {
             "*": {
@@ -2291,8 +2262,7 @@
                 "evm.bytecode",
                 "evm.deployedBytecode",
                 "evm.methodIdentifiers",
-                "metadata",
-                "storageLayout"
+                "metadata"
               ],
               "": [
                 "ast"
@@ -2310,7 +2280,7 @@
       ]
     },
     "/home/runner/workspace/node_modules/@thirdweb-dev/contracts/external-deps/openzeppelin/token/ERC20/extensions/ERC20Permit.sol": {
-      "lastModificationDate": 1749603774409,
+      "lastModificationDate": 1759073828661,
       "contentHash": "8d3a943207506390356f02dd8f540bc9",
       "sourceName": "@thirdweb-dev/contracts/external-deps/openzeppelin/token/ERC20/extensions/ERC20Permit.sol",
       "solcConfig": {
@@ -2320,6 +2290,7 @@
             "enabled": true,
             "runs": 200
           },
+          "viaIR": true,
           "evmVersion": "paris",
           "outputSelection": {
             "*": {
@@ -2328,8 +2299,7 @@
                 "evm.bytecode",
                 "evm.deployedBytecode",
                 "evm.methodIdentifiers",
-                "metadata",
-                "storageLayout"
+                "metadata"
               ],
               "": [
                 "ast"
@@ -2353,7 +2323,7 @@
       ]
     },
     "/home/runner/workspace/node_modules/@thirdweb-dev/contracts/extension/interface/IOwnable.sol": {
-      "lastModificationDate": 1749603774744,
+      "lastModificationDate": 1759073829622,
       "contentHash": "409555a090d8b04837ea27fc6e1818f9",
       "sourceName": "@thirdweb-dev/contracts/extension/interface/IOwnable.sol",
       "solcConfig": {
@@ -2363,6 +2333,7 @@
             "enabled": true,
             "runs": 200
           },
+          "viaIR": true,
           "evmVersion": "paris",
           "outputSelection": {
             "*": {
@@ -2371,8 +2342,7 @@
                 "evm.bytecode",
                 "evm.deployedBytecode",
                 "evm.methodIdentifiers",
-                "metadata",
-                "storageLayout"
+                "metadata"
               ],
               "": [
                 "ast"
@@ -2390,7 +2360,7 @@
       ]
     },
     "/home/runner/workspace/node_modules/@thirdweb-dev/contracts/extension/interface/IContractMetadata.sol": {
-      "lastModificationDate": 1749603774619,
+      "lastModificationDate": 1759073829076,
       "contentHash": "6cffce9927c3dacc15ccc20ee5a1d89e",
       "sourceName": "@thirdweb-dev/contracts/extension/interface/IContractMetadata.sol",
       "solcConfig": {
@@ -2400,6 +2370,7 @@
             "enabled": true,
             "runs": 200
           },
+          "viaIR": true,
           "evmVersion": "paris",
           "outputSelection": {
             "*": {
@@ -2408,8 +2379,7 @@
                 "evm.bytecode",
                 "evm.deployedBytecode",
                 "evm.methodIdentifiers",
-                "metadata",
-                "storageLayout"
+                "metadata"
               ],
               "": [
                 "ast"
@@ -2427,7 +2397,7 @@
       ]
     },
     "/home/runner/workspace/node_modules/@thirdweb-dev/contracts/lib/Address.sol": {
-      "lastModificationDate": 1749603774153,
+      "lastModificationDate": 1759073827687,
       "contentHash": "22b987ca54f63bdccbf92cf52478d9a0",
       "sourceName": "@thirdweb-dev/contracts/lib/Address.sol",
       "solcConfig": {
@@ -2437,6 +2407,7 @@
             "enabled": true,
             "runs": 200
           },
+          "viaIR": true,
           "evmVersion": "paris",
           "outputSelection": {
             "*": {
@@ -2445,8 +2416,7 @@
                 "evm.bytecode",
                 "evm.deployedBytecode",
                 "evm.methodIdentifiers",
-                "metadata",
-                "storageLayout"
+                "metadata"
               ],
               "": [
                 "ast"
@@ -2464,7 +2434,7 @@
       ]
     },
     "/home/runner/workspace/node_modules/@thirdweb-dev/contracts/extension/interface/IMulticall.sol": {
-      "lastModificationDate": 1749603774729,
+      "lastModificationDate": 1759073829496,
       "contentHash": "f940a79d3555cb15335797309e63f5d2",
       "sourceName": "@thirdweb-dev/contracts/extension/interface/IMulticall.sol",
       "solcConfig": {
@@ -2474,6 +2444,7 @@
             "enabled": true,
             "runs": 200
           },
+          "viaIR": true,
           "evmVersion": "paris",
           "outputSelection": {
             "*": {
@@ -2482,8 +2453,7 @@
                 "evm.bytecode",
                 "evm.deployedBytecode",
                 "evm.methodIdentifiers",
-                "metadata",
-                "storageLayout"
+                "metadata"
               ],
               "": [
                 "ast"
@@ -2501,7 +2471,7 @@
       ]
     },
     "/home/runner/workspace/node_modules/@thirdweb-dev/contracts/eip/interface/IERC20Permit.sol": {
-      "lastModificationDate": 1749603774690,
+      "lastModificationDate": 1759073829258,
       "contentHash": "fb77f144244b9ab12533aa6ce85ef8c5",
       "sourceName": "@thirdweb-dev/contracts/eip/interface/IERC20Permit.sol",
       "solcConfig": {
@@ -2511,6 +2481,7 @@
             "enabled": true,
             "runs": 200
           },
+          "viaIR": true,
           "evmVersion": "paris",
           "outputSelection": {
             "*": {
@@ -2519,8 +2490,7 @@
                 "evm.bytecode",
                 "evm.deployedBytecode",
                 "evm.methodIdentifiers",
-                "metadata",
-                "storageLayout"
+                "metadata"
               ],
               "": [
                 "ast"
@@ -2538,7 +2508,7 @@
       ]
     },
     "/home/runner/workspace/node_modules/@thirdweb-dev/contracts/external-deps/openzeppelin/utils/Counters.sol": {
-      "lastModificationDate": 1749603774254,
+      "lastModificationDate": 1759073828047,
       "contentHash": "74654e3ae5d7f39555055dfe244dab7a",
       "sourceName": "@thirdweb-dev/contracts/external-deps/openzeppelin/utils/Counters.sol",
       "solcConfig": {
@@ -2548,6 +2518,7 @@
             "enabled": true,
             "runs": 200
           },
+          "viaIR": true,
           "evmVersion": "paris",
           "outputSelection": {
             "*": {
@@ -2556,8 +2527,7 @@
                 "evm.bytecode",
                 "evm.deployedBytecode",
                 "evm.methodIdentifiers",
-                "metadata",
-                "storageLayout"
+                "metadata"
               ],
               "": [
                 "ast"
@@ -2575,7 +2545,7 @@
       ]
     },
     "/home/runner/workspace/node_modules/@thirdweb-dev/contracts/external-deps/openzeppelin/token/ERC20/ERC20.sol": {
-      "lastModificationDate": 1749603774398,
+      "lastModificationDate": 1759073828600,
       "contentHash": "e5915b5b6827b18a39ddb0bec3ef5c40",
       "sourceName": "@thirdweb-dev/contracts/external-deps/openzeppelin/token/ERC20/ERC20.sol",
       "solcConfig": {
@@ -2585,6 +2555,7 @@
             "enabled": true,
             "runs": 200
           },
+          "viaIR": true,
           "evmVersion": "paris",
           "outputSelection": {
             "*": {
@@ -2593,8 +2564,7 @@
                 "evm.bytecode",
                 "evm.deployedBytecode",
                 "evm.methodIdentifiers",
-                "metadata",
-                "storageLayout"
+                "metadata"
               ],
               "": [
                 "ast"
@@ -2616,7 +2586,7 @@
       ]
     },
     "/home/runner/workspace/node_modules/@thirdweb-dev/contracts/external-deps/openzeppelin/utils/cryptography/ECDSA.sol": {
-      "lastModificationDate": 1749603774313,
+      "lastModificationDate": 1759073828279,
       "contentHash": "b2f1848eb237613694d2a2ef81db5ba9",
       "sourceName": "@thirdweb-dev/contracts/external-deps/openzeppelin/utils/cryptography/ECDSA.sol",
       "solcConfig": {
@@ -2626,6 +2596,7 @@
             "enabled": true,
             "runs": 200
           },
+          "viaIR": true,
           "evmVersion": "paris",
           "outputSelection": {
             "*": {
@@ -2634,8 +2605,7 @@
                 "evm.bytecode",
                 "evm.deployedBytecode",
                 "evm.methodIdentifiers",
-                "metadata",
-                "storageLayout"
+                "metadata"
               ],
               "": [
                 "ast"
@@ -2655,7 +2625,7 @@
       ]
     },
     "/home/runner/workspace/node_modules/@thirdweb-dev/contracts/external-deps/openzeppelin/utils/cryptography/EIP712.sol": {
-      "lastModificationDate": 1749603774317,
+      "lastModificationDate": 1759073828308,
       "contentHash": "161aae4dc1450371d0f324488f66a9cf",
       "sourceName": "@thirdweb-dev/contracts/external-deps/openzeppelin/utils/cryptography/EIP712.sol",
       "solcConfig": {
@@ -2665,6 +2635,7 @@
             "enabled": true,
             "runs": 200
           },
+          "viaIR": true,
           "evmVersion": "paris",
           "outputSelection": {
             "*": {
@@ -2673,8 +2644,7 @@
                 "evm.bytecode",
                 "evm.deployedBytecode",
                 "evm.methodIdentifiers",
-                "metadata",
-                "storageLayout"
+                "metadata"
               ],
               "": [
                 "ast"
@@ -2694,7 +2664,7 @@
       ]
     },
     "/home/runner/workspace/node_modules/@thirdweb-dev/contracts/eip/interface/IERC20Metadata.sol": {
-      "lastModificationDate": 1749603774690,
+      "lastModificationDate": 1759073829253,
       "contentHash": "a4ee60b35795160c5ef04071ddf1d1de",
       "sourceName": "@thirdweb-dev/contracts/eip/interface/IERC20Metadata.sol",
       "solcConfig": {
@@ -2704,6 +2674,7 @@
             "enabled": true,
             "runs": 200
           },
+          "viaIR": true,
           "evmVersion": "paris",
           "outputSelection": {
             "*": {
@@ -2712,8 +2683,7 @@
                 "evm.bytecode",
                 "evm.deployedBytecode",
                 "evm.methodIdentifiers",
-                "metadata",
-                "storageLayout"
+                "metadata"
               ],
               "": [
                 "ast"
@@ -2731,7 +2701,7 @@
       ]
     },
     "/home/runner/workspace/node_modules/@thirdweb-dev/contracts/external-deps/openzeppelin/utils/Context.sol": {
-      "lastModificationDate": 1749603774217,
+      "lastModificationDate": 1759073828006,
       "contentHash": "5f2c5c4b6af2dd4551027144797bc8be",
       "sourceName": "@thirdweb-dev/contracts/external-deps/openzeppelin/utils/Context.sol",
       "solcConfig": {
@@ -2741,6 +2711,7 @@
             "enabled": true,
             "runs": 200
           },
+          "viaIR": true,
           "evmVersion": "paris",
           "outputSelection": {
             "*": {
@@ -2749,8 +2720,7 @@
                 "evm.bytecode",
                 "evm.deployedBytecode",
                 "evm.methodIdentifiers",
-                "metadata",
-                "storageLayout"
+                "metadata"
               ],
               "": [
                 "ast"
@@ -2768,8 +2738,8 @@
       ]
     },
     "/home/runner/workspace/node_modules/@openzeppelin/contracts/utils/Address.sol": {
-      "lastModificationDate": 1749603767194,
-      "contentHash": "5b9a49c25d7edbc48ffcbd2c7e8a40ef",
+      "lastModificationDate": 1759073818083,
+      "contentHash": "2a06d82f31f75087bf90231599da4f1c",
       "sourceName": "@openzeppelin/contracts/utils/Address.sol",
       "solcConfig": {
         "version": "0.8.26",
@@ -2778,6 +2748,7 @@
             "enabled": true,
             "runs": 200
           },
+          "viaIR": true,
           "evmVersion": "paris",
           "outputSelection": {
             "*": {
@@ -2786,8 +2757,7 @@
                 "evm.bytecode",
                 "evm.deployedBytecode",
                 "evm.methodIdentifiers",
-                "metadata",
-                "storageLayout"
+                "metadata"
               ],
               "": [
                 "ast"
@@ -2807,7 +2777,7 @@
       ]
     },
     "/home/runner/workspace/node_modules/@openzeppelin/contracts/utils/cryptography/MerkleProof.sol": {
-      "lastModificationDate": 1749603769511,
+      "lastModificationDate": 1759073820947,
       "contentHash": "d57b0dba03e8cc7942bf797fc9fe1d29",
       "sourceName": "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol",
       "solcConfig": {
@@ -2817,6 +2787,7 @@
             "enabled": true,
             "runs": 200
           },
+          "viaIR": true,
           "evmVersion": "paris",
           "outputSelection": {
             "*": {
@@ -2825,8 +2796,7 @@
                 "evm.bytecode",
                 "evm.deployedBytecode",
                 "evm.methodIdentifiers",
-                "metadata",
-                "storageLayout"
+                "metadata"
               ],
               "": [
                 "ast"
@@ -2846,7 +2816,7 @@
       ]
     },
     "/home/runner/workspace/node_modules/@openzeppelin/contracts/utils/Errors.sol": {
-      "lastModificationDate": 1749603768872,
+      "lastModificationDate": 1759073819612,
       "contentHash": "6b5eac2b85500c3012977849cfd633d8",
       "sourceName": "@openzeppelin/contracts/utils/Errors.sol",
       "solcConfig": {
@@ -2856,6 +2826,7 @@
             "enabled": true,
             "runs": 200
           },
+          "viaIR": true,
           "evmVersion": "paris",
           "outputSelection": {
             "*": {
@@ -2864,8 +2835,7 @@
                 "evm.bytecode",
                 "evm.deployedBytecode",
                 "evm.methodIdentifiers",
-                "metadata",
-                "storageLayout"
+                "metadata"
               ],
               "": [
                 "ast"
@@ -2883,7 +2853,7 @@
       ]
     },
     "/home/runner/workspace/node_modules/@openzeppelin/contracts/utils/cryptography/Hashes.sol": {
-      "lastModificationDate": 1749603769054,
+      "lastModificationDate": 1759073819842,
       "contentHash": "073b9c3ce7bc358a876ed2b3479db88c",
       "sourceName": "@openzeppelin/contracts/utils/cryptography/Hashes.sol",
       "solcConfig": {
@@ -2893,6 +2863,7 @@
             "enabled": true,
             "runs": 200
           },
+          "viaIR": true,
           "evmVersion": "paris",
           "outputSelection": {
             "*": {
@@ -2901,8 +2872,7 @@
                 "evm.bytecode",
                 "evm.deployedBytecode",
                 "evm.methodIdentifiers",
-                "metadata",
-                "storageLayout"
+                "metadata"
               ],
               "": [
                 "ast"
@@ -2917,6 +2887,319 @@
       ],
       "artifacts": [
         "Hashes"
+      ]
+    },
+    "/home/runner/workspace/node_modules/@openzeppelin/contracts/interfaces/IERC20.sol": {
+      "lastModificationDate": 1759073820516,
+      "contentHash": "68620db2da7583d9a4919096ac77f577",
+      "sourceName": "@openzeppelin/contracts/interfaces/IERC20.sol",
+      "solcConfig": {
+        "version": "0.8.26",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "viaIR": true,
+          "evmVersion": "paris",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "../token/ERC20/IERC20.sol"
+      ],
+      "versionPragmas": [
+        ">=0.4.16"
+      ],
+      "artifacts": []
+    },
+    "/home/runner/workspace/node_modules/@openzeppelin/contracts/interfaces/IERC1363.sol": {
+      "lastModificationDate": 1759073820065,
+      "contentHash": "a7fd0f05e36b0d0a21c75340c9c639ec",
+      "sourceName": "@openzeppelin/contracts/interfaces/IERC1363.sol",
+      "solcConfig": {
+        "version": "0.8.26",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "viaIR": true,
+          "evmVersion": "paris",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "./IERC20.sol",
+        "./IERC165.sol"
+      ],
+      "versionPragmas": [
+        ">=0.6.2"
+      ],
+      "artifacts": [
+        "IERC1363"
+      ]
+    },
+    "/home/runner/workspace/node_modules/@openzeppelin/contracts/interfaces/IERC165.sol": {
+      "lastModificationDate": 1759073820097,
+      "contentHash": "947853028399b7de34bcc3704ee06e99",
+      "sourceName": "@openzeppelin/contracts/interfaces/IERC165.sol",
+      "solcConfig": {
+        "version": "0.8.26",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "viaIR": true,
+          "evmVersion": "paris",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "../utils/introspection/IERC165.sol"
+      ],
+      "versionPragmas": [
+        ">=0.4.16"
+      ],
+      "artifacts": []
+    },
+    "/home/runner/workspace/node_modules/@openzeppelin/contracts/utils/ReentrancyGuard.sol": {
+      "lastModificationDate": 1759073821161,
+      "contentHash": "190613e556d509d9e9a0ea43dc5d891d",
+      "sourceName": "@openzeppelin/contracts/utils/ReentrancyGuard.sol",
+      "solcConfig": {
+        "version": "0.8.26",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "viaIR": true,
+          "evmVersion": "paris",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.20"
+      ],
+      "artifacts": [
+        "ReentrancyGuard"
+      ]
+    },
+    "/home/runner/workspace/node_modules/@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol": {
+      "lastModificationDate": 1759073821203,
+      "contentHash": "1fb9edee1d763745a62d0b1954998792",
+      "sourceName": "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol",
+      "solcConfig": {
+        "version": "0.8.26",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "viaIR": true,
+          "evmVersion": "paris",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "../IERC20.sol",
+        "../../../interfaces/IERC1363.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.20"
+      ],
+      "artifacts": [
+        "SafeERC20"
+      ]
+    },
+    "/home/runner/workspace/contracts/EnhancedNFTMarketplace.sol": {
+      "lastModificationDate": 1760654780965,
+      "contentHash": "a803d0deaffaf67867e203a8979ed87d",
+      "sourceName": "contracts/EnhancedNFTMarketplace.sol",
+      "solcConfig": {
+        "version": "0.8.26",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "viaIR": true,
+          "evmVersion": "paris",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "@openzeppelin/contracts/token/ERC721/IERC721.sol",
+        "@openzeppelin/contracts/token/ERC20/IERC20.sol",
+        "@openzeppelin/contracts/utils/ReentrancyGuard.sol",
+        "@openzeppelin/contracts/utils/Pausable.sol",
+        "@openzeppelin/contracts/access/AccessControl.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.20"
+      ],
+      "artifacts": [
+        "EnhancedNFTMarketplace"
+      ]
+    },
+    "/home/runner/workspace/node_modules/@openzeppelin/contracts/token/ERC721/IERC721.sol": {
+      "lastModificationDate": 1759073820744,
+      "contentHash": "f62e11dbd302e17a5621a1438f4e054c",
+      "sourceName": "@openzeppelin/contracts/token/ERC721/IERC721.sol",
+      "solcConfig": {
+        "version": "0.8.26",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "viaIR": true,
+          "evmVersion": "paris",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "../../utils/introspection/IERC165.sol"
+      ],
+      "versionPragmas": [
+        ">=0.6.2"
+      ],
+      "artifacts": [
+        "IERC721"
+      ]
+    },
+    "/home/runner/workspace/contracts/MultiSigWallet.sol": {
+      "lastModificationDate": 1760654805425,
+      "contentHash": "7a30f26e13ae1a27382a60582ec4eb5b",
+      "sourceName": "contracts/MultiSigWallet.sol",
+      "solcConfig": {
+        "version": "0.8.26",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "viaIR": true,
+          "evmVersion": "paris",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "@openzeppelin/contracts/access/Ownable.sol",
+        "@openzeppelin/contracts/utils/ReentrancyGuard.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.20"
+      ],
+      "artifacts": [
+        "MultiSigWallet"
       ]
     }
   }

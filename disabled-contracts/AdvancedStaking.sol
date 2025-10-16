@@ -3,18 +3,15 @@ pragma solidity ^0.8.20;
 
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
-import "@openzeppelin/contracts/security/Pausable.sol";
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/utils/Pausable.sol";
 import "@openzeppelin/contracts/access/AccessControl.sol";
-import "@openzeppelin/contracts/utils/Counters.sol";
 
 /**
  * @title Advanced Staking for MetalOfTheGods NFTs
  * @dev Multi-tier staking with governance and dynamic rewards
  */
 contract AdvancedStaking is ReentrancyGuard, Pausable, AccessControl {
-    using Counters for Counters.Counter;
-
     bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
     bytes32 public constant MODERATOR_ROLE = keccak256("MODERATOR_ROLE");
 
@@ -66,7 +63,7 @@ contract AdvancedStaking is ReentrancyGuard, Pausable, AccessControl {
     mapping(StakingTier => TierConfig) public tierConfigs;
     
     // Governance data
-    Counters.Counter private _proposalIds;
+    uint256 private _proposalIdCounter;
     mapping(uint256 => Proposal) public proposals;
     mapping(address => uint256) public votingPower;
     
@@ -317,8 +314,8 @@ contract AdvancedStaking is ReentrancyGuard, Pausable, AccessControl {
         require(votingPower[msg.sender] >= 5, "Insufficient voting power");
         require(votingPeriod >= 1 days && votingPeriod <= 14 days, "Invalid voting period");
 
-        _proposalIds.increment();
-        uint256 proposalId = _proposalIds.current();
+        _proposalIdCounter++;
+        uint256 proposalId = _proposalIdCounter;
 
         Proposal storage proposal = proposals[proposalId];
         proposal.id = proposalId;
