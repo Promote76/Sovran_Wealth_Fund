@@ -34,7 +34,7 @@ interface LayoutProps {
 
 const Layout: React.FC<LayoutProps> = ({ 
   children, 
-  title = "Sovran Wealth Fund", 
+  title = "AXIOM", 
   themeColor = "yellow",
   showWalletConnect = true 
 }) => {
@@ -252,15 +252,15 @@ const Layout: React.FC<LayoutProps> = ({
             <Link to="/" className="flex items-center space-x-3 hover:opacity-90 transition-opacity group">
               <img 
                 src="/swf-logo.png" 
-                alt="Sovran Wealth Fund Logo" 
+                alt="AXIOM Logo" 
                 className="h-10 w-10 sm:h-12 sm:w-12 md:h-14 md:w-14 lg:h-16 lg:w-16"
               />
               <div className="flex flex-col">
                 <span className="text-xl sm:text-2xl md:text-3xl font-bold text-blue-800 hover:text-blue-700 transition-colors leading-tight">
-                  Sovran Wealth Fund
+                  AXIOM
                 </span>
                 <span className="text-xs sm:text-sm text-blue-600 font-medium tracking-wide hidden sm:block">
-                  Building Financial Sovereignty
+                  The Foundation of Sovereign Wealth
                 </span>
               </div>
             </Link>
