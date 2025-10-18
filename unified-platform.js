@@ -1,4 +1,4 @@
-// SWF Unified Platform - Complete Production Server
+// AXIOM Unified Platform - Complete Production Server
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
@@ -101,9 +101,10 @@ const authenticateWallet = (req, res, next) => {
     });
   }
 };
-console.log('🏛️ =====================================');
-console.log('🏛️  SWF UNIFIED PLATFORM ONLINE');
-console.log('🏛️ =====================================');
+console.log('⚡ =====================================');
+console.log('⚡  AXIOM PLATFORM ONLINE');
+console.log('⚡  Energy in Circulation');
+console.log('⚡ =====================================');
 
 // Health check endpoint with comprehensive service status
 app.get('/health', async (req, res) => {
@@ -235,7 +236,7 @@ app.get('/health', async (req, res) => {
   res.json({
     status: overallStatus,
     timestamp: new Date().toISOString(),
-    platform: 'SWF Unified Platform',
+    platform: 'AXIOM Platform',
     version: '1.0.0',
     database: dbHealthy,
     services: services
@@ -461,7 +462,7 @@ app.post('/api/auth/wallet-challenge', (req, res) => {
     // Generate nonce
     const nonce = crypto.randomBytes(32).toString('hex');
     const timestamp = Date.now();
-    const challengeMessage = `Sign this message to authenticate with Sovran Wealth Fund.\n\nNonce: ${nonce}\nTimestamp: ${timestamp}`;
+    const challengeMessage = `Sign this message to authenticate with AXIOM.\n\nNonce: ${nonce}\nTimestamp: ${timestamp}`;
     
     // Store challenge (expires in 5 minutes)
     challenges.set(walletAddress.toLowerCase(), {
@@ -526,7 +527,7 @@ app.post('/api/auth/wallet-verify', async (req, res) => {
     }
     
     // Reconstruct message
-    const challengeMessage = `Sign this message to authenticate with Sovran Wealth Fund.\n\nNonce: ${nonce}\nTimestamp: ${challenge.timestamp}`;
+    const challengeMessage = `Sign this message to authenticate with AXIOM.\n\nNonce: ${nonce}\nTimestamp: ${challenge.timestamp}`;
     
     // Verify signature
     try {
@@ -599,7 +600,7 @@ app.get('/api/wallet/data/:address', async (req, res) => {
     console.log('📊 Fetching comprehensive wallet data for:', address);
     
     // Contract addresses on BSC
-    const SWF_TOKEN_ADDRESS = '0x83E17aeB148d9b4b7Be0Be7C87dd73531a5a5738';
+    const AXM_TOKEN_ADDRESS = '0x83E17aeB148d9b4b7Be0Be7C87dd73531a5a5738';
     const STAKING_ENGINE_ADDRESS = '0x0165878A594ca255338adfa4d48449f69242Eb8F';
     const BASKET_VAULT_ADDRESS = '0x5FC8d32690cc91D4c39d9d3abcBD16989F875707';
     
@@ -624,7 +625,7 @@ app.get('/api/wallet/data/:address', async (req, res) => {
     
     // Connect to BSC
     const provider = new ethers.JsonRpcProvider('https://bsc-dataseed.binance.org/');
-    const swfToken = new ethers.Contract(SWF_TOKEN_ADDRESS, ERC20_ABI, provider);
+    const axmToken = new ethers.Contract(AXM_TOKEN_ADDRESS, ERC20_ABI, provider);
     const stakingEngine = new ethers.Contract(STAKING_ENGINE_ADDRESS, STAKING_ABI, provider);
     const basketVault = new ethers.Contract(BASKET_VAULT_ADDRESS, VAULT_ABI, provider);
     
@@ -692,8 +693,8 @@ app.get('/api/wallet/balance/:address', async (req, res) => {
     
     console.log('💰 Fetching balance for wallet:', address);
     
-    // SWF Token contract address on BSC
-    const SWF_TOKEN_ADDRESS = '0x83E17aeB148d9b4b7Be0Be7C87dd73531a5a5738';
+    // AXM Token contract address on BSC
+    const AXM_TOKEN_ADDRESS = '0x83E17aeB148d9b4b7Be0Be7C87dd73531a5a5738';
     
     // Simple ERC20 ABI for balanceOf
     const ERC20_ABI = [
@@ -704,7 +705,7 @@ app.get('/api/wallet/balance/:address', async (req, res) => {
     
     // Connect to BSC - ethers v6 syntax
     const provider = new ethers.JsonRpcProvider('https://bsc-dataseed.binance.org/');
-    const contract = new ethers.Contract(SWF_TOKEN_ADDRESS, ERC20_ABI, provider);
+    const contract = new ethers.Contract(AXM_TOKEN_ADDRESS, ERC20_ABI, provider);
     
     // Fetch balance
     const [balance, symbol, decimals] = await Promise.all([
@@ -3206,14 +3207,14 @@ app.get('/api/reports/generate-pdf', async (req, res) => {
     doc.pipe(res);
     
     // Add cover page
-    doc.fontSize(24).fillColor('#B8860B').text('Sovran Wealth Fund', { align: 'center' }).moveDown();
+    doc.fontSize(24).fillColor('#1E40AF').text('AXIOM Protocol', { align: 'center' }).moveDown();
     doc.fontSize(18).fillColor('#111').text('Transparency Report', { align: 'center' }).moveDown();
     doc.fontSize(12).fillColor('#666').text(`Generated on ${new Date().toLocaleDateString()}`, { align: 'center' }).moveDown(2);
     
     // Executive Summary
     doc.addPage();
     doc.fontSize(20).fillColor('#111').text('Executive Summary', { underline: true }).moveDown(2);
-    doc.fontSize(12).text(`This transparency report provides a comprehensive overview of Sovran Wealth Fund's financial position as of ${new Date().toLocaleDateString()}.`);
+    doc.fontSize(12).text(`This transparency report provides a comprehensive overview of AXIOM's financial position as of ${new Date().toLocaleDateString()}.`);
     doc.moveDown().text('Total reserves across all tracked wallets: $2,150,000 (development data)');
     doc.moveDown().text('Number of tracked blockchain addresses: 3');
     
@@ -3224,8 +3225,8 @@ app.get('/api/reports/generate-pdf', async (req, res) => {
     
     // Sample reserve data
     const sampleReserves = [
-      { chain: 'BSC', address: '0x83E17aeB148d9b4b7Be0Be7C87dd73531a5a5738', balance: '1,000,000', symbol: 'SWF', usdValue: 1500000 },
-      { chain: 'Polygon', address: '0x15AD65Fb62CD9147Aa4443dA89828A693228b5F7', balance: '500,000', symbol: 'SWF', usdValue: 650000 }
+      { chain: 'BSC', address: '0x83E17aeB148d9b4b7Be0Be7C87dd73531a5a5738', balance: '1,000,000', symbol: 'AXM', usdValue: 1500000 },
+      { chain: 'Polygon', address: '0x15AD65Fb62CD9147Aa4443dA89828A693228b5F7', balance: '500,000', symbol: 'AXM', usdValue: 650000 }
     ];
     
     sampleReserves.forEach((reserve, i) => {
@@ -3235,7 +3236,7 @@ app.get('/api/reports/generate-pdf', async (req, res) => {
     
     // Add footer to last page only to avoid stream errors
     doc.fontSize(8).fillColor('#666');
-    doc.text(`Sovran Wealth Fund © 2025 • Generated ${new Date().toLocaleDateString()}`, 50, doc.page.height - 50, { align: 'center' });
+    doc.text(`AXIOM Protocol © 2025 • Generated ${new Date().toLocaleDateString()}`, 50, doc.page.height - 50, { align: 'center' });
     
     // Finalize PDF
     doc.end();

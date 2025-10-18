@@ -1,5 +1,5 @@
 /**
- * Advanced Performance Optimization Utilities for SWF Platform
+ * Advanced Performance Optimization Utilities for AXIOM Platform
  * Includes smart prefetching, image optimization, debouncing, and virtual scrolling
  */
 

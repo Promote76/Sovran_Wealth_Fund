@@ -19,23 +19,23 @@ export interface StoredData<T> {
 
 // Storage keys enum for type safety
 export enum StorageKeys {
-  USER_PREFERENCES = 'swf_user_preferences',
-  THEME_SETTINGS = 'swf_theme_settings',
-  CACHE_DATA = 'swf_cache_data',
-  FORM_DRAFTS = 'swf_form_drafts',
-  OFFLINE_ACTIONS = 'swf_offline_actions',
-  PERFORMANCE_METRICS = 'swf_performance_metrics',
-  ONBOARDING_STATE = 'swf_onboarding_state',
-  WALLET_STATE = 'swf_wallet_state',
-  NOTIFICATION_PREFERENCES = 'swf_notification_prefs',
-  SEARCH_HISTORY = 'swf_search_history',
-  WALLET_CONNECTION_STATE = 'swf_wallet_connection_state',
-  DASHBOARD_LAYOUT = 'swf_dashboard_layout',
-  QUICK_ACTIONS = 'swf_quick_actions',
-  INTELLIGENT_SUGGESTIONS = 'swf_intelligent_suggestions',
-  SESSION_ANALYTICS = 'swf_session_analytics',
-  VIEWPORT_PREFERENCES = 'swf_viewport_preferences',
-  INTERACTION_PATTERNS = 'swf_interaction_patterns'
+  USER_PREFERENCES = 'axiom_user_preferences',
+  THEME_SETTINGS = 'axiom_theme_settings',
+  CACHE_DATA = 'axiom_cache_data',
+  FORM_DRAFTS = 'axiom_form_drafts',
+  OFFLINE_ACTIONS = 'axiom_offline_actions',
+  PERFORMANCE_METRICS = 'axiom_performance_metrics',
+  ONBOARDING_STATE = 'axiom_onboarding_state',
+  WALLET_STATE = 'axiom_wallet_state',
+  NOTIFICATION_PREFERENCES = 'axiom_notification_prefs',
+  SEARCH_HISTORY = 'axiom_search_history',
+  WALLET_CONNECTION_STATE = 'axiom_wallet_connection_state',
+  DASHBOARD_LAYOUT = 'axiom_dashboard_layout',
+  QUICK_ACTIONS = 'axiom_quick_actions',
+  INTELLIGENT_SUGGESTIONS = 'axiom_intelligent_suggestions',
+  SESSION_ANALYTICS = 'axiom_session_analytics',
+  VIEWPORT_PREFERENCES = 'axiom_viewport_preferences',
+  INTERACTION_PATTERNS = 'axiom_interaction_patterns'
 }
 
 class StorageManager {
@@ -48,7 +48,7 @@ class StorageManager {
 
   private checkStorageSupport(): boolean {
     try {
-      const test = '__swf_storage_test__';
+      const test = '__axiom_storage_test__';
       localStorage.setItem(test, 'test');
       localStorage.removeItem(test);
       return true;
@@ -189,7 +189,7 @@ class StorageManager {
   }
 
   /**
-   * Clear all SWF-related storage
+   * Clear all AXIOM-related storage (including legacy SWF keys for migration)
    */
   clear(): boolean {
     try {
@@ -197,12 +197,12 @@ class StorageManager {
 
       const keys = Object.keys(localStorage);
       keys.forEach(key => {
-        if (key.startsWith('swf_')) {
+        if (key.startsWith('axiom_') || key.startsWith('swf_')) {
           localStorage.removeItem(key);
         }
       });
       
-      console.log('🧹 Cleared all SWF storage data');
+      console.log('🧹 Cleared all AXIOM storage data');
       return true;
     } catch (error) {
       console.error('🚨 Failed to clear storage:', error);
@@ -247,7 +247,7 @@ class StorageManager {
       const keys = Object.keys(localStorage);
       
       keys.forEach(key => {
-        if (key.startsWith('swf_')) {
+        if (key.startsWith('axiom_') || key.startsWith('swf_')) {
           const item = localStorage.getItem(key);
           if (item) {
             try {
@@ -277,7 +277,7 @@ class StorageManager {
   }
 
   /**
-   * Export all SWF data for backup
+   * Export all AXIOM data for backup
    */
   exportData(): Record<string, any> {
     try {
@@ -287,7 +287,7 @@ class StorageManager {
       const keys = Object.keys(localStorage);
       
       keys.forEach(key => {
-        if (key.startsWith('swf_')) {
+        if (key.startsWith('axiom_') || key.startsWith('swf_')) {
           const item = localStorage.getItem(key);
           if (item) {
             data[key] = item;
@@ -310,7 +310,7 @@ class StorageManager {
       if (!this.isSupported) return false;
 
       Object.entries(data).forEach(([key, value]) => {
-        if (key.startsWith('swf_') && typeof value === 'string') {
+        if ((key.startsWith('axiom_') || key.startsWith('swf_')) && typeof value === 'string') {
           localStorage.setItem(key, value);
         }
       });
@@ -371,7 +371,7 @@ export const progressiveSync = {
    * Queue data for server sync when online
    */
   queueForSync: async (key: string, data: any, priority: 'high' | 'medium' | 'low' = 'medium') => {
-    const syncQueue = storage.getItem('swf_sync_queue', { fallback: [] }) as Array<{
+    const syncQueue = storage.getItem('axiom_sync_queue', { fallback: [] }) as Array<{
       key: string;
       data: any;
       priority: string;
@@ -400,7 +400,7 @@ export const progressiveSync = {
       return a.timestamp - b.timestamp;
     });
 
-    storage.setItem('swf_sync_queue', filteredQueue);
+    storage.setItem('axiom_sync_queue', filteredQueue);
     
     // Try immediate sync if online
     if (navigator.onLine) {
@@ -414,7 +414,7 @@ export const progressiveSync = {
   processSyncQueue: async () => {
     if (!navigator.onLine) return;
 
-    const syncQueue = storage.getItem('swf_sync_queue', { fallback: [] }) as Array<any>;
+    const syncQueue = storage.getItem('axiom_sync_queue', { fallback: [] }) as Array<any>;
     if (syncQueue.length === 0) return;
 
     console.log(`🔄 Processing ${syncQueue.length} items in sync queue`);
@@ -445,7 +445,7 @@ export const progressiveSync = {
     }
 
     // Update queue with only failed items that haven't exceeded max attempts
-    storage.setItem('swf_sync_queue', failedSyncs);
+    storage.setItem('axiom_sync_queue', failedSyncs);
 
     if (successfulSyncs.length > 0) {
       console.log(`✅ Successfully synced: ${successfulSyncs.join(', ')}`);
@@ -479,7 +479,7 @@ export const progressiveSync = {
    * Get sync queue status
    */
   getSyncStatus: () => {
-    const queue = storage.getItem('swf_sync_queue', { fallback: [] }) as Array<any>;
+    const queue = storage.getItem('axiom_sync_queue', { fallback: [] }) as Array<any>;
     return {
       itemsInQueue: queue.length,
       highPriority: queue.filter(item => item.priority === 'high').length,
@@ -666,11 +666,11 @@ if (typeof window !== 'undefined') {
   const optimizeStorage = () => {
     try {
       const keys = Object.keys(localStorage);
-      const swfKeys = keys.filter(key => key.startsWith('swf_'));
+      const axiomKeys = keys.filter(key => key.startsWith('axiom_') || key.startsWith('swf_'));
       
       // Clean up based on usage patterns
       const oneWeekAgo = Date.now() - (7 * 24 * 60 * 60 * 1000);
-      swfKeys.forEach(key => {
+      axiomKeys.forEach(key => {
         const item = localStorage.getItem(key);
         if (item) {
           try {
