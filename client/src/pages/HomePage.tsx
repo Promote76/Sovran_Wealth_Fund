@@ -41,13 +41,13 @@ function CommunityStats() {
         )}
       </div>
       <div className="text-lg text-blue-800 font-semibold">
-        SWF Platform Members Building Tokenized Wealth
+        AXIOM Members Building Sovereign Wealth
       </div>
       <div className="text-sm text-gray-600 mt-2">
         {loading ? (
           <div className="animate-pulse bg-gray-200 h-4 w-32 mx-auto rounded"></div>
         ) : (
-          `${stats.activeWallets.toLocaleString()} active wallets on BSC`
+          `${stats.activeWallets.toLocaleString()} active wallets circulating energy`
         )}
       </div>
       
@@ -479,24 +479,24 @@ export default function HomePage() {
           <div className="mb-8 flex justify-center">
             <img 
               src="/swf-logo.png" 
-              alt="Sovran Wealth Fund Logo" 
+              alt="AXIOM Logo" 
               className="h-32 w-32 md:h-40 md:w-40 animate-bounce"
             />
           </div>
           <h1 className="text-5xl md:text-7xl font-bold mb-8 text-transparent bg-gradient-to-r from-blue-700 via-blue-900 to-blue-700 bg-clip-text">
-            Sovran Wealth Fund: Tokenized Wealth Management on BSC
+            AXIOM: The Foundation of Sovereign Wealth
           </h1>
           <div className="w-32 h-1 bg-gradient-to-r from-blue-600 to-blue-800 mx-auto mb-8 rounded-full"></div>
           <p className="text-2xl max-w-5xl mx-auto mb-12 text-gray-700 leading-relaxed">
-            Professional wealth management meets blockchain innovation. Tokenized real estate, gold-backed assets, and transparent yield strategies on Binance Smart Chain. 
-            <span className="text-blue-800 font-semibold">Institutional-grade. Blockchain-secured. Community-driven.</span> The future of wealth management is here.
+            A lawful digital economy where wealth arises from participation, not permission. Energy-based tokenomics, Proof of Contribution staking, and transparent governance on Binance Smart Chain. 
+            <span className="text-blue-800 font-semibold">Truth creates value. Circulation over hoarding. Energy in motion.</span> When truth becomes law, law becomes light.
           </p>
           <div className="flex justify-center gap-6">
             <Button 
               className="text-xl px-12 py-4 bg-gradient-to-r from-blue-700 to-blue-800 hover:from-blue-800 hover:to-blue-900 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105"
               onClick={() => handlePathClick('start-journey')}
             >
-              Join SWF Platform
+              Join AXIOM
             </Button>
             <Button 
               variant="outline" 
