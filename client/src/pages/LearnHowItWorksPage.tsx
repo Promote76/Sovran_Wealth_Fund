@@ -272,7 +272,7 @@ const LearnHowItWorksPage: React.FC = () => {
     localStorage.setItem('account-funded', 'true');
     
     // Show success message
-    showSuccess('Funding Complete', 'Account funding step completed! You can now access all platform features including the SWF Banking portal.');
+    showSuccess('Funding Complete', 'Account funding step completed! You can now access all platform features including the AXIOM Banking portal.');
   };
 
   const handleWalletSuccess = () => {
@@ -321,7 +321,7 @@ const LearnHowItWorksPage: React.FC = () => {
   };
 
   const handleBankingNavigation = () => {
-    console.log('🔐 Navigating to SWF Banking');
+    console.log('🔐 Navigating to AXIOM Banking');
     navigate('/swf-banking');
   };
 
@@ -355,7 +355,7 @@ const LearnHowItWorksPage: React.FC = () => {
             <div className="text-center">
               <h2 className="text-4xl font-bold text-blue-800 mb-4">Learn How It Works</h2>
               <p className="text-xl text-gray-700 max-w-4xl mx-auto">
-                Discover how Sovran Wealth Fund's revolutionary blockchain-powered platform democratizes wealth building through 
+                Discover how AXIOM's revolutionary blockchain-powered platform democratizes wealth building through 
                 innovative DeFi strategies, community-driven savings circles, and tokenized real estate investments.
               </p>
             </div>
@@ -429,7 +429,7 @@ const LearnHowItWorksPage: React.FC = () => {
             </div>
 
             <div className="bg-gradient-to-br from-blue-600 to-blue-700 text-white rounded-xl p-8 shadow-lg">
-              <h3 className="text-2xl font-bold mb-4">Why Choose Sovran Wealth Fund?</h3>
+              <h3 className="text-2xl font-bold mb-4">Why Choose AXIOM?</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-3">
                   <div className="flex items-center space-x-3">
@@ -590,7 +590,7 @@ const LearnHowItWorksPage: React.FC = () => {
                   Staking Pools
                 </h3>
                 <p className="text-gray-700 mb-4">
-                  Stake SWF tokens and earn passive income while supporting network security and governance.
+                  Stake AXM tokens and earn passive income while supporting network security and governance.
                 </p>
                 <div className="space-y-2">
                   <div className="flex justify-between">
@@ -1160,7 +1160,7 @@ const LearnHowItWorksPage: React.FC = () => {
             <div className="text-center">
               <h2 className="text-4xl font-bold text-blue-800 mb-4">Staking & Rewards System</h2>
               <p className="text-xl text-gray-700 max-w-4xl mx-auto">
-                Earn passive income by staking SWF tokens while supporting network security and governance. 
+                Earn passive income by staking AXM tokens while supporting network security and governance. 
                 Choose from flexible lock periods with competitive reward rates.
               </p>
             </div>
@@ -1181,7 +1181,7 @@ const LearnHowItWorksPage: React.FC = () => {
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-600">Minimum Stake:</span>
-                    <span className="font-semibold text-blue-600">100 SWF</span>
+                    <span className="font-semibold text-blue-600">100 AXM</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-600">Reward Frequency:</span>
@@ -1212,7 +1212,7 @@ const LearnHowItWorksPage: React.FC = () => {
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-600">Minimum Stake:</span>
-                    <span className="font-semibold text-blue-600">500 SWF</span>
+                    <span className="font-semibold text-blue-600">500 AXM</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-600">Reward Frequency:</span>
@@ -1243,7 +1243,7 @@ const LearnHowItWorksPage: React.FC = () => {
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-600">Minimum Stake:</span>
-                    <span className="font-semibold text-blue-600">2,500 SWF</span>
+                    <span className="font-semibold text-blue-600">2,500 AXM</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-600">Reward Frequency:</span>
@@ -1255,7 +1255,7 @@ const LearnHowItWorksPage: React.FC = () => {
                   </div>
                 </div>
                 <p className="text-sm text-gray-600 mt-4">
-                  Maximum returns for long-term believers in the SWF ecosystem and vision.
+                  Maximum returns for long-term believers in the AXM ecosystem and vision.
                 </p>
               </div>
             </div>
@@ -1265,7 +1265,7 @@ const LearnHowItWorksPage: React.FC = () => {
                 <h3 className="text-xl font-bold text-blue-800 mb-4">Staking Calculator</h3>
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-600 mb-2">Stake Amount (SWF)</label>
+                    <label className="block text-sm font-medium text-gray-600 mb-2">Stake Amount (AXM)</label>
                     <input 
                       type="number" 
                       placeholder="1000" 
@@ -1283,7 +1283,7 @@ const LearnHowItWorksPage: React.FC = () => {
                   <div className="bg-blue-100 border border-blue-200 rounded-lg p-4">
                     <div className="text-center">
                       <div className="text-sm text-gray-600">Estimated Annual Rewards</div>
-                      <div className="text-2xl font-bold text-blue-600">125 SWF</div>
+                      <div className="text-2xl font-bold text-blue-600">125 AXM</div>
                       <div className="text-sm text-gray-600">≈ $156.25 USD</div>
                     </div>
                   </div>
@@ -1355,8 +1355,8 @@ const LearnHowItWorksPage: React.FC = () => {
             <div className="text-center">
               <h2 className="text-4xl font-bold text-blue-800 mb-4">DAO Governance</h2>
               <p className="text-xl text-gray-700 max-w-4xl mx-auto">
-                Shape the future of the Sovran Wealth Fund through decentralized governance. 
-                Every SWF token holder has a voice in platform decisions and development direction.
+                Shape the future of the AXIOM through decentralized governance. 
+                Every AXM token holder has a voice in platform decisions and development direction.
               </p>
             </div>
 
@@ -1370,17 +1370,17 @@ const LearnHowItWorksPage: React.FC = () => {
                   <div className="bg-blue-100 border border-blue-200 rounded-lg p-4">
                     <h4 className="font-semibold text-blue-700 mb-2">Token-Weighted Voting</h4>
                     <p className="text-sm text-gray-700">
-                      Your voting power is proportional to your SWF token holdings and staking duration.
+                      Your voting power is proportional to your AXM token holdings and staking duration.
                     </p>
                   </div>
                   <div className="space-y-2">
                     <div className="flex justify-between">
                       <span className="text-gray-600">Minimum Tokens to Vote:</span>
-                      <span className="font-semibold text-blue-600">100 SWF</span>
+                      <span className="font-semibold text-blue-600">100 AXM</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-600">Proposal Creation:</span>
-                      <span className="font-semibold text-blue-600">1,000 SWF</span>
+                      <span className="font-semibold text-blue-600">1,000 AXM</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-600">Voting Period:</span>
@@ -1520,25 +1520,25 @@ const LearnHowItWorksPage: React.FC = () => {
                   <div className="bg-blue-100 border border-blue-200 rounded-lg p-3">
                     <div className="flex justify-between items-center">
                       <span className="text-sm text-gray-700">Vote on Proposal</span>
-                      <span className="font-semibold text-blue-600">5 SWF</span>
+                      <span className="font-semibold text-blue-600">5 AXM</span>
                     </div>
                   </div>
                   <div className="bg-blue-100 border border-blue-200 rounded-lg p-3">
                     <div className="flex justify-between items-center">
                       <span className="text-sm text-gray-700">Submit Proposal</span>
-                      <span className="font-semibold text-blue-600">50 SWF</span>
+                      <span className="font-semibold text-blue-600">50 AXM</span>
                     </div>
                   </div>
                   <div className="bg-blue-100 border border-blue-200 rounded-lg p-3">
                     <div className="flex justify-between items-center">
                       <span className="text-sm text-gray-700">Proposal Passes</span>
-                      <span className="font-semibold text-blue-600">100 SWF</span>
+                      <span className="font-semibold text-blue-600">100 AXM</span>
                     </div>
                   </div>
                   <div className="bg-blue-100 border border-blue-200 rounded-lg p-3">
                     <div className="flex justify-between items-center">
                       <span className="text-sm text-gray-700">Monthly Participation</span>
-                      <span className="font-semibold text-blue-600">25 SWF</span>
+                      <span className="font-semibold text-blue-600">25 AXM</span>
                     </div>
                   </div>
                 </div>
@@ -1554,7 +1554,7 @@ const LearnHowItWorksPage: React.FC = () => {
               <h2 className="text-4xl font-bold text-blue-800 mb-4">Getting Started Guide</h2>
               <p className="text-xl text-gray-700 max-w-4xl mx-auto">
                 Ready to begin your wealth-building journey? Follow these simple steps to get started 
-                with the Sovran Wealth Fund platform today.
+                with the AXIOM platform today.
               </p>
             </div>
 
@@ -1734,7 +1734,7 @@ const LearnHowItWorksPage: React.FC = () => {
                     </div>
                     <div className="flex items-center space-x-3">
                       <span className="text-orange-600">📧</span>
-                      <span className="text-sm text-gray-700">Email support@sovranwealthfund.com</span>
+                      <span className="text-sm text-gray-700">Email support@axiomprotocol.io</span>
                     </div>
                     <div className="flex items-center space-x-3">
                       <span className="text-orange-600">🎥</span>
@@ -1766,7 +1766,7 @@ const LearnHowItWorksPage: React.FC = () => {
             <div className="bg-gradient-to-br from-blue-600 to-blue-700 text-white rounded-xl p-8 shadow-lg text-center">
               <h3 className="text-2xl font-bold mb-4">Ready to Start Building Wealth?</h3>
               <p className="text-lg mb-6">
-                Join thousands of members who are already building their financial future with Sovran Wealth Fund.
+                Join thousands of members who are already building their financial future with AXIOM.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <button 
@@ -1776,7 +1776,7 @@ const LearnHowItWorksPage: React.FC = () => {
                   {isAuthenticated ? 'View Dashboard' : 'Create Account'}
                 </button>
                 <button 
-                  onClick={() => window.open('mailto:support@sovranwealthfund.com?subject=Schedule Demo Request', '_blank')}
+                  onClick={() => window.open('mailto:support@axiomprotocol.io?subject=Schedule Demo Request', '_blank')}
                   className="border-2 border-white text-white hover:bg-white hover:text-blue-600 px-8 py-3 rounded-lg font-semibold transition-colors"
                 >
                   Schedule Demo
@@ -1802,7 +1802,7 @@ const LearnHowItWorksPage: React.FC = () => {
               Learn How <span className="text-blue-600">It Works</span>
             </h1>
             <p className="text-xl text-gray-700 max-w-3xl mx-auto">
-              Discover how the Sovran Wealth Fund platform revolutionizes wealth building through 
+              Discover how the AXIOM platform revolutionizes wealth building through 
               blockchain technology, community collaboration, and innovative financial strategies.
             </p>
           </div>

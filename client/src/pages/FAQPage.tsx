@@ -15,14 +15,14 @@ const FAQPage: React.FC = () => {
     // General Questions
     {
       id: 1,
-      question: "What is Sovran Wealth Fund (SWF)?",
-      answer: "SWF is a decentralized finance (DeFi) platform that provides institutional-grade wealth management tools through blockchain technology. We offer tokenized real estate, staking rewards, DeFi banking, and transparent yield strategies on Binance Smart Chain and Polygon networks.",
+      question: "What is AXIOM?",
+      answer: "AXIOM is a decentralized finance (DeFi) platform that provides institutional-grade wealth management tools through blockchain technology. We offer tokenized real estate, AXM token staking, DeFi banking, and transparent yield strategies on Binance Smart Chain and Polygon networks.",
       category: 'general'
     },
     {
       id: 2,
-      question: "How do I get started with SWF?",
-      answer: "To get started: 1) Connect your Web3 wallet (MetaMask recommended), 2) Complete KYC verification if required, 3) Deposit tokens or purchase SWF tokens, 4) Choose your investment strategies (staking, real estate tokens, DeFi banking). Our onboarding process guides you through each step.",
+      question: "How do I get started with AXIOM?",
+      answer: "To get started: 1) Connect your Web3 wallet (MetaMask recommended), 2) Complete KYC verification if required, 3) Deposit tokens or purchase AXM tokens, 4) Choose your investment strategies (staking, real estate tokens, DeFi banking). Our onboarding process guides you through each step.",
       category: 'general'
     },
     {
@@ -33,8 +33,8 @@ const FAQPage: React.FC = () => {
     },
     {
       id: 4,
-      question: "What blockchain networks does SWF operate on?",
-      answer: "SWF operates primarily on Binance Smart Chain (BSC) Mainnet and Polygon Mainnet. Our main SWF token contracts are deployed at: BSC: 0x83E17aeB148d9b4b7Be0Be7C87dd73531a5a5738, Polygon: 0x15AD65Fb62CD9147Aa4443dA89828A693228b5F7.",
+      question: "What blockchain networks does AXIOM operate on?",
+      answer: "AXIOM operates primarily on Binance Smart Chain (BSC) Mainnet and Polygon Mainnet. Our main AXM token contracts are deployed at: BSC: 0x83E17aeB148d9b4b7Be0Be7C87dd73531a5a5738, Polygon: 0x15AD65Fb62CD9147Aa4443dA89828A693228b5F7.",
       category: 'general'
     },
 
@@ -47,8 +47,8 @@ const FAQPage: React.FC = () => {
     },
     {
       id: 6,
-      question: "What is the SWF-BASKET token system?",
-      answer: "SWF-BASKET tokens are minted 1:1 when you deposit SWF tokens into our vault system. These represent your share of the collective fund and can be redeemed for underlying SWF tokens plus any accumulated rewards or yield.",
+      question: "What is the AXM-BASKET token system?",
+      answer: "AXM-BASKET tokens are minted 1:1 when you deposit AXM tokens into our vault system. These represent your share of the collective fund and can be redeemed for underlying AXM tokens plus any accumulated rewards or yield.",
       category: 'technical'
     },
     {

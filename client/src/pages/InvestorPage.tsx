@@ -11,12 +11,12 @@ const InvestorPage: React.FC = () => {
 
   const investmentOptions = [
     {
-      title: "SWF Token Staking",
+      title: "AXM Token Staking",
       apy: "12-18%*",
       risk: "Low",
       lockPeriod: "Flexible",
-      minInvestment: "100 SWF",
-      description: "Stake SWF tokens to earn consistent rewards while supporting network security and governance.",
+      minInvestment: "100 AXM",
+      description: "Stake AXM tokens to earn consistent rewards while supporting network security and governance.",
       features: ["Compound interest", "Governance voting rights", "Flexible withdrawal", "Auto-reinvestment options"]
     },
     {
@@ -60,7 +60,7 @@ const InvestorPage: React.FC = () => {
       apy: "5-12%*",
       risk: "Low",
       lockPeriod: "None",
-      minInvestment: "1,000 SWF",
+      minInvestment: "1,000 AXM",
       description: "Participate in platform governance while earning rewards for active participation.",
       features: ["Voting rewards", "Proposal bonuses", "Long-term value", "Platform influence"]
     }
@@ -217,7 +217,7 @@ const InvestorPage: React.FC = () => {
             {activeTab === 'overview' && (
               <div>
                 <h2 className="text-4xl font-bold text-blue-900 mb-8 text-center">
-                  Why Invest with Sovran Wealth Fund?
+                  Why Invest with AXIOM?
                 </h2>
                 
                 <div className="grid md:grid-cols-2 gap-12 mb-12">
@@ -272,7 +272,7 @@ const InvestorPage: React.FC = () => {
 
                 <div className="bg-gradient-to-r from-blue-900 to-purple-900 rounded-xl p-8 text-white text-center">
                   <h3 className="text-2xl font-bold mb-4">Ready to Be Our First Investor?</h3>
-                  <p className="text-xl mb-6">Be among the first to join the Sovran Wealth Fund platform at launch</p>
+                  <p className="text-xl mb-6">Be among the first to join the AXIOM platform at launch</p>
                   <button 
                     onClick={() => navigate('/dashboard')}
                     className="bg-white text-blue-900 font-bold py-3 px-8 rounded-lg hover:bg-gray-100 transition-colors"
@@ -685,7 +685,7 @@ const InvestorPage: React.FC = () => {
                       <div className="flex-shrink-0 w-12 h-12 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold text-xl">1</div>
                       <div>
                         <h3 className="text-xl font-bold text-blue-900 mb-2">Create Your Account</h3>
-                        <p className="text-gray-700 mb-4">Sign up for your Sovran Wealth Fund account and complete the KYC verification process. This ensures compliance and protects your investments.</p>
+                        <p className="text-gray-700 mb-4">Sign up for your AXIOM account and complete the KYC verification process. This ensures compliance and protects your investments.</p>
                         <button 
                           onClick={() => navigate('/dashboard')}
                           className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded transition-colors"
@@ -759,7 +759,7 @@ const InvestorPage: React.FC = () => {
                   
                   <div className="mt-12 text-center bg-gradient-to-r from-blue-900 to-purple-900 rounded-xl p-8 text-white">
                     <h3 className="text-2xl font-bold mb-4">Ready to Start Your Investment Journey?</h3>
-                    <p className="text-xl mb-6">Join thousands of investors building wealth with Sovran Wealth Fund</p>
+                    <p className="text-xl mb-6">Join thousands of investors building wealth with AXIOM</p>
                     <div className="flex flex-col sm:flex-row gap-4 justify-center">
                       <button 
                         onClick={() => navigate('/dashboard')}
@@ -840,10 +840,10 @@ const InvestorPage: React.FC = () => {
                   <div>
                     <h4 className="text-lg font-semibold mb-2">📧 Direct Email</h4>
                     <a 
-                      href="mailto:info@sovranwealthfund.org" 
+                      href="mailto:info@axiomprotocol.io" 
                       className="text-blue-200 hover:text-white transition-colors text-lg"
                     >
-                      info@sovranwealthfund.org
+                      info@axiomprotocol.io
                     </a>
                     <p className="text-blue-200 text-sm mt-1">
                       For investment inquiries and partnership opportunities
@@ -897,7 +897,7 @@ const InvestorPage: React.FC = () => {
                   Start Investing Now
                 </button>
                 <a 
-                  href="mailto:info@sovranwealthfund.org?subject=Investment Inquiry - Sovran Wealth Fund"
+                  href="mailto:info@axiomprotocol.io?subject=Investment Inquiry - AXIOM"
                   className="bg-white border-2 border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white font-bold py-4 px-8 rounded-lg transition-all transform hover:scale-105 shadow-lg"
                 >
                   Contact Us Directly

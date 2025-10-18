@@ -10,7 +10,7 @@ const AboutUsPage: React.FC = () => {
           {/* Header Section */}
           <div className="text-center mb-16">
             <h1 className="text-4xl md:text-6xl font-bold text-blue-900 mb-6">
-              About Sovran Wealth Fund
+              About AXIOM
             </h1>
             <p className="text-xl md:text-2xl text-blue-700 max-w-4xl mx-auto leading-relaxed">
               Pioneering the future of decentralized wealth management through innovative blockchain technology, 
@@ -234,7 +234,7 @@ const AboutUsPage: React.FC = () => {
                 Our Community
               </h2>
               <p className="text-gray-700 text-lg leading-relaxed mb-4">
-                The Sovran Wealth Fund community is our greatest asset. Our members are forward-thinking 
+                The AXIOM community is our greatest asset. Our members are forward-thinking 
                 individuals who believe in the transformative power of decentralized finance and actively 
                 participate in shaping our platform's evolution.
               </p>
@@ -339,7 +339,7 @@ const AboutUsPage: React.FC = () => {
             </h2>
             <p className="text-xl text-gray-700 mb-8 max-w-3xl mx-auto">
               Be part of the movement towards true financial sovereignty. Start your journey with 
-              Sovran Wealth Fund today and experience the future of decentralized wealth management.
+              AXIOM today and experience the future of decentralized wealth management.
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">

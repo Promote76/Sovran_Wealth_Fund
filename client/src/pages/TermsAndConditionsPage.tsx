@@ -20,10 +20,10 @@ const TermsAndConditionsPage: React.FC = () => {
             <section>
               <h2 className="text-2xl font-bold text-blue-800 mb-4">1. Acceptance of Terms</h2>
               <p className="text-gray-700 leading-relaxed mb-4">
-                By accessing and using the Sovran Wealth Fund platform, you accept and agree to be bound by the terms and provision of this agreement. If you do not agree to abide by the above, please do not use this service.
+                By accessing and using the AXIOM platform, you accept and agree to be bound by the terms and provision of this agreement. If you do not agree to abide by the above, please do not use this service.
               </p>
               <p className="text-gray-700 leading-relaxed">
-                These terms constitute a legally binding agreement between you and Sovran Wealth Fund regarding your use of our decentralized finance platform.
+                These terms constitute a legally binding agreement between you and AXIOM regarding your use of our decentralized finance platform.
               </p>
             </section>
 
@@ -31,7 +31,7 @@ const TermsAndConditionsPage: React.FC = () => {
             <section>
               <h2 className="text-2xl font-bold text-blue-800 mb-4">2. Platform Description</h2>
               <p className="text-gray-700 leading-relaxed mb-4">
-                Sovran Wealth Fund provides a decentralized finance (DeFi) platform that enables users to:
+                AXIOM provides a decentralized finance (DeFi) platform that enables users to:
               </p>
               <ul className="list-disc list-inside text-gray-700 space-y-2 ml-4">
                 <li>Stake and manage cryptocurrency tokens</li>
@@ -84,7 +84,7 @@ const TermsAndConditionsPage: React.FC = () => {
             <section>
               <h2 className="text-2xl font-bold text-blue-800 mb-4">6. Intellectual Property</h2>
               <p className="text-gray-700 leading-relaxed">
-                All content, trademarks, and intellectual property on this platform are owned by Sovran Wealth Fund or 
+                All content, trademarks, and intellectual property on this platform are owned by AXIOM or 
                 our licensors. Users may not reproduce, distribute, or create derivative works without explicit permission.
               </p>
             </section>
@@ -94,7 +94,7 @@ const TermsAndConditionsPage: React.FC = () => {
               <h2 className="text-2xl font-bold text-blue-800 mb-4">7. Limitation of Liability</h2>
               <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6">
                 <p className="text-gray-700 leading-relaxed">
-                  Sovran Wealth Fund shall not be liable for any indirect, incidental, special, consequential, or punitive 
+                  AXIOM shall not be liable for any indirect, incidental, special, consequential, or punitive 
                   damages, including without limitation, loss of profits, data, use, goodwill, or other intangible losses, 
                   resulting from your use of the platform.
                 </p>

@@ -9,7 +9,7 @@ import { ArrowSmUpIcon, ArrowSmDownIcon } from '@heroicons/react/solid';
 import { registerStakingAction } from '../utils/userJourney';
 
 // Contract ABIs (simplified for this implementation)
-const SWF_TOKEN_ABI = [
+const AXM_TOKEN_ABI = [
   "function balanceOf(address owner) view returns (uint256)",
   "function decimals() view returns (uint8)",
   "function symbol() view returns (string)",
@@ -26,7 +26,7 @@ const STAKING_ABI = [
 ];
 
 // Contract addresses
-const SWF_TOKEN_ADDRESS = "0x7e243288B287BEe84A7D40E8520444f47af88335";
+const AXM_TOKEN_ADDRESS = "0x7e243288B287BEe84A7D40E8520444f47af88335";
 const STAKING_ADDRESS = "0x87034C4A1C27DEd5d74819661318840C558bde00";
 
 // Toast component
@@ -80,7 +80,7 @@ const StakingPanel: React.FC<StakingPanelProps> = ({
   walletAddress
 }) => {
   // State variables
-  const [swfBalance, setSwfBalance] = useState<string>('0');
+  const [axmBalance, setAxmBalance] = useState<string>('0');
   const [stakedBalance, setStakedBalance] = useState<string>('0');
   const [earnedRewards, setEarnedRewards] = useState<string>('0');
   const [apr, setApr] = useState<string>('25.0');
@@ -119,22 +119,22 @@ const StakingPanel: React.FC<StakingPanelProps> = ({
     });
   };
   
-  // Load user's SWF balance
+  // Load user's AXM balance
   const loadBalance = useCallback(async () => {
     if (!provider || !walletAddress) return;
     
     try {
       const tokenContract = new ethers.Contract(
-        SWF_TOKEN_ADDRESS, 
-        SWF_TOKEN_ABI, 
+        AXM_TOKEN_ADDRESS, 
+        AXM_TOKEN_ABI, 
         provider
       );
       
       const balance = await tokenContract.balanceOf(walletAddress);
       const decimals = await tokenContract.decimals();
-      setSwfBalance(ethers.utils.formatUnits(balance, decimals));
+      setAxmBalance(ethers.utils.formatUnits(balance, decimals));
     } catch (error) {
-      console.error('Error loading SWF balance:', error);
+      console.error('Error loading AXM balance:', error);
     }
   }, [provider, walletAddress]);
   
@@ -269,8 +269,8 @@ const StakingPanel: React.FC<StakingPanelProps> = ({
     try {
       const signer = provider.getSigner();
       const tokenContract = new ethers.Contract(
-        SWF_TOKEN_ADDRESS, 
-        SWF_TOKEN_ABI, 
+        AXM_TOKEN_ADDRESS, 
+        AXM_TOKEN_ABI, 
         signer
       );
       const stakingContract = new ethers.Contract(
@@ -364,7 +364,7 @@ const StakingPanel: React.FC<StakingPanelProps> = ({
   const handleQuickStake = (amount: number) => {
     // If 'Max' is selected, use the full balance
     if (amount === -1) {
-      setStakeAmount(swfBalance);
+      setStakeAmount(axmBalance);
     } else {
       setStakeAmount(amount.toString());
     }
@@ -414,8 +414,8 @@ const StakingPanel: React.FC<StakingPanelProps> = ({
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="bg-indigo-50 p-4 rounded-lg">
-            <div className="text-sm text-indigo-600 mb-1">Your SWF Balance</div>
-            <div className="text-2xl font-bold">{formatNumber(swfBalance)} SWF</div>
+            <div className="text-sm text-indigo-600 mb-1">Your AXM Balance</div>
+            <div className="text-2xl font-bold">{formatNumber(axmBalance)} AXM</div>
           </div>
           
           <div className="bg-indigo-50 p-4 rounded-lg">
@@ -519,11 +519,11 @@ const StakingPanel: React.FC<StakingPanelProps> = ({
             
             <button
               onClick={handleStake}
-              disabled={isStaking || !stakeAmount || parseFloat(stakeAmount) <= 0 || parseFloat(stakeAmount) > parseFloat(swfBalance)}
+              disabled={isStaking || !stakeAmount || parseFloat(stakeAmount) <= 0 || parseFloat(stakeAmount) > parseFloat(axmBalance)}
               className={`w-full px-4 py-2 rounded-md text-white font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 ${
                 isStaking 
                   ? 'bg-indigo-400 cursor-not-allowed' 
-                  : (!stakeAmount || parseFloat(stakeAmount) <= 0 || parseFloat(stakeAmount) > parseFloat(swfBalance))
+                  : (!stakeAmount || parseFloat(stakeAmount) <= 0 || parseFloat(stakeAmount) > parseFloat(axmBalance))
                     ? 'bg-gray-400 cursor-not-allowed'
                     : 'bg-indigo-600 hover:bg-indigo-700'
               }`}

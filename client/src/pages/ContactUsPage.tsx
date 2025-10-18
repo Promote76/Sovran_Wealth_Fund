@@ -10,7 +10,7 @@ const ContactUsPage: React.FC = () => {
               Contact Us
             </h1>
             <p className="text-xl text-gray-700 leading-relaxed">
-              Get in touch with the Sovran Wealth Fund team. We're here to help you on your wealth building journey.
+              Get in touch with the AXIOM team. We're here to help you on your wealth building journey.
             </p>
           </div>
         </section>
@@ -47,10 +47,10 @@ const ContactUsPage: React.FC = () => {
                   </div>
                   <h3 className="text-2xl font-bold mb-4 text-blue-800">Email</h3>
                   <a 
-                    href="mailto:Info@SovranWealthFund.org"
+                    href="mailto:info@axiomprotocol.io"
                     className="text-xl text-blue-600 hover:text-blue-800 font-semibold transition-colors break-all"
                   >
-                    Info@SovranWealthFund.org
+                    info@axiomprotocol.io
                   </a>
                   <p className="text-gray-600 mt-4">
                     Send us detailed questions and we'll get back to you within 24 hours.
@@ -100,7 +100,7 @@ const ContactUsPage: React.FC = () => {
                     📞 Call Now
                   </a>
                   <a 
-                    href="mailto:Info@SovranWealthFund.org"
+                    href="mailto:info@axiomprotocol.io"
                     className="block px-6 py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors text-center"
                   >
                     📧 Send Email

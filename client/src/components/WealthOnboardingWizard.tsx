@@ -96,7 +96,7 @@ const WEALTH_PATHS: WealthPath[] = [
     icon: '🎓',
     title: "I Want to Learn First",
     description: "Start with education. Understand how money works before investing.",
-    detailedDescription: "Access our comprehensive learning academy with interactive courses, calculators, and earn SWF tokens while you learn. Perfect for building confidence before making financial moves.",
+    detailedDescription: "Access our comprehensive learning academy with interactive courses, calculators, and earn AXM tokens while you learn. Perfect for building confidence before making financial moves.",
     goals: [
       { id: 'learn1', title: 'Complete Basic Financial Literacy', amount: 0, timeframe: '2-4 weeks', description: 'Foundation knowledge to make smart decisions' },
       { id: 'learn2', title: 'Understand Investment Options', amount: 0, timeframe: '1-2 months', description: 'Learn different ways to grow money safely' },
