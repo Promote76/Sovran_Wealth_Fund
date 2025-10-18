@@ -142,10 +142,10 @@ const StatusPage: React.FC = () => {
       <div className="container mx-auto px-4 max-w-5xl">
         <div className="text-center mb-12">
           <h1 className="text-4xl md:text-5xl font-bold text-blue-800 mb-4">
-            📊 System Status
+            📊 AXIOM System Health
           </h1>
           <p className="text-xl text-gray-700">
-            Real-time status of all Sovran Wealth Fund services
+            Real-time status of all AXIOM platform services
           </p>
         </div>
 

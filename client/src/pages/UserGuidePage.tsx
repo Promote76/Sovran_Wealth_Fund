@@ -88,11 +88,11 @@ const UserGuidePage: React.FC = () => {
               
               <div className="space-y-6">
                 <div className="bg-blue-50 border-l-4 border-blue-500 p-6 rounded-r-lg">
-                  <h3 className="text-xl font-bold text-blue-900 mb-3">Welcome to Sovran Wealth Fund!</h3>
+                  <h3 className="text-xl font-bold text-blue-900 mb-3">Welcome to AXIOM!</h3>
                   <p className="text-gray-700 leading-relaxed">
-                    This platform gives you powerful tools to build wealth and generate monthly income through banking, 
-                    investments, and advanced blockchain features. Don't worry if you're new to this - we'll guide you 
-                    every step of the way!
+                    AXIOM is a lawful digital economy where wealth flows through participation and truth creates value. 
+                    Build sovereign wealth through energy-based banking, strategic investments, and Proof of Contribution staking. 
+                    This guide shows you how to circulate energy and earn through contribution, not speculation.
                   </p>
                 </div>
 

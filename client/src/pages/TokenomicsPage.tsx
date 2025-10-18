@@ -19,7 +19,7 @@ const TokenomicsPage: React.FC = () => {
   const [platformMetrics, setPlatformMetrics] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
-  // Real SWF Token Allocation Data - Total Supply: 1,000,000,000 SWF
+  // Real AXM Token Allocation Data - Total Supply: 10,000,000,000 AXM
   const tokenAllocations = [
     {
       label: 'Community Ecosystem',
@@ -156,23 +156,23 @@ const TokenomicsPage: React.FC = () => {
   };
 
   // Real-time blockchain data (replaces placeholder values)
-  const totalSupply = "1,000,000,000";
-  const currentCirculatingSupply = platformMetrics ? formatTokenAmount(platformMetrics.circulatingSupply) : "420,000,000";
-  const marketCap = platformMetrics ? formatCurrency(platformMetrics.marketCap) : "$84,000,000";
-  const fullyDilutedValue = platformMetrics ? formatCurrency(platformMetrics.fullyDilutedValue) : "$200,000,000";
+  const totalSupply = "10,000,000,000";
+  const currentCirculatingSupply = platformMetrics ? formatTokenAmount(platformMetrics.circulatingSupply) : "4,200,000,000";
+  const marketCap = platformMetrics ? formatCurrency(platformMetrics.marketCap) : "$840,000,000";
+  const fullyDilutedValue = platformMetrics ? formatCurrency(platformMetrics.fullyDilutedValue) : "$2,000,000,000";
   const tokenPrice = platformMetrics ? `$${platformMetrics.tokenPrice.toFixed(4)}` : "$0.20";
   const priceChange24h = platformMetrics ? platformMetrics.priceChange24h.toFixed(2) : "0.00";
 
   return (
-    <Layout title="SWF Tokenomics" themeColor="blue">
+    <Layout title="AXM Tokenomics" themeColor="blue">
       <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <div className="bg-gradient-to-r from-blue-900 to-blue-700 text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div className="text-center">
-            <h1 className="text-4xl font-bold mb-4">SWF Token Tokenomics</h1>
+            <h1 className="text-4xl font-bold mb-4">AXM Token Tokenomics</h1>
             <p className="text-xl text-blue-100 max-w-3xl mx-auto">
-              Transparent token distribution designed for long-term sustainability and community growth
+              Energy-based tokenomics: Each AXM embodies verified contribution. Circulation over hoarding.
             </p>
           </div>
         </div>
@@ -197,7 +197,7 @@ const TokenomicsPage: React.FC = () => {
             <div className="bg-white p-6 rounded-lg shadow-lg text-center">
               <h3 className="text-lg font-semibold text-gray-900 mb-2">Total Supply</h3>
               <p className="text-3xl font-bold text-blue-600">{totalSupply}</p>
-              <p className="text-sm text-gray-600 mt-1">SWF Tokens</p>
+              <p className="text-sm text-gray-600 mt-1">AXM Tokens</p>
             </div>
             <div className="bg-white p-6 rounded-lg shadow-lg text-center">
               <h3 className="text-lg font-semibold text-gray-900 mb-2">Circulating Supply</h3>
