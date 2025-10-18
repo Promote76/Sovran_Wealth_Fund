@@ -35,7 +35,7 @@ import Layout from './components/Layout';
 // Import the new page components
 import EnhancedStakingPage from './pages/EnhancedStakingPage';
 import AirdropPage from './pages/AirdropPage';
-import SWFBankingPage from './pages/SWFBankingPage';
+import AXIOMBankingPage from './pages/SWFBankingPage';
 import InvestmentsPage from './pages/InvestmentsPage';
 import RealEstatePage from './pages/RealEstatePage';
 import SouSouCirclePage from './pages/SouSouCirclePage';
@@ -442,7 +442,7 @@ function App() {
                               {/* Platform features */}
                               <Route path="/enhanced-staking" element={<EnhancedStakingPage />} />
                               <Route path="/airdrop" element={<AirdropPage />} />
-                              <Route path="/swf-banking" element={<SWFBankingPage />} />
+                              <Route path="/swf-banking" element={<AXIOMBankingPage />} />
                               <Route path="/investments" element={<InvestmentsPage />} />
                               <Route path="/real-estate" element={<RealEstatePage />} />
                               <Route path="/sousou-circle" element={<SouSouCirclePage />} />

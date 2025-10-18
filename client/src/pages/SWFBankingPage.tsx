@@ -55,7 +55,7 @@ const TABS = [
   { key: 'compliance', label: 'ISO 20022' }
 ];
 
-const SWFBankingPage: React.FC = () => {
+const AXIOMBankingPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState('overview');
   const { showInfo, showError, showSuccess, showWarning } = useNotificationHelpers();
   
@@ -71,7 +71,7 @@ const SWFBankingPage: React.FC = () => {
   } = useWallet();
 
   // DEBUGGING: Log wallet state immediately
-  console.log('🔍 SWFBankingPage WALLET DEBUG:', { 
+  console.log('🔍 AXIOMBankingPage WALLET DEBUG:', { 
     walletConnected, 
     walletAddress, 
     isLoggedIn, 
@@ -209,11 +209,11 @@ const SWFBankingPage: React.FC = () => {
     }
   ];
 
-  // Real blockchain investments - SWF staking shown from blockchain data
+  // Real blockchain investments - AXM staking shown from blockchain data
   const investments: Investment[] = React.useMemo(() => {
     const investmentsList: Investment[] = [];
     
-    // SWF Staking Investment - sum both multi-pool and auto-staking
+    // AXM Staking Investment - sum both multi-pool and auto-staking
     const multiPoolStaked = parseFloat(contractData?.multiPoolStaking?.totalStaked || '0');
     const multiPoolRewards = parseFloat(contractData?.multiPoolStaking?.totalRewards || '0');
     const autoStaked = parseFloat(contractData?.autoStaking?.autoStakedAmount || '0');
@@ -221,18 +221,18 @@ const SWFBankingPage: React.FC = () => {
     
     const totalStakedAmount = multiPoolStaked + autoStaked;
     const totalRewards = multiPoolRewards + autoRewards;
-    const swfPrice = 0.50; // Default SWF price, could be fetched from oracle
+    const axmPrice = 0.50; // Default AXM price, could be fetched from oracle
     
     if (totalStakedAmount > 0) {
-      const totalValue = (totalStakedAmount + totalRewards) * swfPrice;
-      const gainLoss = totalRewards * swfPrice;
+      const totalValue = (totalStakedAmount + totalRewards) * axmPrice;
+      const gainLoss = totalRewards * axmPrice;
       const gainLossPercent = totalStakedAmount > 0 ? (totalRewards / totalStakedAmount) * 100 : 0;
       
       investmentsList.push({
-        symbol: 'SWF',
-        name: 'SWF Token Staking',
+        symbol: 'AXM',
+        name: 'AXM Token Staking',
         shares: totalStakedAmount,
-        currentPrice: swfPrice,
+        currentPrice: axmPrice,
         totalValue: totalValue,
         gainLoss: gainLoss,
         gainLossPercent: gainLossPercent,
@@ -265,14 +265,14 @@ const SWFBankingPage: React.FC = () => {
       });
     }
     
-    // SWF Basket Vault Investment
+    // AXM Basket Vault Investment
     if (contractData?.vaultDeposits && parseFloat(contractData.vaultDeposits) > 0) {
       const vaultAmount = parseFloat(contractData.vaultDeposits);
-      const basketPrice = 1.0; // SWF-BASKET is 1:1 with deposits
+      const basketPrice = 1.0; // AXM-BASKET is 1:1 with deposits
       
       investmentsList.push({
-        symbol: 'SWF-BASKET',
-        name: 'SWF Basket Vault',
+        symbol: 'AXM-BASKET',
+        name: 'AXIOM Basket Vault',
         shares: vaultAmount,
         currentPrice: basketPrice,
         totalValue: vaultAmount * basketPrice,
@@ -619,7 +619,7 @@ const SWFBankingPage: React.FC = () => {
       const data = await response.json();
       
       if (data.success) {
-        showSuccess('Deposit Successful', `Deposited ${depositAmount} SWF tokens to your account`);
+        showSuccess('Deposit Successful', `Deposited ${depositAmount} AXM tokens to your account`);
         setDepositAmount('');
         fetchAccountDetails(selectedAccount.id);
         fetchSavingsAccounts();
@@ -650,9 +650,9 @@ const SWFBankingPage: React.FC = () => {
       
       if (data.success) {
         const penaltyMsg = data.penalty && parseFloat(data.penalty) > 0 
-          ? ` (Early withdrawal penalty: ${data.penalty} SWF)` 
+          ? ` (Early withdrawal penalty: ${data.penalty} AXM)` 
           : '';
-        showSuccess('Withdrawal Successful', `Withdrew ${withdrawAmount} SWF tokens${penaltyMsg}`);
+        showSuccess('Withdrawal Successful', `Withdrew ${withdrawAmount} AXM tokens${penaltyMsg}`);
         setWithdrawAmount('');
         fetchAccountDetails(selectedAccount.id);
         fetchSavingsAccounts();
@@ -911,7 +911,7 @@ const SWFBankingPage: React.FC = () => {
                   <div className="flex items-center space-x-3">
                     {isLoggedIn && contractData && (
                       <div className="bg-white border border-green-300 rounded-lg px-4 py-2">
-                        <div className="text-xs text-gray-600">SWF Balance</div>
+                        <div className="text-xs text-gray-600">AXM Balance</div>
                         <div className="text-lg font-bold text-blue-600">
                           {parseFloat(contractData.swfBalance).toFixed(2)} {contractData.swfSymbol}
                         </div>
@@ -1379,7 +1379,7 @@ const SWFBankingPage: React.FC = () => {
                          !isLoggedIn ? `${walletAddress.slice(0, 6)}...${walletAddress.slice(-4)}` :
                          balanceLoading ? 'Loading...' :
                          blockchainData ? `${parseFloat(blockchainData.swfBalance).toFixed(2)} ${blockchainData.symbol}` : 
-                         '0.00 SWF'}
+                         '0.00 AXM'}
                       </div>
                     </div>
                     <div className="text-center">
@@ -1389,7 +1389,7 @@ const SWFBankingPage: React.FC = () => {
                          !isLoggedIn ? 'Complete Authentication' :
                          balanceLoading ? 'Loading...' :
                          blockchainData ? `${parseFloat(blockchainData.swfBalance).toFixed(2)} ${blockchainData.symbol}` : 
-                         '0.00 SWF'}
+                         '0.00 AXM'}
                       </div>
                     </div>
                     <div className="text-center">
@@ -1577,7 +1577,7 @@ const SWFBankingPage: React.FC = () => {
               <div className="space-y-8">
                 {/* Savings Overview */}
                 <div className="bg-gradient-to-br from-white to-blue-50 border-2 border-blue-500 rounded-xl p-6 shadow-lg">
-                  <h3 className="text-xl font-bold mb-6 text-blue-800">Savings Account Overview (SWF Basket Vault)</h3>
+                  <h3 className="text-xl font-bold mb-6 text-blue-800">Savings Account Overview (AXIOM Basket Vault)</h3>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div className="text-center">
                       <div className="text-sm text-gray-600 mb-2">Vault Balance</div>
@@ -1586,7 +1586,7 @@ const SWFBankingPage: React.FC = () => {
                          !isLoggedIn ? 'Authenticate' :
                          balanceLoading ? 'Loading...' : 
                          blockchainData ? `${parseFloat(blockchainData.vaultBalance).toFixed(2)} ${blockchainData.symbol}` : 
-                         '0.00 SWF'}
+                         '0.00 AXM'}
                       </div>
                     </div>
                     <div className="text-center">
@@ -1604,7 +1604,7 @@ const SWFBankingPage: React.FC = () => {
                         {!walletConnected || !isLoggedIn ? 'Connect to view' :
                          balanceLoading ? 'Loading...' :
                          blockchainData ? `${parseFloat(blockchainData.userDeposits).toFixed(2)} ${blockchainData.symbol}` : 
-                         '0.00 SWF'}
+                         '0.00 AXM'}
                       </div>
                     </div>
                   </div>
@@ -1649,7 +1649,7 @@ const SWFBankingPage: React.FC = () => {
                             <div className="flex justify-between">
                               <span className="text-gray-600">Balance:</span>
                               <span className="font-semibold text-blue-600">
-                                {parseFloat(account.balance).toFixed(2)} SWF
+                                {parseFloat(account.balance).toFixed(2)} AXM
                               </span>
                             </div>
                             <div className="flex justify-between">
@@ -1665,7 +1665,7 @@ const SWFBankingPage: React.FC = () => {
                             <div className="flex justify-between">
                               <span className="text-gray-600">Accrued Interest:</span>
                               <span className="text-sm text-green-600">
-                                +{parseFloat(account.accruedInterest).toFixed(2)} SWF
+                                +{parseFloat(account.accruedInterest).toFixed(2)} AXM
                               </span>
                             </div>
                           </div>
@@ -1813,7 +1813,7 @@ const SWFBankingPage: React.FC = () => {
                       <p className="text-gray-600 mb-4">Set up automatic transfers from checking to savings on a schedule.</p>
                       <div className="text-sm text-gray-600 mb-4">
                         {autoTransferEnabled ? (
-                          <>Current: <span className="font-semibold">{autoTransferAmount} SWF monthly</span> on day {autoTransferDay} of each month</>
+                          <>Current: <span className="font-semibold">{autoTransferAmount} AXM monthly</span> on day {autoTransferDay} of each month</>
                         ) : (
                           <span className="text-gray-500 italic">No auto-transfer configured</span>
                         )}
@@ -2020,7 +2020,7 @@ const SWFBankingPage: React.FC = () => {
               <div className="space-y-8">
                 {/* Portfolio Overview */}
                 <div className="bg-gradient-to-br from-white to-blue-50 border-2 border-blue-500 rounded-xl p-6 shadow-lg">
-                  <h3 className="text-xl font-bold mb-6 text-blue-800">SWF Staking Portfolio</h3>
+                  <h3 className="text-xl font-bold mb-6 text-blue-800">AXM Staking Portfolio</h3>
                   <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                     <div className="text-center">
                       <div className="text-sm text-gray-600 mb-2">Total Staked Amount</div>
@@ -2029,7 +2029,7 @@ const SWFBankingPage: React.FC = () => {
                          !isLoggedIn ? 'Authenticate' :
                          balanceLoading ? 'Loading...' :
                          blockchainData ? `${parseFloat(blockchainData.stakedAmount).toFixed(2)} ${blockchainData.symbol}` : 
-                         '0.00 SWF'}
+                         '0.00 AXM'}
                       </div>
                     </div>
                     <div className="text-center">
@@ -2038,7 +2038,7 @@ const SWFBankingPage: React.FC = () => {
                         {!walletConnected || !isLoggedIn ? 'Connect to view' :
                          balanceLoading ? 'Loading...' :
                          blockchainData ? `${parseFloat(blockchainData.pendingRewards).toFixed(2)} ${blockchainData.symbol}` : 
-                         '0.00 SWF'}
+                         '0.00 AXM'}
                       </div>
                     </div>
                     <div className="text-center">
@@ -2056,7 +2056,7 @@ const SWFBankingPage: React.FC = () => {
                         {!walletConnected || !isLoggedIn ? 'Connect' :
                          balanceLoading ? 'Loading...' :
                          blockchainData ? `${parseFloat(blockchainData.swfBalance).toFixed(2)} ${blockchainData.symbol}` : 
-                         '0.00 SWF'}
+                         '0.00 AXM'}
                       </div>
                     </div>
                   </div>
@@ -2092,7 +2092,7 @@ const SWFBankingPage: React.FC = () => {
                                 <div className="text-sm">
                                   {!walletConnected ? 'Connect your wallet to view your staking positions' :
                                    !isLoggedIn ? 'Authenticate to view your portfolio' :
-                                   'Start staking SWF tokens or supply assets to Venus Protocol to see your investments here'}
+                                   'Start staking AXM tokens or supply assets to Venus Protocol to see your investments here'}
                                 </div>
                               </div>
                             </td>
@@ -2882,14 +2882,14 @@ const SWFBankingPage: React.FC = () => {
                       <div className="text-sm text-gray-600 mb-1">Total Staked</div>
                       <div className="text-xl font-bold text-blue-600">
                         {contractData?.multiPoolStaking?.totalStaked ? 
-                          `${parseFloat(contractData.multiPoolStaking.totalStaked).toFixed(2)} SWF` : '0 SWF'}
+                          `${parseFloat(contractData.multiPoolStaking.totalStaked).toFixed(2)} AXM` : '0 AXM'}
                       </div>
                     </div>
                     <div className="bg-white border border-blue-200 rounded-lg p-4 text-center">
                       <div className="text-sm text-gray-600 mb-1">Total Rewards</div>
                       <div className="text-xl font-bold text-green-600">
                         {contractData?.multiPoolStaking?.totalRewards ? 
-                          `${parseFloat(contractData.multiPoolStaking.totalRewards).toFixed(2)} SWF` : '0 SWF'}
+                          `${parseFloat(contractData.multiPoolStaking.totalRewards).toFixed(2)} AXM` : '0 AXM'}
                       </div>
                     </div>
                     <div className="bg-white border border-blue-200 rounded-lg p-4 text-center">
@@ -2917,14 +2917,14 @@ const SWFBankingPage: React.FC = () => {
                         <div className="text-sm text-gray-600 mb-1">Auto-Staked Amount</div>
                         <div className="text-lg font-bold text-blue-600">
                           {contractData?.autoStaking?.autoStakedAmount ? 
-                            `${parseFloat(contractData.autoStaking.autoStakedAmount).toFixed(2)} SWF` : '0 SWF'}
+                            `${parseFloat(contractData.autoStaking.autoStakedAmount).toFixed(2)} AXM` : '0 AXM'}
                         </div>
                       </div>
                       <div className="text-center">
                         <div className="text-sm text-gray-600 mb-1">Pending Rewards</div>
                         <div className="text-lg font-bold text-green-600">
                           {contractData?.autoStaking?.pendingRewards ? 
-                            `${parseFloat(contractData.autoStaking.pendingRewards).toFixed(2)} SWF` : '0 SWF'}
+                            `${parseFloat(contractData.autoStaking.pendingRewards).toFixed(2)} AXM` : '0 AXM'}
                         </div>
                       </div>
                     </div>
@@ -3652,7 +3652,7 @@ const SWFBankingPage: React.FC = () => {
                   value={initialDepositAmount}
                   onChange={(e) => setInitialDepositAmount(e.target.value)}
                   className="w-full px-4 py-2 border border-blue-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="0.00 SWF"
+                  placeholder="0.00 AXM"
                 />
               </div>
               
@@ -3694,7 +3694,7 @@ const SWFBankingPage: React.FC = () => {
                   </div>
                   <div className="flex justify-between mb-2">
                     <span className="text-gray-700">Minimum Deposit:</span>
-                    <span className="font-bold">1,000 SWF</span>
+                    <span className="font-bold">1,000 AXM</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-700">Early Withdrawal Penalty:</span>
@@ -3703,14 +3703,14 @@ const SWFBankingPage: React.FC = () => {
                 </div>
                 
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Initial Deposit (Minimum 1,000 SWF)
+                  Initial Deposit (Minimum 1,000 AXM)
                 </label>
                 <input
                   type="number"
                   value={initialDepositAmount}
                   onChange={(e) => setInitialDepositAmount(e.target.value)}
                   className="w-full px-4 py-2 border border-green-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-                  placeholder="1000.00 SWF"
+                  placeholder="1000.00 AXM"
                   min="1000"
                 />
               </div>
@@ -3828,7 +3828,7 @@ const SWFBankingPage: React.FC = () => {
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-2 sm:p-4">
                   <div className="text-xs sm:text-sm text-gray-600 mb-1">Balance</div>
                   <div className="text-sm sm:text-2xl font-bold text-blue-600">
-                    {parseFloat(selectedAccount.balance).toFixed(2)} SWF
+                    {parseFloat(selectedAccount.balance).toFixed(2)} AXM
                   </div>
                 </div>
                 <div className="bg-green-50 border border-green-200 rounded-lg p-2 sm:p-4">
@@ -4027,4 +4027,4 @@ const SWFBankingPage: React.FC = () => {
   );
 };
 
-export default SWFBankingPage;
+export default AXIOMBankingPage;
