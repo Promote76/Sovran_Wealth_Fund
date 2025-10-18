@@ -49,7 +49,7 @@ const EnhancedStakingPage: React.FC = () => {
             Enhanced <span className="text-blue-600">Staking</span>
           </h1>
           <p className="text-xl text-gray-700 max-w-3xl mx-auto">
-            Stake your SWF tokens and earn competitive returns with flexible lock periods, 
+            Stake your AXM tokens and earn competitive returns with flexible lock periods, 
             compound interest, and secure smart contracts on BSC.
           </p>
         </div>
@@ -85,7 +85,7 @@ const EnhancedStakingPage: React.FC = () => {
         {/* Staking Interface */}
         <div className="max-w-2xl mx-auto">
           <div className="bg-gradient-to-br from-white to-blue-50 border-2 border-blue-500 rounded-xl p-8 shadow-lg">
-            <h2 className="text-2xl font-bold mb-6 text-center text-blue-800">Stake SWF Tokens</h2>
+            <h2 className="text-2xl font-bold mb-6 text-center text-blue-800">Stake AXM Tokens</h2>
             
             <div className="space-y-6">
               <div>
@@ -94,7 +94,7 @@ const EnhancedStakingPage: React.FC = () => {
                 </label>
                 <input
                   type="number"
-                  placeholder="Enter SWF amount"
+                  placeholder="Enter AXM amount"
                   className="w-full px-4 py-3 bg-white border-2 border-blue-300 rounded-lg text-gray-800 placeholder-gray-500 focus:outline-none focus:border-blue-500"
                 />
               </div>

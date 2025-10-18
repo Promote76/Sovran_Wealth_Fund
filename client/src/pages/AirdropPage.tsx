@@ -58,10 +58,10 @@ const AirdropPage: React.FC = () => {
       <div className="container mx-auto px-4 py-12">
         <div className="text-center mb-12">
           <h1 className="text-5xl font-bold mb-6 text-blue-800">
-            SWF Token <span className="text-blue-600">Airdrop</span>
+            AXM Token <span className="text-blue-600">Airdrop</span>
           </h1>
           <p className="text-xl text-gray-700 max-w-3xl mx-auto">
-            Claim your free SWF tokens through our secure Merkle proof verification system. 
+            Claim your free AXM tokens through our secure Merkle proof verification system. 
             Limited time airdrop for qualified wallet addresses.
           </p>
         </div>
@@ -125,7 +125,7 @@ const AirdropPage: React.FC = () => {
               {claimStatus === 'eligible' && (
                 <div className="text-center space-y-4">
                   <div className="text-blue-600 text-lg">
-                    🎉 You're eligible to claim {claimAmount} SWF tokens!
+                    🎉 You're eligible to claim {claimAmount} AXM tokens!
                   </div>
                   <button 
                     onClick={claimTokens}
@@ -178,7 +178,7 @@ const AirdropPage: React.FC = () => {
                 <span className="text-2xl">3️⃣</span>
               </div>
               <h3 className="text-lg font-semibold mb-2 text-blue-800">Claim Tokens</h3>
-              <p className="text-gray-700">Claim your free SWF tokens directly to your wallet</p>
+              <p className="text-gray-700">Claim your free AXM tokens directly to your wallet</p>
             </div>
           </div>
         </div>

@@ -45,7 +45,7 @@ const DAODashboardPage: React.FC = () => {
       },
       {
         id: 3,
-        title: 'Launch SWF Mobile App',
+        title: 'Launch AXIOM Mobile App',
         description: 'Allocate $250,000 from treasury for mobile app development and launch.',
         status: 'Active',
         votesFor: 654,
@@ -79,7 +79,7 @@ const DAODashboardPage: React.FC = () => {
             DAO <span className="text-blue-600">Governance</span>
           </h1>
           <p className="text-xl text-gray-700 max-w-3xl mx-auto">
-            Participate in decentralized governance of the Sovran Wealth Fund. 
+            Participate in decentralized governance of the AXIOM platform. 
             Vote on proposals, manage the treasury, and shape the future of the platform.
           </p>
         </div>
@@ -198,7 +198,7 @@ const DAODashboardPage: React.FC = () => {
                     <span className="font-bold text-blue-600">${treasuryBalance}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-600">SWF Tokens:</span>
+                    <span className="text-gray-600">AXM Tokens:</span>
                     <span className="font-semibold text-blue-700">1,247,832</span>
                   </div>
                   <div className="flex justify-between">

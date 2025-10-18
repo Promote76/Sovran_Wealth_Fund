@@ -23,8 +23,8 @@ const LiquidityManagementPage: React.FC = () => {
     const mockPools: LiquidityPool[] = [
       {
         id: 1,
-        name: 'SWF/USDC',
-        token1: 'SWF',
+        name: 'AXM/USDC',
+        token1: 'AXM',
         token2: 'USDC',
         tvl: '$2,547,892',
         apy: '15.6%',
@@ -34,8 +34,8 @@ const LiquidityManagementPage: React.FC = () => {
       },
       {
         id: 2,
-        name: 'SWF/BNB',
-        token1: 'SWF',
+        name: 'AXM/BNB',
+        token1: 'AXM',
         token2: 'BNB',
         tvl: '$1,892,456',
         apy: '22.3%',
@@ -45,8 +45,8 @@ const LiquidityManagementPage: React.FC = () => {
       },
       {
         id: 3,
-        name: 'SWF/ETH',
-        token1: 'SWF',
+        name: 'AXM/ETH',
+        token1: 'AXM',
         token2: 'ETH',
         tvl: '$3,456,789',
         apy: '18.9%',
@@ -95,7 +95,7 @@ const LiquidityManagementPage: React.FC = () => {
             Liquidity <span className="text-blue-600">Management</span>
           </h1>
           <p className="text-xl text-gray-700 max-w-3xl mx-auto">
-            Provide liquidity to SWF trading pairs and earn competitive rewards. 
+            Provide liquidity to AXM trading pairs and earn competitive rewards. 
             Manage your positions, track performance, and optimize your yield strategies.
           </p>
         </div>
