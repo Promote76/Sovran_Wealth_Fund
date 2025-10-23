@@ -1,65 +1,72 @@
 const express = require('express');
 const router = express.Router();
-const { getContractProvider } = require('../services/contractProvider');
-const { db } = require('../db');
-const { advancedStakes, stakingRewards } = require('../../shared/schema');
+const advancedStakingService = require('../services/advancedStakingService');
 
-router.get('/status', async (req, res) => {
+router.get('/stats', async (req, res) => {
   try {
-    const contractProvider = getContractProvider();
-    const stakingAddress = contractProvider.getAddress('AdvancedStaking');
+    const stats = await advancedStakingService.getStakingStats();
+    const apr = await advancedStakingService.getCurrentAPR();
     
     res.json({
       success: true,
-      stakingAddress,
-      message: 'Advanced staking operational'
+      data: {
+        ...stats,
+        currentAPR: `${apr}%`
+      }
     });
   } catch (error) {
-    console.error('Staking status error:', error);
-    res.status(500).json({ error: error.message });
+    console.error('❌ Staking stats error:', error);
+    res.status(500).json({ success: false, error: error.message });
   }
 });
 
-router.get('/positions/:walletAddress', async (req, res) => {
+router.get('/stakes/:walletAddress', async (req, res) => {
   try {
     const { walletAddress } = req.params;
+    const stakesData = await advancedStakingService.getUserStakes(walletAddress);
     
     res.json({
       success: true,
-      positions: [],
-      message: 'Positions endpoint ready for Phase 2'
+      data: stakesData,
+      count: stakesData.stakes ? stakesData.stakes.length : 0
     });
   } catch (error) {
-    console.error('Positions error:', error);
-    res.status(500).json({ error: error.message });
+    console.error('❌ User stakes error:', error);
+    res.status(500).json({ success: false, error: error.message });
   }
 });
 
-router.post('/stake', async (req, res) => {
+router.get('/rewards/:walletAddress', async (req, res) => {
   try {
-    const { walletAddress, nftTokenId, amount } = req.body;
+    const { walletAddress } = req.params;
+    const rewards = await advancedStakingService.getPendingRewards(walletAddress);
     
     res.json({
       success: true,
-      message: 'Stake endpoint ready for Phase 2'
+      data: rewards
     });
   } catch (error) {
-    console.error('Stake error:', error);
-    res.status(500).json({ error: error.message });
+    console.error('❌ Pending rewards error:', error);
+    res.status(500).json({ success: false, error: error.message });
   }
 });
 
-router.post('/claim-rewards', async (req, res) => {
+router.get('/history/:walletAddress', async (req, res) => {
   try {
-    const { walletAddress } = req.body;
+    const { walletAddress } = req.params;
+    const { limit = 50 } = req.query;
+    const history = await advancedStakingService.getRewardsHistory(
+      walletAddress,
+      parseInt(limit)
+    );
     
     res.json({
       success: true,
-      message: 'Claim rewards endpoint ready for Phase 2'
+      data: history
     });
   } catch (error) {
-    console.error('Claim rewards error:', error);
-    res.status(500).json({ error: error.message });
+    console.error('❌ Rewards history error:', error);
+    res.status(500).json({ success: false, error: error.message });
   }
 });
 

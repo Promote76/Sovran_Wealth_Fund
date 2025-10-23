@@ -1,65 +1,83 @@
 const express = require('express');
 const router = express.Router();
-const { getContractProvider } = require('../services/contractProvider');
-const { db } = require('../db');
-const { keygrowRenters, keygrowAllocations, keygrowProperties } = require('../../shared/schema');
+const keygrowService = require('../services/keygrowService');
 
 router.get('/status', async (req, res) => {
   try {
-    const contractProvider = getContractProvider();
-    const fundAddress = contractProvider.getAddress('RealEstateAcquisitionFund');
+    const stats = await keygrowService.getFundStats();
     
     res.json({
       success: true,
-      fundAddress,
-      message: 'KeyGrow fund operational'
+      data: stats
     });
   } catch (error) {
-    console.error('KeyGrow status error:', error);
-    res.status(500).json({ error: error.message });
+    console.error('❌ KeyGrow status error:', error);
+    res.status(500).json({ success: false, error: error.message });
   }
 });
 
 router.post('/register', async (req, res) => {
   try {
-    const { walletAddress } = req.body;
+    const { walletAddress, tier } = req.body;
+    
+    if (!walletAddress) {
+      return res.status(400).json({ success: false, error: 'Wallet address required' });
+    }
+
+    const renter = await keygrowService.registerRenter(walletAddress, tier || 0);
     
     res.json({
       success: true,
-      message: 'Registration endpoint ready for Phase 2'
+      data: renter
     });
   } catch (error) {
-    console.error('Registration error:', error);
-    res.status(500).json({ error: error.message });
+    console.error('❌ Registration error:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+router.get('/renter/:walletAddress', async (req, res) => {
+  try {
+    const { walletAddress } = req.params;
+    const renterInfo = await keygrowService.getRenterInfo(walletAddress);
+    
+    res.json({
+      success: true,
+      data: renterInfo
+    });
+  } catch (error) {
+    console.error('❌ Renter info error:', error);
+    res.status(500).json({ success: false, error: error.message });
   }
 });
 
 router.get('/allocations/:walletAddress', async (req, res) => {
   try {
     const { walletAddress } = req.params;
+    const allocations = await keygrowService.getPendingAllocations(walletAddress);
     
     res.json({
       success: true,
-      allocations: [],
-      message: 'Allocations endpoint ready for Phase 2'
+      data: allocations
     });
   } catch (error) {
-    console.error('Allocations error:', error);
-    res.status(500).json({ error: error.message });
+    console.error('❌ Allocations error:', error);
+    res.status(500).json({ success: false, error: error.message });
   }
 });
 
-router.post('/claim', async (req, res) => {
+router.get('/properties/:walletAddress', async (req, res) => {
   try {
-    const { walletAddress } = req.body;
+    const { walletAddress } = req.params;
+    const properties = await keygrowService.getProperties(walletAddress);
     
     res.json({
       success: true,
-      message: 'Claim endpoint ready for Phase 2'
+      data: properties
     });
   } catch (error) {
-    console.error('Claim error:', error);
-    res.status(500).json({ error: error.message });
+    console.error('❌ Properties error:', error);
+    res.status(500).json({ success: false, error: error.message });
   }
 });
 

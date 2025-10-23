@@ -1,66 +1,93 @@
 const express = require('express');
 const router = express.Router();
-const { getContractProvider } = require('../services/contractProvider');
-const { db } = require('../db');
-const { revenueDistributions } = require('../../shared/schema');
+const revenueRouterService = require('../services/revenueRouterService');
 
-router.get('/status', async (req, res) => {
+router.get('/stats', async (req, res) => {
   try {
-    const contractProvider = getContractProvider();
-    const routerAddress = contractProvider.getAddress('AXIOMRevenueRouter');
+    const stats = await revenueRouterService.getRouterStats();
     
     res.json({
       success: true,
-      routerAddress,
-      message: 'Revenue router operational'
+      data: stats
     });
   } catch (error) {
-    console.error('Revenue router status error:', error);
-    res.status(500).json({ error: error.message });
+    console.error('❌ Revenue router stats error:', error);
+    res.status(500).json({ success: false, error: error.message });
   }
 });
 
 router.get('/distributions', async (req, res) => {
   try {
-    res.json({
-      success: true,
-      distributions: [],
-      message: 'Distributions endpoint ready for Phase 2'
-    });
-  } catch (error) {
-    console.error('Distributions error:', error);
-    res.status(500).json({ error: error.message });
-  }
-});
-
-router.post('/route-revenue', async (req, res) => {
-  try {
-    const { source, amount } = req.body;
+    const { limit = 50, offset = 0 } = req.query;
+    const distributions = await revenueRouterService.getDistributionHistory(
+      parseInt(limit),
+      parseInt(offset)
+    );
     
     res.json({
       success: true,
-      message: 'Route revenue endpoint ready for Phase 2'
+      data: distributions,
+      count: distributions.length
     });
   } catch (error) {
-    console.error('Route revenue error:', error);
-    res.status(500).json({ error: error.message });
+    console.error('❌ Distributions error:', error);
+    res.status(500).json({ success: false, error: error.message });
   }
 });
 
-router.get('/stats', async (req, res) => {
+router.get('/sources', async (req, res) => {
   try {
+    const sources = await revenueRouterService.getRevenueSources();
+    
     res.json({
       success: true,
-      stats: {
-        totalRevenue: '0',
-        treasuryShare: '0',
-        keygrowShare: '0'
-      },
-      message: 'Stats endpoint ready for Phase 2'
+      data: sources
     });
   } catch (error) {
-    console.error('Stats error:', error);
-    res.status(500).json({ error: error.message });
+    console.error('❌ Revenue sources error:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+router.get('/source/:source', async (req, res) => {
+  try {
+    const { source } = req.params;
+    const data = await revenueRouterService.getDistributionsBySource(source);
+    
+    res.json({
+      success: true,
+      data
+    });
+  } catch (error) {
+    console.error('❌ Source distributions error:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+router.post('/record', async (req, res) => {
+  try {
+    const { source, amount, txHash } = req.body;
+    
+    if (!source || !amount) {
+      return res.status(400).json({ 
+        success: false, 
+        error: 'Source and amount required' 
+      });
+    }
+
+    const distribution = await revenueRouterService.recordDistribution(
+      source,
+      amount,
+      txHash
+    );
+    
+    res.json({
+      success: true,
+      data: distribution
+    });
+  } catch (error) {
+    console.error('❌ Record distribution error:', error);
+    res.status(500).json({ success: false, error: error.message });
   }
 });
 
