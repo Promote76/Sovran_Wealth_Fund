@@ -31,7 +31,8 @@ Smart contracts for deployment (AdvancedStaking, BasketIndex, CombinedStakingCon
 #### Deployed Smart Contracts (BSC Mainnet)
 **Deployment Date**: October 23, 2025  
 **Deployer Wallet**: 0xE3059F3479AAC2846299664BABe1d5D95C18D1C7  
-**Network**: BSC Mainnet (Chain ID 56)
+**Network**: BSC Mainnet (Chain ID 56)  
+**Total Contracts Deployed**: 7 contracts
 
 **Core Contracts:**
 - **BasketIndex**: 0x06b88f3Faa07215F6f5fb0A10A3F058D3f25ecF6
@@ -51,6 +52,16 @@ Smart contracts for deployment (AdvancedStaking, BasketIndex, CombinedStakingCon
   - Automatic APR adjustment system (10-30% dynamic range)
   - Current APR: 15%
   - Connected to BasketIndex vault and existing staking engine
+
+**CombinedStaking Contracts:**
+- **LiquidityVault**: 0xd070776c3603138a1d4b93a2f668d604a4a99e34
+  - LP token staking vault for AXM liquidity providers
+  
+- **GovernanceDividendPool**: 0x63df9De7F74c15dE702De7D2fC7eB8205bfAC0B8
+  - AXM token staking with BNB rewards (0.01 BNB per 30 days)
+  
+- **SWFVaultAdapter**: 0xeAFF0dB435DABB6f142A934e17123bfa752dbbd5
+  - Vault integration adapter for seamless token deposits
 
 **Original Contracts:**
 - **AXM Token**: 0x83E17aeB148d9b4b7Be0Be7C87dd73531a5a5738
