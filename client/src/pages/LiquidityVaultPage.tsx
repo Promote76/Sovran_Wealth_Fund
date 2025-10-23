@@ -37,7 +37,7 @@ interface StakingEvent {
 }
 
 export default function LiquidityVaultPage() {
-  const { isConnected, isLoggedIn, account, connectWallet, isConnecting, loginError } = useWallet();
+  const { isConnected, isLoggedIn, account, connectWallet, disconnectWallet, isConnecting, loginError } = useWallet();
   const [stats, setStats] = useState<VaultStats | null>(null);
   const [userStake, setUserStake] = useState<UserStake | null>(null);
   const [history, setHistory] = useState<StakingEvent[]>([]);
@@ -271,10 +271,29 @@ export default function LiquidityVaultPage() {
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Header */}
         <div className="bg-gradient-to-r from-purple-600 to-blue-600 rounded-xl shadow-lg p-8 text-white">
-          <h1 className="text-4xl font-bold mb-2">💎 Liquidity Vault</h1>
-          <p className="text-blue-100 text-lg">
-            Stake LP tokens, earn rewards, support the ecosystem
-          </p>
+          <div className="flex justify-between items-start">
+            <div>
+              <h1 className="text-4xl font-bold mb-2">💎 Liquidity Vault</h1>
+              <p className="text-blue-100 text-lg">
+                Stake LP tokens, earn rewards, support the ecosystem
+              </p>
+            </div>
+            {/* Wallet Info & Disconnect */}
+            <div className="flex flex-col items-end space-y-2">
+              <div className="bg-white/10 backdrop-blur-sm rounded-lg px-4 py-2 border border-white/20">
+                <div className="text-xs text-blue-100 mb-1">Connected Wallet</div>
+                <div className="font-mono text-sm font-semibold">
+                  {account?.slice(0, 6)}...{account?.slice(-4)}
+                </div>
+              </div>
+              <button
+                onClick={disconnectWallet}
+                className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white text-sm font-medium rounded-lg transition-colors shadow-lg hover:shadow-xl"
+              >
+                🔌 Disconnect Wallet
+              </button>
+            </div>
+          </div>
         </div>
 
         {/* Vault Stats */}

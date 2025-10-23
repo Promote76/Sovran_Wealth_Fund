@@ -99,18 +99,19 @@ export default function ProvideLiquidity() {
     setTxError('');
     
     try {
-      const endpoint = selectedPair.name === 'AXM/BNB' ? '/api/pancake-pools/axm/bnb' : '/api/pancake-pools/axm/busd';
+      // Use dynamic endpoint for all pairs with actual token addresses
+      const endpoint = `/api/pancake-pools/pair/${selectedPair.tokenA}/${selectedPair.tokenB}`;
       const response = await axios.get(endpoint);
       
       if (response.data.success) {
         setPairInfo(response.data.data);
         if (!response.data.data.exists) {
-          setTxError('⚠️ This liquidity pair does not exist yet on PancakeSwap');
+          setTxError(`⚠️ The ${selectedPair.name} liquidity pair does not exist yet on PancakeSwap`);
         }
       }
     } catch (error: any) {
       console.error('Failed to load pair info:', error);
-      setTxError('Failed to load pool data. Please try again.');
+      setTxError(`Failed to load ${selectedPair.name} pool data. Please try again.`);
     } finally {
       setLoadingPairInfo(false);
     }
