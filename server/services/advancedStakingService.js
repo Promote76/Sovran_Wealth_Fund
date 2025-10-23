@@ -145,6 +145,124 @@ class AdvancedStakingService {
       return '0';
     }
   }
+
+  async buildStakeTx(nftContract, nftTokenId, tier) {
+    try {
+      return this.contractProvider.buildTransactionData(
+        'AdvancedStaking',
+        'stakeNFT',
+        [nftTokenId, tier]
+      );
+    } catch (error) {
+      console.error('❌ buildStakeTx error:', error);
+      throw error;
+    }
+  }
+
+  async recordStake(walletAddress, nftContract, nftTokenId, tier, txHash) {
+    try {
+      const [stake] = await db.insert(advancedStakes)
+        .values({
+          walletAddress: walletAddress.toLowerCase(),
+          nftContract: nftContract.toLowerCase(),
+          nftTokenId: nftTokenId.toString(),
+          tier: tier.toString(),
+          status: 'active',
+          rewardsEarned: '0',
+          txHash
+        })
+        .returning();
+
+      return stake;
+    } catch (error) {
+      console.error('❌ recordStake error:', error);
+      throw error;
+    }
+  }
+
+  async buildUnstakeTx(nftTokenId) {
+    try {
+      return this.contractProvider.buildTransactionData(
+        'AdvancedStaking',
+        'unstakeNFT',
+        [nftTokenId]
+      );
+    } catch (error) {
+      console.error('❌ buildUnstakeTx error:', error);
+      throw error;
+    }
+  }
+
+  async recordUnstake(walletAddress, nftTokenId, txHash) {
+    try {
+      await db.update(advancedStakes)
+        .set({
+          status: 'unstaked',
+          stakeEndedAt: new Date(),
+          updatedAt: new Date()
+        })
+        .where(and(
+          eq(advancedStakes.walletAddress, walletAddress.toLowerCase()),
+          eq(advancedStakes.nftTokenId, nftTokenId.toString()),
+          eq(advancedStakes.status, 'active')
+        ));
+
+      return { success: true, txHash };
+    } catch (error) {
+      console.error('❌ recordUnstake error:', error);
+      throw error;
+    }
+  }
+
+  async buildClaimRewardsTx(nftTokenId) {
+    try {
+      return this.contractProvider.buildTransactionData(
+        'AdvancedStaking',
+        'claimRewards',
+        [nftTokenId]
+      );
+    } catch (error) {
+      console.error('❌ buildClaimRewardsTx error:', error);
+      throw error;
+    }
+  }
+
+  async recordRewardClaim(walletAddress, nftTokenId, amount, txHash) {
+    try {
+      const stake = await db.select()
+        .from(advancedStakes)
+        .where(and(
+          eq(advancedStakes.walletAddress, walletAddress.toLowerCase()),
+          eq(advancedStakes.nftTokenId, nftTokenId.toString()),
+          eq(advancedStakes.status, 'active')
+        ))
+        .limit(1);
+
+      if (stake.length === 0) {
+        throw new Error('Stake not found');
+      }
+
+      const [reward] = await db.insert(stakingRewards)
+        .values({
+          stakeId: stake[0].id,
+          amount: amount.toString(),
+          txHash
+        })
+        .returning();
+
+      await db.update(advancedStakes)
+        .set({
+          rewardsEarned: sql`CAST(${advancedStakes.rewardsEarned} AS DECIMAL) + ${amount}`,
+          updatedAt: new Date()
+        })
+        .where(eq(advancedStakes.id, stake[0].id));
+
+      return reward;
+    } catch (error) {
+      console.error('❌ recordRewardClaim error:', error);
+      throw error;
+    }
+  }
 }
 
 module.exports = new AdvancedStakingService();

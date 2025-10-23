@@ -81,4 +81,88 @@ router.get('/properties/:walletAddress', async (req, res) => {
   }
 });
 
+router.post('/tx/register', async (req, res) => {
+  try {
+    const { walletAddress, tier } = req.body;
+    
+    if (!walletAddress || tier === undefined) {
+      return res.status(400).json({ success: false, error: 'Wallet address and tier required' });
+    }
+
+    const txData = await keygrowService.buildRegisterRenterTx(walletAddress, tier);
+    
+    res.json({
+      success: true,
+      data: txData,
+      message: 'Transaction ready for signing'
+    });
+  } catch (error) {
+    console.error('❌ Build register tx error:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+router.post('/tx/claim', async (req, res) => {
+  try {
+    const { walletAddress } = req.body;
+    
+    if (!walletAddress) {
+      return res.status(400).json({ success: false, error: 'Wallet address required' });
+    }
+
+    const txData = await keygrowService.buildClaimAllocationTx(walletAddress);
+    
+    res.json({
+      success: true,
+      data: txData,
+      message: 'Transaction ready for signing'
+    });
+  } catch (error) {
+    console.error('❌ Build claim tx error:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+router.post('/tx/update-tier', async (req, res) => {
+  try {
+    const { walletAddress, newTier } = req.body;
+    
+    if (!walletAddress || newTier === undefined) {
+      return res.status(400).json({ success: false, error: 'Wallet address and tier required' });
+    }
+
+    const txData = await keygrowService.buildUpdateTierTx(walletAddress, newTier);
+    
+    res.json({
+      success: true,
+      data: txData,
+      message: 'Transaction ready for signing'
+    });
+  } catch (error) {
+    console.error('❌ Build update tier tx error:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+router.post('/confirm-claim', async (req, res) => {
+  try {
+    const { walletAddress, period, amount, txHash } = req.body;
+    
+    if (!walletAddress || !period || !amount || !txHash) {
+      return res.status(400).json({ success: false, error: 'All fields required' });
+    }
+
+    const record = await keygrowService.recordClaim(walletAddress, period, amount, txHash);
+    
+    res.json({
+      success: true,
+      data: record,
+      message: 'Claim recorded successfully'
+    });
+  } catch (error) {
+    console.error('❌ Confirm claim error:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
 module.exports = router;

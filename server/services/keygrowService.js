@@ -163,6 +163,75 @@ class KeyGrowService {
       throw error;
     }
   }
+
+  async buildRegisterRenterTx(walletAddress, tier) {
+    try {
+      return this.contractProvider.buildTransactionData(
+        'RealEstateAcquisitionFund',
+        'registerAsRenter',
+        []
+      );
+    } catch (error) {
+      console.error('❌ buildRegisterRenterTx error:', error);
+      throw error;
+    }
+  }
+
+  async buildClaimAllocationTx(walletAddress) {
+    try {
+      const fundContract = this.contractProvider.getContract('RealEstateAcquisitionFund');
+      const currentPeriod = await fundContract.currentDistributionPeriod();
+      
+      return this.contractProvider.buildTransactionData(
+        'RealEstateAcquisitionFund',
+        'claimAllocation',
+        [Number(currentPeriod)]
+      );
+    } catch (error) {
+      console.error('❌ buildClaimAllocationTx error:', error);
+      throw error;
+    }
+  }
+
+  async recordClaim(walletAddress, period, amount, txHash) {
+    try {
+      const { sql } = require('drizzle-orm');
+      const [allocation] = await db.insert(keygrowAllocations)
+        .values({
+          walletAddress: walletAddress.toLowerCase(),
+          period: period.toString(),
+          amount: amount.toString(),
+          claimed: true,
+          txHash
+        })
+        .returning();
+
+      await db.update(keygrowRenters)
+        .set({
+          totalClaimed: sql`CAST(${keygrowRenters.totalClaimed} AS DECIMAL) + ${amount}`,
+          updatedAt: new Date()
+        })
+        .where(eq(keygrowRenters.walletAddress, walletAddress.toLowerCase()));
+
+      return allocation;
+    } catch (error) {
+      console.error('❌ recordClaim error:', error);
+      throw error;
+    }
+  }
+
+  async buildUpdateTierTx(walletAddress, newTier) {
+    try {
+      return this.contractProvider.buildTransactionData(
+        'RealEstateAcquisitionFund',
+        'updateRenterTier',
+        [walletAddress, newTier]
+      );
+    } catch (error) {
+      console.error('❌ buildUpdateTierTx error:', error);
+      throw error;
+    }
+  }
 }
 
 module.exports = new KeyGrowService();

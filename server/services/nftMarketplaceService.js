@@ -157,6 +157,148 @@ class NFTMarketplaceService {
       };
     }
   }
+
+  async buildCreateListingTx(nftContract, tokenId, price) {
+    try {
+      const priceWei = this.contractProvider.parseEther(price.toString());
+      return this.contractProvider.buildTransactionData(
+        'EnhancedNFTMarketplace',
+        'listItem',
+        [nftContract, tokenId, priceWei]
+      );
+    } catch (error) {
+      console.error('❌ buildCreateListingTx error:', error);
+      throw error;
+    }
+  }
+
+  async recordListing(seller, nftContract, tokenId, price, txHash) {
+    try {
+      const [listing] = await db.insert(nftListings)
+        .values({
+          seller: seller.toLowerCase(),
+          nftContract: nftContract.toLowerCase(),
+          tokenId: tokenId.toString(),
+          price: price.toString(),
+          status: 'active',
+          txHash
+        })
+        .returning();
+
+      return listing;
+    } catch (error) {
+      console.error('❌ recordListing error:', error);
+      throw error;
+    }
+  }
+
+  async buildBuyNowTx(listingId, price) {
+    try {
+      const priceWei = this.contractProvider.parseEther(price.toString());
+      const txData = this.contractProvider.buildTransactionData(
+        'EnhancedNFTMarketplace',
+        'buyNow',
+        [listingId]
+      );
+      
+      return {
+        ...txData,
+        value: priceWei.toString()
+      };
+    } catch (error) {
+      console.error('❌ buildBuyNowTx error:', error);
+      throw error;
+    }
+  }
+
+  async recordSale(listingId, buyer, seller, nftContract, tokenId, price, txHash) {
+    try {
+      const [sale] = await db.insert(nftSales)
+        .values({
+          listingId,
+          buyer: buyer.toLowerCase(),
+          seller: seller.toLowerCase(),
+          nftContract: nftContract.toLowerCase(),
+          tokenId: tokenId.toString(),
+          price: price.toString(),
+          txHash
+        })
+        .returning();
+
+      await db.update(nftListings)
+        .set({ status: 'sold', updatedAt: new Date() })
+        .where(eq(nftListings.id, listingId));
+
+      return sale;
+    } catch (error) {
+      console.error('❌ recordSale error:', error);
+      throw error;
+    }
+  }
+
+  async buildPlaceBidTx(listingId, bidAmount) {
+    try {
+      const bidWei = this.contractProvider.parseEther(bidAmount.toString());
+      const txData = this.contractProvider.buildTransactionData(
+        'EnhancedNFTMarketplace',
+        'placeBid',
+        [listingId]
+      );
+      
+      return {
+        ...txData,
+        value: bidWei.toString()
+      };
+    } catch (error) {
+      console.error('❌ buildPlaceBidTx error:', error);
+      throw error;
+    }
+  }
+
+  async recordBid(listingId, bidder, amount, txHash) {
+    try {
+      const [bid] = await db.insert(nftBids)
+        .values({
+          listingId,
+          bidder: bidder.toLowerCase(),
+          amount: amount.toString(),
+          status: 'active',
+          txHash
+        })
+        .returning();
+
+      return bid;
+    } catch (error) {
+      console.error('❌ recordBid error:', error);
+      throw error;
+    }
+  }
+
+  async buildCancelListingTx(listingId) {
+    try {
+      return this.contractProvider.buildTransactionData(
+        'EnhancedNFTMarketplace',
+        'cancelListing',
+        [listingId]
+      );
+    } catch (error) {
+      console.error('❌ buildCancelListingTx error:', error);
+      throw error;
+    }
+  }
+
+  async recordCancellation(listingId, txHash) {
+    try {
+      await db.update(nftListings)
+        .set({ status: 'cancelled', updatedAt: new Date() })
+        .where(eq(nftListings.id, listingId));
+
+      return { success: true, listingId, txHash };
+    } catch (error) {
+      console.error('❌ recordCancellation error:', error);
+      throw error;
+    }
+  }
 }
 
 module.exports = new NFTMarketplaceService();

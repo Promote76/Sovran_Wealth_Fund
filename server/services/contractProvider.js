@@ -136,6 +136,27 @@ class ContractProvider {
   getProvider() {
     return this.provider;
   }
+
+  /**
+   * Build transaction data for a contract method
+   */
+  buildTransactionData(contractName, methodName, params = []) {
+    try {
+      const abi = this.loadABI(contractName);
+      const contract = new ethers.Interface(abi);
+      const data = contract.encodeFunctionData(methodName, params);
+      
+      return {
+        to: this.getAddress(contractName),
+        data,
+        value: '0',
+        chainId: 56
+      };
+    } catch (error) {
+      console.error(`❌ Failed to build transaction data for ${contractName}.${methodName}:`, error);
+      throw error;
+    }
+  }
 }
 
 // Singleton instance
