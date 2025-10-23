@@ -45,6 +45,7 @@ import BasketIndexPage from './pages/BasketIndexPage';
 import DynamicAPRPage from './pages/DynamicAPRPage';
 import LiquidityVaultPage from './pages/LiquidityVaultPage';
 import GovernanceDividendPoolPage from './pages/GovernanceDividendPoolPage';
+import SWFVaultAdapterPage from './pages/SWFVaultAdapterPage';
 import SouSouCirclePage from './pages/SouSouCirclePage';
 import OracleDashboardPage from './pages/OracleDashboardPage';
 import DAODashboardPage from './pages/DAODashboardPage';
@@ -461,6 +462,7 @@ function App() {
                               <Route path="/dynamic-apr" element={<DynamicAPRPage />} />
                               <Route path="/liquidity-vault" element={<LiquidityVaultPage />} />
                               <Route path="/governance-dividends" element={<GovernanceDividendPoolPage />} />
+                              <Route path="/vault-adapter" element={<SWFVaultAdapterPage />} />
                               <Route path="/sousou-circle" element={<SouSouCirclePage />} />
                               <Route path="/oracle-dashboard" element={<OracleDashboardPage />} />
                               <Route path="/dao-dashboard" element={<DAODashboardPage />} />
