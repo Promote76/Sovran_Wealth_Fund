@@ -44,12 +44,18 @@ async function main() {
   
   // Constructor arguments
   const TREASURY = deployer.address; // Temporary - change to multisig later
-  const REAL_ESTATE_FUND = "0x0000000000000000000000000000000000000000"; // Will update after fund deployment
+  const REAL_ESTATE_FUND = "0xe097881D32D67ED1Dd9df8203F188CD186f345dc"; // RealEstateAcquisitionFund
   
   console.log("📋 Constructor Arguments:");
   console.log(`   Treasury: ${TREASURY}`);
-  console.log(`   Real Estate Fund: ${REAL_ESTATE_FUND} (placeholder)`);
+  console.log(`   Real Estate Fund: ${REAL_ESTATE_FUND}`);
   console.log(`   Revenue Split: 80% Treasury / 20% KeyGrow`);
+  console.log("");
+  console.log("🏡 KeyGrow Features:");
+  console.log("   ✓ Auto-splits all platform revenue 80/20");
+  console.log("   ✓ Tracks revenue by source (NFT, Staking, Banking, etc)");
+  console.log("   ✓ Supports BNB and ERC20 tokens");
+  console.log("   ✓ Configurable allocation percentage");
   console.log("");
   
   // Estimate gas
