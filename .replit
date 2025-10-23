@@ -32,7 +32,7 @@ outputType = "webview"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "cd /home/runner/workspace && npm run legacy-start"
+args = "npm run legacy-start"
 waitForPort = 5000
 
 [deployment]
@@ -49,20 +49,16 @@ localPort = 5000
 externalPort = 80
 
 [[ports]]
-localPort = 36475
-externalPort = 8000
-
-[[ports]]
-localPort = 37067
-externalPort = 3002
-
-[[ports]]
 localPort = 37257
 externalPort = 6000
 
 [[ports]]
 localPort = 37737
 externalPort = 5000
+
+[[ports]]
+localPort = 38975
+externalPort = 3002
 
 [[ports]]
 localPort = 39467
