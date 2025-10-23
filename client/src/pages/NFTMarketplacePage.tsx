@@ -157,6 +157,202 @@ export default function NFTMarketplacePage() {
           </p>
         </div>
 
+        {/* Information Section */}
+        <Card className="border-2 border-purple-200">
+          <CardContent className="p-8">
+            <h2 className="text-3xl font-bold text-gray-900 mb-6 text-center">
+              🎨 Your Gateway to Digital Art & Collectibles
+            </h2>
+            
+            <div className="bg-gradient-to-r from-purple-50 to-pink-50 p-6 rounded-lg mb-6">
+              <h3 className="text-xl font-semibold text-gray-900 mb-3">
+                What are NFTs?
+              </h3>
+              <p className="text-gray-700 leading-relaxed mb-4">
+                NFTs (Non-Fungible Tokens) are <strong>unique digital items you truly own</strong> - like art, collectibles, 
+                or virtual real estate. Unlike screenshots or copies, NFTs are verified on the blockchain, proving YOU are 
+                the real owner. Think of it like owning an original painting vs. a poster.
+              </p>
+              <p className="text-gray-700 leading-relaxed">
+                On AXIOM's marketplace, you can buy, sell, and trade NFTs with <strong>lower fees than OpenSea</strong> 
+                and instant transactions on Binance Smart Chain. Every sale supports the community - 20% of fees go to KeyGrow!
+              </p>
+            </div>
+
+            <div className="grid md:grid-cols-3 gap-6 mb-6">
+              <div className="bg-blue-50 p-5 rounded-lg border-2 border-blue-200">
+                <div className="text-blue-600 font-bold text-lg mb-2">💰 2.5% Marketplace Fee</div>
+                <div className="text-gray-700 text-sm leading-relaxed">
+                  We charge just <strong>2.5% on sales</strong> (vs. OpenSea's 2.5% + gas fees). 20% of this fee goes to KeyGrow, 
+                  80% to platform treasury. Buyers pay ZERO fees - only sellers pay the 2.5% when their NFT sells.
+                </div>
+              </div>
+              <div className="bg-green-50 p-5 rounded-lg border-2 border-green-200">
+                <div className="text-green-600 font-bold text-lg mb-2">⚡ Fast & Cheap</div>
+                <div className="text-gray-700 text-sm leading-relaxed">
+                  Built on Binance Smart Chain for <strong>instant transactions</strong> and low gas fees (cents, not dollars). 
+                  No waiting hours for your NFT to transfer - it happens in seconds!
+                </div>
+              </div>
+              <div className="bg-purple-50 p-5 rounded-lg border-2 border-purple-200">
+                <div className="text-purple-600 font-bold text-lg mb-2">🔒 100% Secure</div>
+                <div className="text-gray-700 text-sm leading-relaxed">
+                  All transactions happen through <strong>audited smart contracts</strong>. Your NFT stays in YOUR wallet 
+                  until sold - we never hold custody. You control your assets completely.
+                </div>
+              </div>
+            </div>
+
+            {/* How It Works */}
+            <div className="mb-6">
+              <h3 className="text-2xl font-bold text-gray-900 mb-4 text-center">
+                🚀 How to Buy, Sell, & Bid on NFTs
+              </h3>
+              <div className="space-y-4">
+                <div className="flex gap-4 items-start">
+                  <div className="bg-purple-600 text-white rounded-full w-10 h-10 flex items-center justify-center font-bold flex-shrink-0">
+                    🛍️
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-gray-900">Buying an NFT (Fixed Price)</h4>
+                    <p className="text-gray-700 text-sm">
+                      Browse listings, click "Buy Now" on any NFT you like, confirm the transaction in your wallet, 
+                      and it's yours! The NFT transfers instantly to your wallet. No bidding, no waiting - simple as online shopping.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex gap-4 items-start">
+                  <div className="bg-pink-600 text-white rounded-full w-10 h-10 flex items-center justify-center font-bold flex-shrink-0">
+                    📝
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-gray-900">Selling Your NFT</h4>
+                    <p className="text-gray-700 text-sm">
+                      Click "Create Listing", paste your NFT contract address & token ID, set your price in BNB, 
+                      and list it! When someone buys it, you receive 97.5% of the sale (2.5% marketplace fee). 
+                      You can cancel anytime if it doesn't sell.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex gap-4 items-start">
+                  <div className="bg-blue-600 text-white rounded-full w-10 h-10 flex items-center justify-center font-bold flex-shrink-0">
+                    🏆
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-gray-900">Bidding on NFTs (Auction Style)</h4>
+                    <p className="text-gray-700 text-sm">
+                      See an NFT you want but price too high? Place a bid! Seller gets notified and can accept or 
+                      reject. If accepted, you pay your bid amount. If rejected, no harm - your funds stay safe in your wallet.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex gap-4 items-start">
+                  <div className="bg-green-600 text-white rounded-full w-10 h-10 flex items-center justify-center font-bold flex-shrink-0">
+                    ⚡
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-gray-900">Stake NFTs for Rewards</h4>
+                    <p className="text-gray-700 text-sm">
+                      Certain NFTs can be staked in our <strong>Advanced Staking</strong> page to earn AXM tokens! 
+                      Check the NFT Market tab for "Stakeable" badges. Stake rare NFTs = higher APR rewards.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Fee Breakdown */}
+            <div className="bg-yellow-50 border-2 border-yellow-300 rounded-lg p-6 mb-6">
+              <h3 className="text-xl font-semibold text-gray-900 mb-3 flex items-center">
+                <span className="text-2xl mr-2">💸</span>
+                Marketplace Fees Explained (2.5% Total)
+              </h3>
+              <div className="text-gray-700 leading-relaxed space-y-2">
+                <p>
+                  <strong>Sellers pay 2.5% when NFT sells:</strong>
+                </p>
+                <ul className="list-disc list-inside ml-4 space-y-1">
+                  <li>Sell for 10 BNB → You receive <strong>9.75 BNB</strong> (97.5%)</li>
+                  <li>0.25 BNB (2.5%) goes to: 80% platform treasury, 20% KeyGrow fund</li>
+                </ul>
+                <p className="mt-3">
+                  <strong>Buyers pay ZERO fees:</strong> The listed price is the exact price you pay. 
+                  Just add small gas fees (usually $0.10-$0.50 on BSC).
+                </p>
+                <p className="mt-3 text-sm text-gray-600">
+                  Compare to OpenSea: 2.5% marketplace fee + $20-$100 Ethereum gas fees. 
+                  AXIOM saves you HUNDREDS on every transaction!
+                </p>
+              </div>
+            </div>
+
+            {/* NFT Categories */}
+            <div className="grid md:grid-cols-4 gap-4 mb-6">
+              <div className="bg-gradient-to-br from-red-50 to-orange-50 p-4 rounded-lg border border-red-200 text-center">
+                <div className="text-3xl mb-2">🖼️</div>
+                <div className="font-semibold text-gray-900">Digital Art</div>
+                <div className="text-xs text-gray-600 mt-1">
+                  Rare artwork, generative pieces, 1/1 collections
+                </div>
+              </div>
+              <div className="bg-gradient-to-br from-green-50 to-teal-50 p-4 rounded-lg border border-green-200 text-center">
+                <div className="text-3xl mb-2">🎮</div>
+                <div className="font-semibold text-gray-900">Gaming NFTs</div>
+                <div className="text-xs text-gray-600 mt-1">
+                  Characters, weapons, virtual land, items
+                </div>
+              </div>
+              <div className="bg-gradient-to-br from-blue-50 to-purple-50 p-4 rounded-lg border border-blue-200 text-center">
+                <div className="text-3xl mb-2">🎵</div>
+                <div className="font-semibold text-gray-900">Music & Media</div>
+                <div className="text-xs text-gray-600 mt-1">
+                  Audio NFTs, exclusive tracks, video clips
+                </div>
+              </div>
+              <div className="bg-gradient-to-br from-purple-50 to-pink-50 p-4 rounded-lg border border-purple-200 text-center">
+                <div className="text-3xl mb-2">💎</div>
+                <div className="font-semibold text-gray-900">Collectibles</div>
+                <div className="text-xs text-gray-600 mt-1">
+                  PFPs, limited editions, utility NFTs
+                </div>
+              </div>
+            </div>
+
+            {/* Real Example */}
+            <div className="bg-gradient-to-r from-purple-50 to-pink-50 p-6 rounded-lg border-2 border-purple-300">
+              <h3 className="text-xl font-semibold text-gray-900 mb-4 text-center">
+                💡 Example: Buying & Selling NFTs on AXIOM
+              </h3>
+              <div className="grid md:grid-cols-2 gap-6">
+                <div>
+                  <h4 className="font-semibold text-gray-900 mb-2">Scenario: You Buy an NFT</h4>
+                  <ul className="text-sm text-gray-700 space-y-1">
+                    <li>• See a cool digital art piece listed for <strong>5 BNB</strong></li>
+                    <li>• Click "Buy Now", confirm in wallet</li>
+                    <li>• Pay: 5 BNB + ~$0.20 gas fee</li>
+                    <li>• NFT appears in your wallet instantly! ✅</li>
+                  </ul>
+                </div>
+                <div>
+                  <h4 className="font-semibold text-gray-900 mb-2">Scenario: You Sell Your NFT</h4>
+                  <ul className="text-sm text-gray-700 space-y-1">
+                    <li>• List your NFT for <strong>5 BNB</strong></li>
+                    <li>• Buyer purchases it</li>
+                    <li>• You receive: <strong className="text-green-600">4.875 BNB</strong> (97.5%)</li>
+                    <li>• 0.125 BNB (2.5%) goes to fees (supports KeyGrow!)</li>
+                  </ul>
+                </div>
+              </div>
+              <p className="text-center text-gray-700 mt-4 font-medium">
+                Trade NFTs with confidence - transparent fees, instant transfers, community-powered!
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+
         {/* Tabs */}
         <div className="flex gap-4">
           <button
