@@ -254,7 +254,12 @@ contract RealEstateAcquisitionFund is Ownable, ReentrancyGuard, Pausable {
     /**
      * @notice Get renter information
      * @param renterAddress Renter's address
-     * @return Renter details
+     * @return active Whether renter is active
+     * @return registeredAt Registration timestamp
+     * @return totalAllocated Total funds allocated
+     * @return totalClaimed Total funds claimed
+     * @return tier Current staking tier
+     * @return timeMultiplier Time-based multiplier
      */
     function getRenterInfo(address renterAddress) external view returns (
         bool active,
