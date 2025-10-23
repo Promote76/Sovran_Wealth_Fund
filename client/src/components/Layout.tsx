@@ -317,8 +317,6 @@ const Layout: React.FC<LayoutProps> = ({
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
-                          console.log('🔥🔥🔥 TRANSPARENCY DROPDOWN CLICKED - SIMPLE TEST');
-                          alert('Dropdown button clicked! Label: ' + item.label);
                           const newState = activeDropdown === item.label ? null : item.label;
                           setActiveDropdown(newState);
                         }}
@@ -338,11 +336,6 @@ const Layout: React.FC<LayoutProps> = ({
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                         </svg>
                       </button>
-                      
-                      {/* Debug: State indicator */}
-                      <div className="absolute -top-2 -right-2 text-xs bg-red-500 text-white px-1 rounded z-10">
-                        {activeDropdown === item.label ? 'OPEN' : 'CLOSED'}
-                      </div>
                       
                       {/* Dropdown Content */}
                       {activeDropdown === item.label && (
@@ -370,12 +363,8 @@ const Layout: React.FC<LayoutProps> = ({
                                     onClick={(e) => {
                                       e.preventDefault();
                                       e.stopPropagation();
-                                      console.log('🔗🔗🔗 DROPDOWN ITEM CLICKED:', dropdownItem.label);
-                                      console.log('🔍 Navigating to path:', dropdownItem.path);
                                       navigate(dropdownItem.path);
-                                      console.log('🔍 Closing dropdown');
                                       setActiveDropdown(null);
-                                      console.log('✅ Navigation completed');
                                     }}
                                     className={`w-full text-left block px-4 py-2 text-sm transition-colors ${
                                       location.pathname === dropdownItem.path
@@ -601,7 +590,6 @@ const Layout: React.FC<LayoutProps> = ({
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
-                          console.log('🔥 Mobile dropdown button clicked:', item.label, 'current active:', activeDropdown);
                           setActiveDropdown(activeDropdown === item.label ? null : item.label);
                         }}
                         className="w-full flex items-center justify-between px-4 py-3 text-base font-medium text-gray-700 hover:bg-blue-50 hover:text-blue-800 transition-colors"
