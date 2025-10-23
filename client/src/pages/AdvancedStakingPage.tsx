@@ -95,7 +95,7 @@ export default function AdvancedStakingPage() {
   };
 
   const handleUnstake = async (stakeId: string) => {
-    if (confirm('Are you sure you want to unstake this NFT?')) {
+    if (window.confirm('Are you sure you want to unstake this NFT?')) {
       await unstakeNFT(stakeId);
     }
   };

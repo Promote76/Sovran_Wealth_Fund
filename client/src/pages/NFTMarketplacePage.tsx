@@ -103,7 +103,7 @@ export default function NFTMarketplacePage() {
   };
 
   const handleCancelListing = async (listingId: string) => {
-    if (confirm('Are you sure you want to cancel this listing?')) {
+    if (window.confirm('Are you sure you want to cancel this listing?')) {
       await cancelNFTListing(listingId);
     }
   };
