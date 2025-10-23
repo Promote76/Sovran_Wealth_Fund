@@ -34,8 +34,7 @@ export default function KeyGrowDashboardPage() {
       
       // Auto-refresh data on relevant events
       if (event.eventName === 'RenterRegistered' || 
-          event.eventName === 'AllocationClaimed' || 
-          event.eventName === 'TierUpdated') {
+          event.eventName === 'AllocationClaimed') {
         setTimeout(() => {
           loadRenterData();
         }, 1000);

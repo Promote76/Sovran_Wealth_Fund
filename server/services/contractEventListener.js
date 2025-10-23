@@ -1,5 +1,5 @@
 const { ethers } = require('ethers');
-const { getContract } = require('./contractProvider');
+const { getContractProvider } = require('./contractProvider');
 
 class ContractEventListener {
   constructor() {
@@ -111,7 +111,8 @@ class ContractEventListener {
    */
   async listenToKeyGrow() {
     try {
-      const contract = await getContract('RealEstateAcquisitionFund');
+      const provider = getContractProvider();
+      const contract = await provider.getContract('RealEstateAcquisitionFund');
       
       // RenterRegistered(address indexed renter, uint8 tier, uint256 timestamp)
       contract.on('RenterRegistered', async (renter, tier, timestamp, event) => {
@@ -147,23 +148,6 @@ class ContractEventListener {
         this.emit('KeyGrow', 'AllocationClaimed', eventData);
       });
 
-      // TierUpdated(address indexed renter, uint8 oldTier, uint8 newTier)
-      contract.on('TierUpdated', async (renter, oldTier, newTier, event) => {
-        const eventData = {
-          contractName: 'KeyGrow',
-          eventName: 'TierUpdated',
-          renter,
-          oldTier: Number(oldTier),
-          newTier: Number(newTier),
-          blockNumber: event.blockNumber,
-          transactionHash: event.transactionHash
-        };
-        
-        console.log('[KeyGrow] TierUpdated:', eventData);
-        await this.saveEvent(eventData);
-        this.emit('KeyGrow', 'TierUpdated', eventData);
-      });
-
       this.listeners.set('KeyGrow', contract);
       console.log('[EventListener] KeyGrow events registered');
     } catch (error) {
@@ -176,7 +160,8 @@ class ContractEventListener {
    */
   async listenToNFTMarketplace() {
     try {
-      const contract = await getContract('EnhancedNFTMarketplace');
+      const provider = getContractProvider();
+      const contract = await provider.getContract('EnhancedNFTMarketplace');
       
       // ItemListed(uint256 indexed listingId, address indexed seller, address nftContract, uint256 tokenId, uint256 price)
       contract.on('ItemListed', async (listingId, seller, nftContract, tokenId, price, event) => {
@@ -231,21 +216,6 @@ class ContractEventListener {
         this.emit('NFTMarketplace', 'BidPlaced', eventData);
       });
 
-      // ListingCancelled(uint256 indexed listingId)
-      contract.on('ListingCancelled', async (listingId, event) => {
-        const eventData = {
-          contractName: 'NFTMarketplace',
-          eventName: 'ListingCancelled',
-          listingId: listingId.toString(),
-          blockNumber: event.blockNumber,
-          transactionHash: event.transactionHash
-        };
-        
-        console.log('[NFTMarketplace] ListingCancelled:', eventData);
-        await this.saveEvent(eventData);
-        this.emit('NFTMarketplace', 'ListingCancelled', eventData);
-      });
-
       this.listeners.set('NFTMarketplace', contract);
       console.log('[EventListener] NFT Marketplace events registered');
     } catch (error) {
@@ -258,14 +228,16 @@ class ContractEventListener {
    */
   async listenToAdvancedStaking() {
     try {
-      const contract = await getContract('AdvancedStaking');
+      const provider = getContractProvider();
+      const contract = await provider.getContract('AdvancedStaking');
       
-      // NFTStaked(address indexed user, address indexed nftContract, uint256 indexed tokenId, uint8 tier)
-      contract.on('NFTStaked', async (user, nftContract, tokenId, tier, event) => {
+      // Staked(address indexed user, uint256 indexed stakeId, address indexed nftContract, uint256 tokenId, uint8 tier)
+      contract.on('Staked', async (user, stakeId, nftContract, tokenId, tier, event) => {
         const eventData = {
           contractName: 'AdvancedStaking',
-          eventName: 'NFTStaked',
+          eventName: 'Staked',
           user,
+          stakeId: stakeId.toString(),
           nftContract,
           tokenId: tokenId.toString(),
           tier: Number(tier),
@@ -273,25 +245,25 @@ class ContractEventListener {
           transactionHash: event.transactionHash
         };
         
-        console.log('[AdvancedStaking] NFTStaked:', eventData);
+        console.log('[AdvancedStaking] Staked:', eventData);
         await this.saveEvent(eventData);
-        this.emit('AdvancedStaking', 'NFTStaked', eventData);
+        this.emit('AdvancedStaking', 'Staked', eventData);
       });
 
-      // NFTUnstaked(address indexed user, uint256 indexed stakeId)
-      contract.on('NFTUnstaked', async (user, stakeId, event) => {
+      // Unstaked(address indexed user, uint256 indexed stakeId)
+      contract.on('Unstaked', async (user, stakeId, event) => {
         const eventData = {
           contractName: 'AdvancedStaking',
-          eventName: 'NFTUnstaked',
+          eventName: 'Unstaked',
           user,
           stakeId: stakeId.toString(),
           blockNumber: event.blockNumber,
           transactionHash: event.transactionHash
         };
         
-        console.log('[AdvancedStaking] NFTUnstaked:', eventData);
+        console.log('[AdvancedStaking] Unstaked:', eventData);
         await this.saveEvent(eventData);
-        this.emit('AdvancedStaking', 'NFTUnstaked', eventData);
+        this.emit('AdvancedStaking', 'Unstaked', eventData);
       });
 
       // RewardsClaimed(address indexed user, uint256 amount)
@@ -322,7 +294,8 @@ class ContractEventListener {
    */
   async listenToRevenueRouter() {
     try {
-      const contract = await getContract('AXIOMRevenueRouter');
+      const provider = getContractProvider();
+      const contract = await provider.getContract('AXIOMRevenueRouter');
       
       // RevenueDistributed(address indexed source, uint256 totalAmount, uint256 treasuryAmount, uint256 keygrowAmount)
       contract.on('RevenueDistributed', async (source, totalAmount, treasuryAmount, keygrowAmount, event) => {

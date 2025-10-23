@@ -34,7 +34,7 @@ export default function AdvancedStakingPage() {
       setToastEvents(prev => [...prev, event]);
       
       // Auto-refresh staking data on relevant events
-      if (['NFTStaked', 'NFTUnstaked', 'RewardsClaimed'].includes(event.eventName)) {
+      if (['Staked', 'Unstaked', 'RewardsClaimed'].includes(event.eventName)) {
         setTimeout(() => loadStakingData(), 1000);
       }
     }

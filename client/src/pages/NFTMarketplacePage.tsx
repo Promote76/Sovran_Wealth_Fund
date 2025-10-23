@@ -32,7 +32,7 @@ export default function NFTMarketplacePage() {
       setToastEvents(prev => [...prev, event]);
       
       // Auto-refresh listings on marketplace events
-      if (['ItemListed', 'ItemSold', 'ListingCancelled'].includes(event.eventName)) {
+      if (['ItemListed', 'ItemSold', 'BidPlaced'].includes(event.eventName)) {
         setTimeout(() => loadListings(), 1000);
       }
     }

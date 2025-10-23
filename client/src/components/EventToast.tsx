@@ -35,19 +35,15 @@ export function EventToast({ event, onClose, autoHideDuration = 5000 }: EventToa
         return '🏠';
       case 'AllocationClaimed':
         return '💰';
-      case 'TierUpdated':
-        return '⬆️';
       case 'ItemListed':
         return '🎨';
       case 'ItemSold':
         return '✅';
       case 'BidPlaced':
         return '🔨';
-      case 'ListingCancelled':
-        return '❌';
-      case 'NFTStaked':
+      case 'Staked':
         return '🔒';
-      case 'NFTUnstaked':
+      case 'Unstaked':
         return '🔓';
       case 'RewardsClaimed':
         return '🎁';
@@ -64,19 +60,15 @@ export function EventToast({ event, onClose, autoHideDuration = 5000 }: EventToa
         return 'New Renter Registered';
       case 'AllocationClaimed':
         return 'Allocation Claimed';
-      case 'TierUpdated':
-        return 'Tier Updated';
       case 'ItemListed':
         return 'NFT Listed';
       case 'ItemSold':
         return 'NFT Sold';
       case 'BidPlaced':
         return 'New Bid Placed';
-      case 'ListingCancelled':
-        return 'Listing Cancelled';
-      case 'NFTStaked':
+      case 'Staked':
         return 'NFT Staked';
-      case 'NFTUnstaked':
+      case 'Unstaked':
         return 'NFT Unstaked';
       case 'RewardsClaimed':
         return 'Rewards Claimed';
@@ -95,19 +87,15 @@ export function EventToast({ event, onClose, autoHideDuration = 5000 }: EventToa
         return `Tier ${data.tier} registration completed`;
       case 'AllocationClaimed':
         return `${parseFloat(data.amount).toFixed(4)} BNB claimed`;
-      case 'TierUpdated':
-        return `Tier changed from ${data.oldTier} to ${data.newTier}`;
       case 'ItemListed':
         return `NFT #${data.tokenId} listed for ${parseFloat(data.price).toFixed(4)} BNB`;
       case 'ItemSold':
         return `Sold for ${parseFloat(data.price).toFixed(4)} BNB`;
       case 'BidPlaced':
         return `Bid of ${parseFloat(data.amount).toFixed(4)} BNB placed`;
-      case 'ListingCancelled':
-        return `Listing #${data.listingId} cancelled`;
-      case 'NFTStaked':
+      case 'Staked':
         return `NFT #${data.tokenId} staked at tier ${data.tier}`;
-      case 'NFTUnstaked':
+      case 'Unstaked':
         return `Stake #${data.stakeId} unstaked`;
       case 'RewardsClaimed':
         return `${parseFloat(data.amount).toFixed(2)} AXM claimed`;
