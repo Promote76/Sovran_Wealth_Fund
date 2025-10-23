@@ -149,31 +149,178 @@ export default function KeyGrowDashboardPage() {
           </p>
         </div>
 
-        {/* Program Overview */}
-        <Card>
-          <CardContent className="p-6">
-            <h2 className="text-2xl font-semibold text-gray-800 mb-4">
-              How KeyGrow Works
+        {/* Program Overview - Comprehensive Information */}
+        <Card className="border-2 border-blue-200">
+          <CardContent className="p-8">
+            <h2 className="text-3xl font-bold text-gray-900 mb-6 text-center">
+              🏡 Stop Renting, Start Owning - The KeyGrow Path to Homeownership
             </h2>
-            <div className="grid md:grid-cols-3 gap-4 text-sm">
-              <div className="bg-blue-50 p-4 rounded-lg">
-                <div className="text-blue-600 font-bold mb-2">📊 20% Revenue Share</div>
-                <div className="text-gray-700">
-                  20% of all AXIOM platform revenue goes to the Real Estate Acquisition Fund
+            
+            <div className="bg-gradient-to-r from-blue-50 to-green-50 p-6 rounded-lg mb-6">
+              <h3 className="text-xl font-semibold text-gray-900 mb-3">
+                What is KeyGrow?
+              </h3>
+              <p className="text-gray-700 leading-relaxed mb-4">
+                KeyGrow is AXIOM's revolutionary rent-to-own program that uses <strong>20% of all platform revenue</strong> 
+                to help renters become homeowners. Instead of rent disappearing into your landlord's pocket every month, 
+                KeyGrow builds real equity toward YOUR down payment.
+              </p>
+              <p className="text-gray-700 leading-relaxed">
+                Think of it as your community helping you buy a home. Every time someone trades crypto, stakes tokens, 
+                or uses AXIOM banking services, <strong>you get a piece of that success</strong> - automatically 
+                deposited into your homeownership fund.
+              </p>
+            </div>
+
+            <div className="grid md:grid-cols-3 gap-6 mb-6">
+              <div className="bg-blue-50 p-5 rounded-lg border-2 border-blue-200">
+                <div className="text-blue-600 font-bold text-lg mb-2">📊 20% Revenue Share</div>
+                <div className="text-gray-700 text-sm leading-relaxed">
+                  Every dollar earned from platform fees (trading, banking, NFTs, staking) sends 20 cents to the Real Estate 
+                  Acquisition Fund. This money is split among qualified renters based on their tier and participation time.
                 </div>
               </div>
-              <div className="bg-green-50 p-4 rounded-lg">
-                <div className="text-green-600 font-bold mb-2">🎯 Monthly Allocations</div>
-                <div className="text-gray-700">
-                  Registered renters receive monthly allocations based on their tier
+              <div className="bg-green-50 p-5 rounded-lg border-2 border-green-200">
+                <div className="text-green-600 font-bold text-lg mb-2">🎯 Monthly Allocations</div>
+                <div className="text-gray-700 text-sm leading-relaxed">
+                  Registered members receive monthly allocations that grow over time. Higher tiers get bigger allocations 
+                  (up to 2x multiplier for Platinum). Your allocation compounds - the longer you're in, the more you earn.
                 </div>
               </div>
-              <div className="bg-purple-50 p-4 rounded-lg">
-                <div className="text-purple-600 font-bold mb-2">🏡 Down Payment Assistance</div>
-                <div className="text-gray-700">
-                  Use accumulated funds for property down payments and acquisition
+              <div className="bg-purple-50 p-5 rounded-lg border-2 border-purple-200">
+                <div className="text-purple-600 font-bold text-lg mb-2">🏡 Down Payment Power</div>
+                <div className="text-gray-700 text-sm leading-relaxed">
+                  Use your accumulated funds for down payments on real properties. Typical timeline: 20% down payment 
+                  on a $200K home ($40K) achieved in 2-3 years with platform support + your savings.
                 </div>
               </div>
+            </div>
+
+            {/* Enrollment Fee Information */}
+            <div className="bg-yellow-50 border-2 border-yellow-300 rounded-lg p-6 mb-6">
+              <h3 className="text-xl font-semibold text-gray-900 mb-3 flex items-center">
+                <span className="text-2xl mr-2">💰</span>
+                One-Time Enrollment Fee: $500 (in BNB)
+              </h3>
+              <div className="text-gray-700 leading-relaxed space-y-2">
+                <p>
+                  <strong>Why the fee?</strong> This one-time investment ensures serious commitment and covers:
+                </p>
+                <ul className="list-disc list-inside ml-4 space-y-1">
+                  <li><strong>Property research & verification</strong> - We help you find legitimate properties</li>
+                  <li><strong>Credit reporting & documentation</strong> - Building your homeownership profile</li>
+                  <li><strong>Legal & escrow services</strong> - Professional support during purchase</li>
+                  <li><strong>Platform maintenance</strong> - Keeping the fund running transparently</li>
+                </ul>
+                <p className="mt-3">
+                  <strong>Your $500 works for you:</strong> This fee is NOT taken from your allocation. 
+                  It goes to operational costs so 100% of platform revenue reaches renters. 
+                  Compare to typical realtor fees (3-6% = $6,000-$12,000 on a $200K home) - this is a bargain!
+                </p>
+              </div>
+            </div>
+
+            {/* How It Works - Step by Step */}
+            <div className="mb-6">
+              <h3 className="text-2xl font-bold text-gray-900 mb-4 text-center">
+                🚀 Your Journey to Homeownership (Simple Steps)
+              </h3>
+              <div className="space-y-4">
+                <div className="flex gap-4 items-start">
+                  <div className="bg-blue-600 text-white rounded-full w-10 h-10 flex items-center justify-center font-bold flex-shrink-0">
+                    1
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-gray-900">Choose Your Tier & Register</h4>
+                    <p className="text-gray-700 text-sm">
+                      Select Bronze, Silver, Gold, or Platinum based on your timeline and commitment. 
+                      Higher tiers = bigger monthly allocations. Pay the one-time $500 enrollment fee.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex gap-4 items-start">
+                  <div className="bg-green-600 text-white rounded-full w-10 h-10 flex items-center justify-center font-bold flex-shrink-0">
+                    2
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-gray-900">Platform Revenue Flows to You</h4>
+                    <p className="text-gray-700 text-sm">
+                      As AXIOM users trade, stake, and bank, 20% of fees automatically go to the Real Estate Fund. 
+                      Your share is calculated monthly based on your tier multiplier and time in the program.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex gap-4 items-start">
+                  <div className="bg-purple-600 text-white rounded-full w-10 h-10 flex items-center justify-center font-bold flex-shrink-0">
+                    3
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-gray-900">Claim Your Allocations Monthly</h4>
+                    <p className="text-gray-700 text-sm">
+                      Check back monthly to claim your allocation. Funds are held in your personal smart contract vault. 
+                      You can withdraw anytime or let it compound toward your down payment goal.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex gap-4 items-start">
+                  <div className="bg-orange-600 text-white rounded-full w-10 h-10 flex items-center justify-center font-bold flex-shrink-0">
+                    4
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-gray-900">Reach Your Down Payment Goal</h4>
+                    <p className="text-gray-700 text-sm">
+                      Once you've accumulated enough for a down payment (typically 20% = $40K on a $200K home), 
+                      we connect you with trusted real estate partners to find and purchase your property.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex gap-4 items-start">
+                  <div className="bg-red-600 text-white rounded-full w-10 h-10 flex items-center justify-center font-bold flex-shrink-0">
+                    5
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-gray-900">You're a Homeowner!</h4>
+                    <p className="text-gray-700 text-sm">
+                      Move in, build equity, stop paying rent forever. Your mortgage payment is often LESS than rent, 
+                      and every payment builds YOUR wealth, not your landlord's.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Real Example */}
+            <div className="bg-gradient-to-r from-green-50 to-blue-50 p-6 rounded-lg border-2 border-green-300">
+              <h3 className="text-xl font-semibold text-gray-900 mb-4 text-center">
+                📊 Real Example: Sarah's Path to Homeownership
+              </h3>
+              <div className="grid md:grid-cols-2 gap-6">
+                <div>
+                  <h4 className="font-semibold text-gray-900 mb-2">Before KeyGrow:</h4>
+                  <ul className="text-sm text-gray-700 space-y-1">
+                    <li>• Paying $1,500/month rent (money gone forever)</li>
+                    <li>• Saving $300/month for down payment</li>
+                    <li>• Needs $40,000 for 20% down ($200K home)</li>
+                    <li>• Timeline: 11+ years to save $40K alone</li>
+                  </ul>
+                </div>
+                <div>
+                  <h4 className="font-semibold text-gray-900 mb-2">With KeyGrow (Gold Tier):</h4>
+                  <ul className="text-sm text-gray-700 space-y-1">
+                    <li>• Still saving $300/month personal funds</li>
+                    <li>• + $800/month platform allocation (1.5x multiplier)</li>
+                    <li>• Total: $1,100/month toward down payment</li>
+                    <li>• <strong className="text-green-600">Timeline: 3 years to homeownership! 🎉</strong></li>
+                  </ul>
+                </div>
+              </div>
+              <p className="text-center text-gray-700 mt-4 font-medium">
+                KeyGrow cut Sarah's timeline from 11 years to 3 years - that's the power of community wealth building!
+              </p>
             </div>
           </CardContent>
         </Card>
