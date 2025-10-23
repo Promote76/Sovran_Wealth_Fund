@@ -46,6 +46,7 @@ export default function LiquidityVaultPage() {
 
   useEffect(() => {
     loadStats();
+    loadHistory();
     const interval = setInterval(() => {
       loadStats();
     }, 30000);
@@ -428,6 +429,57 @@ export default function LiquidityVaultPage() {
                 <Button className="bg-green-600 hover:bg-green-700 text-white">
                   Claim Rewards
                 </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Staking History */}
+        {history.length > 0 && (
+          <Card className="border-2 border-gray-200">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-2xl font-bold text-gray-900">📜 Recent Staking Activity</h2>
+                <Button
+                  onClick={loadHistory}
+                  className="bg-blue-600 hover:bg-blue-700 text-white text-sm"
+                >
+                  Refresh
+                </Button>
+              </div>
+              <div className="space-y-3">
+                {history.slice(0, 20).map((event, index) => {
+                  const eventColors = {
+                    stake: { bg: 'bg-green-50', text: 'text-green-800', icon: '⬆️', label: 'Stake' },
+                    unstake: { bg: 'bg-orange-50', text: 'text-orange-800', icon: '⬇️', label: 'Unstake' },
+                    claim: { bg: 'bg-purple-50', text: 'text-purple-800', icon: '🎁', label: 'Claim' }
+                  };
+                  const style = eventColors[event.type];
+
+                  return (
+                    <div key={index} className={`${style.bg} p-4 rounded-lg flex justify-between items-center`}>
+                      <div>
+                        <div className={`font-medium ${style.text} mb-1`}>
+                          {style.icon} {style.label} - {parseFloat(event.amount).toLocaleString(undefined, {maximumFractionDigits: 4})} LP
+                        </div>
+                        <div className="text-sm text-gray-600">
+                          {formatDate(event.timestamp)}
+                        </div>
+                        <div className="text-xs text-gray-500 font-mono mt-1">
+                          User: {event.user.substring(0, 10)}...{event.user.substring(event.user.length - 8)}
+                        </div>
+                      </div>
+                      <a
+                        href={`https://bscscan.com/tx/${event.txHash}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-600 hover:text-blue-700 text-sm"
+                      >
+                        View TX →
+                      </a>
+                    </div>
+                  );
+                })}
               </div>
             </CardContent>
           </Card>
