@@ -32,7 +32,7 @@ Smart contracts for deployment (AdvancedStaking, BasketIndex, CombinedStakingCon
 **Deployment Date**: October 23, 2025  
 **Deployer Wallet**: 0xE3059F3479AAC2846299664BABe1d5D95C18D1C7  
 **Network**: BSC Mainnet (Chain ID 56)  
-**Total Contracts Deployed**: 7 contracts
+**Total Contracts Deployed**: 9 contracts
 
 **Core Contracts:**
 - **BasketIndex**: 0x06b88f3Faa07215F6f5fb0A10A3F058D3f25ecF6
@@ -62,6 +62,18 @@ Smart contracts for deployment (AdvancedStaking, BasketIndex, CombinedStakingCon
   
 - **SWFVaultAdapter**: 0xeAFF0dB435DABB6f142A934e17123bfa752dbbd5
   - Vault integration adapter for seamless token deposits
+
+**KeyGrow Rent-to-Own Contracts:**
+- **RealEstateAcquisitionFund**: 0xe097881D32D67ED1Dd9df8203F188CD186f345dc
+  - Manages 20% of platform revenue for homeownership assistance
+  - Tier-based renter allocations (Bronze/Silver/Gold/Platinum)
+  - Time-weighted multipliers (1.0x - 2.0x)
+  - Monthly distribution periods
+  
+- **AXIOMRevenueRouter**: 0xfFFb71e13c6cd5ce12612D1c7293BF0BAbcdab73
+  - Auto-splits all platform revenue: 80% Treasury, 20% KeyGrow
+  - Tracks revenue by source (NFT, Staking, Banking, Investments)
+  - Supports BNB and ERC20 tokens
 
 **Original Contracts:**
 - **AXM Token**: 0x83E17aeB148d9b4b7Be0Be7C87dd73531a5a5738
