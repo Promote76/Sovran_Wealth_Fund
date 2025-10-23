@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useWallet } from '../contexts/WalletContext';
 import { useContractTransactions } from '../hooks/useContractTransactions';
+import { useKeygrowEvents, ContractEvent } from '../hooks/useContractEvents';
+import { EventToast } from '../components/EventToast';
 import { keygrowService, type RenterInfo } from '../services/contracts';
 import { Button } from '../components/ui/button';
 import { Card, CardContent } from '../components/ui/card';
@@ -19,6 +21,27 @@ export default function KeyGrowDashboardPage() {
   const [pendingAllocation, setPendingAllocation] = useState('0');
   const [loading, setLoading] = useState(true);
   const [selectedTier, setSelectedTier] = useState(0);
+  const [toastEvents, setToastEvents] = useState<ContractEvent[]>([]);
+
+  // Real-time event listener
+  const { latestEvent, isConnected: eventStreamConnected } = useKeygrowEvents({
+    personalEventsOnly: true,
+    onEvent: (event) => {
+      console.log('[KeyGrow] Real-time event received:', event);
+      
+      // Show toast notification
+      setToastEvents(prev => [...prev, event]);
+      
+      // Auto-refresh data on relevant events
+      if (event.eventName === 'RenterRegistered' || 
+          event.eventName === 'AllocationClaimed' || 
+          event.eventName === 'TierUpdated') {
+        setTimeout(() => {
+          loadRenterData();
+        }, 1000);
+      }
+    }
+  });
 
   // Fetch renter data
   useEffect(() => {
@@ -406,6 +429,23 @@ export default function KeyGrowDashboardPage() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Event Toast Notifications */}
+      {toastEvents.map((event, index) => (
+        <EventToast
+          key={`${event.timestamp}-${index}`}
+          event={event}
+          onClose={() => setToastEvents(prev => prev.filter((_, i) => i !== index))}
+        />
+      ))}
+
+      {/* Event Stream Status Indicator */}
+      {eventStreamConnected && (
+        <div className="fixed bottom-4 right-4 bg-green-100 border border-green-300 rounded-full px-3 py-1 text-xs text-green-700 flex items-center gap-2">
+          <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+          Live Updates Active
+        </div>
+      )}
     </div>
   );
 }
