@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import Layout from '../components/Layout';
 import { useWallet } from '../contexts/WalletContext';
 import AXIOMRevenueRouterABI from '../abis/AXIOMRevenueRouter.json';
 
@@ -108,22 +107,19 @@ export const RevenueRouterPage: React.FC = () => {
 
   if (loading) {
     return (
-      <Layout title="Revenue Router" themeColor="blue">
-        <div className="container mx-auto px-4 py-8">
-          <div className="flex items-center justify-center min-h-screen">
-            <div className="text-center">
-              <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-              <p className="mt-4 text-gray-600">Loading revenue router data...</p>
-            </div>
+      <div className="container mx-auto px-4 py-8">
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="text-center">
+            <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+            <p className="mt-4 text-gray-600">Loading revenue router data...</p>
           </div>
         </div>
-      </Layout>
+      </div>
     );
   }
 
   return (
-    <Layout title="AXIOM Revenue Router" themeColor="blue">
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-100 py-12">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-100 py-12">
         <div className="container mx-auto px-4">
           {/* Header */}
           <div className="text-center mb-12">
@@ -525,6 +521,5 @@ export const RevenueRouterPage: React.FC = () => {
           </div>
         </div>
       </div>
-    </Layout>
   );
 };
