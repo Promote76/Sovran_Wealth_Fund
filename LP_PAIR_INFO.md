@@ -7,9 +7,11 @@
 - **Pool Type**: PancakeSwap V2 (Classic)
 - **Creation Tx**: `0xb440...e5a4`
 
-### Token Addresses
-- **SWF Token**: `0x83E17aEb148d9b4b7Be0Be7C87dd73531a5a5738`
+### Token Addresses (Checksummed)
+- **SWF Token**: `0x83E17aeB148d9b4b7Be0Be7C87dd73531a5a5738`
 - **WBNB**: `0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c`
+
+⚠️ **Important**: These addresses use proper EIP-55 checksumming. Using incorrect checksums will cause transaction failures with ethers.js v5/v6.
 
 ### PancakeSwap Contracts
 - **V2 Router**: `0x10ED43C718714eb63d5aA57B78B54704E256024E`
@@ -19,6 +21,7 @@
 ✅ Added to platform configuration
 ✅ Integrated with LiquidityVault page
 ✅ Ready for LP token staking
+✅ Checksum validation fixed (ethers.js v5/v6 compatible)
 
 ### How to Use
 1. **Add Liquidity**: Visit PancakeSwap and add SWF-WBNB liquidity
@@ -28,4 +31,8 @@
 
 ### View on BSCScan
 - Pool Contract: https://bscscan.com/address/0x3aA970cD91f792427CF28Bc687B4713Ee26e2090
+- SWF Token: https://bscscan.com/address/0x83E17aeB148d9b4b7Be0Be7C87dd73531a5a5738
 - PancakeSwap Pool: https://pancakeswap.finance/info/v2/pairs/0x3aA970cD91f792427CF28Bc687B4713Ee26e2090
+
+### Recent Fixes
+- **2025-10-23**: Fixed address checksum validation error. All addresses now use proper EIP-55 checksumming compatible with ethers.js v5/v6.
