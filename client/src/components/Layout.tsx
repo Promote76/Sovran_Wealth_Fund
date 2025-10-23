@@ -297,7 +297,7 @@ const Layout: React.FC<LayoutProps> = ({
             {/* Navigation Menu */}
             <div className="hidden lg:flex items-center space-x-4 ml-8">
               {navigationItems.map((item) => (
-                <div key={item.path} className="relative" ref={item.isDropdown ? dropdownRef : undefined}>
+                <div key={item.path} className="relative">
                   {item.isDropdown ? (
                     // Dropdown Menu
                     <div>
@@ -347,9 +347,7 @@ const Layout: React.FC<LayoutProps> = ({
                                   </a>
                                 ) : (
                                   <button
-                                    onClick={(e) => {
-                                      e.preventDefault();
-                                      e.stopPropagation();
+                                    onClick={() => {
                                       navigate(dropdownItem.path);
                                       setActiveDropdown(null);
                                     }}
@@ -614,9 +612,7 @@ const Layout: React.FC<LayoutProps> = ({
                                 </a>
                               ) : (
                                 <button
-                                  onClick={(e) => {
-                                    e.preventDefault();
-                                    e.stopPropagation();
+                                  onClick={() => {
                                     navigate(dropdownItem.path);
                                     handleMobileMenuItemClick();
                                   }}
