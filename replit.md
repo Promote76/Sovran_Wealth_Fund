@@ -28,6 +28,38 @@ The AXM token has a finite supply of 10 billion, representing verified energy an
 
 Smart contracts for deployment (AdvancedStaking, BasketIndex, CombinedStakingContracts, DynamicAPRController, EnhancedNFTMarketplace) are security-enhanced with ERC721Holder, SafeERC20, ReentrancyGuard, and OpenZeppelin v5 libraries. Deployment tooling for BSC is configured using Hardhat, including scripts for deployment and verification.
 
+#### Deployed Smart Contracts (BSC Mainnet)
+**Deployment Date**: October 23, 2025  
+**Deployer Wallet**: 0xE3059F3479AAC2846299664BABe1d5D95C18D1C7  
+**Network**: BSC Mainnet (Chain ID 56)
+
+**Core Contracts:**
+- **BasketIndex**: 0x06b88f3Faa07215F6f5fb0A10A3F058D3f25ecF6
+  - AXIOM Basket Index token for diversified DeFi exposure
+  - Symbol: AXM-BASKET
+  
+- **AdvancedStaking**: 0x5eE9d1b28c261AE132B6d324b02452bC90750136
+  - Multi-tier NFT staking with governance integration
+  - Daily Reward Rate: 100 AXM
+  - Reward Token: AXM (0x83E17aeB148d9b4b7Be0Be7C87dd73531a5a5738)
+  
+- **EnhancedNFTMarketplace**: 0xEc973eD81082a1d539F380eF94f6215793410036
+  - NFT marketplace with auctions, royalties, and batch operations
+  - Verified on Sourcify
+  
+- **DynamicAPRController**: 0x14dFA6b6785643850e5c09336F7Cd5971458e28d
+  - Automatic APR adjustment system (10-30% dynamic range)
+  - Current APR: 15%
+  - Connected to BasketIndex vault and existing staking engine
+
+**Original Contracts:**
+- **AXM Token**: 0x83E17aeB148d9b4b7Be0Be7C87dd73531a5a5738
+- **Staking Engine**: 0x0165878A594ca255338adfa4d48449f69242Eb8F
+- **Basket Vault**: 0x5FC8d32690cc91D4c39d9d3abcBD16989F875707
+
+### KeyGrow Rent-to-Own Program
+AXIOM includes the KeyGrow initiative, where **20% of all platform revenue** (including transaction fees, staking fees, and NFT marketplace fees) is allocated to a Real Estate Acquisition Fund. This fund helps renters transition to homeownership by providing down payment assistance and property acquisition support. Full specification available in `docs/KeyGrow_RentToOwn_Specification.md`.
+
 ## External Dependencies
 
 ### Blockchain Services
