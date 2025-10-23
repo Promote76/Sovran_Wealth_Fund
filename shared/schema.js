@@ -407,6 +407,138 @@ const deNetNodeState = pgTable('denet_node_state', {
   updatedAt: timestamp('updated_at').defaultNow().notNull()
 });
 
+// ============================================
+// KEYGROW RENT-TO-OWN PROGRAM TABLES
+// ============================================
+
+// KeyGrow Renters table
+const keygrowRenters = pgTable('keygrow_renters', {
+  id: serial('id').primaryKey(),
+  walletAddress: varchar('wallet_address', { length: 42 }).notNull().unique(),
+  registeredAt: timestamp('registered_at').defaultNow().notNull(),
+  tier: varchar('tier', { length: 20 }),
+  totalAllocated: decimal('total_allocated', { precision: 18, scale: 8 }).default('0').notNull(),
+  totalClaimed: decimal('total_claimed', { precision: 18, scale: 8 }).default('0').notNull(),
+  active: boolean('active').default(true).notNull(),
+  lastClaimPeriod: integer('last_claim_period').default(0),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow()
+});
+
+// KeyGrow Allocations table
+const keygrowAllocations = pgTable('keygrow_allocations', {
+  id: serial('id').primaryKey(),
+  renterId: integer('renter_id').notNull(),
+  periodNumber: integer('period_number').notNull(),
+  amount: decimal('amount', { precision: 18, scale: 8 }).notNull(),
+  claimed: boolean('claimed').default(false).notNull(),
+  claimedAt: timestamp('claimed_at'),
+  txHash: varchar('tx_hash', { length: 66 }),
+  createdAt: timestamp('created_at').defaultNow().notNull()
+});
+
+// KeyGrow Properties table
+const keygrowProperties = pgTable('keygrow_properties', {
+  id: serial('id').primaryKey(),
+  renterId: integer('renter_id').notNull(),
+  propertyAddress: text('property_address').notNull(),
+  targetPrice: decimal('target_price', { precision: 15, scale: 2 }).notNull(),
+  accumulatedFunds: decimal('accumulated_funds', { precision: 15, scale: 2 }).default('0').notNull(),
+  status: varchar('status', { length: 20 }).default('pending').notNull(),
+  metadata: jsonb('metadata'),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow()
+});
+
+// ============================================
+// NFT MARKETPLACE TABLES
+// ============================================
+
+// NFT Listings table
+const nftListings = pgTable('nft_listings', {
+  id: serial('id').primaryKey(),
+  contractAddress: varchar('contract_address', { length: 42 }).notNull(),
+  tokenId: varchar('token_id', { length: 78 }).notNull(),
+  seller: varchar('seller', { length: 42 }).notNull(),
+  price: decimal('price', { precision: 18, scale: 8 }).notNull(),
+  currency: varchar('currency', { length: 10 }).default('BNB').notNull(),
+  listingType: varchar('listing_type', { length: 20 }).default('fixed').notNull(),
+  status: varchar('status', { length: 20 }).default('active').notNull(),
+  auctionEndTime: timestamp('auction_end_time'),
+  metadata: jsonb('metadata'),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow()
+});
+
+// NFT Bids table
+const nftBids = pgTable('nft_bids', {
+  id: serial('id').primaryKey(),
+  listingId: integer('listing_id').notNull(),
+  bidder: varchar('bidder', { length: 42 }).notNull(),
+  amount: decimal('amount', { precision: 18, scale: 8 }).notNull(),
+  txHash: varchar('tx_hash', { length: 66 }),
+  status: varchar('status', { length: 20 }).default('active').notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull()
+});
+
+// NFT Sales table
+const nftSales = pgTable('nft_sales', {
+  id: serial('id').primaryKey(),
+  listingId: integer('listing_id').notNull(),
+  buyer: varchar('buyer', { length: 42 }).notNull(),
+  seller: varchar('seller', { length: 42 }).notNull(),
+  price: decimal('price', { precision: 18, scale: 8 }).notNull(),
+  txHash: varchar('tx_hash', { length: 66 }),
+  royaltyAmount: decimal('royalty_amount', { precision: 18, scale: 8 }),
+  platformFee: decimal('platform_fee', { precision: 18, scale: 8 }),
+  createdAt: timestamp('created_at').defaultNow().notNull()
+});
+
+// ============================================
+// ADVANCED STAKING TABLES
+// ============================================
+
+// Advanced Stakes table
+const advancedStakes = pgTable('advanced_stakes', {
+  id: serial('id').primaryKey(),
+  walletAddress: varchar('wallet_address', { length: 42 }).notNull(),
+  nftTokenId: varchar('nft_token_id', { length: 78 }).notNull(),
+  stakeAmount: decimal('stake_amount', { precision: 18, scale: 8 }).notNull(),
+  tier: varchar('tier', { length: 20 }),
+  rewardsEarned: decimal('rewards_earned', { precision: 18, scale: 8 }).default('0').notNull(),
+  stakeStartedAt: timestamp('stake_started_at').defaultNow().notNull(),
+  stakeEndedAt: timestamp('stake_ended_at'),
+  txHash: varchar('tx_hash', { length: 66 }),
+  status: varchar('status', { length: 20 }).default('active').notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull()
+});
+
+// Staking Rewards table
+const stakingRewards = pgTable('staking_rewards', {
+  id: serial('id').primaryKey(),
+  stakeId: integer('stake_id').notNull(),
+  amount: decimal('amount', { precision: 18, scale: 8 }).notNull(),
+  claimed: boolean('claimed').default(false).notNull(),
+  claimedAt: timestamp('claimed_at'),
+  txHash: varchar('tx_hash', { length: 66 }),
+  createdAt: timestamp('created_at').defaultNow().notNull()
+});
+
+// ============================================
+// REVENUE ROUTER TRACKING TABLES
+// ============================================
+
+// Revenue Distributions table
+const revenueDistributions = pgTable('revenue_distributions', {
+  id: serial('id').primaryKey(),
+  source: varchar('source', { length: 50 }).notNull(),
+  totalAmount: decimal('total_amount', { precision: 18, scale: 8 }).notNull(),
+  treasuryAmount: decimal('treasury_amount', { precision: 18, scale: 8 }).notNull(),
+  keygrowAmount: decimal('keygrow_amount', { precision: 18, scale: 8 }).notNull(),
+  txHash: varchar('tx_hash', { length: 66 }),
+  createdAt: timestamp('created_at').defaultNow().notNull()
+});
+
 module.exports = {
   users,
   savingsAccounts,
@@ -435,5 +567,18 @@ module.exports = {
   adminControls,
   complianceAudit,
   deNetFiles,
-  deNetNodeState
+  deNetNodeState,
+  // KeyGrow tables
+  keygrowRenters,
+  keygrowAllocations,
+  keygrowProperties,
+  // NFT Marketplace tables
+  nftListings,
+  nftBids,
+  nftSales,
+  // Advanced Staking tables
+  advancedStakes,
+  stakingRewards,
+  // Revenue Router tables
+  revenueDistributions
 };

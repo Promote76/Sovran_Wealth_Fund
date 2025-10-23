@@ -3,22 +3,12 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "_basketVault",
+        "name": "_treasury",
         "type": "address"
       },
       {
         "internalType": "address",
-        "name": "_stakingContract",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "_initialAPR",
-        "type": "uint256"
-      },
-      {
-        "internalType": "address",
-        "name": "initialOwner",
+        "name": "_realEstateAcquisitionFund",
         "type": "address"
       }
     ],
@@ -48,73 +38,32 @@
     "type": "error"
   },
   {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "oldAPR",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "newAPR",
-        "type": "uint256"
-      }
-    ],
-    "name": "APRAdjusted",
-    "type": "event"
+    "inputs": [],
+    "name": "ReentrancyGuardReentrantCall",
+    "type": "error"
   },
   {
-    "anonymous": false,
     "inputs": [
       {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "minAPR",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "maxAPR",
-        "type": "uint256"
-      }
-    ],
-    "name": "APRRangeUpdated",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "interval",
-        "type": "uint256"
-      }
-    ],
-    "name": "AdjustmentIntervalUpdated",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
         "internalType": "address",
-        "name": "oldVault",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "newVault",
+        "name": "token",
         "type": "address"
       }
     ],
-    "name": "BasketVaultUpdated",
+    "name": "SafeERC20FailedOperation",
+    "type": "error"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "newAllocation",
+        "type": "uint256"
+      }
+    ],
+    "name": "AllocationUpdated",
     "type": "event"
   },
   {
@@ -142,17 +91,11 @@
       {
         "indexed": false,
         "internalType": "address",
-        "name": "oldContract",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "newContract",
+        "name": "newFund",
         "type": "address"
       }
     ],
-    "name": "StakingContractUpdated",
+    "name": "RealEstateFundUpdated",
     "type": "event"
   },
   {
@@ -161,169 +104,145 @@
       {
         "indexed": false,
         "internalType": "uint256",
-        "name": "lowThreshold",
+        "name": "realEstateCut",
         "type": "uint256"
       },
       {
         "indexed": false,
         "internalType": "uint256",
-        "name": "highThreshold",
+        "name": "treasuryCut",
         "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "token",
+        "type": "address"
       }
     ],
-    "name": "ThresholdsUpdated",
+    "name": "RevenueDistributed",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "sender",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "enum AXIOMRevenueRouter.RevenueSource",
+        "name": "source",
+        "type": "uint8"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "token",
+        "type": "address"
+      }
+    ],
+    "name": "RevenueReceived",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "newTreasury",
+        "type": "address"
+      }
+    ],
+    "name": "TreasuryUpdated",
     "type": "event"
   },
   {
     "inputs": [],
-    "name": "adjustAPR",
+    "name": "BASIS_POINTS",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "enum AXIOMRevenueRouter.RevenueSource",
+        "name": "source",
+        "type": "uint8"
+      }
+    ],
+    "name": "distributeBNBRevenue",
+    "outputs": [],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "token",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "enum AXIOMRevenueRouter.RevenueSource",
+        "name": "source",
+        "type": "uint8"
+      }
+    ],
+    "name": "distributeTokenRevenue",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
   },
   {
-    "inputs": [],
-    "name": "adjustmentInterval",
-    "outputs": [
+    "inputs": [
       {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "basketVault",
-    "outputs": [
-      {
-        "internalType": "contract SWFBasketVault",
-        "name": "",
+        "internalType": "address",
+        "name": "token",
         "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "canSetAPR",
-    "outputs": [
-      {
-        "internalType": "bool",
-        "name": "",
-        "type": "bool"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "currentAPR",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "getAPRInfo",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "_currentAPR",
-        "type": "uint256"
       },
       {
         "internalType": "uint256",
-        "name": "_nextAdjustmentTime",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "_totalDeposited",
+        "name": "amount",
         "type": "uint256"
       }
     ],
-    "stateMutability": "view",
+    "name": "emergencyWithdraw",
+    "outputs": [],
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
-    "inputs": [],
-    "name": "getStakingContractAPR",
-    "outputs": [
+    "inputs": [
       {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
+        "internalType": "enum AXIOMRevenueRouter.RevenueSource",
+        "name": "source",
+        "type": "uint8"
       }
     ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "highDepositThreshold",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "lastAdjustmentTime",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "lowDepositThreshold",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "maxAPR",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "minAPR",
+    "name": "getRevenueBySource",
     "outputs": [
       {
         "internalType": "uint256",
@@ -349,46 +268,7 @@
   },
   {
     "inputs": [],
-    "name": "renounceOwnership",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "requestAPRManagerRole",
-    "outputs": [
-      {
-        "internalType": "bytes32",
-        "name": "",
-        "type": "bytes32"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "depositAmount",
-        "type": "uint256"
-      }
-    ],
-    "name": "simulateAPRForDeposit",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "stakingContract",
+    "name": "realEstateAcquisitionFund",
     "outputs": [
       {
         "internalType": "address",
@@ -401,12 +281,134 @@
   },
   {
     "inputs": [],
-    "name": "stakingContractInterface",
+    "name": "realEstateAllocation",
     "outputs": [
       {
-        "internalType": "contract SoloMethodEngineV2",
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "renounceOwnership",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "enum AXIOMRevenueRouter.RevenueSource",
+        "name": "",
+        "type": "uint8"
+      }
+    ],
+    "name": "revenueBySource",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
         "name": "",
         "type": "address"
+      }
+    ],
+    "name": "tokenDistributed",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "name": "tokenToRealEstate",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "name": "tokenToTreasury",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "totalBNBDistributed",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "totalBNBToRealEstate",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "totalBNBToTreasury",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
       }
     ],
     "stateMutability": "view",
@@ -426,32 +428,27 @@
     "type": "function"
   },
   {
-    "inputs": [
+    "inputs": [],
+    "name": "treasury",
+    "outputs": [
       {
-        "internalType": "uint256",
-        "name": "_minAPR",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "_maxAPR",
-        "type": "uint256"
+        "internalType": "address",
+        "name": "",
+        "type": "address"
       }
     ],
-    "name": "updateAPRRange",
-    "outputs": [],
-    "stateMutability": "nonpayable",
+    "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "_interval",
+        "name": "newAllocation",
         "type": "uint256"
       }
     ],
-    "name": "updateAdjustmentInterval",
+    "name": "updateAllocation",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -460,11 +457,11 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "_basketVault",
+        "name": "newFund",
         "type": "address"
       }
     ],
-    "name": "updateBasketVault",
+    "name": "updateRealEstateFund",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -473,31 +470,17 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "_stakingContract",
+        "name": "newTreasury",
         "type": "address"
       }
     ],
-    "name": "updateStakingContract",
+    "name": "updateTreasury",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
   },
   {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "_lowThreshold",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "_highThreshold",
-        "type": "uint256"
-      }
-    ],
-    "name": "updateThresholds",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
+    "stateMutability": "payable",
+    "type": "receive"
   }
 ]
