@@ -39,13 +39,24 @@ class PancakePoolService {
 
   async initialize() {
     if (!this.provider) {
-      this.provider = contractProvider.provider;
+      // Use BSC mainnet RPC directly
+      const BSC_RPC = process.env.BSC_RPC_URL || 'https://bsc-dataseed1.binance.org';
+      this.provider = new ethers.JsonRpcProvider(BSC_RPC);
       this.factory = new ethers.Contract(FACTORY_ADDRESS, FACTORY_ABI, this.provider);
+      console.log('✅ PancakeSwap service initialized with BSC provider');
     }
   }
 
   async getPairInfo(tokenA, tokenB) {
     await this.initialize();
+    
+    // Normalize addresses to checksummed format (required by ethers v6)
+    try {
+      tokenA = ethers.getAddress(tokenA.toLowerCase());
+      tokenB = ethers.getAddress(tokenB.toLowerCase());
+    } catch (error) {
+      throw new Error(`Invalid token address: ${error.message}`);
+    }
     
     const cacheKey = `${tokenA}-${tokenB}`;
     const now = Date.now();

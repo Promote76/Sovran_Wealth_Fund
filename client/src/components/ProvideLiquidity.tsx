@@ -377,6 +377,30 @@ export default function ProvideLiquidity() {
               </div>
             </div>
           </div>
+        ) : pairInfo && !pairInfo.exists ? (
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+            <div className="flex items-start">
+              <span className="text-2xl mr-3">ℹ️</span>
+              <div>
+                <div className="font-semibold text-blue-900 mb-2">
+                  {selectedPair.name} Pool Not Found
+                </div>
+                <div className="text-sm text-blue-800">
+                  This liquidity pool doesn't exist on PancakeSwap yet. To create it, you'll need to be the first liquidity provider for this pair on PancakeSwap directly.
+                </div>
+                <div className="mt-3 text-sm">
+                  <a 
+                    href="https://pancakeswap.finance/add" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="text-blue-600 hover:text-blue-800 underline font-medium"
+                  >
+                    → Create Pool on PancakeSwap
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
         ) : null}
         
         {/* Amount Inputs */}
