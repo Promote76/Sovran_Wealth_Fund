@@ -1,5 +1,5 @@
 const { ethers } = require('ethers');
-const contractProvider = require('../blockchain/contractProvider');
+const contractProvider = require('./contractProvider');
 
 // PancakeSwap Contract Addresses
 const ROUTER_ADDRESS = '0x10ED43C718714eb63d5aA57B78B54704E256024E';
