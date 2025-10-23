@@ -69,17 +69,17 @@ export const RevenueRouterPage: React.FC = () => {
 
       if (statsRes.ok) {
         const statsData = await statsRes.json();
-        setRouterStats(statsData);
+        setRouterStats(statsData.data);
       }
 
       if (historyRes.ok) {
         const historyData = await historyRes.json();
-        setDistributions(historyData);
+        setDistributions(historyData.data || []);
       }
 
       if (sourcesRes.ok) {
         const sourcesData = await sourcesRes.json();
-        setRevenueSources(sourcesData);
+        setRevenueSources(sourcesData.data || []);
       }
     } catch (error) {
       console.error('Error loading router data:', error);

@@ -27,8 +27,9 @@ class RevenueRouterService {
       })
         .from(revenueDistributions);
 
-      const keygrowPercentage = Number(realEstateAllocation) / 100;
-      const treasuryPercentage = 10000 - Number(realEstateAllocation);
+      const allocationValue = parseInt(realEstateAllocation.toString());
+      const keygrowPercentage = allocationValue / 100;
+      const treasuryPercentage = 10000 - allocationValue;
 
       return {
         routerAddress: this.contractProvider.getAddress('AXIOMRevenueRouter'),
@@ -45,7 +46,7 @@ class RevenueRouterService {
         }
       };
     } catch (error) {
-      console.error('❌ getRouterStats error:', error);
+      console.error('❌ getRouterStats error:', error.message, error.stack);
       return {
         routerAddress: this.contractProvider.getAddress('AXIOMRevenueRouter'),
         treasuryAddress: '',
@@ -133,8 +134,9 @@ class RevenueRouterService {
       const routerContract = this.contractProvider.getContract('AXIOMRevenueRouter');
       const realEstateAllocation = await routerContract.realEstateAllocation();
       
-      const keygrowPercentage = Number(realEstateAllocation) / 100;
-      const treasuryPercentage = (10000 - Number(realEstateAllocation)) / 100;
+      const allocationValue = parseInt(realEstateAllocation.toString());
+      const keygrowPercentage = allocationValue / 100;
+      const treasuryPercentage = (10000 - allocationValue) / 100;
 
       const total = parseFloat(totalAmount);
       const treasuryAmount = (total * treasuryPercentage / 100).toFixed(8);
