@@ -9,7 +9,7 @@ import { Card, CardContent } from '../components/ui/card';
 import { Input } from '../components/ui/input';
 
 export default function AdvancedStakingPage() {
-  const { isConnected, isLoggedIn, account } = useWallet();
+  const { isConnected, isLoggedIn, account, connectWallet, isConnecting, loginError } = useWallet();
   const {
     stakeNFT,
     unstakeNFT,
@@ -104,6 +104,14 @@ export default function AdvancedStakingPage() {
     await claimStakingRewards();
   };
 
+  const handleWalletConnect = async () => {
+    try {
+      await connectWallet();
+    } catch (error: any) {
+      console.error('❌ Wallet connection failed:', error);
+    }
+  };
+
   const tierNames = ['Bronze', 'Silver', 'Gold', 'Platinum'];
   const tierColors = [
     'bg-orange-100 border-orange-300 text-orange-800',
@@ -124,9 +132,19 @@ export default function AdvancedStakingPage() {
             <p className="text-gray-600 mb-6">
               Please connect your wallet to access staking
             </p>
-            <Button className="bg-blue-600 hover:bg-blue-700">
-              Connect Wallet
+            <Button 
+              onClick={handleWalletConnect}
+              disabled={isConnecting}
+              className="bg-blue-600 hover:bg-blue-700 text-white"
+            >
+              {isConnecting ? '🔄 Connecting...' : '🔗 Connect Wallet'}
             </Button>
+            {loginError && (
+              <div className="mt-4 bg-red-50 border border-red-200 rounded-lg p-4">
+                <div className="text-sm font-medium text-red-800 mb-2">Connection Error:</div>
+                <div className="text-xs text-red-600">{loginError}</div>
+              </div>
+            )}
           </div>
         </div>
       </div>

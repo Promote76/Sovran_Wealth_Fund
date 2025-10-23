@@ -1,7 +1,7 @@
 # AXIOM: The Foundation of Sovereign Wealth
 
 ## Overview
-AXIOM is a decentralized finance (DeFi) platform built on multiple blockchain networks (BSC, Polygon) that integrates token management, Proof of Contribution (PoC) staking, liquidity provision, NFT integration, and transparent governance. Its purpose is to create a lawful digital economy where value is derived from participation and contribution, embodying the principle that "wealth is energy in circulation." The project aims to fuse ancient wisdom with modern cryptography, establishing a self-correcting network where integrity creates value, reflecting natural law.
+AXIOM is a decentralized finance (DeFi) platform on BSC and Polygon, integrating token management, Proof of Contribution (PoC) staking, liquidity provision, NFT integration, and transparent governance. Its purpose is to establish a lawful digital economy where value is derived from participation and contribution, aiming to fuse ancient wisdom with modern cryptography to create a self-correcting network. AXIOM also features the KeyGrow Rent-to-Own program, allocating 20% of platform revenue to help renters achieve homeownership.
 
 ## User Preferences
 Preferred communication style: Simple, everyday language.
@@ -9,179 +9,58 @@ Preferred communication style: Simple, everyday language.
 ## System Architecture
 
 ### Core Infrastructure
-The platform uses Node.js with Express.js for the backend, consolidating services like authentication, token management, staking, and administration into a unified server architecture. The frontend serves static files with JavaScript modules for wallet and blockchain interactions.
+The platform utilizes Node.js with Express.js for the backend, consolidating services into a unified server architecture. The frontend, built with React and TypeScript, serves static files and handles wallet/blockchain interactions.
 
 ### Blockchain Integration
-AXIOM operates on BSC Mainnet and Polygon Mainnet, with the AXM token deployed on both. Smart contracts include role-based ERC20 tokens, Proof of Contribution staking engines, liquidity vaults, governance systems (Axiom Council with quadratic voting), and NFT contracts. The system supports dynamic APR adjustments and energy-based circulation mechanics.
+AXIOM operates on BSC and Polygon Mainnets, with the AXM token deployed on both. Smart contracts include role-based ERC20 tokens, PoC staking engines, liquidity vaults, governance systems (Axiom Council with quadratic voting), and NFT contracts. The system supports dynamic APR adjustments and energy-based circulation mechanics. All smart contracts are security-enhanced with OpenZeppelin libraries.
 
 ### Frontend Architecture
-The frontend is built with React and TypeScript, offering a comprehensive component library for wallet connectivity, navigation, and blockchain interactions. It features a professional blue/white theme with sacred geometry design elements. Key modules include unified wallet management and dedicated pages for staking, banking, investments, and NFT operations. A User Guide provides educational content on wealth building, banking, investments, and PoC staking, optimized for various devices.
+The React/TypeScript frontend provides a comprehensive component library for wallet connectivity, navigation, and blockchain interactions, featuring a professional blue/white theme with sacred geometry elements. Key modules include unified wallet management and dedicated pages for staking, banking, investments, and NFT operations, plus educational content.
 
 ### Database Layer
-PostgreSQL is the primary database, utilizing Drizzle ORM. Session management is handled via `connect-pg-simple`, and user authentication includes bcrypt hashing. The banking infrastructure supports high-yield savings (4.25% APY), CDs (6.25% APY), checking accounts, inter-account transfers, and detailed transaction histories, featuring atomic transactions, decimal-safe calculations, and idempotency.
+PostgreSQL is the primary database, utilizing Drizzle ORM for schema management. User authentication includes bcrypt hashing, and session management is handled via `connect-pg-simple`. The banking infrastructure supports high-yield savings, CDs, checking accounts, inter-account transfers, and detailed transaction histories with atomic, decimal-safe, and idempotent operations.
 
-### Investment Platform Infrastructure
-The platform includes a comprehensive investment management system supporting 8 product types: Crypto Trading, Stock Trading, ETF Portfolios, Retirement Accounts, REITs, Bonds, Commodities, and Index Funds, with an additional feature for Options Trading. It features a multi-provider market data service (CoinGecko, Alpha Vantage, FMP) with caching and rate limit protection, an investment transaction engine for market and limit orders, position management, P&L calculations, and fee handling (0.1% transaction fees). All financial calculations use `Decimal.js` for precision and operations are wrapped in SQL transactions for ACID compliance. The UI provides a comprehensive overview, a professional trading interface, a portfolio dashboard, and educational resources.
+### Investment Platform
+The platform includes an investment management system for 8 product types (Crypto, Stocks, ETFs, Retirement, REITs, Bonds, Commodities, Index Funds, plus Options Trading). It features a multi-provider market data service (CoinGecko, Alpha Vantage, FMP) with caching and rate limiting, an investment transaction engine for various order types, position management, P&L calculations, and 0.1% transaction fees. All financial calculations use `Decimal.js` for precision and are wrapped in SQL transactions for ACID compliance.
 
 ### Smart Contract System & Tokenomics
-The AXM token has a finite supply of 10 billion, representing verified energy and contribution. Distribution is allocated across Treasury & Liquidity (40%), Community Growth Fund (30%), Founders (15%), Adoption Incentives (10%), and Institutional Liquidity Reserve (5%). The smart contract ecosystem includes the AXM token, Proof of Contribution (PoC) staking engines (10-30% dynamic APR), AxiomBasketVault, DynamicAPRController, and the Axiom Council governance system using quadratic voting. PoC staking rewards time and impact, with partial fee burns and "energy locks" contributing to a slow-deflationary curve.
+The AXM token has a finite supply of 10 billion, representing verified energy and contribution, with distribution across Treasury & Liquidity (40%), Community Growth Fund (30%), Founders (15%), Adoption Incentives (10%), and Institutional Liquidity Reserve (5%). The ecosystem includes the AXM token, PoC staking engines (10-30% dynamic APR), AxiomBasketVault, DynamicAPRController, and the Axiom Council governance system. PoC staking rewards time and impact, contributing to a slow-deflationary curve through partial fee burns and "energy locks."
 
-Smart contracts for deployment (AdvancedStaking, BasketIndex, CombinedStakingContracts, DynamicAPRController, EnhancedNFTMarketplace) are security-enhanced with ERC721Holder, SafeERC20, ReentrancyGuard, and OpenZeppelin v5 libraries. Deployment tooling for BSC is configured using Hardhat, including scripts for deployment and verification.
-
-#### Deployed Smart Contracts (BSC Mainnet)
-**Deployment Date**: October 23, 2025  
-**Deployer Wallet**: 0xE3059F3479AAC2846299664BABe1d5D95C18D1C7  
-**Network**: BSC Mainnet (Chain ID 56)  
-**Total Contracts Deployed**: 9 contracts
-
-**Core Contracts:**
-- **BasketIndex**: 0x06b88f3Faa07215F6f5fb0A10A3F058D3f25ecF6
-  - AXIOM Basket Index token for diversified DeFi exposure
-  - Symbol: AXM-BASKET
-  
-- **AdvancedStaking**: 0x5eE9d1b28c261AE132B6d324b02452bC90750136
-  - Multi-tier NFT staking with governance integration
-  - Daily Reward Rate: 100 AXM
-  - Reward Token: AXM (0x83E17aeB148d9b4b7Be0Be7C87dd73531a5a5738)
-  
-- **EnhancedNFTMarketplace**: 0xEc973eD81082a1d539F380eF94f6215793410036
-  - NFT marketplace with auctions, royalties, and batch operations
-  - Verified on Sourcify
-  
-- **DynamicAPRController**: 0x14dFA6b6785643850e5c09336F7Cd5971458e28d
-  - Automatic APR adjustment system (10-30% dynamic range)
-  - Current APR: 15%
-  - Connected to BasketIndex vault and existing staking engine
-
-**CombinedStaking Contracts:**
-- **LiquidityVault**: 0xd070776c3603138a1d4b93a2f668d604a4a99e34
-  - LP token staking vault for AXM liquidity providers
-  
-- **GovernanceDividendPool**: 0x63df9De7F74c15dE702De7D2fC7eB8205bfAC0B8
-  - AXM token staking with BNB rewards (0.01 BNB per 30 days)
-  
-- **SWFVaultAdapter**: 0xeAFF0dB435DABB6f142A934e17123bfa752dbbd5
-  - Vault integration adapter for seamless token deposits
-
-**KeyGrow Rent-to-Own Contracts:**
-- **RealEstateAcquisitionFund**: 0xe097881D32D67ED1Dd9df8203F188CD186f345dc
-  - Manages 20% of platform revenue for homeownership assistance
-  - Tier-based renter allocations (Bronze/Silver/Gold/Platinum)
-  - Time-weighted multipliers (1.0x - 2.0x)
-  - Monthly distribution periods
-  
-- **AXIOMRevenueRouter**: 0xfFFb71e13c6cd5ce12612D1c7293BF0BAbcdab73
-  - Auto-splits all platform revenue: 80% Treasury, 20% KeyGrow
-  - Tracks revenue by source (NFT, Staking, Banking, Investments)
-  - Supports BNB and ERC20 tokens
-
-**Original Contracts:**
-- **AXM Token**: 0x83E17aeB148d9b4b7Be0Be7C87dd73531a5a5738
-- **Staking Engine**: 0x0165878A594ca255338adfa4d48449f69242Eb8F
-- **Basket Vault**: 0x5FC8d32690cc91D4c39d9d3abcBD16989F875707
+Smart contracts deployed include: BasketIndex, AdvancedStaking, EnhancedNFTMarketplace, DynamicAPRController, LiquidityVault, GovernanceDividendPool, SWFVaultAdapter, RealEstateAcquisitionFund, and AXIOMRevenueRouter.
 
 ### KeyGrow Rent-to-Own Program
-AXIOM includes the KeyGrow initiative, where **20% of all platform revenue** (including transaction fees, staking fees, and NFT marketplace fees) is allocated to a Real Estate Acquisition Fund. This fund helps renters transition to homeownership by providing down payment assistance and property acquisition support. Full specification available in `docs/KeyGrow_RentToOwn_Specification.md`.
+20% of all platform revenue is allocated to a Real Estate Acquisition Fund through the AXIOMRevenueRouter (80% Treasury, 20% KeyGrow). This fund assists renters with down payments and property acquisition based on tiered allocations and time-weighted multipliers.
 
-### Contract Integration Status
-**Phase 1: Foundation (COMPLETE - October 23, 2025)**
-- ✅ ABIs extracted for all 9 deployed contracts
-- ✅ ContractProvider service created (singleton pattern, retry logic, ethers.js v6)
-- ✅ Database schema extended with 9 new tables:
-  - KeyGrow: keygrow_renters, keygrow_allocations, keygrow_properties
-  - NFT Marketplace: nft_listings, nft_bids, nft_sales
-  - Advanced Staking: advanced_stakes, staking_rewards
-  - Revenue: revenue_distributions
-- ✅ API routers mounted at:
-  - `/api/keygrow` - KeyGrow rent-to-own endpoints
-  - `/api/nft-marketplace` - NFT marketplace endpoints
-  - `/api/advanced-staking` - Advanced staking endpoints
-  - `/api/revenue-router` - Revenue tracking endpoints
-- ✅ All endpoints tested and operational
-- ✅ Existing platform features verified intact
-
-**Phase 2: Contract Read Operations (COMPLETE - October 23, 2025)**
-- ✅ KeyGrowService: getRenterInfo, getPendingAllocations, getFundStats using real contract methods
-- ✅ NFTMarketplaceService: getMarketplaceStats, getListingDetails with on-chain listings/auctions count
-- ✅ AdvancedStakingService: getUserStakes, getPendingRewards, getStakingStats (100 AXM daily rewards)
-- ✅ RevenueRouterService: getRouterStats (80/20 treasury/KeyGrow split), getDistributionHistory
-- ✅ All 4 contract services integrated with BSC Mainnet and returning live blockchain data
-- ✅ Error handling with graceful degradation for all contract calls
-- ✅ Bug fixes: BigInt TypeError in rewards calculation, undefined stake count in API response
-- ✅ 17+ API endpoints tested and verified working with real contract data
-
-**Phase 3: Contract Write Operations (COMPLETE - October 23, 2025)**
-- ✅ Transaction building infrastructure: ContractProvider.buildTransactionData using ethers.js v6 Interface.encodeFunctionData
-- ✅ All write endpoints return unsigned transaction data {to, data, value, chainId} for frontend wallet signing
-- ✅ KeyGrow write operations: registerAsRenter, claimAllocation, updateTier
-- ✅ NFT Marketplace write operations: listItem, placeBid, buyItem, cancelListing
-- ✅ Advanced Staking write operations: stakeNFT, unstakeNFT, claimRewards
-- ✅ Database confirmation endpoints: POST /confirm-* routes for recording confirmed transactions
-- ✅ ABI method verification: All contract calls use correct method names and parameter counts
-- ✅ All 3 critical write flows tested and verified: registerAsRenter (0 params), stakeNFT (tokenId + tier), listItem (NFT params)
-- ✅ Architect review passed: No blocking defects, transaction-ready for production use
-
-**Phase 4: Frontend Wallet Integration (COMPLETE - October 23, 2025)**
-- ✅ TransactionManager service created using ethers.js v5 (eth_sendTransaction, waitForTransaction, gas estimation)
-- ✅ Frontend contract services: KeyGrowService, NFTMarketplaceService, AdvancedStakingService
-- ✅ Full transaction flow: Build tx on backend → Sign with wallet → Send to blockchain → Confirm in database
-- ✅ useContractTransactions React hook: Integrates with WalletContext for seamless component integration
-- ✅ Provider detection: Supports Binance Wallet, MetaMask, and generic Web3 wallets
-- ✅ Transaction status management: Loading, success, error states with UI feedback
-- ✅ Example component: KeyGrowRegisterButton demonstrates complete usage pattern
-- ✅ Critical bug fix: txManager now properly recreates when wallet connects via isConnected/account dependencies
-- ✅ Architect review passed: Frontend ready for end-to-end contract interactions
-
-**Phase 5: UI Pages for Contract Systems (COMPLETE - October 23, 2025)**
-- ✅ KeyGrow Dashboard Page (KeyGrowDashboardPage.tsx): Tiered registration, renter status display, allocation claims with transaction feedback
-- ✅ NFT Marketplace Page (NFTMarketplacePage.tsx): Browse listings, create/cancel listings, buy/bid functionality with tab navigation
-- ✅ Advanced Staking Page (AdvancedStakingPage.tsx): Stake/unstake NFTs, claim rewards, tier-aware APR display (10-30%)
-- ✅ Routes added to App.tsx: /keygrow-dashboard, /nft-marketplace, /advanced-staking
-- ✅ Consistent design system: Blue/white theme, wallet gating, loading states, transaction status displays
-- ✅ Integration with useContractTransactions hook and WalletContext for seamless wallet interactions
-- ✅ Real-time data loading from contract services with automatic refresh after successful transactions
-- ✅ Architect review passed: All 3 pages production-ready with proper UX patterns
-
-**Phase 6: Real-time Blockchain Event Listeners (COMPLETE - October 23, 2025)**
-- ✅ ContractEventListener service: Monitors all 4 contract systems (KeyGrow, NFTMarketplace, AdvancedStaking, RevenueRouter) for blockchain events
-- ✅ Database schema: contract_events table with JSONB storage, indexes on contract_name, event_name, transaction_hash, block_number
-- ✅ WebSocket server: Real-time event broadcasting at /ws/events with subscription management, heartbeat, auto-reconnect
-- ✅ Frontend hooks: useContractEvents with specialized variants (useKeygrowEvents, useNFTMarketplaceEvents, useAdvancedStakingEvents)
-- ✅ EventToast component: Real-time notifications with event-specific styling, auto-hide, BSCScan transaction links
-- ✅ UI integration: All 3 pages have event listeners with auto-refresh on relevant blockchain events, live status indicators
-- ✅ Critical bug fix: Ethers.js v6 event property access corrected (event.blockNumber/transactionHash instead of event.log.*)
-- ✅ Event pipeline: Blockchain → Listener → Database → WebSocket → Frontend → Auto-refresh
-- ✅ Architect review passed: Production-ready real-time event system with end-to-end verification
-
-**Next Phase**: Automated testing suite, performance monitoring, production deployment optimization
+### Real-time Blockchain Event Processing
+The system includes a `ContractEventListener` service that monitors all contract systems for blockchain events, stores them in a `contract_events` PostgreSQL table, and broadcasts them via a WebSocket server for real-time frontend updates and notifications.
 
 ## External Dependencies
 
 ### Blockchain Services
-- **Binance Smart Chain (BSC)**: Primary network, PancakeSwap integration.
-- **Polygon Mainnet**: Secondary network.
-- **MetaMask Integration**: Wallet connection.
-- **Ethers.js**: Blockchain interaction.
+- Binance Smart Chain (BSC)
+- Polygon Mainnet
+- MetaMask Integration
+- Ethers.js
 
 ### Third-Party APIs
-- **Alchemy API**: Blockchain RPC.
-- **BSCScan/Polygonscan**: Contract verification and data.
-- **SendGrid**: Email notifications.
-- **Stripe**: Payment processing.
-- **CoinGecko API**: Cryptocurrency market data.
-- **Alpha Vantage API**: Stock market data.
-- **Financial Modeling Prep (FMP)**: Fallback market data.
+- Alchemy API
+- BSCScan/Polygonscan
+- SendGrid
+- Stripe
+- CoinGecko API
+- Alpha Vantage API
+- Financial Modeling Prep (FMP)
 
 ### Cloud Storage
-- **Google Cloud Storage**: Document and asset storage.
-- **Storacha (Web3 Storage)**: Decentralized storage for NFT metadata.
+- Google Cloud Storage
+- Storacha (Web3 Storage)
 
 ### Database & Infrastructure
-- **PostgreSQL**: Primary database.
-- **Neon Database**: Serverless PostgreSQL.
-- **MongoDB**: Referral tracking and analytics.
+- PostgreSQL
+- Neon Database
+- MongoDB
 
 ### Development Tools
-- **Hardhat**: Smart contract development.
-- **OpenZeppelin Contracts**: Security-audited smart contract libraries.
-- **Drizzle Kit**: Database migration and schema management.
+- Hardhat
+- OpenZeppelin Contracts
+- Drizzle Kit

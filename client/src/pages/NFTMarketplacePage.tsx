@@ -9,7 +9,7 @@ import { Card, CardContent } from '../components/ui/card';
 import { Input } from '../components/ui/input';
 
 export default function NFTMarketplacePage() {
-  const { isConnected, isLoggedIn, account } = useWallet();
+  const { isConnected, isLoggedIn, account, connectWallet, isConnecting, loginError } = useWallet();
   const {
     createNFTListing,
     buyNFT,
@@ -108,6 +108,14 @@ export default function NFTMarketplacePage() {
     }
   };
 
+  const handleWalletConnect = async () => {
+    try {
+      await connectWallet();
+    } catch (error: any) {
+      console.error('❌ Wallet connection failed:', error);
+    }
+  };
+
   if (!isConnected || !isLoggedIn) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white p-6">
@@ -119,9 +127,19 @@ export default function NFTMarketplacePage() {
             <p className="text-gray-600 mb-6">
               Please connect your wallet to access the NFT marketplace
             </p>
-            <Button className="bg-blue-600 hover:bg-blue-700">
-              Connect Wallet
+            <Button 
+              onClick={handleWalletConnect}
+              disabled={isConnecting}
+              className="bg-blue-600 hover:bg-blue-700 text-white"
+            >
+              {isConnecting ? '🔄 Connecting...' : '🔗 Connect Wallet'}
             </Button>
+            {loginError && (
+              <div className="mt-4 bg-red-50 border border-red-200 rounded-lg p-4">
+                <div className="text-sm font-medium text-red-800 mb-2">Connection Error:</div>
+                <div className="text-xs text-red-600">{loginError}</div>
+              </div>
+            )}
           </div>
         </div>
       </div>
