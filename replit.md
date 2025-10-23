@@ -23,9 +23,21 @@ Smart Contract UI Pages (6 of 9 deployed contracts):
 - **KeyGrow/RealEstateAcquisitionFund** (0xd070776c3603138a1d4b93a2f668d604a4a99e34): Rent-to-own enrollment and tier management
 - **BasketIndex** (0x06b88f3Faa07215F6f5fb0A10A3F058D3f25ecF6): Diversified crypto portfolio token with mint/burn
 - **DynamicAPRController** (0x14dFA6b6785643850e5c09336F7Cd5971458e28d): Real-time APR dashboard, simulator, deposit impact curve, adjustment history
-- **LiquidityVault** (0xd070776c3603138a1d4b93a2f668d604a4a99e34): LP token staking vault with stake/unstake interface, rewards tracking, staking history with event timeline
+- **LiquidityVault** (0xd070776c3603138a1d4b93a2f668d604a4a99e34): LP token staking vault with stake/unstake interface, rewards tracking, staking history, and **integrated PancakeSwap liquidity provision** for AXM/BNB and AXM/BUSD pairs with automatic quote calculation, token approvals, slippage protection, and seamless LP token staking workflow
 
 Each page includes comprehensive educational content, real-time blockchain data, transaction capabilities, and wallet integration.
+
+### PancakeSwap DEX Integration
+The LiquidityVault page now features a fully integrated "Provide Liquidity" component that connects directly to PancakeSwap V2 on BSC. Users can:
+- Select trading pairs (AXM/BNB or AXM/BUSD)
+- View real-time pool ratios and reserves
+- Add liquidity with automatic quote calculation
+- Approve tokens with one-click approval flow
+- Configure slippage tolerance (0.1-5%) and transaction deadlines
+- Track LP token balances
+- Seamlessly transition from liquidity provision to LP token staking
+
+The backend caches PancakeSwap pair data for improved performance, and the frontend handles all wallet interactions using ethers.js v5 with proper error handling and security measures.
 
 ### Database Layer
 PostgreSQL is the primary database, utilizing Drizzle ORM for schema management. User authentication includes bcrypt hashing, and session management is handled via `connect-pg-simple`. The banking infrastructure supports high-yield savings, CDs, checking accounts, inter-account transfers, and detailed transaction histories with atomic, decimal-safe, and idempotent operations.
