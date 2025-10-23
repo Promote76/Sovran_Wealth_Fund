@@ -5,6 +5,9 @@ import { Card, CardContent } from '../components/ui/card';
 import { Input } from '../components/ui/input';
 import axios from 'axios';
 import ProvideLiquidity from '../components/ProvideLiquidity';
+import { ethers } from 'ethers';
+import { CONTRACTS, ERC20_ABI } from '../config/contracts';
+import LiquidityVaultABI from '../abis/LiquidityVault.json';
 
 interface VaultStats {
   lpTokenAddress: string;
@@ -44,6 +47,14 @@ export default function LiquidityVaultPage() {
   const [loading, setLoading] = useState(true);
   const [stakeAmount, setStakeAmount] = useState('');
   const [unstakeAmount, setUnstakeAmount] = useState('');
+  const [isStaking, setIsStaking] = useState(false);
+  const [isUnstaking, setIsUnstaking] = useState(false);
+  const [isClaiming, setIsClaiming] = useState(false);
+  const [isApproving, setIsApproving] = useState(false);
+  const [txMessage, setTxMessage] = useState('');
+  const [txError, setTxError] = useState('');
+  const [lpBalance, setLpBalance] = useState('0');
+  const [allowance, setAllowance] = useState('0');
 
   useEffect(() => {
     loadStats();
@@ -100,6 +111,162 @@ export default function LiquidityVaultPage() {
 
   const formatDate = (timestamp: number) => {
     return new Date(timestamp * 1000).toLocaleString();
+  };
+
+  // Get signer from wallet
+  const getSigner = async () => {
+    if (!window.ethereum) {
+      throw new Error('No Web3 provider found');
+    }
+    const provider = new ethers.providers.Web3Provider(window.ethereum);
+    return provider.getSigner();
+  };
+
+  // Load LP token balance and allowance
+  const loadLPBalance = async () => {
+    if (!account || !stats) return;
+
+    try {
+      const signer = await getSigner();
+      const lpTokenContract = new ethers.Contract(stats.lpTokenAddress, ERC20_ABI, signer);
+      
+      const balance = await lpTokenContract.balanceOf(account);
+      setLpBalance(ethers.utils.formatEther(balance));
+
+      const vaultAddress = ethers.utils.getAddress(CONTRACTS.BSC_MAINNET.LIQUIDITY_VAULT);
+      const allowed = await lpTokenContract.allowance(account, vaultAddress);
+      setAllowance(allowed.toString());
+    } catch (error) {
+      console.error('Failed to load LP balance:', error);
+    }
+  };
+
+  // Load LP balance when account or stats change
+  useEffect(() => {
+    if (account && stats) {
+      loadLPBalance();
+    }
+  }, [account, stats]);
+
+  // Approve LP tokens for staking
+  const handleApprove = async () => {
+    if (!account || !stats) return;
+
+    setIsApproving(true);
+    setTxError('');
+    setTxMessage('');
+
+    try {
+      const signer = await getSigner();
+      const lpTokenContract = new ethers.Contract(stats.lpTokenAddress, ERC20_ABI, signer);
+      const vaultAddress = ethers.utils.getAddress(CONTRACTS.BSC_MAINNET.LIQUIDITY_VAULT);
+
+      // Approve maximum amount
+      const maxAmount = ethers.constants.MaxUint256;
+      const tx = await lpTokenContract.approve(vaultAddress, maxAmount);
+      
+      setTxMessage('⏳ Approval transaction submitted... waiting for confirmation');
+      await tx.wait();
+      
+      setTxMessage('✅ LP tokens approved successfully!');
+      await loadLPBalance(); // Refresh allowance
+      setTimeout(() => setTxMessage(''), 5000);
+    } catch (error: any) {
+      console.error('Approval error:', error);
+      setTxError(`Failed to approve: ${error?.message || 'Unknown error'}`);
+    } finally {
+      setIsApproving(false);
+    }
+  };
+
+  // Stake LP tokens
+  const handleStake = async () => {
+    if (!account || !stats || !stakeAmount) return;
+
+    setIsStaking(true);
+    setTxError('');
+    setTxMessage('');
+
+    try {
+      const signer = await getSigner();
+      const vaultAddress = ethers.utils.getAddress(CONTRACTS.BSC_MAINNET.LIQUIDITY_VAULT);
+      const vaultContract = new ethers.Contract(vaultAddress, LiquidityVaultABI, signer);
+
+      const amount = ethers.utils.parseEther(stakeAmount);
+
+      // Check allowance
+      if (ethers.BigNumber.from(allowance).lt(amount)) {
+        setTxError('Insufficient allowance. Please approve LP tokens first.');
+        return;
+      }
+
+      const tx = await vaultContract.deposit(amount);
+      setTxMessage('⏳ Staking transaction submitted... waiting for confirmation');
+      
+      await tx.wait();
+      setTxMessage('✅ LP tokens staked successfully!');
+      
+      // Refresh data
+      await Promise.all([loadUserStake(), loadStats(), loadLPBalance(), loadHistory()]);
+      setStakeAmount('');
+      setTimeout(() => setTxMessage(''), 5000);
+    } catch (error: any) {
+      console.error('Stake error:', error);
+      let errorMessage = error?.message || 'Unknown error';
+      
+      if (errorMessage.toLowerCase().includes('user rejected') || errorMessage.toLowerCase().includes('user denied')) {
+        errorMessage = 'Transaction was cancelled.';
+      } else if (errorMessage.toLowerCase().includes('insufficient')) {
+        errorMessage = 'Insufficient LP token balance.';
+      }
+      
+      setTxError(`Failed to stake: ${errorMessage}`);
+    } finally {
+      setIsStaking(false);
+    }
+  };
+
+  // Unstake LP tokens
+  const handleUnstake = async () => {
+    if (!account || !stats || !unstakeAmount) return;
+
+    setIsUnstaking(true);
+    setTxError('');
+    setTxMessage('');
+
+    try {
+      const signer = await getSigner();
+      const vaultAddress = ethers.utils.getAddress(CONTRACTS.BSC_MAINNET.LIQUIDITY_VAULT);
+      const vaultContract = new ethers.Contract(vaultAddress, LiquidityVaultABI, signer);
+
+      const amount = ethers.utils.parseEther(unstakeAmount);
+
+      const tx = await vaultContract.withdraw(amount);
+      setTxMessage('⏳ Unstaking transaction submitted... waiting for confirmation');
+      
+      await tx.wait();
+      setTxMessage('✅ LP tokens unstaked successfully!');
+      
+      // Refresh data
+      await Promise.all([loadUserStake(), loadStats(), loadLPBalance(), loadHistory()]);
+      setUnstakeAmount('');
+      setTimeout(() => setTxMessage(''), 5000);
+    } catch (error: any) {
+      console.error('Unstake error:', error);
+      let errorMessage = error?.message || 'Unknown error';
+      
+      if (errorMessage.toLowerCase().includes('user rejected') || errorMessage.toLowerCase().includes('user denied')) {
+        errorMessage = 'Transaction was cancelled.';
+      } else if (errorMessage.toLowerCase().includes('lock period')) {
+        errorMessage = 'Cannot unstake yet. Lock period has not ended.';
+      } else if (errorMessage.toLowerCase().includes('insufficient')) {
+        errorMessage = 'Insufficient staked balance.';
+      }
+      
+      setTxError(`Failed to unstake: ${errorMessage}`);
+    } finally {
+      setIsUnstaking(false);
+    }
   };
 
   const handleWalletConnect = async () => {
@@ -372,6 +539,18 @@ export default function LiquidityVaultPage() {
           </Card>
         )}
 
+        {/* Transaction Messages */}
+        {txMessage && (
+          <div className="bg-green-50 border-2 border-green-200 rounded-lg p-4">
+            <div className="text-green-800 font-medium">{txMessage}</div>
+          </div>
+        )}
+        {txError && (
+          <div className="bg-red-50 border-2 border-red-200 rounded-lg p-4">
+            <div className="text-red-800 font-medium">{txError}</div>
+          </div>
+        )}
+
         {/* Stake/Unstake Actions */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <Card className="border-2 border-green-200">
@@ -392,12 +571,28 @@ export default function LiquidityVaultPage() {
                     onChange={(e) => setStakeAmount(e.target.value)}
                     className="text-lg"
                   />
+                  <div className="mt-2 text-xs text-gray-600">
+                    Your LP balance: {parseFloat(lpBalance).toFixed(4)} LP tokens
+                  </div>
                 </div>
+                
+                {/* Check if approval is needed */}
+                {stakeAmount && parseFloat(stakeAmount) > 0 && ethers.BigNumber.from(allowance).lt(ethers.utils.parseEther(stakeAmount)) && (
+                  <Button
+                    onClick={handleApprove}
+                    className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+                    disabled={isApproving}
+                  >
+                    {isApproving ? '⏳ Approving...' : '✅ Approve LP Tokens'}
+                  </Button>
+                )}
+                
                 <Button
+                  onClick={handleStake}
                   className="w-full bg-green-600 hover:bg-green-700 text-white"
-                  disabled={!stakeAmount || parseFloat(stakeAmount) < parseFloat(stats.minimumStake)}
+                  disabled={!stakeAmount || parseFloat(stakeAmount) < parseFloat(stats.minimumStake) || isStaking || ethers.BigNumber.from(allowance).lt(ethers.utils.parseEther(stakeAmount || '0'))}
                 >
-                  Stake LP Tokens
+                  {isStaking ? '⏳ Staking...' : 'Stake LP Tokens'}
                 </Button>
                 <div className="text-xs text-gray-500">
                   Minimum stake: {stats.minimumStake} LP tokens
@@ -426,10 +621,11 @@ export default function LiquidityVaultPage() {
                   />
                 </div>
                 <Button
+                  onClick={handleUnstake}
                   className="w-full bg-orange-600 hover:bg-orange-700 text-white"
-                  disabled={!unstakeAmount || !userStake || parseFloat(unstakeAmount) > parseFloat(userStake.amount)}
+                  disabled={!unstakeAmount || !userStake || parseFloat(unstakeAmount) > parseFloat(userStake.amount) || isUnstaking}
                 >
-                  Unstake LP Tokens
+                  {isUnstaking ? '⏳ Unstaking...' : 'Unstake LP Tokens'}
                 </Button>
                 {userStake && (
                   <div className="text-xs text-gray-500">
