@@ -212,6 +212,7 @@ const Layout: React.FC<LayoutProps> = ({
     { path: '/airdrop', label: 'Airdrop' },
     { path: '/swf-banking', label: 'Banking' },
     { path: '/investments', label: 'Investments' },
+    { path: '/basket-index', label: 'Basket Index' },
     { path: '/nft-marketplace', label: 'NFT Market' },
     { path: '/real-estate', label: 'Real Estate' },
     { path: '/keygrow-dashboard', label: 'KeyGrow' },
