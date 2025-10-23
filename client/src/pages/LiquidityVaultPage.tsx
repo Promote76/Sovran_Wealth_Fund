@@ -4,6 +4,7 @@ import { Button } from '../components/ui/button';
 import { Card, CardContent } from '../components/ui/card';
 import { Input } from '../components/ui/input';
 import axios from 'axios';
+import ProvideLiquidity from '../components/ProvideLiquidity';
 
 interface VaultStats {
   lpTokenAddress: string;
@@ -311,6 +312,9 @@ export default function LiquidityVaultPage() {
             </CardContent>
           </Card>
         </div>
+
+        {/* Provide Liquidity Section */}
+        <ProvideLiquidity />
 
         {/* User Stake Info */}
         {userStake && (
