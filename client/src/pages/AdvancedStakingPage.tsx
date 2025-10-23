@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useWallet } from '../contexts/WalletContext';
 import { useContractTransactions } from '../hooks/useContractTransactions';
+import { useAdvancedStakingEvents, ContractEvent } from '../hooks/useContractEvents';
+import { EventToast } from '../components/EventToast';
 import { advancedStakingService, type UserStake } from '../services/contracts';
 import { Button } from '../components/ui/button';
 import { Card, CardContent } from '../components/ui/card';
@@ -22,6 +24,21 @@ export default function AdvancedStakingPage() {
   const [stakingStats, setStakingStats] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [showStakeModal, setShowStakeModal] = useState(false);
+  const [toastEvents, setToastEvents] = useState<ContractEvent[]>([]);
+
+  // Real-time event listener
+  const { isConnected: eventStreamConnected } = useAdvancedStakingEvents({
+    personalEventsOnly: true,
+    onEvent: (event) => {
+      console.log('[AdvancedStaking] Real-time event received:', event);
+      setToastEvents(prev => [...prev, event]);
+      
+      // Auto-refresh staking data on relevant events
+      if (['NFTStaked', 'NFTUnstaked', 'RewardsClaimed'].includes(event.eventName)) {
+        setTimeout(() => loadStakingData(), 1000);
+      }
+    }
+  });
 
   // Stake form state
   const [nftContract, setNftContract] = useState('');
@@ -441,6 +458,23 @@ export default function AdvancedStakingPage() {
                 </div>
               </CardContent>
             </Card>
+          </div>
+        )}
+
+        {/* Event Toast Notifications */}
+        {toastEvents.map((event, index) => (
+          <EventToast
+            key={`${event.timestamp}-${index}`}
+            event={event}
+            onClose={() => setToastEvents(prev => prev.filter((_, i) => i !== index))}
+          />
+        ))}
+
+        {/* Event Stream Status */}
+        {eventStreamConnected && (
+          <div className="fixed bottom-4 right-4 bg-green-100 border border-green-300 rounded-full px-3 py-1 text-xs text-green-700 flex items-center gap-2">
+            <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+            Live Updates Active
           </div>
         )}
       </div>

@@ -121,8 +121,8 @@ class ContractEventListener {
           renter,
           tier: Number(tier),
           timestamp: Number(timestamp),
-          blockNumber: event.log.blockNumber,
-          transactionHash: event.log.transactionHash
+          blockNumber: event.blockNumber,
+          transactionHash: event.transactionHash
         };
         
         console.log('[KeyGrow] RenterRegistered:', eventData);
@@ -138,8 +138,8 @@ class ContractEventListener {
           renter,
           amount: ethers.formatEther(amount),
           timestamp: Number(timestamp),
-          blockNumber: event.log.blockNumber,
-          transactionHash: event.log.transactionHash
+          blockNumber: event.blockNumber,
+          transactionHash: event.transactionHash
         };
         
         console.log('[KeyGrow] AllocationClaimed:', eventData);
@@ -155,8 +155,8 @@ class ContractEventListener {
           renter,
           oldTier: Number(oldTier),
           newTier: Number(newTier),
-          blockNumber: event.log.blockNumber,
-          transactionHash: event.log.transactionHash
+          blockNumber: event.blockNumber,
+          transactionHash: event.transactionHash
         };
         
         console.log('[KeyGrow] TierUpdated:', eventData);
@@ -188,8 +188,8 @@ class ContractEventListener {
           nftContract,
           tokenId: tokenId.toString(),
           price: ethers.formatEther(price),
-          blockNumber: event.log.blockNumber,
-          transactionHash: event.log.transactionHash
+          blockNumber: event.blockNumber,
+          transactionHash: event.transactionHash
         };
         
         console.log('[NFTMarketplace] ItemListed:', eventData);
@@ -205,8 +205,8 @@ class ContractEventListener {
           listingId: listingId.toString(),
           buyer,
           price: ethers.formatEther(price),
-          blockNumber: event.log.blockNumber,
-          transactionHash: event.log.transactionHash
+          blockNumber: event.blockNumber,
+          transactionHash: event.transactionHash
         };
         
         console.log('[NFTMarketplace] ItemSold:', eventData);
@@ -222,8 +222,8 @@ class ContractEventListener {
           listingId: listingId.toString(),
           bidder,
           amount: ethers.formatEther(amount),
-          blockNumber: event.log.blockNumber,
-          transactionHash: event.log.transactionHash
+          blockNumber: event.blockNumber,
+          transactionHash: event.transactionHash
         };
         
         console.log('[NFTMarketplace] BidPlaced:', eventData);
@@ -237,8 +237,8 @@ class ContractEventListener {
           contractName: 'NFTMarketplace',
           eventName: 'ListingCancelled',
           listingId: listingId.toString(),
-          blockNumber: event.log.blockNumber,
-          transactionHash: event.log.transactionHash
+          blockNumber: event.blockNumber,
+          transactionHash: event.transactionHash
         };
         
         console.log('[NFTMarketplace] ListingCancelled:', eventData);
@@ -269,8 +269,8 @@ class ContractEventListener {
           nftContract,
           tokenId: tokenId.toString(),
           tier: Number(tier),
-          blockNumber: event.log.blockNumber,
-          transactionHash: event.log.transactionHash
+          blockNumber: event.blockNumber,
+          transactionHash: event.transactionHash
         };
         
         console.log('[AdvancedStaking] NFTStaked:', eventData);
@@ -285,8 +285,8 @@ class ContractEventListener {
           eventName: 'NFTUnstaked',
           user,
           stakeId: stakeId.toString(),
-          blockNumber: event.log.blockNumber,
-          transactionHash: event.log.transactionHash
+          blockNumber: event.blockNumber,
+          transactionHash: event.transactionHash
         };
         
         console.log('[AdvancedStaking] NFTUnstaked:', eventData);
@@ -301,8 +301,8 @@ class ContractEventListener {
           eventName: 'RewardsClaimed',
           user,
           amount: ethers.formatEther(amount),
-          blockNumber: event.log.blockNumber,
-          transactionHash: event.log.transactionHash
+          blockNumber: event.blockNumber,
+          transactionHash: event.transactionHash
         };
         
         console.log('[AdvancedStaking] RewardsClaimed:', eventData);
@@ -333,8 +333,8 @@ class ContractEventListener {
           totalAmount: ethers.formatEther(totalAmount),
           treasuryAmount: ethers.formatEther(treasuryAmount),
           keygrowAmount: ethers.formatEther(keygrowAmount),
-          blockNumber: event.log.blockNumber,
-          transactionHash: event.log.transactionHash
+          blockNumber: event.blockNumber,
+          transactionHash: event.transactionHash
         };
         
         console.log('[RevenueRouter] RevenueDistributed:', eventData);
