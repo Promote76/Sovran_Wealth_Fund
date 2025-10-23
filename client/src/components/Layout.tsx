@@ -215,6 +215,7 @@ const Layout: React.FC<LayoutProps> = ({
     { path: '/basket-index', label: 'Basket Index' },
     { path: '/dynamic-apr', label: 'APR Control' },
     { path: '/liquidity-vault', label: 'LP Vault' },
+    { path: '/governance-dividends', label: 'Governance' },
     { path: '/nft-marketplace', label: 'NFT Market' },
     { path: '/real-estate', label: 'Real Estate' },
     { path: '/keygrow-dashboard', label: 'KeyGrow' },

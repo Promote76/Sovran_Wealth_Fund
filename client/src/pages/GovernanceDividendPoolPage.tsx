@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useWallet } from '../context/WalletContext';
+import { useWallet } from '../contexts/WalletContext';
 import { ethers } from 'ethers';
 
 const GOVERNANCE_POOL_ADDRESS = '0x63df9De7F74c15dE702De7D2fC7eB8205bfAC0B8';
@@ -25,7 +25,7 @@ const ERC20_ABI = [
 ];
 
 const GovernanceDividendPoolPage: React.FC = () => {
-  const { account, provider, connectWallet, disconnectWallet } = useWallet();
+  const { account, connectWallet, disconnectWallet } = useWallet();
   
   // State
   const [loading, setLoading] = useState(false);
@@ -50,10 +50,12 @@ const GovernanceDividendPoolPage: React.FC = () => {
 
   // Load data
   const loadPoolData = async () => {
-    if (!provider || !account) return;
+    if (!account || !window.ethereum) return;
     
     try {
       setLoading(true);
+      
+      const provider = new ethers.providers.Web3Provider(window.ethereum);
       
       const poolContract = new ethers.Contract(
         GOVERNANCE_POOL_ADDRESS,
@@ -83,12 +85,12 @@ const GovernanceDividendPoolPage: React.FC = () => {
         tokenContract.allowance(account, GOVERNANCE_POOL_ADDRESS)
       ]);
 
-      setUserStake(ethers.formatEther(userStakeData));
-      setUserBalance(ethers.formatEther(userBalanceData));
-      setTotalPoolStaked(ethers.formatEther(totalStakedData));
-      setRewardRate(ethers.formatEther(rewardRateData));
+      setUserStake(ethers.utils.formatEther(userStakeData));
+      setUserBalance(ethers.utils.formatEther(userBalanceData));
+      setTotalPoolStaked(ethers.utils.formatEther(totalStakedData));
+      setRewardRate(ethers.utils.formatEther(rewardRateData));
       setLastClaimTime(Number(lastClaimData));
-      setAllowance(ethers.formatEther(allowanceData));
+      setAllowance(ethers.utils.formatEther(allowanceData));
       
     } catch (error) {
       console.error('Error loading pool data:', error);
@@ -98,10 +100,10 @@ const GovernanceDividendPoolPage: React.FC = () => {
   };
 
   useEffect(() => {
-    if (account && provider) {
+    if (account) {
       loadPoolData();
     }
-  }, [account, provider]);
+  }, [account]);
 
   // Calculate claimable dividends (simplified - based on time since last claim)
   const calculateClaimable = () => {
@@ -118,16 +120,17 @@ const GovernanceDividendPoolPage: React.FC = () => {
 
   // Approve tokens
   const handleApprove = async () => {
-    if (!provider || !account) return;
+    if (!account || !window.ethereum) return;
     
     try {
       setTxStatus({ type: 'approve', status: 'pending', message: 'Approving AXM tokens...' });
       
+      const provider = new ethers.providers.Web3Provider(window.ethereum);
       const signer = await provider.getSigner();
       const tokenContract = new ethers.Contract(AXM_TOKEN_ADDRESS, ERC20_ABI, signer);
       
       // Approve max amount
-      const maxApproval = ethers.MaxUint256;
+      const maxApproval = ethers.constants.MaxUint256;
       const tx = await tokenContract.approve(GOVERNANCE_POOL_ADDRESS, maxApproval);
       
       setTxStatus({ 
@@ -160,7 +163,7 @@ const GovernanceDividendPoolPage: React.FC = () => {
 
   // Stake tokens
   const handleStake = async () => {
-    if (!provider || !account || !stakeAmount) return;
+    if (!account || !stakeAmount || !window.ethereum) return;
     
     try {
       const amount = parseFloat(stakeAmount);
@@ -171,10 +174,11 @@ const GovernanceDividendPoolPage: React.FC = () => {
       
       setTxStatus({ type: 'stake', status: 'pending', message: 'Staking tokens...' });
       
+      const provider = new ethers.providers.Web3Provider(window.ethereum);
       const signer = await provider.getSigner();
       const poolContract = new ethers.Contract(GOVERNANCE_POOL_ADDRESS, GOVERNANCE_POOL_ABI, signer);
       
-      const amountWei = ethers.parseEther(stakeAmount);
+      const amountWei = ethers.utils.parseEther(stakeAmount);
       const tx = await poolContract.stake(amountWei);
       
       setTxStatus({ 
@@ -208,7 +212,7 @@ const GovernanceDividendPoolPage: React.FC = () => {
 
   // Withdraw tokens
   const handleWithdraw = async () => {
-    if (!provider || !account || !withdrawAmount) return;
+    if (!account || !withdrawAmount || !window.ethereum) return;
     
     try {
       const amount = parseFloat(withdrawAmount);
@@ -219,10 +223,11 @@ const GovernanceDividendPoolPage: React.FC = () => {
       
       setTxStatus({ type: 'withdraw', status: 'pending', message: 'Withdrawing tokens...' });
       
+      const provider = new ethers.providers.Web3Provider(window.ethereum);
       const signer = await provider.getSigner();
       const poolContract = new ethers.Contract(GOVERNANCE_POOL_ADDRESS, GOVERNANCE_POOL_ABI, signer);
       
-      const amountWei = ethers.parseEther(withdrawAmount);
+      const amountWei = ethers.utils.parseEther(withdrawAmount);
       const tx = await poolContract.withdraw(amountWei);
       
       setTxStatus({ 
@@ -256,11 +261,12 @@ const GovernanceDividendPoolPage: React.FC = () => {
 
   // Claim dividends
   const handleClaim = async () => {
-    if (!provider || !account) return;
+    if (!account || !window.ethereum) return;
     
     try {
       setTxStatus({ type: 'claim', status: 'pending', message: 'Claiming dividends...' });
       
+      const provider = new ethers.providers.Web3Provider(window.ethereum);
       const signer = await provider.getSigner();
       const poolContract = new ethers.Contract(GOVERNANCE_POOL_ADDRESS, GOVERNANCE_POOL_ABI, signer);
       
