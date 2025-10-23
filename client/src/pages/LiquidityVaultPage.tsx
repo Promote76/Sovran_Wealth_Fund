@@ -245,6 +245,9 @@ export default function LiquidityVaultPage() {
                   </div>
                 </CardContent>
               </Card>
+
+              {/* Provide Liquidity Component - Available Without Wallet */}
+              <ProvideLiquidity />
             </div>
           </div>
         </div>
