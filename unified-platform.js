@@ -745,13 +745,15 @@ const keygrowRouter = require('./server/routes/keygrow');
 const nftMarketplaceRouter = require('./server/routes/nft-marketplace');
 const advancedStakingRouter = require('./server/routes/advanced-staking');
 const revenueRouterAPI = require('./server/routes/revenue-router');
+const basketIndexRouter = require('./server/routes/basketIndex');
 
 app.use('/api/keygrow', keygrowRouter);
 app.use('/api/nft-marketplace', nftMarketplaceRouter);
 app.use('/api/advanced-staking', advancedStakingRouter);
 app.use('/api/revenue-router', revenueRouterAPI);
+app.use('/api/basket-index', basketIndexRouter);
 
-console.log('✅ New contract routers mounted: KeyGrow, NFT Marketplace, Advanced Staking, Revenue Router');
+console.log('✅ New contract routers mounted: KeyGrow, NFT Marketplace, Advanced Staking, Revenue Router, Basket Index');
 
 // ========================================
 // SAVINGS ACCOUNT API ENDPOINTS
