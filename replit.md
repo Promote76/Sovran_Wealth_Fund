@@ -32,13 +32,16 @@ Each page includes comprehensive educational content, real-time blockchain data,
 
 ### PancakeSwap DEX Integration
 The LiquidityVault page now features a fully integrated "Provide Liquidity" component that connects directly to PancakeSwap V2 on BSC. Users can:
-- Select trading pairs (AXM/BNB or AXM/BUSD)
+- Select trading pairs (SWF/BNB or SWF/BUSD)
 - View real-time pool ratios and reserves
 - Add liquidity with automatic quote calculation
 - Approve tokens with one-click approval flow
 - Configure slippage tolerance (0.1-5%) and transaction deadlines
 - Track LP token balances
 - Seamlessly transition from liquidity provision to LP token staking
+
+**Active Liquidity Pools:**
+- **SWF-WBNB V2 Pool**: `0x3aA970cD91f792427CF28Bc687B4713Ee26e2090` (Created via PancakeSwap V2 addLiquidityETH)
 
 The backend caches PancakeSwap pair data for improved performance, and the frontend handles all wallet interactions using ethers.js v5 with proper error handling and security measures.
 
