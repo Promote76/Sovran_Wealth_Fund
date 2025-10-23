@@ -131,26 +131,53 @@ export default function ProvideLiquidity() {
   };
 
   const checkAllowances = async () => {
-    if (!account) return;
+    if (!account || !pairInfo) return;
     
     try {
       const signer = await getSigner();
-      const tokenAContract = new ethers.Contract(selectedPair.tokenA, ERC20ABI, signer);
-      const allowanceA = await tokenAContract.allowance(account, PANCAKESWAP_CONFIG.ROUTER_V2);
+      
+      // Normalize addresses
+      const tokenAAddress = ethers.utils.getAddress(selectedPair.tokenA);
+      const routerAddress = ethers.utils.getAddress(PANCAKESWAP_CONFIG.ROUTER_V2);
+      
+      // Fetch decimals if missing from pairInfo
+      let decimalsA = pairInfo.decimalsA;
+      if (!decimalsA) {
+        const tokenAContract = new ethers.Contract(tokenAAddress, ERC20ABI, signer);
+        decimalsA = await tokenAContract.decimals();
+        console.warn('Token A decimals missing from pairInfo, fetched on-chain:', decimalsA);
+      }
+      
+      const tokenAContract = new ethers.Contract(tokenAAddress, ERC20ABI, signer);
+      const allowanceA = await tokenAContract.allowance(account, routerAddress);
       setAllowanceA(allowanceA.toString());
       
-      // Check if we need approval for token A
-      const amountAWei = ethers.utils.parseEther(amountA || '0');
+      // Check if we need approval for token A (use correct decimals)
+      const amountAWei = ethers.utils.parseUnits(amountA || '0', decimalsA);
       setNeedsApprovalA(allowanceA.lt(amountAWei));
       
       // For native BNB pairs, we don't need approval for token B
       if (!selectedPair.isNative) {
-        const tokenBContract = new ethers.Contract(selectedPair.tokenB, ERC20ABI, signer);
-        const allowanceB = await tokenBContract.allowance(account, PANCAKESWAP_CONFIG.ROUTER_V2);
+        const tokenBAddress = ethers.utils.getAddress(selectedPair.tokenB);
+        
+        // Fetch decimals if missing
+        let decimalsB = pairInfo.decimalsB;
+        if (!decimalsB) {
+          const tokenBContract = new ethers.Contract(tokenBAddress, ERC20ABI, signer);
+          decimalsB = await tokenBContract.decimals();
+          console.warn('Token B decimals missing from pairInfo, fetched on-chain:', decimalsB);
+        }
+        
+        const tokenBContract = new ethers.Contract(tokenBAddress, ERC20ABI, signer);
+        const allowanceB = await tokenBContract.allowance(account, routerAddress);
         setAllowanceB(allowanceB.toString());
         
-        const amountBWei = ethers.utils.parseEther(amountB || '0');
+        const amountBWei = ethers.utils.parseUnits(amountB || '0', decimalsB);
         setNeedsApprovalB(allowanceB.lt(amountBWei));
+      } else {
+        // Reset approval flags for native pairs (BNB doesn't need approval)
+        setAllowanceB('0');
+        setNeedsApprovalB(false);
       }
     } catch (error) {
       console.error('Failed to check allowances:', error);
@@ -216,11 +243,16 @@ export default function ProvideLiquidity() {
     
     try {
       const signer = await getSigner();
-      const tokenContract = new ethers.Contract(tokenAddress, ERC20ABI, signer);
+      
+      // Normalize addresses
+      const normalizedTokenAddress = ethers.utils.getAddress(tokenAddress);
+      const routerAddress = ethers.utils.getAddress(PANCAKESWAP_CONFIG.ROUTER_V2);
+      
+      const tokenContract = new ethers.Contract(normalizedTokenAddress, ERC20ABI, signer);
       
       // Approve a large amount (max uint256) for convenience
       const maxApproval = ethers.constants.MaxUint256;
-      const tx = await tokenContract.approve(PANCAKESWAP_CONFIG.ROUTER_V2, maxApproval);
+      const tx = await tokenContract.approve(routerAddress, maxApproval);
       
       setTxMessage(`Waiting for ${tokenSymbol} approval confirmation...`);
       await tx.wait();
@@ -233,7 +265,8 @@ export default function ProvideLiquidity() {
       setTimeout(() => setTxMessage(''), 3000);
     } catch (error: any) {
       console.error('Approval error:', error);
-      setTxError(`Failed to approve ${tokenSymbol}: ${error.message}`);
+      const errorMessage = error?.error?.message || error?.data?.message || error?.message || 'Unknown error';
+      setTxError(`Failed to approve ${tokenSymbol}: ${errorMessage}`);
     } finally {
       setIsApproving(false);
     }
@@ -250,16 +283,44 @@ export default function ProvideLiquidity() {
       return;
     }
     
+    if (!pairInfo) {
+      setTxError('Pool information not loaded. Please wait and try again.');
+      return;
+    }
+    
     setIsAddingLiquidity(true);
     setTxError('');
     setTxMessage('Adding liquidity to PancakeSwap...');
     
     try {
       const signer = await getSigner();
-      const routerContract = new ethers.Contract(PANCAKESWAP_CONFIG.ROUTER_V2, PancakeRouterABI, signer);
       
-      const amountADesired = ethers.utils.parseEther(amountA);
-      const amountBDesired = ethers.utils.parseEther(amountB);
+      // Normalize addresses
+      const routerAddress = ethers.utils.getAddress(PANCAKESWAP_CONFIG.ROUTER_V2);
+      const tokenAAddress = ethers.utils.getAddress(selectedPair.tokenA);
+      const tokenBAddress = ethers.utils.getAddress(selectedPair.tokenB);
+      const routerContract = new ethers.Contract(routerAddress, PancakeRouterABI, signer);
+      
+      // Use correct decimals for each token - fetch on-chain if missing
+      let decimalsA = pairInfo.decimalsA;
+      let decimalsB = pairInfo.decimalsB;
+      
+      if (!decimalsA) {
+        const tokenAContract = new ethers.Contract(tokenAAddress, ERC20ABI, signer);
+        decimalsA = await tokenAContract.decimals();
+        console.warn('Token A decimals missing, fetched on-chain:', decimalsA);
+      }
+      
+      if (!decimalsB && !selectedPair.isNative) {
+        const tokenBContract = new ethers.Contract(tokenBAddress, ERC20ABI, signer);
+        decimalsB = await tokenBContract.decimals();
+        console.warn('Token B decimals missing, fetched on-chain:', decimalsB);
+      } else if (selectedPair.isNative) {
+        decimalsB = 18; // BNB always has 18 decimals
+      }
+      
+      const amountADesired = ethers.utils.parseUnits(amountA, decimalsA);
+      const amountBDesired = ethers.utils.parseUnits(amountB, decimalsB);
       
       // Calculate minimum amounts with slippage
       const slippageMultiplier = 1 - (slippage / 100);
@@ -275,7 +336,7 @@ export default function ProvideLiquidity() {
       if (selectedPair.isNative) {
         // Add liquidity with native BNB (addLiquidityETH)
         tx = await routerContract.addLiquidityETH(
-          selectedPair.tokenA, // AXM token
+          tokenAAddress,
           amountADesired,
           amountAMin,
           amountBMin,
@@ -286,8 +347,8 @@ export default function ProvideLiquidity() {
       } else {
         // Add liquidity with ERC20 tokens (addLiquidity)
         tx = await routerContract.addLiquidity(
-          selectedPair.tokenA,
-          selectedPair.tokenB,
+          tokenAAddress,
+          tokenBAddress,
           amountADesired,
           amountBDesired,
           amountAMin,
@@ -298,9 +359,10 @@ export default function ProvideLiquidity() {
       }
       
       setTxMessage('Waiting for transaction confirmation...');
-      await tx.wait();
+      const receipt = await tx.wait();
       
       setTxMessage('✅ Liquidity added successfully!');
+      console.log('Transaction receipt:', receipt);
       
       // Reset form
       setAmountA('');
@@ -314,7 +376,40 @@ export default function ProvideLiquidity() {
       setTimeout(() => setTxMessage(''), 5000);
     } catch (error: any) {
       console.error('Add liquidity error:', error);
-      setTxError(`Failed to add liquidity: ${error.message || 'Unknown error'}`);
+      
+      // Extract detailed error message
+      let errorMessage = 'Unknown error';
+      if (error?.error?.data?.message) {
+        errorMessage = error.error.data.message;
+      } else if (error?.error?.message) {
+        errorMessage = error.error.message;
+      } else if (error?.data?.message) {
+        errorMessage = error.data.message;
+      } else if (error?.message) {
+        errorMessage = error.message;
+      }
+      
+      // Normalize error message for pattern matching
+      const normalizedError = errorMessage.toLowerCase();
+      
+      // Check for common error patterns
+      if (normalizedError.includes('insufficient')) {
+        errorMessage = 'Insufficient balance. Please check your token balances.';
+      } else if (normalizedError.includes('allowance')) {
+        errorMessage = 'Approval required. Please approve tokens first.';
+      } else if (normalizedError.includes('expired')) {
+        errorMessage = 'Transaction deadline expired. Please try again.';
+      } else if (normalizedError.includes('slippage')) {
+        errorMessage = 'Price slippage too high. Try increasing slippage tolerance.';
+      } else if (normalizedError.includes('user rejected') || normalizedError.includes('user denied')) {
+        errorMessage = 'Transaction was cancelled.';
+      } else if (normalizedError.includes('insufficient_a_amount') || normalizedError.includes('insufficient_b_amount')) {
+        errorMessage = 'Insufficient token amount. The pool ratio may have changed. Please refresh and try again.';
+      } else if (normalizedError.includes('excessive_input_amount')) {
+        errorMessage = 'Input amount too large. Please reduce the amount.';
+      }
+      
+      setTxError(`Failed to add liquidity: ${errorMessage}`);
     } finally {
       setIsAddingLiquidity(false);
     }
