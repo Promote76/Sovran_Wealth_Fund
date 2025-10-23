@@ -5,6 +5,7 @@
 
 import SWFVaultAdapterABI from '../abis/SWFVaultAdapter.json';
 import GovernanceDividendPoolABI from '../abis/GovernanceDividendPool.json';
+import AXIOMRevenueRouterABI from '../abis/AXIOMRevenueRouter.json';
 
 export const ERC20_ABI = [
   'function balanceOf(address account) view returns (uint256)',
@@ -25,6 +26,10 @@ export const CONTRACTS = {
     GOVERNANCE_DIVIDEND_POOL: {
       address: '0x63df9De7F74c15dE702De7D2fC7eB8205bfAC0B8',
       abi: GovernanceDividendPoolABI
+    },
+    REVENUE_ROUTER: {
+      address: '0xd070776c3603138a1d4b93a2f668d604a4a99e34',
+      abi: AXIOMRevenueRouterABI
     },
     BASKET_INDEX: '0x06b88f3Faa07215F6f5fb0A10A3F058D3f25ecF6',
     ADVANCED_STAKING: '0x5eE9d1b28c261AE132B6d324b02452bC90750136',

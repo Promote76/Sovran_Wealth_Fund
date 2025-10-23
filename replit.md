@@ -17,13 +17,16 @@ AXIOM operates on BSC and Polygon Mainnets, with the AXM token deployed on both.
 ### Frontend Architecture
 The React/TypeScript frontend provides a comprehensive component library for wallet connectivity, navigation, and blockchain interactions, featuring a professional blue/white theme with sacred geometry elements. Key modules include unified wallet management and dedicated pages for staking, banking, investments, and NFT operations, plus educational content.
 
-Smart Contract UI Pages (6 of 9 deployed contracts):
+Smart Contract UI Pages (9 of 9 deployed contracts - COMPLETE):
 - **AdvancedStaking** (0x5eE9d1b28c261AE132B6d324b02452bC90750136): NFT staking with tiered APR (10-30%)
 - **EnhancedNFTMarketplace** (0xEc973eD81082a1d539F380eF94f6215793410036): NFT listings, bidding, sales with 2.5% fees
 - **KeyGrow/RealEstateAcquisitionFund** (0xd070776c3603138a1d4b93a2f668d604a4a99e34): Rent-to-own enrollment and tier management
 - **BasketIndex** (0x06b88f3Faa07215F6f5fb0A10A3F058D3f25ecF6): Diversified crypto portfolio token with mint/burn
 - **DynamicAPRController** (0x14dFA6b6785643850e5c09336F7Cd5971458e28d): Real-time APR dashboard, simulator, deposit impact curve, adjustment history
 - **LiquidityVault** (0xd070776c3603138a1d4b93a2f668d604a4a99e34): LP token staking vault with stake/unstake interface, rewards tracking, staking history, and **integrated PancakeSwap liquidity provision** for AXM/BNB and AXM/BUSD pairs with automatic quote calculation, token approvals, slippage protection, and seamless LP token staking workflow
+- **GovernanceDividendPool** (0x63df9De7F74c15dE702De7D2fC7eB8205bfAC0B8): Governance token staking with dividend claims, rewards tracking, staking history, and APR display
+- **SWFVaultAdapter** (0xeAFF0dB435DABB6f142A934e17123bfa752dbbd5): Unified vault interface for deposits, withdrawals, balance tracking, and yield analytics
+- **AXIOMRevenueRouter** (0xd070776c3603138a1d4b93a2f668d604a4a99e34): Automated revenue distribution system showing 80/20 split between Treasury and KeyGrow Fund, revenue sources breakdown, distribution history, and transparent on-chain tracking
 
 Each page includes comprehensive educational content, real-time blockchain data, transaction capabilities, and wallet integration.
 

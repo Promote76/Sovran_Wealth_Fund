@@ -208,6 +208,7 @@ const Layout: React.FC<LayoutProps> = ({
         { path: '/liquidity-vault', label: 'Liquidity Vault', isInternal: true },
         { path: '/governance-dividends', label: 'Governance Dividends', isInternal: true },
         { path: '/vault-adapter', label: 'SWF Vault Adapter', isInternal: true },
+        { path: '/revenue-router', label: 'Revenue Router', isInternal: true },
         { path: '/nft-marketplace', label: 'NFT Marketplace', isInternal: true },
         { path: '/real-estate', label: 'Real Estate Fund', isInternal: true }
       ]
