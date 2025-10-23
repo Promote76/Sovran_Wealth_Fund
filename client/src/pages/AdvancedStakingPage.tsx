@@ -162,6 +162,219 @@ export default function AdvancedStakingPage() {
           </p>
         </div>
 
+        {/* Information Section */}
+        <Card className="border-2 border-indigo-200">
+          <CardContent className="p-8">
+            <h2 className="text-3xl font-bold text-gray-900 mb-6 text-center">
+              ⚡ Turn Your NFTs into Income-Generating Assets
+            </h2>
+            
+            <div className="bg-gradient-to-r from-indigo-50 to-blue-50 p-6 rounded-lg mb-6">
+              <h3 className="text-xl font-semibold text-gray-900 mb-3">
+                What is NFT Staking?
+              </h3>
+              <p className="text-gray-700 leading-relaxed mb-4">
+                NFT staking lets you <strong>lock up your NFTs to earn passive income</strong> in AXM tokens. Instead of 
+                NFTs just sitting in your wallet doing nothing, stake them here and earn <strong>10-30% APR</strong> depending 
+                on your tier. Think of it like a savings account, but for your digital collectibles.
+              </p>
+              <p className="text-gray-700 leading-relaxed">
+                Your NFT never leaves your wallet - it's locked by smart contract while earning rewards. You can unstake 
+                anytime to get it back, though early unstaking (before 30 days) may have small penalties to protect the reward pool.
+              </p>
+            </div>
+
+            <div className="grid md:grid-cols-4 gap-4 mb-6">
+              <div className="bg-orange-50 p-5 rounded-lg border-2 border-orange-300 text-center">
+                <div className="text-orange-600 font-bold text-xl mb-2">Bronze</div>
+                <div className="text-3xl font-bold text-gray-900 mb-1">10%</div>
+                <div className="text-sm text-gray-700 leading-relaxed">
+                  <div className="font-semibold">APR</div>
+                  <div className="text-xs mt-1">Entry tier - Start earning steady rewards</div>
+                </div>
+              </div>
+              <div className="bg-gray-50 p-5 rounded-lg border-2 border-gray-400 text-center">
+                <div className="text-gray-700 font-bold text-xl mb-2">Silver</div>
+                <div className="text-3xl font-bold text-gray-900 mb-1">15%</div>
+                <div className="text-sm text-gray-700 leading-relaxed">
+                  <div className="font-semibold">APR</div>
+                  <div className="text-xs mt-1">Mid-tier - Enhanced earning potential</div>
+                </div>
+              </div>
+              <div className="bg-yellow-50 p-5 rounded-lg border-2 border-yellow-400 text-center">
+                <div className="text-yellow-700 font-bold text-xl mb-2">Gold</div>
+                <div className="text-3xl font-bold text-gray-900 mb-1">20%</div>
+                <div className="text-sm text-gray-700 leading-relaxed">
+                  <div className="font-semibold">APR</div>
+                  <div className="text-xs mt-1">Premium - Serious passive income</div>
+                </div>
+              </div>
+              <div className="bg-purple-50 p-5 rounded-lg border-2 border-purple-400 text-center">
+                <div className="text-purple-700 font-bold text-xl mb-2">Platinum</div>
+                <div className="text-3xl font-bold text-gray-900 mb-1">30%</div>
+                <div className="text-sm text-gray-700 leading-relaxed">
+                  <div className="font-semibold">APR</div>
+                  <div className="text-xs mt-1">Elite - Maximum wealth building</div>
+                </div>
+              </div>
+            </div>
+
+            {/* How It Works */}
+            <div className="mb-6">
+              <h3 className="text-2xl font-bold text-gray-900 mb-4 text-center">
+                🚀 How NFT Staking Works (Simple Steps)
+              </h3>
+              <div className="space-y-4">
+                <div className="flex gap-4 items-start">
+                  <div className="bg-blue-600 text-white rounded-full w-10 h-10 flex items-center justify-center font-bold flex-shrink-0">
+                    1
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-gray-900">Choose Your Tier</h4>
+                    <p className="text-gray-700 text-sm">
+                      Select Bronze (10% APR), Silver (15% APR), Gold (20% APR), or Platinum (30% APR) based on how much 
+                      you want to earn. Higher tiers = higher rewards, but require longer commitment for max benefits.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex gap-4 items-start">
+                  <div className="bg-green-600 text-white rounded-full w-10 h-10 flex items-center justify-center font-bold flex-shrink-0">
+                    2
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-gray-900">Stake Your NFT</h4>
+                    <p className="text-gray-700 text-sm">
+                      Enter your NFT contract address and token ID, select your tier, and click "Stake NFT". 
+                      Your NFT gets locked in the smart contract (you still own it!) and immediately starts earning rewards.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex gap-4 items-start">
+                  <div className="bg-purple-600 text-white rounded-full w-10 h-10 flex items-center justify-center font-bold flex-shrink-0">
+                    3
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-gray-900">Earn AXM Tokens Daily</h4>
+                    <p className="text-gray-700 text-sm">
+                      Rewards accrue automatically every day based on your tier's APR. Check back anytime to see your 
+                      growing balance. The longer you stake, the more you earn - compound growth over time!
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex gap-4 items-start">
+                  <div className="bg-orange-600 text-white rounded-full w-10 h-10 flex items-center justify-center font-bold flex-shrink-0">
+                    4
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-gray-900">Claim Rewards Anytime</h4>
+                    <p className="text-gray-700 text-sm">
+                      Click "Claim Rewards" to withdraw your earned AXM to your wallet. You can claim daily, weekly, or 
+                      monthly - totally up to you. Rewards don't expire!
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex gap-4 items-start">
+                  <div className="bg-red-600 text-white rounded-full w-10 h-10 flex items-center justify-center font-bold flex-shrink-0">
+                    5
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-gray-900">Unstake When Ready</h4>
+                    <p className="text-gray-700 text-sm">
+                      Need your NFT back? Click "Unstake" and it returns to your wallet. Best results: stake for 30+ days 
+                      to avoid early unstaking penalties (protects reward pool for other stakers).
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Rewards Calculation */}
+            <div className="bg-yellow-50 border-2 border-yellow-300 rounded-lg p-6 mb-6">
+              <h3 className="text-xl font-semibold text-gray-900 mb-3 flex items-center">
+                <span className="text-2xl mr-2">📊</span>
+                How Rewards Are Calculated
+              </h3>
+              <div className="text-gray-700 leading-relaxed space-y-3">
+                <p>
+                  <strong>Daily rewards = (Your stake value × Tier APR) ÷ 365 days</strong>
+                </p>
+                <div className="bg-white p-4 rounded border border-yellow-200">
+                  <h4 className="font-semibold text-gray-900 mb-2">Example: Gold Tier (20% APR)</h4>
+                  <ul className="text-sm space-y-1">
+                    <li>• You stake an NFT worth <strong>10 AXM</strong></li>
+                    <li>• Gold tier = <strong>20% APR</strong></li>
+                    <li>• Daily reward = (10 × 0.20) ÷ 365 = <strong className="text-green-600">0.0548 AXM/day</strong></li>
+                    <li>• Monthly reward = 0.0548 × 30 = <strong className="text-green-600">~1.64 AXM/month</strong></li>
+                    <li>• Annual reward = <strong className="text-green-600">2 AXM</strong> (20% of 10 AXM)</li>
+                  </ul>
+                </div>
+                <p className="text-sm text-gray-600">
+                  <strong>Pro tip:</strong> Stake multiple NFTs across different tiers to diversify your passive income streams!
+                </p>
+              </div>
+            </div>
+
+            {/* Benefits */}
+            <div className="grid md:grid-cols-3 gap-6 mb-6">
+              <div className="bg-gradient-to-br from-green-50 to-emerald-50 p-5 rounded-lg border-2 border-green-200">
+                <div className="text-2xl mb-2">💸</div>
+                <h4 className="font-semibold text-gray-900 mb-2">Passive Income Stream</h4>
+                <p className="text-sm text-gray-700">
+                  Your NFTs work for you 24/7, earning AXM while you sleep. Set it and forget it - rewards accrue automatically.
+                </p>
+              </div>
+              <div className="bg-gradient-to-br from-blue-50 to-cyan-50 p-5 rounded-lg border-2 border-blue-200">
+                <div className="text-2xl mb-2">🔒</div>
+                <h4 className="font-semibold text-gray-900 mb-2">You Keep Ownership</h4>
+                <p className="text-sm text-gray-700">
+                  NFT stays in your wallet (just locked). No custody risk - you control unstaking. Smart contracts = transparent & secure.
+                </p>
+              </div>
+              <div className="bg-gradient-to-br from-purple-50 to-pink-50 p-5 rounded-lg border-2 border-purple-200">
+                <div className="text-2xl mb-2">📈</div>
+                <h4 className="font-semibold text-gray-900 mb-2">Compound Growth</h4>
+                <p className="text-sm text-gray-700">
+                  Leave rewards unclaimed to compound. Restake earned AXM tokens for exponential growth over time!
+                </p>
+              </div>
+            </div>
+
+            {/* Real Example */}
+            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-lg border-2 border-indigo-300">
+              <h3 className="text-xl font-semibold text-gray-900 mb-4 text-center">
+                💡 Real Example: Mark's NFT Staking Strategy
+              </h3>
+              <div className="grid md:grid-cols-2 gap-6">
+                <div>
+                  <h4 className="font-semibold text-gray-900 mb-2">Mark's Portfolio:</h4>
+                  <ul className="text-sm text-gray-700 space-y-1">
+                    <li>• Owns 5 NFTs worth total <strong>50 AXM</strong></li>
+                    <li>• Splits across tiers: 2 Bronze, 2 Gold, 1 Platinum</li>
+                    <li>• Average APR: <strong>~18%</strong></li>
+                    <li>• Stakes for 1 year without unstaking</li>
+                  </ul>
+                </div>
+                <div>
+                  <h4 className="font-semibold text-gray-900 mb-2">Mark's Results (After 1 Year):</h4>
+                  <ul className="text-sm text-gray-700 space-y-1">
+                    <li>• Total rewards earned: <strong className="text-green-600">~9 AXM</strong></li>
+                    <li>• Monthly passive income: <strong className="text-green-600">~0.75 AXM</strong></li>
+                    <li>• NFTs still owned + appreciated in value</li>
+                    <li>• <strong className="text-green-600">Total portfolio grew 18% in 1 year!</strong></li>
+                  </ul>
+                </div>
+              </div>
+              <p className="text-center text-gray-700 mt-4 font-medium">
+                Mark turned idle NFTs into wealth-building assets - you can too!
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+
         {/* Stats Overview */}
         <div className="grid md:grid-cols-3 gap-6">
           <Card>
