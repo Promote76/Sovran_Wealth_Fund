@@ -339,20 +339,20 @@ export default function ProvideLiquidity() {
         
         {/* Pair Selection */}
         <div className="mb-6">
-          <label className="block text-sm font-medium text-gray-700 mb-2">Select Trading Pair</label>
-          <div className="grid grid-cols-2 gap-3">
+          <label className="block text-sm font-medium text-gray-700 mb-3">Select Trading Pair</label>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
             {PANCAKESWAP_CONFIG.SUPPORTED_PAIRS.map((pair) => (
               <button
                 key={pair.name}
                 onClick={() => setSelectedPair(pair)}
-                className={`p-3 rounded-lg border-2 transition-colors ${
+                className={`p-2.5 rounded-lg border-2 transition-all hover:shadow-md ${
                   selectedPair.name === pair.name
-                    ? 'border-blue-600 bg-blue-50 text-blue-900'
-                    : 'border-gray-300 hover:border-blue-400'
+                    ? 'border-blue-600 bg-blue-50 text-blue-900 shadow-md'
+                    : 'border-gray-300 hover:border-blue-400 bg-white'
                 }`}
               >
-                <div className="font-semibold">{pair.name}</div>
-                <div className="text-xs text-gray-600">{pair.symbol}</div>
+                <div className="font-semibold text-sm">{pair.name}</div>
+                <div className="text-xs text-gray-600">{pair.symbol.replace(' LP', '')}</div>
               </button>
             ))}
           </div>
