@@ -3,20 +3,16 @@ const { getContractProvider } = require('./contractProvider');
 
 const LIQUIDITY_VAULT_ADDRESS = '0xd070776c3603138a1d4b93a2f668d604a4a99e34';
 
+// Actual deployed contract ABI - simple deposit/withdraw vault
 const LIQUIDITY_VAULT_ABI = [
   "function lpToken() view returns (address)",
   "function totalStaked() view returns (uint256)",
-  "function stakes(address user) view returns (uint256 amount, uint256 startTime, uint256 lastRewardTime)",
-  "function pendingRewards(address user) view returns (uint256)",
-  "function rewardRate() view returns (uint256)",
-  "function minimumStake() view returns (uint256)",
-  "function lockPeriod() view returns (uint256)",
-  "function stake(uint256 amount)",
-  "function unstake(uint256 amount)",
-  "function claimRewards()",
-  "event Staked(address indexed user, uint256 amount)",
-  "event Unstaked(address indexed user, uint256 amount)",
-  "event RewardsClaimed(address indexed user, uint256 amount)"
+  "function staked(address) view returns (uint256)",
+  "function balanceOf(address user) view returns (uint256)",
+  "function deposit(uint256 amount)",
+  "function withdraw(uint256 amount)",
+  "function owner() view returns (address)",
+  "event Transfer(address indexed from, address indexed to, uint256 value)"
 ];
 
 class LiquidityVaultService {
@@ -44,22 +40,20 @@ class LiquidityVaultService {
     await this.initialize();
     
     try {
-      const [lpToken, totalStaked, rewardRate, minimumStake, lockPeriod] = await Promise.all([
+      const [lpToken, totalStaked] = await Promise.all([
         this.contract.lpToken().catch(() => '0x0'),
-        this.contract.totalStaked().catch(() => 0n),
-        this.contract.rewardRate().catch(() => 0n),
-        this.contract.minimumStake().catch(() => 0n),
-        this.contract.lockPeriod().catch(() => 0n)
+        this.contract.totalStaked().catch(() => 0n)
       ]);
 
       return {
         lpTokenAddress: lpToken,
         totalStaked: ethers.formatEther(totalStaked),
-        rewardRate: ethers.formatEther(rewardRate),
-        rewardRatePerDay: (Number(ethers.formatEther(rewardRate)) * 86400).toFixed(6),
-        minimumStake: ethers.formatEther(minimumStake),
-        lockPeriodSeconds: Number(lockPeriod),
-        lockPeriodDays: (Number(lockPeriod) / 86400).toFixed(1),
+        rewardRate: '0', // Not supported by this contract
+        rewardRatePerDay: '0', // Not supported by this contract
+        minimumStake: '0', // No minimum enforced by this contract
+        lockPeriodSeconds: 0, // No lock period in this contract
+        lockPeriodDays: '0', // No lock period in this contract
+        apy: '0', // Not supported by this contract
         contractAddress: LIQUIDITY_VAULT_ADDRESS
       };
     } catch (error) {
@@ -72,22 +66,16 @@ class LiquidityVaultService {
     await this.initialize();
     
     try {
-      const [stakeInfo, pendingRewards] = await Promise.all([
-        this.contract.stakes(userAddress).catch(() => [0n, 0n, 0n]),
-        this.contract.pendingRewards(userAddress).catch(() => 0n)
-      ]);
-
-      const [amount, startTime, lastRewardTime] = stakeInfo;
-      const now = Math.floor(Date.now() / 1000);
-      const stakeDuration = Number(startTime) > 0 ? now - Number(startTime) : 0;
+      // Use staked(address) which returns the user's staked amount
+      const stakedAmount = await this.contract.staked(userAddress).catch(() => 0n);
 
       return {
-        amount: ethers.formatEther(amount),
-        startTime: Number(startTime),
-        lastRewardTime: Number(lastRewardTime),
-        stakeDurationDays: (stakeDuration / 86400).toFixed(1),
-        pendingRewards: ethers.formatEther(pendingRewards),
-        isStaking: Number(amount) > 0
+        amount: ethers.formatEther(stakedAmount),
+        startTime: 0, // Not tracked by this simple contract
+        lastRewardTime: 0, // Not tracked by this simple contract
+        stakeDurationDays: '0', // Not tracked by this simple contract
+        pendingRewards: '0', // No rewards in this simple contract
+        isStaking: Number(stakedAmount) > 0
       };
     } catch (error) {
       console.error('❌ Get user stake error:', error);
@@ -106,56 +94,11 @@ class LiquidityVaultService {
     await this.initialize();
     
     try {
-      const provider = this.contractProvider.getProvider();
-      const currentBlock = await provider.getBlockNumber();
-      const blocksPerDay = 28800;
-      const fromBlock = Math.max(0, currentBlock - (blocksPerDay * 30));
-
-      const [stakedEvents, unstakedEvents, claimedEvents] = await Promise.all([
-        this.contract.queryFilter(this.contract.filters.Staked(), fromBlock, currentBlock),
-        this.contract.queryFilter(this.contract.filters.Unstaked(), fromBlock, currentBlock),
-        this.contract.queryFilter(this.contract.filters.RewardsClaimed(), fromBlock, currentBlock)
-      ]);
-
-      const events = [];
-
-      for (const event of stakedEvents) {
-        const block = await event.getBlock();
-        events.push({
-          type: 'stake',
-          user: event.args.user,
-          amount: ethers.formatEther(event.args.amount),
-          timestamp: block.timestamp,
-          blockNumber: event.blockNumber,
-          txHash: event.transactionHash
-        });
-      }
-
-      for (const event of unstakedEvents) {
-        const block = await event.getBlock();
-        events.push({
-          type: 'unstake',
-          user: event.args.user,
-          amount: ethers.formatEther(event.args.amount),
-          timestamp: block.timestamp,
-          blockNumber: event.blockNumber,
-          txHash: event.transactionHash
-        });
-      }
-
-      for (const event of claimedEvents) {
-        const block = await event.getBlock();
-        events.push({
-          type: 'claim',
-          user: event.args.user,
-          amount: ethers.formatEther(event.args.amount),
-          timestamp: block.timestamp,
-          blockNumber: event.blockNumber,
-          txHash: event.transactionHash
-        });
-      }
-
-      return events.sort((a, b) => b.timestamp - a.timestamp);
+      // This simple contract doesn't emit Staked/Unstaked events
+      // It only emits Transfer events, which we could parse but are generic
+      // For now, return empty array until a full-featured vault is deployed
+      console.log('⚠️ Staking history not available - simple vault contract has no staking events');
+      return [];
     } catch (error) {
       console.error('❌ Get staking history error:', error);
       return [];
@@ -166,26 +109,16 @@ class LiquidityVaultService {
     await this.initialize();
     
     try {
-      const [totalStaked, rewardRate] = await Promise.all([
-        this.contract.totalStaked(),
-        this.contract.rewardRate()
-      ]);
-
-      if (Number(totalStaked) === 0) {
-        return '0';
-      }
-
-      const dailyRewards = Number(ethers.formatEther(rewardRate)) * 86400;
-      const annualRewards = dailyRewards * 365;
-      const totalStakedFormatted = Number(ethers.formatEther(totalStaked));
-      const apy = (annualRewards / totalStakedFormatted) * 100;
-
-      return apy.toFixed(2);
+      // This simple contract doesn't have reward rates or APY
+      // Return 0 until a full-featured staking vault is deployed
+      return '0';
     } catch (error) {
       console.error('❌ Calculate APY error:', error);
       return '0';
     }
   }
 }
+
+
 
 module.exports = new LiquidityVaultService();
