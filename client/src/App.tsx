@@ -38,6 +38,9 @@ import AirdropPage from './pages/AirdropPage';
 import AXIOMBankingPage from './pages/SWFBankingPage';
 import InvestmentsPage from './pages/InvestmentsPage';
 import RealEstatePage from './pages/RealEstatePage';
+import KeyGrowDashboardPage from './pages/KeyGrowDashboardPage';
+import NFTMarketplacePage from './pages/NFTMarketplacePage';
+import AdvancedStakingPage from './pages/AdvancedStakingPage';
 import SouSouCirclePage from './pages/SouSouCirclePage';
 import OracleDashboardPage from './pages/OracleDashboardPage';
 import DAODashboardPage from './pages/DAODashboardPage';
@@ -445,6 +448,11 @@ function App() {
                               <Route path="/swf-banking" element={<AXIOMBankingPage />} />
                               <Route path="/investments" element={<InvestmentsPage />} />
                               <Route path="/real-estate" element={<RealEstatePage />} />
+                              
+                              {/* Smart Contract Features */}
+                              <Route path="/keygrow-dashboard" element={<KeyGrowDashboardPage />} />
+                              <Route path="/nft-marketplace" element={<NFTMarketplacePage />} />
+                              <Route path="/advanced-staking" element={<AdvancedStakingPage />} />
                               <Route path="/sousou-circle" element={<SouSouCirclePage />} />
                               <Route path="/oracle-dashboard" element={<OracleDashboardPage />} />
                               <Route path="/dao-dashboard" element={<DAODashboardPage />} />
