@@ -3462,18 +3462,60 @@ const server = app.listen(PORT, '0.0.0.0', async () => {
   } catch (error) {
     console.error('❌ Database connection failed:', error);
   }
+  
+  // Initialize Phase 6: Real-time blockchain event listeners
+  try {
+    console.log('\n⚡ =====================================');
+    console.log('⚡  PHASE 6: EVENT LISTENERS');
+    console.log('⚡ =====================================');
+    
+    // Initialize WebSocket event broadcaster
+    const { broadcaster } = require('./server/websocket/eventBroadcaster');
+    broadcaster.initialize(server);
+    console.log('✅ WebSocket event broadcaster initialized at ws://0.0.0.0:5000/ws/events');
+    
+    // Start listening to blockchain events
+    const { eventListener } = require('./server/services/contractEventListener');
+    await eventListener.startListening(pool);
+    console.log('✅ Contract event listeners started (KeyGrow, NFT, Staking, Revenue)');
+    console.log('⚡ Real-time blockchain updates now active!');
+    console.log('⚡ =====================================\n');
+  } catch (error) {
+    console.error('❌ Failed to initialize event listeners:', error);
+    console.error('⚠️  Platform will continue without real-time events');
+  }
 });
 
 // Graceful shutdown
-process.on('SIGTERM', () => {
+process.on('SIGTERM', async () => {
   console.log('🛑 SIGTERM received, shutting down gracefully');
+  
+  // Stop event listeners
+  try {
+    const { eventListener } = require('./server/services/contractEventListener');
+    await eventListener.stopListening();
+    console.log('✅ Event listeners stopped');
+  } catch (error) {
+    console.error('❌ Error stopping event listeners:', error);
+  }
+  
   server.close(() => {
     console.log('✅ Process terminated');
   });
 });
 
-process.on('SIGINT', () => {
+process.on('SIGINT', async () => {
   console.log('🛑 SIGINT received, shutting down gracefully');
+  
+  // Stop event listeners
+  try {
+    const { eventListener } = require('./server/services/contractEventListener');
+    await eventListener.stopListening();
+    console.log('✅ Event listeners stopped');
+  } catch (error) {
+    console.error('❌ Error stopping event listeners:', error);
+  }
+  
   server.close(() => {
     console.log('✅ Process terminated');
   });

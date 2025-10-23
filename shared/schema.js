@@ -539,6 +539,26 @@ const revenueDistributions = pgTable('revenue_distributions', {
   createdAt: timestamp('created_at').defaultNow().notNull()
 });
 
+// ============================================
+// CONTRACT EVENTS TABLE (PHASE 6)
+// ============================================
+
+// Contract Events table - stores all blockchain events from smart contracts
+const contractEvents = pgTable('contract_events', {
+  id: serial('id').primaryKey(),
+  contractName: varchar('contract_name', { length: 50 }).notNull(),
+  eventName: varchar('event_name', { length: 100 }).notNull(),
+  eventData: jsonb('event_data').notNull(),
+  blockNumber: integer('block_number').notNull(),
+  transactionHash: varchar('transaction_hash', { length: 66 }).notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull()
+}, (table) => ({
+  contractNameIdx: index('contract_events_contract_name_idx').on(table.contractName),
+  eventNameIdx: index('contract_events_event_name_idx').on(table.eventName),
+  txHashIdx: index('contract_events_tx_hash_idx').on(table.transactionHash),
+  blockNumberIdx: index('contract_events_block_number_idx').on(table.blockNumber)
+}));
+
 module.exports = {
   users,
   savingsAccounts,
@@ -580,5 +600,7 @@ module.exports = {
   advancedStakes,
   stakingRewards,
   // Revenue Router tables
-  revenueDistributions
+  revenueDistributions,
+  // Contract Events
+  contractEvents
 };
