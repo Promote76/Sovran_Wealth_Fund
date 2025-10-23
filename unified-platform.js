@@ -739,6 +739,21 @@ app.get('/api/wallet/balance/:address', async (req, res) => {
 });
 
 // ========================================
+// NEW CONTRACT INTEGRATION ROUTERS
+// ========================================
+const keygrowRouter = require('./server/routes/keygrow');
+const nftMarketplaceRouter = require('./server/routes/nft-marketplace');
+const advancedStakingRouter = require('./server/routes/advanced-staking');
+const revenueRouterAPI = require('./server/routes/revenue-router');
+
+app.use('/api/keygrow', keygrowRouter);
+app.use('/api/nft-marketplace', nftMarketplaceRouter);
+app.use('/api/advanced-staking', advancedStakingRouter);
+app.use('/api/revenue-router', revenueRouterAPI);
+
+console.log('✅ New contract routers mounted: KeyGrow, NFT Marketplace, Advanced Staking, Revenue Router');
+
+// ========================================
 // SAVINGS ACCOUNT API ENDPOINTS
 // ========================================
 
