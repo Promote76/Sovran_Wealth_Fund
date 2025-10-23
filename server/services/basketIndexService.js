@@ -1,5 +1,5 @@
 const { ethers } = require('ethers');
-const contractProvider = require('./contractProvider');
+const { getContractProvider } = require('./contractProvider');
 
 const BASKET_INDEX_ADDRESS = '0x06b88f3Faa07215F6f5fb0A10A3F058D3f25ecF6';
 
@@ -21,6 +21,7 @@ const BASKET_INDEX_ABI = [
 
 class BasketIndexService {
   constructor() {
+    this.contractProvider = getContractProvider();
     this.contract = null;
     this.initialized = false;
   }
@@ -29,7 +30,7 @@ class BasketIndexService {
     if (this.initialized) return;
     
     try {
-      const provider = await contractProvider.getProvider();
+      const provider = this.contractProvider.getProvider();
       this.contract = new ethers.Contract(BASKET_INDEX_ADDRESS, BASKET_INDEX_ABI, provider);
       this.initialized = true;
       console.log('✅ BasketIndexService initialized');
