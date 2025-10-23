@@ -208,10 +208,13 @@ const Layout: React.FC<LayoutProps> = ({
       dropdownItems: [] // Empty as requested
     },
     { path: '/enhanced-staking', label: 'Staking' },
+    { path: '/advanced-staking', label: 'NFT Staking' },
     { path: '/airdrop', label: 'Airdrop' },
     { path: '/swf-banking', label: 'Banking' },
     { path: '/investments', label: 'Investments' },
+    { path: '/nft-marketplace', label: 'NFT Market' },
     { path: '/real-estate', label: 'Real Estate' },
+    { path: '/keygrow-dashboard', label: 'KeyGrow' },
     { path: '/sousou-circle', label: 'SouSou' },
     { path: '/oracle-dashboard', label: 'Oracle' },
     { path: '/dao-dashboard', label: 'DAO' },
