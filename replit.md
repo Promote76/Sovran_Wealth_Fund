@@ -17,12 +17,13 @@ AXIOM operates on BSC and Polygon Mainnets, with the AXM token deployed on both.
 ### Frontend Architecture
 The React/TypeScript frontend provides a comprehensive component library for wallet connectivity, navigation, and blockchain interactions, featuring a professional blue/white theme with sacred geometry elements. Key modules include unified wallet management and dedicated pages for staking, banking, investments, and NFT operations, plus educational content.
 
-Smart Contract UI Pages (5 of 9 deployed contracts):
+Smart Contract UI Pages (6 of 9 deployed contracts):
 - **AdvancedStaking** (0x5eE9d1b28c261AE132B6d324b02452bC90750136): NFT staking with tiered APR (10-30%)
 - **EnhancedNFTMarketplace** (0xEc973eD81082a1d539F380eF94f6215793410036): NFT listings, bidding, sales with 2.5% fees
 - **KeyGrow/RealEstateAcquisitionFund** (0xd070776c3603138a1d4b93a2f668d604a4a99e34): Rent-to-own enrollment and tier management
 - **BasketIndex** (0x06b88f3Faa07215F6f5fb0A10A3F058D3f25ecF6): Diversified crypto portfolio token with mint/burn
 - **DynamicAPRController** (0x14dFA6b6785643850e5c09336F7Cd5971458e28d): Real-time APR dashboard, simulator, deposit impact curve, adjustment history
+- **LiquidityVault** (0xd070776c3603138a1d4b93a2f668d604a4a99e34): LP token staking vault with stake/unstake interface, rewards tracking, staking history with event timeline
 
 Each page includes comprehensive educational content, real-time blockchain data, transaction capabilities, and wallet integration.
 
