@@ -144,29 +144,16 @@ const Layout: React.FC<LayoutProps> = ({
 
   // Handle wallet connection using identical logic from homepage
   const handleWalletConnect = async () => {
-    console.log('🔗 Connect Advanced Wallet button clicked...');
-    console.log('🔍 DEBUGGING - Current state:', { isLoggedIn, account, isConnected: account ? true : false });
-    
     try {
-      console.log('🔍 DEBUGGING - About to call connectWallet()...');
       await connectWallet();
-      console.log('✅ Wallet connection process initiated');
-      
-      // Auto-navigate to dashboard after successful authentication
-      // We'll check isLoggedIn state change via useEffect below
     } catch (error: any) {
-      console.error('❌ Wallet connection failed:', error);
-      console.error('❌ Error details:', error.message, error.code, error.data);
       showError('Wallet Connection Failed', error.message || 'Unable to connect to your wallet. Please try again.');
     }
   };
 
   // Auto-navigate to dashboard after successful wallet authentication
   useEffect(() => {
-    if (isLoggedIn && account) {
-      console.log('🎯 NAVIGATION: Wallet authenticated successfully in Layout...');
-      // Don't auto-navigate from layout, let user control navigation
-    }
+    // Don't auto-navigate from layout, let user control navigation
   }, [isLoggedIn, account]);
 
 
@@ -477,10 +464,8 @@ const Layout: React.FC<LayoutProps> = ({
                     <Button 
                       onClick={() => {
                         if (!isLoggedIn) {
-                          console.log('🔗 Connect button clicked - triggering wallet connection');
                           handleWalletConnect();
                         } else {
-                          console.log('ℹ️ Already connected, going to dashboard');
                           navigate('/dashboard');
                         }
                       }}
@@ -503,10 +488,9 @@ const Layout: React.FC<LayoutProps> = ({
                       }
                     </div>
                     
-                    {/* Debugging section for wallet connection issues */}
                     {loginError && (
                       <div className="bg-red-50 border border-red-200 rounded-lg p-4 mt-3">
-                        <div className="text-sm font-medium text-red-800 mb-2">🔍 Wallet Connection Debug:</div>
+                        <div className="text-sm font-medium text-red-800 mb-2">Connection Issue</div>
                         <div className="text-xs text-red-600">{loginError}</div>
                         <div className="text-xs text-gray-600 mt-2">
                           • Make sure you're using MetaMask mobile browser or have MetaMask extension installed<br/>
@@ -724,10 +708,8 @@ const Layout: React.FC<LayoutProps> = ({
                       <Button 
                         onClick={() => {
                           if (!isLoggedIn) {
-                            console.log('🔗 Connect button clicked - triggering wallet connection');
                             handleWalletConnect();
                           } else {
-                            console.log('ℹ️ Already connected, going to dashboard');
                             navigate('/dashboard');
                           }
                           setIsMobileMenuOpen(false);
@@ -751,10 +733,9 @@ const Layout: React.FC<LayoutProps> = ({
                         }
                       </div>
                       
-                      {/* Debugging section for wallet connection issues */}
                       {loginError && (
                         <div className="bg-red-50 border border-red-200 rounded-lg p-4 mt-3">
-                          <div className="text-sm font-medium text-red-800 mb-2">🔍 Wallet Connection Debug:</div>
+                          <div className="text-sm font-medium text-red-800 mb-2">Connection Issue</div>
                           <div className="text-xs text-red-600">{loginError}</div>
                           <div className="text-xs text-gray-600 mt-2">
                             • Make sure you're using MetaMask mobile browser or have MetaMask extension installed<br/>
