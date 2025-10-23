@@ -1,28 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useWallet } from '../contexts/WalletContext';
 import { ethers } from 'ethers';
+import { getContractConfig, ERC20_ABI } from '../config/contracts';
 
-const GOVERNANCE_POOL_ADDRESS = '0x63df9De7F74c15dE702De7D2fC7eB8205bfAC0B8';
-const AXM_TOKEN_ADDRESS = '0x83E17aeB148d9b4b7Be0BE7C87dd73531a5a5738';
-
-const GOVERNANCE_POOL_ABI = [
-  'function stake(uint256 amount) external',
-  'function withdraw(uint256 amount) external',
-  'function claim() external',
-  'function stakes(address) view returns (uint256)',
-  'function lastClaim(address) view returns (uint256)',
-  'function totalStaked() view returns (uint256)',
-  'function rewardRate() view returns (uint256)',
-  'function swfToken() view returns (address)'
-];
-
-const ERC20_ABI = [
-  'function balanceOf(address) view returns (uint256)',
-  'function approve(address spender, uint256 amount) external returns (bool)',
-  'function allowance(address owner, address spender) view returns (uint256)',
-  'function symbol() view returns (string)',
-  'function decimals() view returns (uint8)'
-];
+const contracts = getContractConfig();
+const GOVERNANCE_POOL_ADDRESS = contracts.GOVERNANCE_DIVIDEND_POOL.address;
+const GOVERNANCE_POOL_ABI = contracts.GOVERNANCE_DIVIDEND_POOL.abi;
+const AXM_TOKEN_ADDRESS = contracts.AXM_TOKEN;
 
 const GovernanceDividendPoolPage: React.FC = () => {
   const { account, connectWallet, disconnectWallet } = useWallet();
