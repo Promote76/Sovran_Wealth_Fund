@@ -198,46 +198,80 @@ const Layout: React.FC<LayoutProps> = ({
 
   const navigationItems: NavigationItem[] = [
     { path: '/', label: 'Home' },
-    { path: '/user-guide', label: 'User Guide' },
-    { path: '/investors', label: 'Investors' },
     { path: '/dashboard', label: 'Dashboard' },
+    { 
+      path: '#', 
+      label: 'DeFi Services', 
+      isDropdown: true,
+      dropdownItems: [
+        { path: '/swf-banking', label: 'Banking', isInternal: true },
+        { path: '/investments', label: 'Investments', isInternal: true },
+        { path: '/enhanced-staking', label: 'Staking', isInternal: true },
+        { path: '/advanced-staking', label: 'NFT Staking', isInternal: true },
+        { path: '/airdrop', label: 'Airdrop', isInternal: true }
+      ]
+    },
+    { 
+      path: '#', 
+      label: 'Smart Contracts', 
+      isDropdown: true,
+      dropdownItems: [
+        { path: '/basket-index', label: 'Basket Index', isInternal: true },
+        { path: '/dynamic-apr', label: 'APR Control', isInternal: true },
+        { path: '/liquidity-vault', label: 'Liquidity Vault', isInternal: true },
+        { path: '/governance-dividends', label: 'Governance Dividends', isInternal: true },
+        { path: '/vault-adapter', label: 'SWF Vault Adapter', isInternal: true },
+        { path: '/nft-marketplace', label: 'NFT Marketplace', isInternal: true },
+        { path: '/real-estate', label: 'Real Estate Fund', isInternal: true }
+      ]
+    },
+    { 
+      path: '#', 
+      label: 'Programs', 
+      isDropdown: true,
+      dropdownItems: [
+        { path: '/keygrow-dashboard', label: 'KeyGrow', isInternal: true },
+        { path: '/sousou-circle', label: 'SouSou Circle', isInternal: true }
+      ]
+    },
+    { 
+      path: '#', 
+      label: 'Platform', 
+      isDropdown: true,
+      dropdownItems: [
+        { path: '/oracle-dashboard', label: 'Oracle Dashboard', isInternal: true },
+        { path: '/dao-dashboard', label: 'DAO', isInternal: true },
+        { path: '/risk-dashboard', label: 'Risk Dashboard', isInternal: true },
+        { path: '/gold-certificates', label: 'Gold Certificates', isInternal: true },
+        { path: '/liquidity-management', label: 'Liquidity Management', isInternal: true },
+        { path: '/denet-storage', label: 'Storage', isInternal: true }
+      ]
+    },
+    { 
+      path: '#', 
+      label: 'About', 
+      isDropdown: true,
+      dropdownItems: [
+        { path: '/investors', label: 'Investors', isInternal: true },
+        { path: '/user-guide', label: 'User Guide', isInternal: true },
+        { path: '/faq', label: 'FAQ', isInternal: true },
+        { path: '/team', label: 'Team', isInternal: true },
+        { path: '/roadmap', label: 'Roadmap', isInternal: true }
+      ]
+    },
     { 
       path: '#', 
       label: 'Transparency', 
       isDropdown: true,
-      dropdownItems: [] // Empty as requested
-    },
-    { path: '/enhanced-staking', label: 'Staking' },
-    { path: '/advanced-staking', label: 'NFT Staking' },
-    { path: '/airdrop', label: 'Airdrop' },
-    { path: '/swf-banking', label: 'Banking' },
-    { path: '/investments', label: 'Investments' },
-    { path: '/basket-index', label: 'Basket Index' },
-    { path: '/dynamic-apr', label: 'APR Control' },
-    { path: '/liquidity-vault', label: 'LP Vault' },
-    { path: '/governance-dividends', label: 'Governance' },
-    { path: '/vault-adapter', label: 'SWF Vault' },
-    { path: '/nft-marketplace', label: 'NFT Market' },
-    { path: '/real-estate', label: 'Real Estate' },
-    { path: '/keygrow-dashboard', label: 'KeyGrow' },
-    { path: '/sousou-circle', label: 'SouSou' },
-    { path: '/oracle-dashboard', label: 'Oracle' },
-    { path: '/dao-dashboard', label: 'DAO' },
-    { path: '/risk-dashboard', label: 'Risk' },
-    { path: '/gold-certificates', label: 'Gold' },
-    { path: '/liquidity-management', label: 'Liquidity' },
-    { path: '/denet-storage', label: 'Storage' }
+      dropdownItems: [
+        { path: '/transparency-reports', label: 'Reports', isInternal: true },
+        { path: '/compliance', label: 'Compliance', isInternal: true },
+        { path: '/download-logs', label: 'Download Logs', isInternal: true }
+      ]
+    }
   ];
 
-  // Transparency links for hamburger menu
-  const transparencyLinks: FooterLink[] = [
-    { path: '/faq', label: 'FAQ', isExternal: false },
-    { path: '/team', label: 'Team', isExternal: false },
-    { path: '/roadmap', label: 'Roadmap', isExternal: false },
-    { path: '/transparency-reports', label: 'Reports', isExternal: false },
-    { path: '/compliance', label: 'Compliance', isExternal: false },
-    { path: '/download-logs', label: 'Download Logs', isExternal: false }
-  ];
+  // Removed - these are now in main navigation dropdowns
 
   // Footer links (moved from main navigation)
   const footerLinks: FooterLink[] = [
@@ -647,30 +681,6 @@ const Layout: React.FC<LayoutProps> = ({
                   )}
                 </div>
               ))}
-
-              {/* Transparency Section in Mobile Menu */}
-              <div className="border-t border-gray-200 mt-4 pt-4">
-                <div className="px-4 mb-2">
-                  <h3 className="text-sm font-semibold text-blue-800 uppercase tracking-wide">Transparency</h3>
-                </div>
-                {transparencyLinks.map((link) => (
-                  <Link
-                    key={link.path}
-                    to={link.path}
-                    onClick={handleMobileMenuItemClick}
-                    className={`block px-4 py-2 text-sm font-medium transition-colors ${
-                      location.pathname === link.path 
-                        ? 'bg-blue-50 text-blue-800 border-r-4 border-blue-500 font-semibold'
-                        : 'text-gray-600 hover:bg-blue-50 hover:text-blue-800'
-                    }`}
-                  >
-                    <div className="flex items-center space-x-3">
-                      <span className="text-xs opacity-60">📊</span>
-                      <span>{link.label}</span>
-                    </div>
-                  </Link>
-                ))}
-              </div>
             </div>
 
             {/* Mobile Menu Footer */}
