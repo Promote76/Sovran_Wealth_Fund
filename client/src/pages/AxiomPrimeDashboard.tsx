@@ -40,7 +40,7 @@ interface ReferralData {
 export default function AxiomPrimeDashboard() {
   const wallet = useWallet();
   const { address, isConnected } = wallet as any;
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [tier, setTier] = useState<TierInfo | null>(null);
   const [points, setPoints] = useState<PointsData | null>(null);
   const [referral, setReferral] = useState<ReferralData | null>(null);
@@ -48,6 +48,8 @@ export default function AxiomPrimeDashboard() {
   useEffect(() => {
     if (isConnected && address) {
       loadDashboardData();
+    } else {
+      setLoading(false);
     }
   }, [address, isConnected]);
 

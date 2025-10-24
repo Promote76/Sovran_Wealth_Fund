@@ -904,6 +904,67 @@ export default function KeyGrowDashboardPage() {
           </>
         )}
 
+        {/* Axiom Prime Membership Cross-Promotion */}
+        <Card className="border-2 border-purple-500 bg-gradient-to-br from-purple-50 to-pink-50">
+          <CardContent className="p-8">
+            <div className="flex items-start gap-6">
+              <div className="text-6xl">💎</div>
+              <div className="flex-1">
+                <h2 className="text-3xl font-bold text-gray-900 mb-3">
+                  ⚡ Boost Your Rewards with Axiom Prime Membership!
+                </h2>
+                <p className="text-lg text-gray-700 mb-4">
+                  Join Axiom Prime to earn <strong>loyalty multipliers up to 1.6x</strong> on your KeyGrow allocations, 
+                  get <strong>fee discounts up to 50%</strong>, earn points on every transaction, and access a 
+                  <strong>3-level referral system</strong> for passive income. Plus, unlock premium benefits like 
+                  priority support, insurance coverage, and exclusive rewards!
+                </p>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                  <div className="bg-white rounded-lg p-4 text-center shadow-sm">
+                    <div className="text-3xl mb-2">🆓</div>
+                    <div className="font-bold text-gray-900">Free Tier</div>
+                    <div className="text-sm text-gray-600">$0-4,999 TVL</div>
+                    <div className="text-xs text-purple-600 mt-1">1.0x multiplier</div>
+                  </div>
+                  <div className="bg-white rounded-lg p-4 text-center shadow-sm">
+                    <div className="text-3xl mb-2">🥈</div>
+                    <div className="font-bold text-gray-900">Silver</div>
+                    <div className="text-sm text-gray-600">$5K-24K TVL</div>
+                    <div className="text-xs text-purple-600 mt-1">1.2x multiplier</div>
+                  </div>
+                  <div className="bg-white rounded-lg p-4 text-center shadow-sm">
+                    <div className="text-3xl mb-2">🥇</div>
+                    <div className="font-bold text-gray-900">Gold</div>
+                    <div className="text-sm text-gray-600">$25K-99K TVL</div>
+                    <div className="text-xs text-purple-600 mt-1">1.4x multiplier</div>
+                  </div>
+                  <div className="bg-white rounded-lg p-4 text-center shadow-sm border-2 border-purple-400">
+                    <div className="text-3xl mb-2">💎</div>
+                    <div className="font-bold text-gray-900">Platinum</div>
+                    <div className="text-sm text-gray-600">$100K+ TVL</div>
+                    <div className="text-xs text-purple-600 mt-1">1.6x multiplier!</div>
+                  </div>
+                </div>
+                <div className="flex gap-4">
+                  <a 
+                    href="/axiom-prime"
+                    className="bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-6 rounded-lg transition-colors shadow-lg"
+                  >
+                    View Axiom Prime Dashboard →
+                  </a>
+                  <div className="flex items-center gap-2 text-sm text-gray-600">
+                    <span>✨ Earn points</span>
+                    <span>•</span>
+                    <span>💰 Get referral commissions</span>
+                    <span>•</span>
+                    <span>🎁 Redeem rewards</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
         {/* Real Estate Investor Cross-Promotion */}
         <Card className="border-2 border-green-500 bg-gradient-to-br from-green-50 to-blue-50">
           <CardContent className="p-8">
