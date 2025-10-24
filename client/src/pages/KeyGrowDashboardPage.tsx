@@ -192,29 +192,76 @@ export default function KeyGrowDashboardPage() {
 
         {/* Connect Wallet Banner - shown when not connected */}
         {!isWalletReady && (
-          <Card className="border-2 border-blue-500 bg-blue-50">
-            <CardContent className="p-6">
-              <div className="flex items-start gap-4">
-                <div className="text-4xl">🔒</div>
-                <div className="flex-1">
-                  <h3 className="text-xl font-bold text-gray-900 mb-2">Connect Your Wallet to Join KeyGrow</h3>
-                  <p className="text-gray-700 mb-4">
-                    Browse the program details below, then connect your wallet to register and start receiving monthly allocations toward homeownership.
+          <Card className="border-4 border-blue-600 bg-gradient-to-br from-blue-50 to-green-50 shadow-2xl">
+            <CardContent className="p-8">
+              <div className="text-center mb-6">
+                <div className="text-7xl mb-4">🏡</div>
+                <h2 className="text-4xl font-bold text-gray-900 mb-3">
+                  Ready to Join KeyGrow?
+                </h2>
+                <p className="text-xl text-gray-700 max-w-2xl mx-auto">
+                  Connect your wallet to register, select your tier, and start receiving monthly allocations toward your dream home!
+                </p>
+              </div>
+
+              {/* 3-Step Process */}
+              <div className="grid md:grid-cols-3 gap-6 mb-8">
+                <div className="bg-white rounded-lg p-6 border-2 border-blue-300 shadow-lg">
+                  <div className="bg-blue-600 text-white rounded-full w-12 h-12 flex items-center justify-center font-bold text-xl mb-3 mx-auto">
+                    1
+                  </div>
+                  <h4 className="font-bold text-lg text-gray-900 mb-2 text-center">Connect Wallet</h4>
+                  <p className="text-sm text-gray-600 text-center">
+                    Click below to connect your MetaMask or Web3 wallet (BSC network)
                   </p>
-                  {loginError && (
-                    <div className="bg-red-50 border border-red-200 rounded-lg p-3 mb-4">
-                      <div className="text-sm font-medium text-red-800 mb-1">Connection Error:</div>
-                      <div className="text-xs text-red-600">{loginError}</div>
-                    </div>
-                  )}
-                  <Button 
-                    onClick={handleWalletConnect}
-                    disabled={isConnecting}
-                    className="bg-blue-600 hover:bg-blue-700 text-white"
-                  >
-                    {isConnecting ? '🔄 Connecting...' : '🔗 Connect Wallet'}
-                  </Button>
                 </div>
+                <div className="bg-white rounded-lg p-6 border-2 border-green-300 shadow-lg">
+                  <div className="bg-green-600 text-white rounded-full w-12 h-12 flex items-center justify-center font-bold text-xl mb-3 mx-auto">
+                    2
+                  </div>
+                  <h4 className="font-bold text-lg text-gray-900 mb-2 text-center">Choose Your Tier</h4>
+                  <p className="text-sm text-gray-600 text-center">
+                    Select Bronze, Silver, Gold, or Platinum (higher tier = bigger allocations)
+                  </p>
+                </div>
+                <div className="bg-white rounded-lg p-6 border-2 border-purple-300 shadow-lg">
+                  <div className="bg-purple-600 text-white rounded-full w-12 h-12 flex items-center justify-center font-bold text-xl mb-3 mx-auto">
+                    3
+                  </div>
+                  <h4 className="font-bold text-lg text-gray-900 mb-2 text-center">Complete Registration</h4>
+                  <p className="text-sm text-gray-600 text-center">
+                    Pay $500 enrollment fee and start earning monthly toward homeownership
+                  </p>
+                </div>
+              </div>
+
+              {loginError && (
+                <div className="bg-red-50 border-2 border-red-300 rounded-lg p-4 mb-6">
+                  <div className="text-sm font-medium text-red-800 mb-1">❌ Connection Error:</div>
+                  <div className="text-xs text-red-600">{loginError}</div>
+                </div>
+              )}
+
+              <div className="text-center">
+                <Button 
+                  onClick={handleWalletConnect}
+                  disabled={isConnecting}
+                  className="bg-gradient-to-r from-blue-600 to-green-600 hover:from-blue-700 hover:to-green-700 text-white text-2xl px-12 py-8 shadow-2xl transform hover:scale-105 transition-all"
+                >
+                  {isConnecting ? (
+                    <>
+                      <span className="animate-spin mr-3">⏳</span>
+                      Connecting Your Wallet...
+                    </>
+                  ) : (
+                    <>
+                      🔗 Connect Wallet & Start Registration
+                    </>
+                  )}
+                </Button>
+                <p className="text-sm text-gray-600 mt-4">
+                  Don't have a wallet? <a href="https://metamask.io" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline font-semibold">Get MetaMask (Free)</a>
+                </p>
               </div>
             </CardContent>
           </Card>
@@ -731,35 +778,66 @@ export default function KeyGrowDashboardPage() {
         ) : (
           <>
             {/* Not Registered - Registration Form */}
-            <Card>
-              <CardContent className="p-8">
-                <h2 className="text-2xl font-semibold text-gray-800 mb-2">
-                  Join KeyGrow Today
-                </h2>
-                <p className="text-gray-600 mb-6">
-                  Register now to start receiving monthly allocations from platform revenue
-                </p>
+            <Card className="border-4 border-green-500 bg-gradient-to-br from-green-50 to-blue-50 shadow-2xl">
+              <CardContent className="p-10">
+                <div className="text-center mb-8">
+                  <div className="text-6xl mb-4">🎉</div>
+                  <h2 className="text-4xl font-bold text-gray-900 mb-3">
+                    Complete Your KeyGrow Registration
+                  </h2>
+                  <p className="text-xl text-gray-700 max-w-2xl mx-auto">
+                    You're one step away from earning monthly allocations toward homeownership! Select your tier and register.
+                  </p>
+                </div>
 
                 {/* Tier Selection */}
-                <div className="mb-6">
-                  <label className="block text-sm font-medium text-gray-700 mb-3">
-                    Select Your Tier
+                <div className="mb-8">
+                  <label className="block text-2xl font-bold text-gray-900 mb-6 text-center">
+                    📊 Choose Your Tier Level
                   </label>
-                  <div className="grid md:grid-cols-2 gap-4">
+                  <p className="text-center text-gray-600 mb-6">
+                    Higher tiers = bigger monthly allocations. Select based on your commitment level and timeline.
+                  </p>
+                  <div className="grid md:grid-cols-2 gap-6">
                     {tierNames.map((name, index) => (
                       <button
                         key={index}
                         onClick={() => setSelectedTier(index)}
-                        className={`p-4 rounded-lg border-2 transition-all text-left ${
+                        className={`p-6 rounded-xl border-3 transition-all text-left transform hover:scale-105 ${
                           selectedTier === index
-                            ? tierColors[index] + ' ring-2 ring-blue-500 shadow-md'
-                            : 'bg-gray-50 border-gray-200 text-gray-600 hover:bg-gray-100'
+                            ? tierColors[index] + ' ring-4 ring-blue-500 shadow-2xl scale-105'
+                            : 'bg-white border-gray-300 text-gray-600 hover:bg-gray-50 shadow-lg'
                         }`}
                       >
-                        <div className="font-bold text-lg mb-1">{name} Tier</div>
-                        <div className="text-sm opacity-90">{tierDescriptions[index]}</div>
+                        <div className="flex justify-between items-start mb-3">
+                          <div className="font-bold text-2xl">{name} Tier</div>
+                          <div className="bg-blue-600 text-white px-3 py-1 rounded-full text-sm font-bold">
+                            {[1.0, 1.25, 1.5, 2.0][index]}x
+                          </div>
+                        </div>
+                        <div className="text-sm opacity-90 leading-relaxed">{tierDescriptions[index]}</div>
+                        {selectedTier === index && (
+                          <div className="mt-3 bg-white/50 rounded-lg p-2 text-xs font-semibold text-blue-700">
+                            ✓ Selected
+                          </div>
+                        )}
                       </button>
                     ))}
+                  </div>
+                </div>
+
+                {/* Enrollment Fee Reminder */}
+                <div className="bg-yellow-100 border-2 border-yellow-400 rounded-xl p-6 mb-8">
+                  <div className="flex items-start gap-4">
+                    <div className="text-4xl">💰</div>
+                    <div>
+                      <h4 className="font-bold text-lg text-gray-900 mb-2">One-Time Enrollment Fee: $500 (in BNB)</h4>
+                      <p className="text-sm text-gray-700">
+                        By clicking "Register" below, you'll be prompted to pay the $500 enrollment fee in BNB. 
+                        This covers property research, credit reporting, legal services, and platform maintenance. 
+                        <strong className="text-green-700"> All platform revenue allocations go 100% to you!</strong>
+                      </p>
+                    </div>
                   </div>
                 </div>
 
@@ -767,17 +845,22 @@ export default function KeyGrowDashboardPage() {
                 <Button
                   onClick={handleRegister}
                   disabled={!isWalletReady || txStatus.loading}
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-lg py-6"
+                  className="w-full bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 text-white text-2xl py-8 shadow-2xl transform hover:scale-105 transition-all"
                 >
                   {txStatus.loading ? (
                     <>
-                      <span className="animate-spin mr-2">⏳</span>
-                      Registering...
+                      <span className="animate-spin mr-3">⏳</span>
+                      Registering for KeyGrow...
                     </>
                   ) : (
-                    `Register as ${tierNames[selectedTier]}`
+                    <>
+                      🏡 Register as {tierNames[selectedTier]} & Pay $500 Fee
+                    </>
                   )}
                 </Button>
+                <p className="text-center text-sm text-gray-600 mt-4">
+                  You'll be prompted to approve the transaction in your wallet
+                </p>
 
                 {/* Transaction Status */}
                 {txStatus.loading && (
