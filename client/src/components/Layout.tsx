@@ -218,7 +218,8 @@ const Layout: React.FC<LayoutProps> = ({
       label: 'Programs', 
       isDropdown: true,
       dropdownItems: [
-        { path: '/keygrow-dashboard', label: 'KeyGrow', isInternal: true },
+        { path: '/keygrow-dashboard', label: 'KeyGrow Rent-to-Own', isInternal: true },
+        { path: '/real-estate-investor', label: 'Real Estate Investor', isInternal: true },
         { path: '/sousou-circle', label: 'SouSou Circle', isInternal: true }
       ]
     },

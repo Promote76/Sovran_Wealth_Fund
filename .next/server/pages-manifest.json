@@ -1,11 +1,11 @@
 {
   "/_app": "pages/_app.js",
   "/_error": "pages/_error.js",
-  "/_document": "pages/_document.js",
   "/about-us": "pages/about-us.js",
+  "/_document": "pages/_document.js",
   "/admin/download-logs": "pages/admin/download-logs.js",
-  "/api/reports/generate-pdf": "pages/api/reports/generate-pdf.js",
   "/api/reports/proof-of-reserves": "pages/api/reports/proof-of-reserves.js",
+  "/api/reports/generate-pdf": "pages/api/reports/generate-pdf.js",
   "/api/reports/reserves-history": "pages/api/reports/reserves-history.js",
   "/api/reports/transparency-reports": "pages/api/reports/transparency-reports.js",
   "/compliance": "pages/compliance.js",
