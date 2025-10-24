@@ -39,24 +39,24 @@ interface ReferralData {
 
 export default function AxiomPrimeDashboard() {
   const wallet = useWallet();
-  const { address, isConnected } = wallet as any;
+  const { account, isConnected } = wallet as any;
   const [loading, setLoading] = useState(false);
   const [tier, setTier] = useState<TierInfo | null>(null);
   const [points, setPoints] = useState<PointsData | null>(null);
   const [referral, setReferral] = useState<ReferralData | null>(null);
 
   useEffect(() => {
-    if (isConnected && address) {
+    if (isConnected && account) {
       loadDashboardData();
     } else {
       setLoading(false);
     }
-  }, [address, isConnected]);
+  }, [account, isConnected]);
 
   const loadDashboardData = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`/api/axiom-prime/dashboard/${address}`);
+      const response = await fetch(`/api/axiom-prime/dashboard/${account}`);
       const data = await response.json();
 
       if (data.success) {
