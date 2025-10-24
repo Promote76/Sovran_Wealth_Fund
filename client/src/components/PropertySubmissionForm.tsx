@@ -85,9 +85,30 @@ export default function PropertySubmissionForm({ onClose }: { onClose: () => voi
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
+  const [bnbPrice, setBnbPrice] = useState<number>(600);
+
+  React.useEffect(() => {
+    const fetchBnbPrice = async () => {
+      try {
+        const response = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=binancecoin&vs_currencies=usd');
+        const data = await response.json();
+        if (data.binancecoin?.usd) {
+          setBnbPrice(data.binancecoin.usd);
+        }
+      } catch (err) {
+        console.error('Failed to fetch BNB price:', err);
+      }
+    };
+    fetchBnbPrice();
+  }, []);
 
   const handleChange = (field: keyof PropertySubmissionData, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const formatUSD = (bnbAmount: number | ''): string => {
+    if (bnbAmount === '' || isNaN(Number(bnbAmount))) return '$0';
+    return `≈ $${(Number(bnbAmount) * bnbPrice).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   };
 
   const validateStep = (step: number): boolean => {
@@ -101,9 +122,18 @@ export default function PropertySubmissionForm({ onClose }: { onClose: () => voi
           formData.zipCode
         );
       case 2: // Financials
+        console.log('🔍 Validating step 2:', {
+          purchasePrice: formData.purchasePrice,
+          monthlyRent: formData.monthlyRent,
+          totalShares: formData.totalShares,
+          pricePerShare: formData.pricePerShare
+        });
+
         // Check if fields are filled (not empty strings)
         if (formData.purchasePrice === '' || formData.monthlyRent === '' || 
             formData.totalShares === '' || formData.pricePerShare === '') {
+          console.log('❌ Validation failed: Empty fields');
+          setError('Please fill in all required fields');
           return false;
         }
         
@@ -112,19 +142,26 @@ export default function PropertySubmissionForm({ onClose }: { onClose: () => voi
         const totalShares = Number(formData.totalShares);
         const pricePerShare = Number(formData.pricePerShare);
         
+        console.log('🔢 Converted values:', { purchasePrice, monthlyRent, totalShares, pricePerShare });
+        
         // Validate numbers are valid and positive
         if (purchasePrice <= 0 || monthlyRent <= 0 || totalShares <= 0 || pricePerShare <= 0) {
+          console.log('❌ Validation failed: Non-positive values');
           setError('All financial values must be positive numbers');
           return false;
         }
         
         // Validate total investment doesn't exceed purchase price by too much
         const totalInvestment = totalShares * pricePerShare;
+        console.log('💰 Investment check:', { totalInvestment, maxAllowed: purchasePrice * 1.5 });
+        
         if (totalInvestment > purchasePrice * 1.5) {
+          console.log('❌ Validation failed: Exceeds 150% limit');
           setError('Total shares × price per share cannot exceed 150% of purchase price');
           return false;
         }
         
+        console.log('✅ Validation passed!');
         setError(''); // Clear any previous errors
         return true;
       case 3: // Documents - optional for now, but admins will add metadataURI during approval
@@ -378,6 +415,7 @@ export default function PropertySubmissionForm({ onClose }: { onClose: () => voi
                     onChange={e => handleChange('purchasePrice', parseFloat(e.target.value) || '')}
                     placeholder="e.g., 10.5"
                   />
+                  <p className="text-xs text-green-600 mt-1 font-medium">{formatUSD(formData.purchasePrice)} USD</p>
                 </div>
                 <div>
                   <label className="block text-sm font-medium mb-1">Monthly Rent (BNB) *</label>
@@ -389,6 +427,7 @@ export default function PropertySubmissionForm({ onClose }: { onClose: () => voi
                     onChange={e => handleChange('monthlyRent', parseFloat(e.target.value) || '')}
                     placeholder="e.g., 0.5"
                   />
+                  <p className="text-xs text-green-600 mt-1 font-medium">{formatUSD(formData.monthlyRent)} USD/month</p>
                 </div>
               </div>
 
@@ -414,8 +453,44 @@ export default function PropertySubmissionForm({ onClose }: { onClose: () => voi
                     onChange={e => handleChange('pricePerShare', parseFloat(e.target.value) || '')}
                     placeholder="e.g., 0.05"
                   />
+                  <p className="text-xs text-green-600 mt-1 font-medium">{formatUSD(formData.pricePerShare)} USD per share</p>
                 </div>
               </div>
+
+              {/* Investment Summary */}
+              {formData.totalShares !== '' && formData.pricePerShare !== '' && formData.purchasePrice !== '' && (
+                <div className="bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 rounded-lg p-4">
+                  <h4 className="font-semibold text-sm mb-2">📊 Investment Summary</h4>
+                  <div className="grid grid-cols-2 gap-2 text-sm">
+                    <div>
+                      <p className="text-gray-600">Total Investment Target:</p>
+                      <p className="font-bold text-blue-700">
+                        {Number(formData.totalShares) * Number(formData.pricePerShare)} BNB
+                        <span className="text-xs ml-1">({formatUSD(Number(formData.totalShares) * Number(formData.pricePerShare))})</span>
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-gray-600">Purchase Price:</p>
+                      <p className="font-bold text-blue-700">
+                        {formData.purchasePrice} BNB
+                        <span className="text-xs ml-1">({formatUSD(formData.purchasePrice)})</span>
+                      </p>
+                    </div>
+                    <div className="col-span-2">
+                      <p className="text-gray-600">Coverage Ratio:</p>
+                      <p className={`font-bold ${
+                        (Number(formData.totalShares) * Number(formData.pricePerShare)) > Number(formData.purchasePrice) * 1.5
+                          ? 'text-red-600'
+                          : 'text-green-600'
+                      }`}>
+                        {((Number(formData.totalShares) * Number(formData.pricePerShare)) / Number(formData.purchasePrice) * 100).toFixed(1)}%
+                        {(Number(formData.totalShares) * Number(formData.pricePerShare)) > Number(formData.purchasePrice) * 1.5 && 
+                          ' ⚠️ Exceeds 150% limit'}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
