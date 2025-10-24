@@ -181,7 +181,7 @@ export default function LiquidityVaultPage() {
     try {
       const signer = await getSigner();
       const vaultAddress = ethers.utils.getAddress(selectedVault.vaultAddress);
-      const vaultContract = new ethers.Contract(vaultAddress, LiquidityRewardsVaultABI, signer);
+      const vaultContract = new ethers.Contract(vaultAddress, LiquidityRewardsVaultABI.abi, signer);
 
       const amount = ethers.utils.parseEther(stakeAmount);
 
@@ -225,7 +225,7 @@ export default function LiquidityVaultPage() {
     try {
       const signer = await getSigner();
       const vaultAddress = ethers.utils.getAddress(selectedVault.vaultAddress);
-      const vaultContract = new ethers.Contract(vaultAddress, LiquidityRewardsVaultABI, signer);
+      const vaultContract = new ethers.Contract(vaultAddress, LiquidityRewardsVaultABI.abi, signer);
 
       const amount = ethers.utils.parseEther(unstakeAmount);
 
@@ -266,7 +266,7 @@ export default function LiquidityVaultPage() {
     try {
       const signer = await getSigner();
       const vaultAddress = ethers.utils.getAddress(selectedVault.vaultAddress);
-      const vaultContract = new ethers.Contract(vaultAddress, LiquidityRewardsVaultABI, signer);
+      const vaultContract = new ethers.Contract(vaultAddress, LiquidityRewardsVaultABI.abi, signer);
 
       const tx = await vaultContract.claimRewards();
       setTxMessage('⏳ Claiming rewards... waiting for confirmation');
