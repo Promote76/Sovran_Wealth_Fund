@@ -40,6 +40,7 @@ import InvestmentsPage from './pages/InvestmentsPage';
 import RealEstatePage from './pages/RealEstatePage';
 import KeyGrowDashboardPage from './pages/KeyGrowDashboardPage';
 import RealEstateInvestorPage from './pages/RealEstateInvestorPage';
+import PropertySubmitPage from './pages/PropertySubmitPage';
 import NFTMarketplacePage from './pages/NFTMarketplacePage';
 import AdvancedStakingPage from './pages/AdvancedStakingPage';
 import BasketIndexPage from './pages/BasketIndexPage';
@@ -460,6 +461,7 @@ function App() {
                               {/* Smart Contract Features */}
                               <Route path="/keygrow-dashboard" element={<KeyGrowDashboardPage />} />
                               <Route path="/real-estate-investor" element={<RealEstateInvestorPage />} />
+                              <Route path="/real-estate-investor/submit" element={<PropertySubmitPage />} />
                               <Route path="/nft-marketplace" element={<NFTMarketplacePage />} />
                               <Route path="/advanced-staking" element={<AdvancedStakingPage />} />
                               <Route path="/basket-index" element={<BasketIndexPage />} />

@@ -1,5 +1,7 @@
 const { getContractProvider } = require('./contractProvider');
 const { db } = require('../db');
+const { propertySubmissions } = require('../../shared/schema');
+const { eq, and, desc } = require('drizzle-orm');
 
 class RealEstateInvestorService {
   constructor() {
@@ -169,6 +171,196 @@ class RealEstateInvestorService {
         totalRentalDistributed: '0',
         totalFeesCollected: '0'
       };
+    }
+  }
+
+  // ==== PROPERTY SUBMISSION METHODS ====
+
+  async createPropertySubmission(submissionData) {
+    try {
+      const [submission] = await db.insert(propertySubmissions)
+        .values({
+          submitterWalletAddress: submissionData.submitterWalletAddress,
+          submitterName: submissionData.submitterName || null,
+          submitterEmail: submissionData.submitterEmail || null,
+          submitterPhone: submissionData.submitterPhone || null,
+          propertyName: submissionData.propertyName,
+          propertyAddress: submissionData.propertyAddress,
+          city: submissionData.city,
+          state: submissionData.state,
+          zipCode: submissionData.zipCode,
+          country: submissionData.country || 'United States',
+          propertyDescription: submissionData.propertyDescription || null,
+          propertyType: submissionData.propertyType || null,
+          bedrooms: submissionData.bedrooms || null,
+          bathrooms: submissionData.bathrooms || null,
+          squareFeet: submissionData.squareFeet || null,
+          lotSize: submissionData.lotSize || null,
+          yearBuilt: submissionData.yearBuilt || null,
+          purchasePrice: submissionData.purchasePrice.toString(),
+          monthlyRent: submissionData.monthlyRent.toString(),
+          totalShares: submissionData.totalShares,
+          pricePerShare: submissionData.pricePerShare.toString(),
+          estimatedAnnualRent: submissionData.estimatedAnnualRent?.toString() || null,
+          estimatedAppreciation: submissionData.estimatedAppreciation?.toString() || null,
+          estimatedROI: submissionData.estimatedROI?.toString() || null,
+          rentalYield: submissionData.rentalYield?.toString() || null,
+          occupancyRate: submissionData.occupancyRate?.toString() || '100.00',
+          managementCompany: submissionData.managementCompany || null,
+          propertyManager: submissionData.propertyManager || null,
+          currentTenant: submissionData.currentTenant || false,
+          leaseEndDate: submissionData.leaseEndDate || null,
+          images: submissionData.images || null,
+          documents: submissionData.documents || null,
+          virtualTourUrl: submissionData.virtualTourUrl || null,
+          metadataURI: submissionData.metadataURI || null,
+          status: 'pending'
+        })
+        .returning();
+
+      console.log('✅ Property submission created:', submission.id);
+      return submission;
+    } catch (error) {
+      console.error('❌ createPropertySubmission error:', error);
+      throw error;
+    }
+  }
+
+  async getPropertySubmissions(status = null, submitterWallet = null) {
+    try {
+      let query = db.select().from(propertySubmissions);
+      
+      const conditions = [];
+      if (status) {
+        conditions.push(eq(propertySubmissions.status, status));
+      }
+      if (submitterWallet) {
+        conditions.push(eq(propertySubmissions.submitterWalletAddress, submitterWallet.toLowerCase()));
+      }
+
+      if (conditions.length > 0) {
+        query = query.where(and(...conditions));
+      }
+
+      const submissions = await query.orderBy(desc(propertySubmissions.submittedAt));
+      return submissions;
+    } catch (error) {
+      console.error('❌ getPropertySubmissions error:', error);
+      throw error;
+    }
+  }
+
+  async getPropertySubmissionById(id) {
+    try {
+      const [submission] = await db.select()
+        .from(propertySubmissions)
+        .where(eq(propertySubmissions.id, parseInt(id)));
+      
+      return submission || null;
+    } catch (error) {
+      console.error('❌ getPropertySubmissionById error:', error);
+      throw error;
+    }
+  }
+
+  async approvePropertySubmission(id, reviewedBy, approvalNotes = null, metadataURI = null) {
+    try {
+      const [submission] = await db.update(propertySubmissions)
+        .set({
+          status: 'approved',
+          reviewedBy: parseInt(reviewedBy),
+          reviewedAt: new Date(),
+          approvalNotes,
+          metadataURI: metadataURI || null,
+          updatedAt: new Date()
+        })
+        .where(eq(propertySubmissions.id, parseInt(id)))
+        .returning();
+
+      console.log('✅ Property submission approved:', id);
+      return submission;
+    } catch (error) {
+      console.error('❌ approvePropertySubmission error:', error);
+      throw error;
+    }
+  }
+
+  async rejectPropertySubmission(id, reviewedBy, rejectionReason) {
+    try {
+      const [submission] = await db.update(propertySubmissions)
+        .set({
+          status: 'rejected',
+          reviewedBy: parseInt(reviewedBy),
+          reviewedAt: new Date(),
+          rejectionReason,
+          updatedAt: new Date()
+        })
+        .where(eq(propertySubmissions.id, parseInt(id)))
+        .returning();
+
+      console.log('✅ Property submission rejected:', id);
+      return submission;
+    } catch (error) {
+      console.error('❌ rejectPropertySubmission error:', error);
+      throw error;
+    }
+  }
+
+  async buildListPropertyTx(submissionId, adminWallet) {
+    try {
+      const submission = await this.getPropertySubmissionById(submissionId);
+      
+      if (!submission) {
+        throw new Error('Submission not found');
+      }
+
+      if (submission.status !== 'approved') {
+        throw new Error('Submission must be approved before listing');
+      }
+
+      if (!submission.metadataURI) {
+        throw new Error('Metadata URI is required for listing');
+      }
+
+      const purchasePrice = this.contractProvider.parseEther(submission.purchasePrice);
+      const monthlyRent = this.contractProvider.parseEther(submission.monthlyRent);
+      const pricePerShare = this.contractProvider.parseEther(submission.pricePerShare);
+
+      return this.contractProvider.buildTransactionData(
+        'RealEstateInvestor',
+        'listProperty',
+        [
+          purchasePrice,
+          monthlyRent,
+          submission.totalShares,
+          pricePerShare,
+          submission.metadataURI
+        ]
+      );
+    } catch (error) {
+      console.error('❌ buildListPropertyTx error:', error);
+      throw error;
+    }
+  }
+
+  async markSubmissionAsListed(id, onChainPropertyId, txHash) {
+    try {
+      const [submission] = await db.update(propertySubmissions)
+        .set({
+          status: 'listed',
+          onChainPropertyId: parseInt(onChainPropertyId),
+          listingTxHash: txHash,
+          listedAt: new Date(),
+          updatedAt: new Date()
+        })
+        .where(eq(propertySubmissions.id, parseInt(id)))
+        .returning();
+
+      console.log('✅ Property submission marked as listed:', id);
+      return submission;
+    } catch (error) {
+      console.error('❌ markSubmissionAsListed error:', error);
+      throw error;
     }
   }
 }

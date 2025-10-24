@@ -1345,6 +1345,96 @@ export const savingsAccountSettings = pgTable("savings_account_settings", {
   accountIdIdx: index("savings_account_settings_account_id_idx").on(table.savingsAccountId),
 }));
 
+// ==== REAL ESTATE INVESTOR PLATFORM ====
+
+// Property submission status enum
+export const propertySubmissionStatusEnum = pgEnum('property_submission_status', [
+  'pending',
+  'under_review',
+  'approved',
+  'rejected',
+  'listed'
+]);
+
+// Real Estate Investor property submissions
+export const propertySubmissions = pgTable("property_submissions", {
+  id: serial("id").primaryKey(),
+  
+  // Sponsor/Submitter Information
+  submitterWalletAddress: varchar("submitter_wallet_address", { length: 42 }).notNull(),
+  submitterName: varchar("submitter_name", { length: 200 }),
+  submitterEmail: varchar("submitter_email", { length: 200 }),
+  submitterPhone: varchar("submitter_phone", { length: 20 }),
+  
+  // Property Information (matching smart contract fields)
+  propertyName: varchar("property_name", { length: 200 }).notNull(),
+  propertyAddress: text("property_address").notNull(),
+  city: varchar("city", { length: 100 }).notNull(),
+  state: varchar("state", { length: 50 }).notNull(),
+  zipCode: varchar("zip_code", { length: 10 }).notNull(),
+  country: varchar("country", { length: 100 }).default('United States'),
+  
+  // Property Details
+  propertyDescription: text("property_description"),
+  propertyType: varchar("property_type", { length: 50 }), // residential, commercial, mixed-use
+  bedrooms: integer("bedrooms"),
+  bathrooms: decimal("bathrooms", { precision: 3, scale: 1 }),
+  squareFeet: integer("square_feet"),
+  lotSize: varchar("lot_size", { length: 50 }),
+  yearBuilt: integer("year_built"),
+  
+  // Financial Data (Smart Contract Required Fields)
+  purchasePrice: decimal("purchase_price", { precision: 18, scale: 8 }).notNull(), // In BNB
+  monthlyRent: decimal("monthly_rent", { precision: 18, scale: 8 }).notNull(), // In BNB
+  totalShares: integer("total_shares").notNull(),
+  pricePerShare: decimal("price_per_share", { precision: 18, scale: 8 }).notNull(), // In BNB
+  
+  // Investment Metrics
+  estimatedAnnualRent: decimal("estimated_annual_rent", { precision: 18, scale: 8 }),
+  estimatedAppreciation: decimal("estimated_appreciation", { precision: 5, scale: 2 }), // Percentage
+  estimatedROI: decimal("estimated_roi", { precision: 5, scale: 2 }), // Percentage
+  rentalYield: decimal("rental_yield", { precision: 5, scale: 2 }), // Percentage
+  occupancyRate: decimal("occupancy_rate", { precision: 5, scale: 2 }).default('100.00'), // Percentage
+  
+  // Property Management
+  managementCompany: varchar("management_company", { length: 200 }),
+  propertyManager: varchar("property_manager", { length: 200 }),
+  currentTenant: boolean("current_tenant").default(false),
+  leaseEndDate: timestamp("lease_end_date"),
+  
+  // Media and Documents
+  images: jsonb("images"), // Array of image URLs/IPFS hashes
+  documents: jsonb("documents"), // Array of document URLs (title deeds, inspection reports, etc.)
+  virtualTourUrl: varchar("virtual_tour_url", { length: 500 }),
+  metadataURI: varchar("metadata_uri", { length: 500 }), // IPFS URI for smart contract
+  
+  // Submission Workflow
+  status: propertySubmissionStatusEnum("status").default('pending'),
+  submittedAt: timestamp("submitted_at").defaultNow(),
+  reviewedAt: timestamp("reviewed_at"),
+  reviewedBy: integer("reviewed_by").references(() => users.id),
+  approvalNotes: text("approval_notes"),
+  rejectionReason: text("rejection_reason"),
+  
+  // Smart Contract Integration
+  onChainPropertyId: integer("on_chain_property_id"), // Property ID from smart contract after listing
+  listingTxHash: varchar("listing_tx_hash", { length: 66 }), // Transaction hash of listProperty call
+  listedAt: timestamp("listed_at"),
+  
+  // Validation Flags
+  financialsValidated: boolean("financials_validated").default(false),
+  documentsValidated: boolean("documents_validated").default(false),
+  legalReviewComplete: boolean("legal_review_complete").default(false),
+  
+  // Audit Trail
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => ({
+  submitterIdx: index("property_submissions_submitter_idx").on(table.submitterWalletAddress),
+  statusIdx: index("property_submissions_status_idx").on(table.status),
+  submittedAtIdx: index("property_submissions_submitted_at_idx").on(table.submittedAt),
+}));
+
 // Type exports for TypeScript
 export type User = typeof users.$inferSelect;
 export type InsertUser = typeof users.$inferInsert;
@@ -1452,3 +1542,7 @@ export type SavingsTransaction = typeof savingsTransactions.$inferSelect;
 export type InsertSavingsTransaction = typeof savingsTransactions.$inferInsert;
 export type SavingsAccountSettings = typeof savingsAccountSettings.$inferSelect;
 export type InsertSavingsAccountSettings = typeof savingsAccountSettings.$inferInsert;
+
+// Real Estate Investor types
+export type PropertySubmission = typeof propertySubmissions.$inferSelect;
+export type InsertPropertySubmission = typeof propertySubmissions.$inferInsert;

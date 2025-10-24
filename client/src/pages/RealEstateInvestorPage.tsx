@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useWallet } from '../contexts/WalletContext';
 import { Button } from '../components/ui/button';
 import { Card, CardContent } from '../components/ui/card';
@@ -27,6 +28,7 @@ interface Investment {
 }
 
 export default function RealEstateInvestorPage() {
+  const navigate = useNavigate();
   const { isConnected, account, connectWallet, isConnecting } = useWallet();
   const [properties, setProperties] = useState<Property[]>([]);
   const [portfolio, setPortfolio] = useState<Investment[]>([]);
@@ -154,6 +156,12 @@ export default function RealEstateInvestorPage() {
               </p>
             </div>
             <div className="flex flex-col items-end space-y-2">
+              <Button
+                onClick={() => navigate('/real-estate-investor/submit')}
+                className="bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-bold shadow-lg border-2 border-yellow-400"
+              >
+                📤 Submit Property
+              </Button>
               {isConnected ? (
                 <div className="bg-white/10 backdrop-blur-sm rounded-lg px-4 py-2 border border-white/20">
                   <div className="text-xs text-green-100 mb-1">Connected</div>
