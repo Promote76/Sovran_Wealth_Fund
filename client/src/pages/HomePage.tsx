@@ -267,7 +267,7 @@ export default function HomePage() {
 
             <div className="mt-10 text-center">
               <Button 
-                className="text-2xl px-16 py-6 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105"
+                className="text-lg px-8 py-3 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105"
                 onClick={() => handlePathClick('keygrow')}
               >
                 Register Now - $500 One-Time Fee
