@@ -13,7 +13,8 @@
     "AXIOMRevenueRouter": "0xfFFb71e13c6cd5ce12612D1c7293BF0BAbcdab73",
     "AXMToken": "0x83E17aeB148d9b4b7Be0Be7C87dd73531a5a5738",
     "StakingEngine": "0x0165878A594ca255338adfa4d48449f69242Eb8F",
-    "BasketVault": "0x5FC8d32690cc91D4c39d9d3abcBD16989F875707"
+    "BasketVault": "0x5FC8d32690cc91D4c39d9d3abcBD16989F875707",
+    "RealEstateInvestor": "0x2BA77A06c41b14649597d162018ca98DE8851272"
   },
   "rpc": "https://bsc-dataseed.binance.org/"
 }

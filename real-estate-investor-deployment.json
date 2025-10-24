@@ -1,0 +1,16 @@
+{
+  "network": "bsc-mainnet",
+  "timestamp": "2025-10-24T16:15:00Z",
+  "deployer": "0xE3059F3479AAC2846299664BABe1d5D95C18D1C7",
+  "contracts": {
+    "RealEstateInvestor": {
+      "address": "0x2BA77A06c41b14649597d162018ca98DE8851272",
+      "feeRecipient": "0xd070776c3603138a1d4b93a2f668d604a4a99e34",
+      "minimumInvestment": "0.05 BNB",
+      "platformFee": "2.5%",
+      "bscscan": "https://bscscan.com/address/0x2BA77A06c41b14649597d162018ca98DE8851272"
+    }
+  },
+  "status": "DEPLOYED",
+  "notes": "Final contract of 11 total smart contracts. Platform now complete."
+}

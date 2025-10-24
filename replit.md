@@ -88,7 +88,7 @@ The LiquidityVaultPage provides a unified dashboard displaying all active vaults
 ### Real Estate Investor Platform
 Unified smart contract system enabling fractional real estate investment with minimal gas fees. Single contract manages multiple properties, investor portfolios, rental income distribution, and appreciation tracking.
 
-**Contract: RealEstateInvestor.sol** (Compiled, pending deployment - needs 0.005 BNB)
+**Contract: RealEstateInvestor.sol** (✅ DEPLOYED: 0x2BA77A06c41b14649597d162018ca98DE8851272)
 - All-in-one gas-efficient design (no separate token deployments per property)
 - Fractional ownership tracking with share-based accounting
 - Property listing and funding management

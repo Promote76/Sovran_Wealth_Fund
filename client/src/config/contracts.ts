@@ -7,6 +7,7 @@ import SWFVaultAdapterABI from '../abis/SWFVaultAdapter.json';
 import GovernanceDividendPoolABI from '../abis/GovernanceDividendPool.json';
 import AXIOMRevenueRouterABI from '../abis/AXIOMRevenueRouter.json';
 import RealEstateAcquisitionFundABI from '../abis/RealEstateAcquisitionFund.json';
+import RealEstateInvestorABI from '../abis/RealEstateInvestor.json';
 
 export const ERC20_ABI = [
   'function balanceOf(address account) view returns (uint256)',
@@ -42,8 +43,8 @@ export const CONTRACTS = {
       abi: RealEstateAcquisitionFundABI.abi
     },
     REAL_ESTATE_INVESTOR: {
-      address: '0x0000000000000000000000000000000000000000', // Pending deployment - need 0.005 BNB
-      abi: [] // Will update after deployment
+      address: '0x2BA77A06c41b14649597d162018ca98DE8851272',
+      abi: RealEstateInvestorABI.abi
     },
     BASKET_INDEX: '0x06b88f3Faa07215F6f5fb0A10A3F058D3f25ecF6',
     ADVANCED_STAKING: '0x5eE9d1b28c261AE132B6d324b02452bC90750136',
