@@ -309,54 +309,7 @@ export default function LiquidityVaultPage() {
   };
 
   const currentStake = getCurrentUserStake();
-
-  if (!isConnected || !isLoggedIn) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white p-6">
-        <div className="max-w-4xl mx-auto">
-          <div className="bg-white rounded-xl shadow-lg p-8 text-center">
-            <h1 className="text-3xl font-bold text-gray-800 mb-4">
-              💎 Liquidity Vaults
-            </h1>
-            <p className="text-gray-600 mb-6">
-              Please connect your wallet to access the liquidity staking vaults
-            </p>
-            <Button 
-              onClick={handleWalletConnect}
-              disabled={isConnecting}
-              className="bg-blue-600 hover:bg-blue-700 text-white"
-            >
-              {isConnecting ? '🔄 Connecting...' : '🔗 Connect Wallet'}
-            </Button>
-            {loginError && (
-              <div className="mt-4 bg-red-50 border border-red-200 rounded-lg p-4">
-                <div className="text-sm font-medium text-red-800 mb-2">Connection Error:</div>
-                <div className="text-xs text-red-600">{loginError}</div>
-              </div>
-            )}
-
-            <div className="mt-12 text-left space-y-6">
-              <Card className="border-2 border-blue-200">
-                <CardContent className="p-6">
-                  <h2 className="text-2xl font-bold text-gray-900 mb-4">
-                    💎 What are Liquidity Vaults?
-                  </h2>
-                  <p className="text-gray-700 mb-4 leading-relaxed">
-                    Liquidity Vaults are <strong>staking platforms for multiple LP token pairs</strong>. When you provide liquidity on decentralized exchanges, you receive LP tokens. Stake these in our vaults to earn additional rewards with customized APYs for each pair!
-                  </p>
-                  <p className="text-gray-700 leading-relaxed">
-                    Each vault supports a different LP pair with its own reward rate and lock period, giving you flexibility to choose the best option for your strategy.
-                  </p>
-                </CardContent>
-              </Card>
-
-              <ProvideLiquidity />
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  const isWalletReady = isConnected && isLoggedIn;
 
   if (loading) {
     return (
@@ -382,21 +335,63 @@ export default function LiquidityVaultPage() {
               </p>
             </div>
             <div className="flex flex-col items-end space-y-2">
-              <div className="bg-white/10 backdrop-blur-sm rounded-lg px-4 py-2 border border-white/20">
-                <div className="text-xs text-blue-100 mb-1">Connected Wallet</div>
-                <div className="font-mono text-sm font-semibold">
-                  {account?.slice(0, 6)}...{account?.slice(-4)}
-                </div>
-              </div>
-              <button
-                onClick={disconnectWallet}
-                className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white text-sm font-medium rounded-lg transition-colors shadow-lg hover:shadow-xl"
-              >
-                🔌 Disconnect Wallet
-              </button>
+              {isWalletReady ? (
+                <>
+                  <div className="bg-white/10 backdrop-blur-sm rounded-lg px-4 py-2 border border-white/20">
+                    <div className="text-xs text-blue-100 mb-1">Connected Wallet</div>
+                    <div className="font-mono text-sm font-semibold">
+                      {account?.slice(0, 6)}...{account?.slice(-4)}
+                    </div>
+                  </div>
+                  <button
+                    onClick={disconnectWallet}
+                    className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white text-sm font-medium rounded-lg transition-colors shadow-lg hover:shadow-xl"
+                  >
+                    🔌 Disconnect Wallet
+                  </button>
+                </>
+              ) : (
+                <Button 
+                  onClick={handleWalletConnect}
+                  disabled={isConnecting}
+                  className="bg-white text-purple-600 hover:bg-blue-50 font-semibold shadow-lg"
+                >
+                  {isConnecting ? '🔄 Connecting...' : '🔗 Connect Wallet to Stake'}
+                </Button>
+              )}
             </div>
           </div>
         </div>
+
+        {/* Connect Wallet Banner - shown when not connected */}
+        {!isWalletReady && (
+          <Card className="border-2 border-blue-500 bg-blue-50">
+            <CardContent className="p-6">
+              <div className="flex items-start gap-4">
+                <div className="text-4xl">🔒</div>
+                <div className="flex-1">
+                  <h3 className="text-xl font-bold text-gray-900 mb-2">Connect Your Wallet to Start Staking</h3>
+                  <p className="text-gray-700 mb-4">
+                    Browse available vaults below, then connect your wallet to stake LP tokens and earn rewards.
+                  </p>
+                  {loginError && (
+                    <div className="bg-red-50 border border-red-200 rounded-lg p-3 mb-4">
+                      <div className="text-sm font-medium text-red-800 mb-1">Connection Error:</div>
+                      <div className="text-xs text-red-600">{loginError}</div>
+                    </div>
+                  )}
+                  <Button 
+                    onClick={handleWalletConnect}
+                    disabled={isConnecting}
+                    className="bg-blue-600 hover:bg-blue-700 text-white"
+                  >
+                    {isConnecting ? '🔄 Connecting...' : '🔗 Connect Wallet'}
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {/* All Available Vaults */}
         <div>
@@ -587,23 +582,31 @@ export default function LiquidityVaultPage() {
                       </div>
                     </div>
                     
-                    {stakeAmount && parseFloat(stakeAmount) > 0 && ethers.BigNumber.from(allowance).lt(ethers.utils.parseEther(stakeAmount || '0')) && (
-                      <Button
-                        onClick={handleApprove}
-                        className="w-full bg-blue-600 hover:bg-blue-700 text-white"
-                        disabled={isApproving}
-                      >
-                        {isApproving ? '⏳ Approving...' : '✅ Approve LP Tokens'}
-                      </Button>
+                    {!isWalletReady ? (
+                      <div className="bg-yellow-50 border-2 border-yellow-300 rounded-lg p-3 text-center">
+                        <p className="text-yellow-800 font-medium">🔒 Connect wallet to stake</p>
+                      </div>
+                    ) : (
+                      <>
+                        {stakeAmount && parseFloat(stakeAmount) > 0 && ethers.BigNumber.from(allowance).lt(ethers.utils.parseEther(stakeAmount || '0')) && (
+                          <Button
+                            onClick={handleApprove}
+                            className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+                            disabled={isApproving}
+                          >
+                            {isApproving ? '⏳ Approving...' : '✅ Approve LP Tokens'}
+                          </Button>
+                        )}
+                        
+                        <Button
+                          onClick={handleStake}
+                          className="w-full bg-green-600 hover:bg-green-700 text-white"
+                          disabled={!stakeAmount || parseFloat(stakeAmount) < parseFloat(selectedVault.minimumStake) || isStaking || ethers.BigNumber.from(allowance).lt(ethers.utils.parseEther(stakeAmount || '0'))}
+                        >
+                          {isStaking ? '⏳ Staking...' : 'Stake LP Tokens'}
+                        </Button>
+                      </>
                     )}
-                    
-                    <Button
-                      onClick={handleStake}
-                      className="w-full bg-green-600 hover:bg-green-700 text-white"
-                      disabled={!stakeAmount || parseFloat(stakeAmount) < parseFloat(selectedVault.minimumStake) || isStaking || ethers.BigNumber.from(allowance).lt(ethers.utils.parseEther(stakeAmount || '0'))}
-                    >
-                      {isStaking ? '⏳ Staking...' : 'Stake LP Tokens'}
-                    </Button>
                     <div className="text-xs text-gray-500">
                       Minimum stake: {selectedVault.minimumStake} LP tokens
                     </div>
@@ -630,13 +633,19 @@ export default function LiquidityVaultPage() {
                         className="text-lg"
                       />
                     </div>
-                    <Button
-                      onClick={handleUnstake}
-                      className="w-full bg-orange-600 hover:bg-orange-700 text-white"
-                      disabled={!unstakeAmount || !currentStake || parseFloat(unstakeAmount) > parseFloat(currentStake.amount) || isUnstaking}
-                    >
-                      {isUnstaking ? '⏳ Unstaking...' : 'Unstake LP Tokens'}
-                    </Button>
+                    {!isWalletReady ? (
+                      <div className="bg-yellow-50 border-2 border-yellow-300 rounded-lg p-3 text-center">
+                        <p className="text-yellow-800 font-medium">🔒 Connect wallet to unstake</p>
+                      </div>
+                    ) : (
+                      <Button
+                        onClick={handleUnstake}
+                        className="w-full bg-orange-600 hover:bg-orange-700 text-white"
+                        disabled={!unstakeAmount || !currentStake || parseFloat(unstakeAmount) > parseFloat(currentStake.amount) || isUnstaking}
+                      >
+                        {isUnstaking ? '⏳ Unstaking...' : 'Unstake LP Tokens'}
+                      </Button>
+                    )}
                     {currentStake && (
                       <div className="text-xs text-gray-500">
                         Your stake: {parseFloat(currentStake.amount).toFixed(4)} LP tokens
@@ -662,9 +671,9 @@ export default function LiquidityVaultPage() {
                     <Button 
                       onClick={handleClaimRewards}
                       className="bg-green-600 hover:bg-green-700 text-white"
-                      disabled={isClaiming}
+                      disabled={!isWalletReady || isClaiming}
                     >
-                      {isClaiming ? '⏳ Claiming...' : 'Claim Rewards'}
+                      {!isWalletReady ? '🔒 Connect Wallet' : isClaiming ? '⏳ Claiming...' : 'Claim Rewards'}
                     </Button>
                   </div>
                 </CardContent>
