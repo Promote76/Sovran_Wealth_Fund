@@ -16,6 +16,25 @@ router.get('/status', async (req, res) => {
   }
 });
 
+router.get('/stats', async (req, res) => {
+  try {
+    const fundStats = await keygrowService.getFundStats();
+    
+    res.json({
+      success: true,
+      data: {
+        totalBalance: fundStats.fundBalance,
+        activeRenters: fundStats.activeRenters,
+        totalDistributed: '0',
+        monthlyRevenue: '0'
+      }
+    });
+  } catch (error) {
+    console.error('❌ KeyGrow stats error:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
 router.post('/register', async (req, res) => {
   try {
     const { walletAddress, tier } = req.body;
@@ -41,12 +60,37 @@ router.get('/renter/:walletAddress', async (req, res) => {
     const { walletAddress } = req.params;
     const renterInfo = await keygrowService.getRenterInfo(walletAddress);
     
+    const formattedInfo = {
+      registered: renterInfo.isRegistered,
+      tier: renterInfo.tierNumber,
+      totalContributed: renterInfo.totalClaimed,
+      lastClaimTime: renterInfo.lastClaimPeriod,
+      multiplier: [1.0, 1.25, 1.5, 2.0][renterInfo.tierNumber] || 1.0
+    };
+    
     res.json({
       success: true,
-      data: renterInfo
+      data: formattedInfo
     });
   } catch (error) {
     console.error('❌ Renter info error:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+router.get('/renter/:walletAddress/pending', async (req, res) => {
+  try {
+    const { walletAddress } = req.params;
+    const allocations = await keygrowService.getPendingAllocations(walletAddress);
+    
+    res.json({
+      success: true,
+      data: {
+        pendingAllocation: allocations.totalPending
+      }
+    });
+  } catch (error) {
+    console.error('❌ Pending allocations error:', error);
     res.status(500).json({ success: false, error: error.message });
   }
 });
@@ -140,6 +184,27 @@ router.post('/tx/update-tier', async (req, res) => {
     });
   } catch (error) {
     console.error('❌ Build update tier tx error:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+router.post('/confirm-register', async (req, res) => {
+  try {
+    const { walletAddress, tier, txHash } = req.body;
+    
+    if (!walletAddress || tier === undefined || !txHash) {
+      return res.status(400).json({ success: false, error: 'Wallet address, tier, and txHash required' });
+    }
+
+    const renter = await keygrowService.registerRenter(walletAddress, tier);
+    
+    res.json({
+      success: true,
+      data: renter,
+      message: 'Registration confirmed and recorded'
+    });
+  } catch (error) {
+    console.error('❌ Confirm registration error:', error);
     res.status(500).json({ success: false, error: error.message });
   }
 });

@@ -67,6 +67,39 @@ export class KeyGrowService {
   }
 
   /**
+   * Get fund statistics (public data)
+   */
+  async getFundStats(): Promise<{
+    totalBalance: string;
+    activeRenters: number;
+    totalDistributed: string;
+    monthlyRevenue: string;
+  }> {
+    try {
+      const response = await fetch(`${this.apiBase}/stats`);
+      const data = await response.json();
+
+      if (data.success && data.data) {
+        return data.data;
+      }
+      return {
+        totalBalance: '0',
+        activeRenters: 0,
+        totalDistributed: '0',
+        monthlyRevenue: '0'
+      };
+    } catch (error) {
+      console.error('Failed to fetch fund stats:', error);
+      return {
+        totalBalance: '0',
+        activeRenters: 0,
+        totalDistributed: '0',
+        monthlyRevenue: '0'
+      };
+    }
+  }
+
+  /**
    * Build register as renter transaction
    */
   async buildRegisterTransaction(params: RegisterRenterParams): Promise<TransactionData | null> {

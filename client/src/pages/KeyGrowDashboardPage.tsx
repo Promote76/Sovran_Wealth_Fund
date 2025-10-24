@@ -22,6 +22,30 @@ export default function KeyGrowDashboardPage() {
   const [loading, setLoading] = useState(true);
   const [selectedTier, setSelectedTier] = useState(0);
   const [toastEvents, setToastEvents] = useState<ContractEvent[]>([]);
+  
+  // Fund Statistics
+  const [fundStats, setFundStats] = useState({
+    totalBalance: '0',
+    activeRenters: 0,
+    totalDistributed: '0',
+    monthlyRevenue: '0'
+  });
+  
+  // Property Management
+  const [properties, setProperties] = useState<Array<{
+    id: string;
+    address: string;
+    targetPrice: string;
+    monthlyRent: string;
+    currentSavings: string;
+    progress: number;
+  }>>([]);
+  const [showAddProperty, setShowAddProperty] = useState(false);
+  const [newProperty, setNewProperty] = useState({
+    address: '',
+    targetPrice: '',
+    monthlyRent: ''
+  });
 
   // Real-time event listener
   const { latestEvent, isConnected: eventStreamConnected } = useKeygrowEvents({
@@ -64,19 +88,40 @@ export default function KeyGrowDashboardPage() {
     
     setLoading(true);
     try {
-      const [info, pending] = await Promise.all([
+      const [info, pending, stats] = await Promise.all([
         keygrowService.getRenterInfo(account),
-        keygrowService.getPendingAllocations(account)
+        keygrowService.getPendingAllocations(account),
+        keygrowService.getFundStats().catch(() => ({
+          totalBalance: '0',
+          activeRenters: 0,
+          totalDistributed: '0',
+          monthlyRevenue: '0'
+        }))
       ]);
       
       setRenterInfo(info);
       setPendingAllocation(pending);
+      setFundStats(stats);
     } catch (error) {
       console.error('Failed to load renter data:', error);
     } finally {
       setLoading(false);
     }
   };
+
+  // Load fund stats even without wallet connection
+  useEffect(() => {
+    const loadPublicStats = async () => {
+      try {
+        const stats = await keygrowService.getFundStats();
+        setFundStats(stats);
+      } catch (error) {
+        console.error('Failed to load fund stats:', error);
+      }
+    };
+    
+    loadPublicStats();
+  }, []);
 
   const handleRegister = async () => {
     await registerAsRenter(selectedTier);
@@ -108,46 +153,72 @@ export default function KeyGrowDashboardPage() {
     '2.0x multiplier - Maximum benefits for committed members',
   ];
 
-  if (!isConnected || !isLoggedIn) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white p-6">
-        <div className="max-w-4xl mx-auto">
-          <div className="bg-white rounded-xl shadow-lg p-8 text-center">
-            <h1 className="text-3xl font-bold text-gray-800 mb-4">
-              🏠 KeyGrow Rent-to-Own Program
-            </h1>
-            <p className="text-gray-600 mb-6">
-              Please connect your wallet to access the KeyGrow dashboard
-            </p>
-            <Button 
-              onClick={handleWalletConnect}
-              disabled={isConnecting}
-              className="bg-blue-600 hover:bg-blue-700 text-white"
-            >
-              {isConnecting ? '🔄 Connecting...' : '🔗 Connect Wallet'}
-            </Button>
-            {loginError && (
-              <div className="mt-4 bg-red-50 border border-red-200 rounded-lg p-4">
-                <div className="text-sm font-medium text-red-800 mb-2">Connection Error:</div>
-                <div className="text-xs text-red-600">{loginError}</div>
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-    );
-  }
+  const isWalletReady = isConnected;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white p-6">
       <div className="max-w-6xl mx-auto space-y-6">
         {/* Header */}
         <div className="bg-gradient-to-r from-blue-600 to-blue-700 rounded-xl shadow-lg p-8 text-white">
-          <h1 className="text-4xl font-bold mb-2">🏠 KeyGrow Dashboard</h1>
-          <p className="text-blue-100 text-lg">
-            Your path from renting to homeownership through platform revenue sharing
-          </p>
+          <div className="flex justify-between items-start">
+            <div>
+              <h1 className="text-4xl font-bold mb-2">🏠 KeyGrow Dashboard</h1>
+              <p className="text-blue-100 text-lg">
+                Your path from renting to homeownership through platform revenue sharing
+              </p>
+            </div>
+            <div className="flex flex-col items-end space-y-2">
+              {isWalletReady ? (
+                <>
+                  <div className="bg-white/10 backdrop-blur-sm rounded-lg px-4 py-2 border border-white/20">
+                    <div className="text-xs text-blue-100 mb-1">Connected Wallet</div>
+                    <div className="font-mono text-sm font-semibold">
+                      {account?.slice(0, 6)}...{account?.slice(-4)}
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <Button 
+                  onClick={handleWalletConnect}
+                  disabled={isConnecting}
+                  className="bg-white text-blue-600 hover:bg-blue-50 font-semibold shadow-lg"
+                >
+                  {isConnecting ? '🔄 Connecting...' : '🔗 Connect Wallet to Register'}
+                </Button>
+              )}
+            </div>
+          </div>
         </div>
+
+        {/* Connect Wallet Banner - shown when not connected */}
+        {!isWalletReady && (
+          <Card className="border-2 border-blue-500 bg-blue-50">
+            <CardContent className="p-6">
+              <div className="flex items-start gap-4">
+                <div className="text-4xl">🔒</div>
+                <div className="flex-1">
+                  <h3 className="text-xl font-bold text-gray-900 mb-2">Connect Your Wallet to Join KeyGrow</h3>
+                  <p className="text-gray-700 mb-4">
+                    Browse the program details below, then connect your wallet to register and start receiving monthly allocations toward homeownership.
+                  </p>
+                  {loginError && (
+                    <div className="bg-red-50 border border-red-200 rounded-lg p-3 mb-4">
+                      <div className="text-sm font-medium text-red-800 mb-1">Connection Error:</div>
+                      <div className="text-xs text-red-600">{loginError}</div>
+                    </div>
+                  )}
+                  <Button 
+                    onClick={handleWalletConnect}
+                    disabled={isConnecting}
+                    className="bg-blue-600 hover:bg-blue-700 text-white"
+                  >
+                    {isConnecting ? '🔄 Connecting...' : '🔗 Connect Wallet'}
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Program Overview - Comprehensive Information */}
         <Card className="border-2 border-blue-200">
@@ -325,6 +396,200 @@ export default function KeyGrowDashboardPage() {
           </CardContent>
         </Card>
 
+        {/* Fund Statistics Dashboard */}
+        <Card className="border-2 border-green-200 bg-gradient-to-br from-green-50 to-white">
+          <CardContent className="p-6">
+            <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
+              <span className="text-3xl">📊</span>
+              Real Estate Acquisition Fund - Live Statistics
+            </h2>
+            <div className="grid md:grid-cols-4 gap-4">
+              <div className="bg-white p-4 rounded-lg border-2 border-blue-200 shadow-sm">
+                <div className="text-sm text-gray-600 mb-1">Total Fund Balance</div>
+                <div className="text-2xl font-bold text-blue-600">{parseFloat(fundStats.totalBalance).toFixed(4)} BNB</div>
+                <div className="text-xs text-gray-500 mt-1">≈ ${(parseFloat(fundStats.totalBalance) * 600).toFixed(2)}</div>
+              </div>
+              <div className="bg-white p-4 rounded-lg border-2 border-green-200 shadow-sm">
+                <div className="text-sm text-gray-600 mb-1">Active Renters</div>
+                <div className="text-2xl font-bold text-green-600">{fundStats.activeRenters}</div>
+                <div className="text-xs text-gray-500 mt-1">Registered participants</div>
+              </div>
+              <div className="bg-white p-4 rounded-lg border-2 border-purple-200 shadow-sm">
+                <div className="text-sm text-gray-600 mb-1">Total Distributed</div>
+                <div className="text-2xl font-bold text-purple-600">{parseFloat(fundStats.totalDistributed).toFixed(4)} BNB</div>
+                <div className="text-xs text-gray-500 mt-1">All-time allocations</div>
+              </div>
+              <div className="bg-white p-4 rounded-lg border-2 border-orange-200 shadow-sm">
+                <div className="text-sm text-gray-600 mb-1">Monthly Revenue</div>
+                <div className="text-2xl font-bold text-orange-600">{parseFloat(fundStats.monthlyRevenue).toFixed(4)} BNB</div>
+                <div className="text-xs text-gray-500 mt-1">20% of platform fees</div>
+              </div>
+            </div>
+            <div className="mt-4 bg-blue-50 border border-blue-200 rounded-lg p-4 text-sm text-gray-700">
+              <strong>How it works:</strong> 20% of all AXIOM platform revenue (trading fees, staking fees, banking fees, NFT sales) 
+              automatically flows to this fund. Funds are distributed monthly to registered KeyGrow members based on tier multipliers 
+              and time in program. All transactions are transparent on-chain via smart contracts.
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Property Management Section - for registered users only */}
+        {isWalletReady && renterInfo && renterInfo.registered && (
+          <Card className="border-2 border-purple-200">
+            <CardContent className="p-6">
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+                  <span className="text-3xl">🏘️</span>
+                  My Properties
+                </h2>
+                <Button
+                  onClick={() => setShowAddProperty(!showAddProperty)}
+                  className="bg-purple-600 hover:bg-purple-700"
+                >
+                  {showAddProperty ? '✖ Cancel' : '+ Add Property Goal'}
+                </Button>
+              </div>
+
+              {/* Add Property Form */}
+              {showAddProperty && (
+                <div className="bg-purple-50 border-2 border-purple-300 rounded-lg p-6 mb-6">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Add New Property Goal</h3>
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Property Address</label>
+                      <input
+                        type="text"
+                        value={newProperty.address}
+                        onChange={(e) => setNewProperty({...newProperty, address: e.target.value})}
+                        placeholder="123 Main St, City, State, ZIP"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                      />
+                    </div>
+                    <div className="grid md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Target Purchase Price (USD)</label>
+                        <input
+                          type="number"
+                          value={newProperty.targetPrice}
+                          onChange={(e) => setNewProperty({...newProperty, targetPrice: e.target.value})}
+                          placeholder="200000"
+                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Current Monthly Rent (USD)</label>
+                        <input
+                          type="number"
+                          value={newProperty.monthlyRent}
+                          onChange={(e) => setNewProperty({...newProperty, monthlyRent: e.target.value})}
+                          placeholder="1500"
+                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                        />
+                      </div>
+                    </div>
+                    <div className="flex gap-3">
+                      <Button
+                        onClick={() => {
+                          if (newProperty.address && newProperty.targetPrice && newProperty.monthlyRent) {
+                            const targetDown = parseFloat(newProperty.targetPrice) * 0.2;
+                            setProperties([...properties, {
+                              id: Date.now().toString(),
+                              ...newProperty,
+                              currentSavings: parseFloat(renterInfo.totalContributed).toFixed(2),
+                              progress: (parseFloat(renterInfo.totalContributed) / targetDown) * 100
+                            }]);
+                            setNewProperty({ address: '', targetPrice: '', monthlyRent: '' });
+                            setShowAddProperty(false);
+                          }
+                        }}
+                        className="bg-purple-600 hover:bg-purple-700"
+                        disabled={!newProperty.address || !newProperty.targetPrice || !newProperty.monthlyRent}
+                      >
+                        💾 Save Property Goal
+                      </Button>
+                      <Button
+                        onClick={() => {
+                          setNewProperty({ address: '', targetPrice: '', monthlyRent: '' });
+                          setShowAddProperty(false);
+                        }}
+                        variant="outline"
+                      >
+                        Cancel
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Properties List */}
+              {properties.length === 0 ? (
+                <div className="text-center py-12 text-gray-500">
+                  <div className="text-4xl mb-3">🏠</div>
+                  <p className="text-lg font-medium">No property goals yet</p>
+                  <p className="text-sm">Add a property to start tracking your progress toward homeownership!</p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {properties.map((property) => (
+                    <div key={property.id} className="bg-white border-2 border-gray-200 rounded-lg p-5 hover:shadow-lg transition-shadow">
+                      <div className="flex justify-between items-start mb-3">
+                        <div>
+                          <h4 className="font-semibold text-lg text-gray-900">{property.address}</h4>
+                          <div className="text-sm text-gray-600 mt-1">
+                            Target Price: <span className="font-semibold">${parseFloat(property.targetPrice).toLocaleString()}</span>
+                            <span className="mx-2">|</span>
+                            Monthly Rent: <span className="font-semibold">${parseFloat(property.monthlyRent).toLocaleString()}</span>
+                          </div>
+                        </div>
+                        <button
+                          onClick={() => setProperties(properties.filter(p => p.id !== property.id))}
+                          className="text-red-600 hover:text-red-800 text-sm"
+                        >
+                          🗑️ Remove
+                        </button>
+                      </div>
+                      
+                      {/* Progress Bar */}
+                      <div className="mb-3">
+                        <div className="flex justify-between text-sm mb-1">
+                          <span className="text-gray-600">Down Payment Progress (20%)</span>
+                          <span className="font-semibold text-purple-600">
+                            ${property.currentSavings} / ${(parseFloat(property.targetPrice) * 0.2).toLocaleString()}
+                          </span>
+                        </div>
+                        <div className="w-full bg-gray-200 rounded-full h-4">
+                          <div
+                            className="bg-gradient-to-r from-purple-500 to-blue-500 h-4 rounded-full transition-all duration-300"
+                            style={{ width: `${Math.min(property.progress, 100)}%` }}
+                          ></div>
+                        </div>
+                        <div className="text-xs text-gray-500 mt-1 text-center">
+                          {property.progress.toFixed(1)}% Complete
+                        </div>
+                      </div>
+
+                      {/* Savings Comparison */}
+                      <div className="grid md:grid-cols-2 gap-3 bg-blue-50 p-3 rounded-lg">
+                        <div>
+                          <div className="text-xs text-gray-600">Monthly Rent (Lost Forever)</div>
+                          <div className="text-lg font-bold text-red-600">-${property.monthlyRent}</div>
+                        </div>
+                        <div>
+                          <div className="text-xs text-gray-600">Estimated Mortgage Payment</div>
+                          <div className="text-lg font-bold text-green-600">
+                            ${Math.round(parseFloat(property.targetPrice) * 0.8 * 0.005).toLocaleString()}
+                          </div>
+                          <div className="text-xs text-gray-500">Building YOUR equity!</div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        )}
+
         {loading ? (
           <Card>
             <CardContent className="p-12 text-center">
@@ -388,7 +653,7 @@ export default function KeyGrowDashboardPage() {
                   </div>
                   <Button
                     onClick={handleClaim}
-                    disabled={!isReady || txStatus.loading || parseFloat(pendingAllocation) === 0}
+                    disabled={!isWalletReady || txStatus.loading || parseFloat(pendingAllocation) === 0}
                     className="w-full bg-green-600 hover:bg-green-700"
                   >
                     {txStatus.loading ? (
@@ -501,7 +766,7 @@ export default function KeyGrowDashboardPage() {
                 {/* Register Button */}
                 <Button
                   onClick={handleRegister}
-                  disabled={!isReady || txStatus.loading}
+                  disabled={!isWalletReady || txStatus.loading}
                   className="w-full bg-blue-600 hover:bg-blue-700 text-lg py-6"
                 >
                   {txStatus.loading ? (
