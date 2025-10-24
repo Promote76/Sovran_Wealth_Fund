@@ -4648,6 +4648,46 @@
       "artifacts": [
         "LiquidityRewardsVault"
       ]
+    },
+    "/home/runner/workspace/contracts/VaultFactory.sol": {
+      "lastModificationDate": 1761265099897,
+      "contentHash": "62b6ff436752199abd7edbab1f96c73c",
+      "sourceName": "contracts/VaultFactory.sol",
+      "solcConfig": {
+        "version": "0.8.26",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "viaIR": true,
+          "evmVersion": "paris",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "./LiquidityRewardsVault.sol",
+        "@openzeppelin/contracts/access/Ownable.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.20"
+      ],
+      "artifacts": [
+        "VaultFactory"
+      ]
     }
   }
 }
