@@ -4,7 +4,7 @@ async function main() {
   console.log("🏭 Deploying VaultFactory to BSC Mainnet...\n");
 
   // Configuration
-  const SWF_TOKEN = "0x83E17aeB148d9b4b7Be0BE7C87dd73531a5a5738"; // Default reward token
+  const SWF_TOKEN = "0x83E17aeB148d9b4b7Be0Be7C87dd73531a5a5738"; // Default reward token
 
   // Get deployer
   const [deployer] = await ethers.getSigners();
