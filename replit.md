@@ -1,7 +1,11 @@
 # AXIOM: The Foundation of Sovereign Wealth
 
 ## Overview
-AXIOM is a decentralized finance (DeFi) platform on BSC and Polygon, integrating token management, Proof of Contribution (PoC) staking, liquidity provision, NFT integration, and transparent governance. Its purpose is to establish a lawful digital economy where value is derived from participation and contribution, aiming to fuse ancient wisdom with modern cryptography to create a self-correcting network. AXIOM also features the KeyGrow Rent-to-Own program, allocating 20% of platform revenue to help renters achieve homeownership.
+AXIOM is a decentralized finance (DeFi) platform on BSC and Polygon, integrating token management, Proof of Contribution (PoC) staking, liquidity provision, NFT integration, and transparent governance. Its purpose is to establish a lawful digital economy where value is derived from participation and contribution, aiming to fuse ancient wisdom with modern cryptography to create a self-correcting network. 
+
+**Real Estate Programs:**
+- **KeyGrow Rent-to-Own**: Allocates 20% of platform revenue to help renters achieve homeownership through monthly allocations
+- **Real Estate Investor**: Gas-efficient platform for fractional property investment with 5 earning mechanisms (rental income, appreciation, exit profits, low entry barrier, portfolio diversification)
 
 ## User Preferences
 Preferred communication style: Simple, everyday language.
@@ -71,6 +75,43 @@ The LiquidityVaultPage provides a unified dashboard displaying all active vaults
 
 ### KeyGrow Rent-to-Own Program
 20% of all platform revenue is allocated to a Real Estate Acquisition Fund through the AXIOMRevenueRouter (80% Treasury, 20% KeyGrow). This fund assists renters with down payments and property acquisition based on tiered allocations and time-weighted multipliers.
+
+**Features (Deployed 2025-10-24):**
+- Browse-first UX - View program details before wallet connection
+- Fund Statistics Dashboard - Live balance, active renters, total distributions, monthly revenue
+- Property Management - Add target properties, track down payment progress, compare rent vs mortgage
+- Tier System - Bronze (1.0x), Silver (1.25x), Gold (1.5x), Platinum (2.0x) multipliers
+- Monthly Allocation Claims - Transparent on-chain distributions
+- Real-time Event Streaming - WebSocket notifications for registrations and claims
+- Cross-Promotion with RE Investor - Integrated dashboard promoting dual income strategy
+
+### Real Estate Investor Platform
+Unified smart contract system enabling fractional real estate investment with minimal gas fees. Single contract manages multiple properties, investor portfolios, rental income distribution, and appreciation tracking.
+
+**Contract: RealEstateInvestor.sol** (Compiled, pending deployment - needs 0.005 BNB)
+- All-in-one gas-efficient design (no separate token deployments per property)
+- Fractional ownership tracking with share-based accounting
+- Property listing and funding management
+- Automated rental income distribution with proportional calculations
+- Real-time property value updates for appreciation tracking
+- Portfolio analytics across multiple properties
+- Platform fee: 2.5%, Minimum investment: 0.05 BNB (~$30)
+
+**5 Earning Mechanisms:**
+1. **Rental Income** - Monthly distributions from tenant payments, claimable anytime
+2. **Property Appreciation** - Real-time tracking of value increases
+3. **Investment Portfolio** - Multi-property diversification
+4. **Exit Profits** - Share in proceeds when properties sell
+5. **Low Barrier Entry** - Start with just 0.05 BNB ($30)
+
+**Frontend Features:**
+- Comprehensive investment dashboard with property browsing
+- Portfolio tracking showing shares owned, current value, appreciation, pending rentals
+- Individual and bulk rental income claiming
+- Real-time property funding progress bars
+- Platform statistics (total properties, investors, BNB invested, rental distributed)
+- Educational content explaining earning mechanisms
+- Cross-promotion on KeyGrow dashboard ("Double Your Income" strategy)
 
 ### Real-time Blockchain Event Processing
 The system includes a `ContractEventListener` service that monitors all contract systems for blockchain events, stores them in a `contract_events` PostgreSQL table, and broadcasts them via a WebSocket server for real-time frontend updates and notifications.

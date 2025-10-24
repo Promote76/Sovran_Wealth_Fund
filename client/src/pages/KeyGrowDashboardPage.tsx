@@ -821,6 +821,76 @@ export default function KeyGrowDashboardPage() {
           </>
         )}
 
+        {/* Real Estate Investor Cross-Promotion */}
+        <Card className="border-2 border-green-500 bg-gradient-to-br from-green-50 to-blue-50">
+          <CardContent className="p-8">
+            <div className="flex items-start gap-6">
+              <div className="text-6xl">🏢</div>
+              <div className="flex-1">
+                <h2 className="text-3xl font-bold text-gray-900 mb-3">
+                  💰 Earn While You Save - Become a Real Estate Investor!
+                </h2>
+                <p className="text-lg text-gray-700 mb-4">
+                  While waiting for your KeyGrow allocations to grow, <strong>accelerate your path to homeownership</strong> by investing 
+                  in our Real Estate Investor platform. Earn monthly rental income, property appreciation, and exit profits!
+                </p>
+                
+                <div className="grid md:grid-cols-2 gap-4 mb-6">
+                  <div className="bg-white p-4 rounded-lg border-2 border-green-200">
+                    <div className="text-green-600 font-bold text-lg mb-2">🎯 Low Entry: 0.05 BNB</div>
+                    <div className="text-gray-700 text-sm">
+                      Start investing with just $30. Own fractional shares of real properties and earn from rental income immediately.
+                    </div>
+                  </div>
+                  <div className="bg-white p-4 rounded-lg border-2 border-blue-200">
+                    <div className="text-blue-600 font-bold text-lg mb-2">📈 5 Ways to Earn</div>
+                    <div className="text-gray-700 text-sm">
+                      Monthly rent distributions + property appreciation + exit profits. Diversify across multiple properties.
+                    </div>
+                  </div>
+                  <div className="bg-white p-4 rounded-lg border-2 border-purple-200">
+                    <div className="text-purple-600 font-bold text-lg mb-2">🏠 Real Properties</div>
+                    <div className="text-gray-700 text-sm">
+                      Invest in verified, income-generating real estate. All properties are professionally managed with transparent records.
+                    </div>
+                  </div>
+                  <div className="bg-white p-4 rounded-lg border-2 border-orange-200">
+                    <div className="text-orange-600 font-bold text-lg mb-2">⚡ Instant Claims</div>
+                    <div className="text-gray-700 text-sm">
+                      Claim your rental income anytime. No lock-up periods. Full control over your investments and earnings.
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-gradient-to-r from-yellow-100 to-green-100 p-5 rounded-lg border-2 border-yellow-400 mb-6">
+                  <h3 className="font-bold text-gray-900 mb-2 text-lg">💡 Smart Strategy: Double Your Income</h3>
+                  <p className="text-gray-700">
+                    <strong>KeyGrow allocations</strong> (building down payment) + <strong>RE Investor rental income</strong> (extra cash flow) 
+                    = <strong className="text-green-600">Faster path to homeownership!</strong> Many members use rental earnings to 
+                    boost their down payment savings by 30-50%.
+                  </p>
+                </div>
+
+                <div className="flex gap-4">
+                  <Button
+                    onClick={() => window.location.href = '/real-estate-investor'}
+                    className="bg-green-600 hover:bg-green-700 text-white text-lg px-8 py-6 shadow-lg"
+                  >
+                    🏢 Browse Investment Properties
+                  </Button>
+                  <Button
+                    onClick={() => window.open('/real-estate-investor', '_blank')}
+                    variant="outline"
+                    className="border-2 border-green-600 text-green-600 hover:bg-green-50 text-lg px-8 py-6"
+                  >
+                    📊 View Platform Stats
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
         {/* Info Section */}
         <Card>
           <CardContent className="p-6">
