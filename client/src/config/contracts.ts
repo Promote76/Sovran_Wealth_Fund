@@ -41,6 +41,10 @@ export const CONTRACTS = {
       address: '0xe097881D32D67ED1Dd9df8203F188CD186f345dc',
       abi: RealEstateAcquisitionFundABI.abi
     },
+    REAL_ESTATE_INVESTOR: {
+      address: '0x0000000000000000000000000000000000000000', // Pending deployment - need 0.005 BNB
+      abi: [] // Will update after deployment
+    },
     BASKET_INDEX: '0x06b88f3Faa07215F6f5fb0A10A3F058D3f25ecF6',
     ADVANCED_STAKING: '0x5eE9d1b28c261AE132B6d324b02452bC90750136',
     NFT_MARKETPLACE: '0xEc973eD81082a1d539F380eF94f6215793410036',

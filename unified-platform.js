@@ -749,8 +749,10 @@ const basketIndexRouter = require('./server/routes/basketIndex');
 const dynamicAPRRouter = require('./server/routes/dynamicAPR');
 const liquidityVaultRouter = require('./server/routes/liquidityVault');
 const pancakePoolsRouter = require('./server/routes/pancakePools');
+const realEstateInvestorRouter = require('./server/routes/realEstateInvestor');
 
 app.use('/api/keygrow', keygrowRouter);
+app.use('/api/real-estate-investor', realEstateInvestorRouter);
 app.use('/api/nft-marketplace', nftMarketplaceRouter);
 app.use('/api/advanced-staking', advancedStakingRouter);
 app.use('/api/revenue-router', revenueRouterAPI);
@@ -759,7 +761,7 @@ app.use('/api/dynamic-apr', dynamicAPRRouter);
 app.use('/api/liquidity-vault', liquidityVaultRouter);
 app.use('/api/pancake-pools', pancakePoolsRouter);
 
-console.log('✅ New contract routers mounted: KeyGrow, NFT Marketplace, Advanced Staking, Revenue Router, Basket Index, Dynamic APR, Liquidity Vault, PancakeSwap Pools');
+console.log('✅ New contract routers mounted: KeyGrow, Real Estate Investor, NFT Marketplace, Advanced Staking, Revenue Router, Basket Index, Dynamic APR, Liquidity Vault, PancakeSwap Pools');
 
 // ========================================
 // SAVINGS ACCOUNT API ENDPOINTS

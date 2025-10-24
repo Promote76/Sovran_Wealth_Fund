@@ -4688,6 +4688,47 @@
       "artifacts": [
         "VaultFactory"
       ]
+    },
+    "/home/runner/workspace/contracts/RealEstateInvestor.sol": {
+      "lastModificationDate": 1761269667810,
+      "contentHash": "5d46a6b83d3074b17ac8d017de76c374",
+      "sourceName": "contracts/RealEstateInvestor.sol",
+      "solcConfig": {
+        "version": "0.8.26",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "viaIR": true,
+          "evmVersion": "paris",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "@openzeppelin/contracts/access/Ownable.sol",
+        "@openzeppelin/contracts/utils/Pausable.sol",
+        "@openzeppelin/contracts/utils/ReentrancyGuard.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.20"
+      ],
+      "artifacts": [
+        "RealEstateInvestor"
+      ]
     }
   }
 }
