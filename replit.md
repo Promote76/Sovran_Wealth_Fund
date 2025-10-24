@@ -116,6 +116,15 @@ Unified smart contract system enabling fractional real estate investment with mi
 ### Real-time Blockchain Event Processing
 The system includes a `ContractEventListener` service that monitors all contract systems for blockchain events, stores them in a `contract_events` PostgreSQL table, and broadcasts them via a WebSocket server for real-time frontend updates and notifications.
 
+### Leadership & Team
+The Team page (`/team`) features a single consolidated profile for **Clarence Fuqua Bey**, Founder and CEO, who currently serves in all executive roles including Lead Blockchain Developer, Director of Operations, and DeFi Strategy Advisor until permanent leaders are appointed. The page includes:
+- Professional profile card with CFB avatar initials
+- Expandable full profile with education, expertise (11 skill areas), and key achievements
+- Company vision and values section highlighting innovation, community focus, and results-driven approach
+- Future team expansion section for upcoming positions
+
+All placeholder team members have been removed. The design maintains the existing card-based layout with blue/white theme consistent with the platform's visual identity.
+
 ## External Dependencies
 
 ### Blockchain Services
