@@ -143,36 +143,36 @@ const InvestorPage: React.FC = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-white via-blue-50 to-white py-12">
-        <div className="container mx-auto px-4 max-w-7xl">
+    <div className="min-h-screen bg-gradient-to-br from-white via-blue-50 to-white py-6 sm:py-12">
+        <div className="container mx-auto px-3 sm:px-4 lg:px-6 max-w-7xl">
           
           {/* Hero Section */}
-          <div className="text-center mb-16">
-            <h1 className="text-4xl md:text-6xl font-bold text-blue-900 mb-6">
+          <div className="text-center mb-8 sm:mb-12 md:mb-16">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-blue-900 mb-4 sm:mb-6 px-2">
               Investor Portal
             </h1>
-            <p className="text-xl md:text-2xl text-blue-700 max-w-4xl mx-auto leading-relaxed mb-8">
+            <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-blue-700 max-w-4xl mx-auto leading-relaxed mb-6 sm:mb-8 px-4">
               Discover institutional-grade investment opportunities in the decentralized economy. 
               From real estate tokenization to DeFi yield farming - build your wealth with confidence.
             </p>
             
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center mb-8 sm:mb-12 px-4">
               <button 
                 onClick={() => navigate('/dashboard')}
-                className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-8 rounded-lg transition-all transform hover:scale-105 shadow-lg"
+                className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 sm:py-4 px-6 sm:px-8 rounded-lg transition-all transform hover:scale-105 shadow-lg w-full sm:w-auto text-sm sm:text-base"
               >
                 Start Investing Today
               </button>
               <button 
                 onClick={() => setActiveTab('calculator')}
-                className="bg-white border-2 border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white font-bold py-4 px-8 rounded-lg transition-all transform hover:scale-105 shadow-lg"
+                className="bg-white border-2 border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white font-bold py-3 sm:py-4 px-6 sm:px-8 rounded-lg transition-all transform hover:scale-105 shadow-lg w-full sm:w-auto text-sm sm:text-base"
               >
                 Investment Calculator
               </button>
             </div>
 
             {/* Performance Dashboard */}
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 max-w-6xl mx-auto">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4 max-w-6xl mx-auto">
               {performanceMetrics.map((metric, index) => (
                 <div key={index} className="bg-white rounded-lg shadow-md p-4 border-l-4 border-blue-500">
                   <div className="text-2xl font-bold text-blue-900">{metric.value}</div>
