@@ -477,11 +477,9 @@ export default function HomePage() {
         <div className="absolute inset-0 bg-gradient-to-br from-blue-100/20 via-transparent to-blue-200/20"></div>
         <div className="relative z-10">
           <div className="mb-8 flex justify-center">
-            <img 
-              src="/swf-logo.png" 
-              alt="AXIOM Logo" 
-              className="h-32 w-32 md:h-40 md:w-40 animate-bounce"
-            />
+            <div className="h-32 w-32 md:h-40 md:w-40 flex items-center justify-center">
+              <h1 className="text-6xl md:text-7xl font-bold text-blue-600 animate-bounce">Ⓐ</h1>
+            </div>
           </div>
           <h1 className="text-5xl md:text-7xl font-bold mb-8 text-transparent bg-gradient-to-r from-blue-700 via-blue-900 to-blue-700 bg-clip-text">
             AXIOM: The Foundation of Sovereign Wealth

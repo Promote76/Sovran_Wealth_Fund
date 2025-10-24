@@ -282,11 +282,9 @@ const Layout: React.FC<LayoutProps> = ({
         <div className="container mx-auto flex justify-between items-center">
           <div className="flex items-center space-x-4">
             <Link to="/" className="flex items-center space-x-3 hover:opacity-90 transition-opacity group">
-              <img 
-                src="/swf-logo.png" 
-                alt="AXIOM Logo" 
-                className="h-10 w-10 sm:h-12 sm:w-12 md:h-14 md:w-14 lg:h-16 lg:w-16"
-              />
+              <div className="h-10 w-10 sm:h-12 sm:w-12 md:h-14 md:w-14 lg:h-16 lg:w-16 flex items-center justify-center">
+                <span className="text-3xl sm:text-4xl md:text-5xl font-bold text-blue-600">Ⓐ</span>
+              </div>
               <div className="flex flex-col">
                 <span className="text-xl sm:text-2xl md:text-3xl font-bold text-blue-800 hover:text-blue-700 transition-colors leading-tight">
                   AXIOM
@@ -545,13 +543,11 @@ const Layout: React.FC<LayoutProps> = ({
             {/* Mobile Menu Header */}
             <div className="flex items-center justify-between p-4 border-b border-gray-200">
               <div className="flex items-center space-x-3">
-                <img 
-                  src="/swf-logo.png" 
-                  alt="SWF Logo" 
-                  className="h-8 w-8"
-                />
+                <div className="h-8 w-8 flex items-center justify-center">
+                  <span className="text-2xl font-bold text-blue-600">Ⓐ</span>
+                </div>
                 <span className="text-lg font-bold text-blue-800">
-                  SWF Navigation
+                  AXIOM Navigation
                 </span>
               </div>
               <button
@@ -769,17 +765,15 @@ const Layout: React.FC<LayoutProps> = ({
         <div className="container mx-auto px-4">
           <div className="text-center mb-6">
             <div className="flex justify-center items-center space-x-3 mb-4">
-              <img 
-                src="/swf-logo.svg" 
-                alt="Sovran Wealth Fund Logo" 
-                className="h-8 w-8 drop-shadow-sm"
-              />
+              <div className="h-8 w-8 flex items-center justify-center">
+                <span className="text-2xl font-bold text-blue-600">Ⓐ</span>
+              </div>
               <span className="text-lg font-bold text-blue-800">
-                Sovran Wealth Fund
+                AXIOM
               </span>
             </div>
             <p className="text-sm text-blue-600 font-medium">
-              Building Financial Sovereignty
+              The Foundation of Sovereign Wealth
             </p>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
@@ -814,7 +808,7 @@ const Layout: React.FC<LayoutProps> = ({
           </div>
           <div className="text-center">
             <p className="text-sm text-gray-500">
-              © 2025 Sovran Wealth Fund. Empowering financial sovereignty through blockchain technology.
+              © 2025 AXIOM. The Foundation of Sovereign Wealth.
             </p>
           </div>
         </div>
