@@ -87,12 +87,124 @@ export default function AxiomPrimeDashboard() {
 
   if (!isConnected) {
     return (
-      <div className="max-w-7xl mx-auto px-4 py-12 text-center">
-        <h1 className="text-4xl font-bold mb-4">Axiom Prime Dashboard</h1>
-        <p className="text-gray-600 mb-8">Connect your wallet to view your membership benefits</p>
-        <button className="bg-blue-600 text-white px-8 py-3 rounded-lg font-medium hover:bg-blue-700">
-          Connect Wallet
-        </button>
+      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-pink-50">
+        <div className="max-w-7xl mx-auto px-4 py-12">
+          {/* Hero Section */}
+          <div className="text-center mb-16">
+            <div className="text-6xl mb-4">💎</div>
+            <h1 className="text-5xl font-bold mb-4 bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+              Axiom Prime Membership
+            </h1>
+            <p className="text-xl text-gray-700 mb-8 max-w-3xl mx-auto">
+              Earn More, Pay Less, Own Your Future. Join our tiered membership program to unlock 
+              loyalty multipliers up to 1.6x, fee discounts up to 50%, and passive income through referrals.
+            </p>
+            <button 
+              onClick={() => (wallet as any)?.connectWallet?.()}
+              className="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-10 py-4 rounded-xl font-bold text-lg hover:from-purple-700 hover:to-pink-700 shadow-xl transform hover:scale-105 transition-all"
+            >
+              Connect Wallet to Get Started
+            </button>
+          </div>
+
+          {/* Tier Comparison Grid */}
+          <div className="mb-16">
+            <h2 className="text-3xl font-bold text-center mb-8">Choose Your Tier</h2>
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+              {[
+                { name: 'Free', emoji: '🆓', tvl: '$0-4,999', multiplier: '1.0x', fees: '2.0%', bg: 'bg-gray-100', border: 'border-gray-300' },
+                { name: 'Silver', emoji: '🥈', tvl: '$5K-24K', multiplier: '1.2x', fees: '1.5%', bg: 'bg-gradient-to-br from-gray-100 to-gray-200', border: 'border-gray-400' },
+                { name: 'Gold', emoji: '🥇', tvl: '$25K-99K', multiplier: '1.4x', fees: '1.0%', bg: 'bg-gradient-to-br from-yellow-100 to-orange-100', border: 'border-yellow-500' },
+                { name: 'Platinum', emoji: '💎', tvl: '$100K+', multiplier: '1.6x', fees: '0.4%', bg: 'bg-gradient-to-br from-purple-100 to-pink-100', border: 'border-purple-500', highlight: true }
+              ].map((tier) => (
+                <div 
+                  key={tier.name}
+                  className={`${tier.bg} border-2 ${tier.border} rounded-2xl p-6 ${tier.highlight ? 'shadow-2xl scale-105' : 'shadow-lg'} transform hover:scale-105 transition-all`}
+                >
+                  <div className="text-5xl text-center mb-3">{tier.emoji}</div>
+                  <h3 className="text-2xl font-bold text-center mb-2">{tier.name}</h3>
+                  <p className="text-center text-gray-700 font-semibold mb-4">{tier.tvl}</p>
+                  <div className="space-y-2 text-sm">
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Multiplier:</span>
+                      <span className="font-bold text-purple-600">{tier.multiplier}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Platform Fees:</span>
+                      <span className="font-bold text-green-600">{tier.fees}</span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Features Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
+            <div className="bg-white rounded-xl p-8 shadow-lg border border-purple-200">
+              <div className="text-4xl mb-4">⚡</div>
+              <h3 className="text-2xl font-bold mb-3">Loyalty Multipliers</h3>
+              <p className="text-gray-700">
+                Earn up to 1.6x more rewards on staking, real estate investments, and liquidity provision. 
+                Your tier automatically adjusts based on Total Value Locked (TVL).
+              </p>
+            </div>
+            <div className="bg-white rounded-xl p-8 shadow-lg border border-purple-200">
+              <div className="text-4xl mb-4">💰</div>
+              <h3 className="text-2xl font-bold mb-3">Fee Discounts</h3>
+              <p className="text-gray-700">
+                Save up to 50% on platform fees. Platinum members pay just 0.4% compared to the base 2.0% fee, 
+                saving thousands on large transactions.
+              </p>
+            </div>
+            <div className="bg-white rounded-xl p-8 shadow-lg border border-purple-200">
+              <div className="text-4xl mb-4">🎁</div>
+              <h3 className="text-2xl font-bold mb-3">Axiom Points Rewards</h3>
+              <p className="text-gray-700">
+                Earn points on every transaction, stake, and referral. Redeem for fee rebates, NFT rewards, 
+                governance power, and exclusive merchandise.
+              </p>
+            </div>
+            <div className="bg-white rounded-xl p-8 shadow-lg border border-purple-200">
+              <div className="text-4xl mb-4">🔗</div>
+              <h3 className="text-2xl font-bold mb-3">3-Level Referral System</h3>
+              <p className="text-gray-700">
+                Earn 5% commission on direct referrals, 2% on their referrals, and 1% on the third level. 
+                Build your network and earn passive income forever.
+              </p>
+            </div>
+            <div className="bg-white rounded-xl p-8 shadow-lg border border-purple-200">
+              <div className="text-4xl mb-4">🛡️</div>
+              <h3 className="text-2xl font-bold mb-3">Premium Benefits</h3>
+              <p className="text-gray-700">
+                Priority support, smart contract insurance, early access to new features, exclusive airdrops, 
+                and VIP access to platform governance.
+              </p>
+            </div>
+            <div className="bg-white rounded-xl p-8 shadow-lg border border-purple-200">
+              <div className="text-4xl mb-4">📊</div>
+              <h3 className="text-2xl font-bold mb-3">Transparent Tracking</h3>
+              <p className="text-gray-700">
+                Real-time dashboard showing your tier status, TVL across all contracts, points balance, 
+                referral network size, and projected earnings.
+              </p>
+            </div>
+          </div>
+
+          {/* CTA Section */}
+          <div className="bg-gradient-to-r from-purple-600 to-pink-600 rounded-2xl p-12 text-white text-center shadow-2xl">
+            <h2 className="text-4xl font-bold mb-4">Ready to Unlock Premium Benefits?</h2>
+            <p className="text-xl mb-8 opacity-90">
+              Connect your wallet to view your current tier, start earning points, and get your unique referral code.
+            </p>
+            <button 
+              onClick={() => (wallet as any)?.connectWallet?.()}
+              className="bg-white text-purple-600 px-12 py-4 rounded-xl font-bold text-lg hover:bg-gray-100 shadow-xl transform hover:scale-105 transition-all"
+            >
+              Connect Wallet Now →
+            </button>
+          </div>
+        </div>
       </div>
     );
   }
