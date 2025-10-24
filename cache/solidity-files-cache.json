@@ -4606,6 +4606,48 @@
       "artifacts": [
         "RealEstateAcquisitionFund"
       ]
+    },
+    "/home/runner/workspace/contracts/LiquidityRewardsVault.sol": {
+      "lastModificationDate": 1761264454005,
+      "contentHash": "f7db0c02511d1b078c9c78a52470984c",
+      "sourceName": "contracts/LiquidityRewardsVault.sol",
+      "solcConfig": {
+        "version": "0.8.26",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "viaIR": true,
+          "evmVersion": "paris",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "@openzeppelin/contracts/token/ERC20/IERC20.sol",
+        "@openzeppelin/contracts/access/Ownable.sol",
+        "@openzeppelin/contracts/utils/ReentrancyGuard.sol",
+        "@openzeppelin/contracts/utils/Pausable.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.20"
+      ],
+      "artifacts": [
+        "LiquidityRewardsVault"
+      ]
     }
   }
 }
