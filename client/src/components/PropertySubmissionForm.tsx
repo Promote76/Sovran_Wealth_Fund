@@ -552,17 +552,68 @@ export default function PropertySubmissionForm({ onClose }: { onClose: () => voi
             </div>
           )}
 
-          {/* Step 3: Documents */}
+          {/* Step 3: Documents & Photos */}
           {currentStep === 3 && (
             <div className="space-y-6">
-              <div className="bg-yellow-50 border border-yellow-200 rounded p-4">
-                <p className="text-sm text-yellow-800">
-                  📁 <strong>Document Upload:</strong> File upload integration will be added in the next step. For now, you can provide URLs or skip this step.
+              <div className="bg-blue-50 border border-blue-200 rounded p-4">
+                <p className="text-sm text-blue-800">
+                  📸 <strong>Property Photos & Documents:</strong> Upload high-quality photos and important documents to support your submission.
                 </p>
               </div>
 
+              {/* Property Photos Section */}
               <div>
-                <label className="block text-sm font-medium mb-1">Virtual Tour URL</label>
+                <label className="block text-sm font-medium mb-2">Property Photos *</label>
+                <p className="text-xs text-gray-600 mb-2">Upload 3-10 high-quality photos showing exterior, interior, and key features</p>
+                <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-blue-400 transition-colors">
+                  <input
+                    type="file"
+                    multiple
+                    accept="image/*"
+                    className="hidden"
+                    id="property-photos"
+                    onChange={(e) => {
+                      const files = Array.from(e.target.files || []);
+                      console.log('📸 Photos selected:', files.length);
+                      // TODO: Handle file upload to object storage
+                    }}
+                  />
+                  <label htmlFor="property-photos" className="cursor-pointer">
+                    <div className="text-5xl mb-2">📸</div>
+                    <p className="text-sm font-medium text-gray-700">Click to upload property photos</p>
+                    <p className="text-xs text-gray-500 mt-1">JPG, PNG, WEBP up to 10MB each</p>
+                  </label>
+                </div>
+              </div>
+
+              {/* Documents Section */}
+              <div>
+                <label className="block text-sm font-medium mb-2">Property Documents (Optional)</label>
+                <p className="text-xs text-gray-600 mb-2">Upload relevant documents (property deed, inspection reports, appraisals, etc.)</p>
+                <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-blue-400 transition-colors">
+                  <input
+                    type="file"
+                    multiple
+                    accept=".pdf,.doc,.docx"
+                    className="hidden"
+                    id="property-documents"
+                    onChange={(e) => {
+                      const files = Array.from(e.target.files || []);
+                      console.log('📄 Documents selected:', files.length);
+                      // TODO: Handle file upload to object storage
+                    }}
+                  />
+                  <label htmlFor="property-documents" className="cursor-pointer">
+                    <div className="text-5xl mb-2">📄</div>
+                    <p className="text-sm font-medium text-gray-700">Click to upload documents</p>
+                    <p className="text-xs text-gray-500 mt-1">PDF, DOC, DOCX up to 25MB each</p>
+                  </label>
+                </div>
+              </div>
+
+              {/* Virtual Tour URL */}
+              <div>
+                <label className="block text-sm font-medium mb-1">Virtual Tour URL (Optional)</label>
                 <input
                   type="url"
                   className="w-full border rounded px-3 py-2"
@@ -572,8 +623,9 @@ export default function PropertySubmissionForm({ onClose }: { onClose: () => voi
                 />
               </div>
 
+              {/* Contact Information */}
               <div>
-                <label className="block text-sm font-medium mb-2">Contact Information (Optional)</label>
+                <label className="block text-sm font-medium mb-2">Contact Information</label>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <input
                     type="text"
@@ -597,6 +649,12 @@ export default function PropertySubmissionForm({ onClose }: { onClose: () => voi
                     onChange={e => handleChange('submitterPhone', e.target.value)}
                   />
                 </div>
+              </div>
+
+              <div className="bg-yellow-50 border border-yellow-200 rounded p-3">
+                <p className="text-xs text-yellow-800">
+                  ℹ️ <strong>Note:</strong> Full file upload integration with cloud storage is coming soon. For now, photos and documents are logged for testing. You can proceed with the submission.
+                </p>
               </div>
             </div>
           )}
