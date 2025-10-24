@@ -309,7 +309,7 @@ export default function LiquidityVaultPage() {
   };
 
   const currentStake = getCurrentUserStake();
-  const isWalletReady = isConnected && isLoggedIn;
+  const isWalletReady = isConnected;
 
   if (loading) {
     return (
