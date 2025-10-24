@@ -156,23 +156,23 @@ export default function KeyGrowDashboardPage() {
   const isWalletReady = isConnected;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white p-6">
-      <div className="max-w-6xl mx-auto space-y-6">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white p-3 sm:p-6">
+      <div className="max-w-6xl mx-auto space-y-4 sm:space-y-6">
         {/* Header */}
-        <div className="bg-gradient-to-r from-blue-600 to-blue-700 rounded-xl shadow-lg p-8 text-white">
-          <div className="flex justify-between items-start">
+        <div className="bg-gradient-to-r from-blue-600 to-blue-700 rounded-xl shadow-lg p-4 sm:p-6 md:p-8 text-white">
+          <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
             <div>
-              <h1 className="text-4xl font-bold mb-2">🏠 KeyGrow Dashboard</h1>
-              <p className="text-blue-100 text-lg">
+              <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-2">🏠 KeyGrow Dashboard</h1>
+              <p className="text-blue-100 text-sm sm:text-base md:text-lg">
                 Your path from renting to homeownership through platform revenue sharing
               </p>
             </div>
-            <div className="flex flex-col items-end space-y-2">
+            <div className="flex flex-col items-start sm:items-end space-y-2 w-full sm:w-auto">
               {isWalletReady ? (
                 <>
-                  <div className="bg-white/10 backdrop-blur-sm rounded-lg px-4 py-2 border border-white/20">
+                  <div className="bg-white/10 backdrop-blur-sm rounded-lg px-3 sm:px-4 py-2 border border-white/20">
                     <div className="text-xs text-blue-100 mb-1">Connected Wallet</div>
-                    <div className="font-mono text-sm font-semibold">
+                    <div className="font-mono text-xs sm:text-sm font-semibold">
                       {account?.slice(0, 6)}...{account?.slice(-4)}
                     </div>
                   </div>
@@ -181,9 +181,9 @@ export default function KeyGrowDashboardPage() {
                 <Button 
                   onClick={handleWalletConnect}
                   disabled={isConnecting}
-                  className="bg-white text-blue-600 hover:bg-blue-50 font-semibold shadow-lg"
+                  className="bg-white text-blue-600 hover:bg-blue-50 font-semibold shadow-lg text-sm sm:text-base w-full sm:w-auto"
                 >
-                  {isConnecting ? '🔄 Connecting...' : '🔗 Connect Wallet to Register'}
+                  {isConnecting ? '🔄 Connecting...' : '🔗 Connect Wallet'}
                 </Button>
               )}
             </div>
@@ -193,19 +193,19 @@ export default function KeyGrowDashboardPage() {
         {/* Connect Wallet Banner - shown when not connected */}
         {!isWalletReady && (
           <Card className="border-4 border-blue-600 bg-gradient-to-br from-blue-50 to-green-50 shadow-2xl">
-            <CardContent className="p-8">
+            <CardContent className="p-4 sm:p-6 md:p-8">
               <div className="text-center mb-6">
-                <div className="text-7xl mb-4">🏡</div>
-                <h2 className="text-4xl font-bold text-gray-900 mb-3">
+                <div className="text-5xl sm:text-6xl md:text-7xl mb-4">🏡</div>
+                <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-3 px-2">
                   Ready to Join KeyGrow?
                 </h2>
-                <p className="text-xl text-gray-700 max-w-2xl mx-auto">
+                <p className="text-base sm:text-lg md:text-xl text-gray-700 max-w-2xl mx-auto px-4">
                   Connect your wallet to register, select your tier, and start receiving monthly allocations toward your dream home!
                 </p>
               </div>
 
               {/* 3-Step Process */}
-              <div className="grid md:grid-cols-3 gap-6 mb-8">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
                 <div className="bg-white rounded-lg p-6 border-2 border-blue-300 shadow-lg">
                   <div className="bg-blue-600 text-white rounded-full w-12 h-12 flex items-center justify-center font-bold text-xl mb-3 mx-auto">
                     1
@@ -246,20 +246,22 @@ export default function KeyGrowDashboardPage() {
                 <Button 
                   onClick={handleWalletConnect}
                   disabled={isConnecting}
-                  className="bg-gradient-to-r from-blue-600 to-green-600 hover:from-blue-700 hover:to-green-700 text-white text-2xl px-12 py-8 shadow-2xl transform hover:scale-105 transition-all"
+                  className="bg-gradient-to-r from-blue-600 to-green-600 hover:from-blue-700 hover:to-green-700 text-white text-base sm:text-lg md:text-2xl px-6 sm:px-10 md:px-12 py-4 sm:py-6 md:py-8 shadow-2xl transform hover:scale-105 transition-all w-full sm:w-auto"
                 >
                   {isConnecting ? (
                     <>
-                      <span className="animate-spin mr-3">⏳</span>
-                      Connecting Your Wallet...
+                      <span className="animate-spin mr-2 sm:mr-3">⏳</span>
+                      <span className="hidden sm:inline">Connecting Your Wallet...</span>
+                      <span className="sm:hidden">Connecting...</span>
                     </>
                   ) : (
                     <>
-                      🔗 Connect Wallet & Start Registration
+                      🔗 <span className="hidden sm:inline">Connect Wallet & Start Registration</span>
+                      <span className="sm:hidden">Connect & Register</span>
                     </>
                   )}
                 </Button>
-                <p className="text-sm text-gray-600 mt-4">
+                <p className="text-xs sm:text-sm text-gray-600 mt-4 px-2">
                   Don't have a wallet? <a href="https://metamask.io" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline font-semibold">Get MetaMask (Free)</a>
                 </p>
               </div>
@@ -269,13 +271,13 @@ export default function KeyGrowDashboardPage() {
 
         {/* Program Overview - Comprehensive Information */}
         <Card className="border-2 border-blue-200">
-          <CardContent className="p-8">
-            <h2 className="text-3xl font-bold text-gray-900 mb-6 text-center">
+          <CardContent className="p-4 sm:p-6 md:p-8">
+            <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 mb-4 sm:mb-6 text-center px-2">
               🏡 Stop Renting, Start Owning - The KeyGrow Path to Homeownership
             </h2>
             
-            <div className="bg-gradient-to-r from-blue-50 to-green-50 p-6 rounded-lg mb-6">
-              <h3 className="text-xl font-semibold text-gray-900 mb-3">
+            <div className="bg-gradient-to-r from-blue-50 to-green-50 p-4 sm:p-6 rounded-lg mb-4 sm:mb-6">
+              <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-3">
                 What is KeyGrow?
               </h3>
               <p className="text-gray-700 leading-relaxed mb-4">
