@@ -7,44 +7,43 @@ import axios from 'axios';
 import ProvideLiquidity from '../components/ProvideLiquidity';
 import { ethers } from 'ethers';
 import { CONTRACTS, ERC20_ABI } from '../config/contracts';
-import LiquidityVaultABI from '../abis/LiquidityVault.json';
+import LiquidityRewardsVaultABI from '../abis/LiquidityRewardsVault.json';
 
-interface VaultStats {
-  lpTokenAddress: string;
+interface VaultInfo {
+  lpToken: string;
+  vaultAddress: string;
   totalStaked: string;
   rewardRate: string;
   rewardRatePerDay: string;
   minimumStake: string;
-  lockPeriodSeconds: number;
   lockPeriodDays: string;
-  contractAddress: string;
   apy: string;
 }
 
-interface UserStake {
+interface UserStakeInfo {
+  vaultAddress: string;
+  lpToken: string;
   amount: string;
   startTime: number;
-  lastRewardTime: number;
+  lastClaimTime: number;
   stakeDurationDays: string;
   pendingRewards: string;
   isStaking: boolean;
-}
-
-interface StakingEvent {
-  type: 'stake' | 'unstake' | 'claim';
-  user: string;
-  amount: string;
-  timestamp: number;
-  blockNumber: number;
-  txHash: string;
+  canWithdraw: boolean;
+  apy: string;
+  totalStaked: string;
 }
 
 export default function LiquidityVaultPage() {
   const { isConnected, isLoggedIn, account, connectWallet, disconnectWallet, isConnecting, loginError } = useWallet();
-  const [stats, setStats] = useState<VaultStats | null>(null);
-  const [userStake, setUserStake] = useState<UserStake | null>(null);
-  const [history, setHistory] = useState<StakingEvent[]>([]);
+  
+  // Multi-vault state
+  const [allVaults, setAllVaults] = useState<VaultInfo[]>([]);
+  const [selectedVault, setSelectedVault] = useState<VaultInfo | null>(null);
+  const [userStakes, setUserStakes] = useState<UserStakeInfo[]>([]);
   const [loading, setLoading] = useState(true);
+  
+  // Transaction state
   const [stakeAmount, setStakeAmount] = useState('');
   const [unstakeAmount, setUnstakeAmount] = useState('');
   const [isStaking, setIsStaking] = useState(false);
@@ -57,10 +56,9 @@ export default function LiquidityVaultPage() {
   const [allowance, setAllowance] = useState('0');
 
   useEffect(() => {
-    loadStats();
-    loadHistory();
+    loadAllVaults();
     const interval = setInterval(() => {
-      loadStats();
+      loadAllVaults();
     }, 30000);
     
     return () => clearInterval(interval);
@@ -68,52 +66,66 @@ export default function LiquidityVaultPage() {
 
   useEffect(() => {
     if (account) {
-      loadUserStake();
+      loadUserStakes();
     }
   }, [account]);
 
-  const loadStats = async () => {
+  useEffect(() => {
+    if (account && selectedVault) {
+      loadLPBalance();
+    }
+  }, [account, selectedVault]);
+
+  const loadAllVaults = async () => {
     try {
-      const response = await axios.get('/api/liquidity-vault/stats');
+      const response = await axios.get('/api/liquidity-vault/factory/all-vaults');
       if (response.data.success) {
-        setStats(response.data.data);
+        const vaults = response.data.data;
+        setAllVaults(vaults);
+        
+        // Auto-select first vault if none selected
+        if (!selectedVault && vaults.length > 0) {
+          setSelectedVault(vaults[0]);
+        }
       }
     } catch (error) {
-      console.error('Failed to load stats:', error);
+      console.error('Failed to load vaults:', error);
     } finally {
       setLoading(false);
     }
   };
 
-  const loadUserStake = async () => {
+  const loadUserStakes = async () => {
     if (!account) return;
     
     try {
-      const response = await axios.get(`/api/liquidity-vault/user-stake/${account}`);
+      const response = await axios.get(`/api/liquidity-vault/factory/user-stakes/${account}`);
       if (response.data.success) {
-        setUserStake(response.data.data);
+        setUserStakes(response.data.data);
       }
     } catch (error) {
-      console.error('Failed to load user stake:', error);
+      console.error('Failed to load user stakes:', error);
     }
   };
 
-  const loadHistory = async () => {
+  const loadLPBalance = async () => {
+    if (!account || !selectedVault) return;
+
     try {
-      const response = await axios.get('/api/liquidity-vault/history');
-      if (response.data.success) {
-        setHistory(response.data.data);
-      }
+      const signer = await getSigner();
+      const lpTokenContract = new ethers.Contract(selectedVault.lpToken, ERC20_ABI, signer);
+      
+      const balance = await lpTokenContract.balanceOf(account);
+      setLpBalance(ethers.utils.formatEther(balance));
+
+      const vaultAddress = ethers.utils.getAddress(selectedVault.vaultAddress);
+      const allowed = await lpTokenContract.allowance(account, vaultAddress);
+      setAllowance(allowed.toString());
     } catch (error) {
-      console.error('Failed to load history:', error);
+      console.error('Failed to load LP balance:', error);
     }
   };
 
-  const formatDate = (timestamp: number) => {
-    return new Date(timestamp * 1000).toLocaleString();
-  };
-
-  // Get signer from wallet
   const getSigner = async () => {
     if (!window.ethereum) {
       throw new Error('No Web3 provider found');
@@ -122,35 +134,16 @@ export default function LiquidityVaultPage() {
     return provider.getSigner();
   };
 
-  // Load LP token balance and allowance
-  const loadLPBalance = async () => {
-    if (!account || !stats) return;
-
-    try {
-      const signer = await getSigner();
-      const lpTokenContract = new ethers.Contract(stats.lpTokenAddress, ERC20_ABI, signer);
-      
-      const balance = await lpTokenContract.balanceOf(account);
-      setLpBalance(ethers.utils.formatEther(balance));
-
-      const vaultAddress = ethers.utils.getAddress(CONTRACTS.BSC_MAINNET.LIQUIDITY_VAULT);
-      const allowed = await lpTokenContract.allowance(account, vaultAddress);
-      setAllowance(allowed.toString());
-    } catch (error) {
-      console.error('Failed to load LP balance:', error);
-    }
+  const handleSelectVault = (vault: VaultInfo) => {
+    setSelectedVault(vault);
+    setStakeAmount('');
+    setUnstakeAmount('');
+    setTxMessage('');
+    setTxError('');
   };
 
-  // Load LP balance when account or stats change
-  useEffect(() => {
-    if (account && stats) {
-      loadLPBalance();
-    }
-  }, [account, stats]);
-
-  // Approve LP tokens for staking
   const handleApprove = async () => {
-    if (!account || !stats) return;
+    if (!account || !selectedVault) return;
 
     setIsApproving(true);
     setTxError('');
@@ -158,10 +151,9 @@ export default function LiquidityVaultPage() {
 
     try {
       const signer = await getSigner();
-      const lpTokenContract = new ethers.Contract(stats.lpTokenAddress, ERC20_ABI, signer);
-      const vaultAddress = ethers.utils.getAddress(CONTRACTS.BSC_MAINNET.LIQUIDITY_VAULT);
+      const lpTokenContract = new ethers.Contract(selectedVault.lpToken, ERC20_ABI, signer);
+      const vaultAddress = ethers.utils.getAddress(selectedVault.vaultAddress);
 
-      // Approve maximum amount
       const maxAmount = ethers.constants.MaxUint256;
       const tx = await lpTokenContract.approve(vaultAddress, maxAmount);
       
@@ -169,7 +161,7 @@ export default function LiquidityVaultPage() {
       await tx.wait();
       
       setTxMessage('✅ LP tokens approved successfully!');
-      await loadLPBalance(); // Refresh allowance
+      await loadLPBalance();
       setTimeout(() => setTxMessage(''), 5000);
     } catch (error: any) {
       console.error('Approval error:', error);
@@ -179,9 +171,8 @@ export default function LiquidityVaultPage() {
     }
   };
 
-  // Stake LP tokens
   const handleStake = async () => {
-    if (!account || !stats || !stakeAmount) return;
+    if (!account || !selectedVault || !stakeAmount) return;
 
     setIsStaking(true);
     setTxError('');
@@ -189,25 +180,23 @@ export default function LiquidityVaultPage() {
 
     try {
       const signer = await getSigner();
-      const vaultAddress = ethers.utils.getAddress(CONTRACTS.BSC_MAINNET.LIQUIDITY_VAULT);
-      const vaultContract = new ethers.Contract(vaultAddress, LiquidityVaultABI, signer);
+      const vaultAddress = ethers.utils.getAddress(selectedVault.vaultAddress);
+      const vaultContract = new ethers.Contract(vaultAddress, LiquidityRewardsVaultABI, signer);
 
       const amount = ethers.utils.parseEther(stakeAmount);
 
-      // Check allowance
       if (ethers.BigNumber.from(allowance).lt(amount)) {
         setTxError('Insufficient allowance. Please approve LP tokens first.');
         return;
       }
 
-      const tx = await vaultContract.deposit(amount);
+      const tx = await vaultContract.stake(amount);
       setTxMessage('⏳ Staking transaction submitted... waiting for confirmation');
       
       await tx.wait();
       setTxMessage('✅ LP tokens staked successfully!');
       
-      // Refresh data
-      await Promise.all([loadUserStake(), loadStats(), loadLPBalance(), loadHistory()]);
+      await Promise.all([loadUserStakes(), loadAllVaults(), loadLPBalance()]);
       setStakeAmount('');
       setTimeout(() => setTxMessage(''), 5000);
     } catch (error: any) {
@@ -226,9 +215,8 @@ export default function LiquidityVaultPage() {
     }
   };
 
-  // Unstake LP tokens
   const handleUnstake = async () => {
-    if (!account || !stats || !unstakeAmount) return;
+    if (!account || !selectedVault || !unstakeAmount) return;
 
     setIsUnstaking(true);
     setTxError('');
@@ -236,8 +224,8 @@ export default function LiquidityVaultPage() {
 
     try {
       const signer = await getSigner();
-      const vaultAddress = ethers.utils.getAddress(CONTRACTS.BSC_MAINNET.LIQUIDITY_VAULT);
-      const vaultContract = new ethers.Contract(vaultAddress, LiquidityVaultABI, signer);
+      const vaultAddress = ethers.utils.getAddress(selectedVault.vaultAddress);
+      const vaultContract = new ethers.Contract(vaultAddress, LiquidityRewardsVaultABI, signer);
 
       const amount = ethers.utils.parseEther(unstakeAmount);
 
@@ -247,8 +235,7 @@ export default function LiquidityVaultPage() {
       await tx.wait();
       setTxMessage('✅ LP tokens unstaked successfully!');
       
-      // Refresh data
-      await Promise.all([loadUserStake(), loadStats(), loadLPBalance(), loadHistory()]);
+      await Promise.all([loadUserStakes(), loadAllVaults(), loadLPBalance()]);
       setUnstakeAmount('');
       setTimeout(() => setTxMessage(''), 5000);
     } catch (error: any) {
@@ -269,6 +256,34 @@ export default function LiquidityVaultPage() {
     }
   };
 
+  const handleClaimRewards = async () => {
+    if (!account || !selectedVault) return;
+
+    setIsClaiming(true);
+    setTxError('');
+    setTxMessage('');
+
+    try {
+      const signer = await getSigner();
+      const vaultAddress = ethers.utils.getAddress(selectedVault.vaultAddress);
+      const vaultContract = new ethers.Contract(vaultAddress, LiquidityRewardsVaultABI, signer);
+
+      const tx = await vaultContract.claimRewards();
+      setTxMessage('⏳ Claiming rewards... waiting for confirmation');
+      
+      await tx.wait();
+      setTxMessage('✅ Rewards claimed successfully!');
+      
+      await Promise.all([loadUserStakes(), loadAllVaults()]);
+      setTimeout(() => setTxMessage(''), 5000);
+    } catch (error: any) {
+      console.error('Claim error:', error);
+      setTxError(`Failed to claim rewards: ${error?.message || 'Unknown error'}`);
+    } finally {
+      setIsClaiming(false);
+    }
+  };
+
   const handleWalletConnect = async () => {
     try {
       await connectWallet();
@@ -277,16 +292,34 @@ export default function LiquidityVaultPage() {
     }
   };
 
+  const formatDate = (timestamp: number) => {
+    return new Date(timestamp * 1000).toLocaleString();
+  };
+
+  const getLPPairName = (lpToken: string) => {
+    const knownPairs: {[key: string]: string} = {
+      '0x3aA970cD91f792427CF28Bc687B4713Ee26e2090': 'SWF-WBNB',
+    };
+    return knownPairs[lpToken] || `LP Token ${lpToken.substring(0, 8)}...`;
+  };
+
+  const getCurrentUserStake = () => {
+    if (!selectedVault || !userStakes.length) return null;
+    return userStakes.find(s => s.vaultAddress.toLowerCase() === selectedVault.vaultAddress.toLowerCase());
+  };
+
+  const currentStake = getCurrentUserStake();
+
   if (!isConnected || !isLoggedIn) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white p-6">
         <div className="max-w-4xl mx-auto">
           <div className="bg-white rounded-xl shadow-lg p-8 text-center">
             <h1 className="text-3xl font-bold text-gray-800 mb-4">
-              💎 Liquidity Vault
+              💎 Liquidity Vaults
             </h1>
             <p className="text-gray-600 mb-6">
-              Please connect your wallet to access the liquidity staking vault
+              Please connect your wallet to access the liquidity staking vaults
             </p>
             <Button 
               onClick={handleWalletConnect}
@@ -302,118 +335,21 @@ export default function LiquidityVaultPage() {
               </div>
             )}
 
-            {/* Educational Content for Non-Connected Users */}
             <div className="mt-12 text-left space-y-6">
               <Card className="border-2 border-blue-200">
                 <CardContent className="p-6">
                   <h2 className="text-2xl font-bold text-gray-900 mb-4">
-                    💎 What is the Liquidity Vault?
+                    💎 What are Liquidity Vaults?
                   </h2>
                   <p className="text-gray-700 mb-4 leading-relaxed">
-                    The Liquidity Vault is a <strong>staking platform for liquidity providers</strong>. When you provide liquidity on decentralized exchanges (adding both AXM and BNB to trading pools), you receive LP (Liquidity Provider) tokens. You can stake these LP tokens in the vault to earn additional rewards!
+                    Liquidity Vaults are <strong>staking platforms for multiple LP token pairs</strong>. When you provide liquidity on decentralized exchanges, you receive LP tokens. Stake these in our vaults to earn additional rewards with customized APYs for each pair!
                   </p>
                   <p className="text-gray-700 leading-relaxed">
-                    This creates a win-win: liquidity providers get extra income beyond trading fees, and the platform maintains healthy liquidity for smooth trading.
+                    Each vault supports a different LP pair with its own reward rate and lock period, giving you flexibility to choose the best option for your strategy.
                   </p>
                 </CardContent>
               </Card>
 
-              <Card className="border-2 border-green-200">
-                <CardContent className="p-6">
-                  <h3 className="text-xl font-semibold text-gray-900 mb-4">
-                    🎯 How It Works
-                  </h3>
-                  <div className="space-y-4">
-                    <div className="bg-green-50 p-4 rounded-lg">
-                      <h4 className="font-semibold text-green-900 mb-2">1️⃣ Provide Liquidity</h4>
-                      <p className="text-gray-700 text-sm">
-                        First, add liquidity to the AXM trading pair on a DEX (like PancakeSwap). You'll receive LP tokens representing your share of the pool.
-                      </p>
-                    </div>
-                    <div className="bg-green-50 p-4 rounded-lg">
-                      <h4 className="font-semibold text-green-900 mb-2">2️⃣ Stake LP Tokens</h4>
-                      <p className="text-gray-700 text-sm">
-                        Deposit your LP tokens into the Liquidity Vault. Your tokens are locked for a set period, during which they earn continuous rewards.
-                      </p>
-                    </div>
-                    <div className="bg-green-50 p-4 rounded-lg">
-                      <h4 className="font-semibold text-green-900 mb-2">3️⃣ Earn & Claim Rewards</h4>
-                      <p className="text-gray-700 text-sm">
-                        Watch your rewards accumulate over time! Claim them whenever you want, or let them compound. After the lock period ends, unstake to get your LP tokens back.
-                      </p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card className="border-2 border-purple-200">
-                <CardContent className="p-6">
-                  <h3 className="text-xl font-semibold text-gray-900 mb-4">
-                    ✨ Benefits for Liquidity Providers
-                  </h3>
-                  <div className="space-y-3">
-                    <div className="flex items-start">
-                      <span className="text-purple-600 font-bold mr-3">•</span>
-                      <div>
-                        <strong className="text-gray-900">Double Income:</strong>
-                        <span className="text-gray-700"> Earn trading fees from the DEX PLUS staking rewards from the vault</span>
-                      </div>
-                    </div>
-                    <div className="flex items-start">
-                      <span className="text-purple-600 font-bold mr-3">•</span>
-                      <div>
-                        <strong className="text-gray-900">Transparent APY:</strong>
-                        <span className="text-gray-700"> See exactly what your annual percentage yield is before staking</span>
-                      </div>
-                    </div>
-                    <div className="flex items-start">
-                      <span className="text-purple-600 font-bold mr-3">•</span>
-                      <div>
-                        <strong className="text-gray-900">Flexible Claims:</strong>
-                        <span className="text-gray-700"> Claim rewards anytime without unstaking your LP tokens</span>
-                      </div>
-                    </div>
-                    <div className="flex items-start">
-                      <span className="text-purple-600 font-bold mr-3">•</span>
-                      <div>
-                        <strong className="text-gray-900">Support the Ecosystem:</strong>
-                        <span className="text-gray-700"> Your liquidity helps traders get better prices and lower slippage</span>
-                      </div>
-                    </div>
-                    <div className="flex items-start">
-                      <span className="text-purple-600 font-bold mr-3">•</span>
-                      <div>
-                        <strong className="text-gray-900">Smart Contract Security:</strong>
-                        <span className="text-gray-700"> All staking is managed by audited smart contracts, not by individuals</span>
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card className="border-2 border-yellow-200 bg-yellow-50">
-                <CardContent className="p-6">
-                  <h3 className="text-xl font-semibold text-yellow-900 mb-3">
-                    ⚠️ Important Information
-                  </h3>
-                  <div className="space-y-2 text-gray-800">
-                    <div className="bg-white p-3 rounded">
-                      <strong>Lock Period:</strong>
-                      <div className="text-sm mt-1">Your LP tokens are locked for a set period. You can't unstake until this period ends, so plan accordingly!</div>
-                    </div>
-                    <div className="bg-white p-3 rounded">
-                      <strong>Impermanent Loss:</strong>
-                      <div className="text-sm mt-1">As with all liquidity provision, price changes can cause impermanent loss. Vault rewards help offset this risk.</div>
-                    </div>
-                    <div className="bg-white p-3 rounded">
-                      <strong>Minimum Stake:</strong>
-                      <div className="text-sm mt-1">There's a minimum amount required to stake. This helps maintain vault efficiency and gas cost effectiveness.</div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Provide Liquidity Component - Available Without Wallet */}
               <ProvideLiquidity />
             </div>
           </div>
@@ -422,12 +358,12 @@ export default function LiquidityVaultPage() {
     );
   }
 
-  if (loading || !stats) {
+  if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white p-6 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading vault data...</p>
+          <p className="text-gray-600">Loading vaults...</p>
         </div>
       </div>
     );
@@ -440,12 +376,11 @@ export default function LiquidityVaultPage() {
         <div className="bg-gradient-to-r from-purple-600 to-blue-600 rounded-xl shadow-lg p-8 text-white">
           <div className="flex justify-between items-start">
             <div>
-              <h1 className="text-4xl font-bold mb-2">💎 Liquidity Vault</h1>
+              <h1 className="text-4xl font-bold mb-2">💎 Liquidity Vaults</h1>
               <p className="text-blue-100 text-lg">
-                Stake LP tokens, earn rewards, support the ecosystem
+                Stake LP tokens across multiple pairs, earn customized rewards
               </p>
             </div>
-            {/* Wallet Info & Disconnect */}
             <div className="flex flex-col items-end space-y-2">
               <div className="bg-white/10 backdrop-blur-sm rounded-lg px-4 py-2 border border-white/20">
                 <div className="text-xs text-blue-100 mb-1">Connected Wallet</div>
@@ -463,285 +398,316 @@ export default function LiquidityVaultPage() {
           </div>
         </div>
 
-        {/* Vault Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <Card className="border-2 border-purple-200 bg-gradient-to-br from-purple-50 to-pink-50">
-            <CardContent className="p-6 text-center">
-              <div className="text-sm text-gray-600 mb-2">Current APY</div>
-              <div className="text-4xl font-bold text-purple-600">{stats.apy}%</div>
-              <div className="text-xs text-gray-500 mt-2">Annual Yield</div>
-            </CardContent>
-          </Card>
-          
-          <Card className="border-2 border-blue-200 bg-gradient-to-br from-blue-50 to-indigo-50">
-            <CardContent className="p-6 text-center">
-              <div className="text-sm text-gray-600 mb-2">Total Staked</div>
-              <div className="text-3xl font-bold text-blue-600">
-                {parseFloat(stats.totalStaked).toLocaleString(undefined, {maximumFractionDigits: 2})}
-              </div>
-              <div className="text-xs text-gray-500 mt-2">LP Tokens</div>
-            </CardContent>
-          </Card>
-
-          <Card className="border-2 border-green-200 bg-gradient-to-br from-green-50 to-emerald-50">
-            <CardContent className="p-6 text-center">
-              <div className="text-sm text-gray-600 mb-2">Daily Rewards</div>
-              <div className="text-3xl font-bold text-green-600">
-                {parseFloat(stats.rewardRatePerDay).toLocaleString(undefined, {maximumFractionDigits: 4})}
-              </div>
-              <div className="text-xs text-gray-500 mt-2">Tokens/Day</div>
-            </CardContent>
-          </Card>
-
-          <Card className="border-2 border-orange-200 bg-gradient-to-br from-orange-50 to-yellow-50">
-            <CardContent className="p-6 text-center">
-              <div className="text-sm text-gray-600 mb-2">Lock Period</div>
-              <div className="text-3xl font-bold text-orange-600">{stats.lockPeriodDays}</div>
-              <div className="text-xs text-gray-500 mt-2">Days</div>
-            </CardContent>
-          </Card>
+        {/* All Available Vaults */}
+        <div>
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">🏦 Available Vaults ({allVaults.length})</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {allVaults.map((vault) => {
+              const isSelected = selectedVault?.vaultAddress === vault.vaultAddress;
+              const userStake = userStakes.find(s => s.vaultAddress.toLowerCase() === vault.vaultAddress.toLowerCase());
+              
+              return (
+                <Card 
+                  key={vault.vaultAddress}
+                  className={`cursor-pointer transition-all ${
+                    isSelected 
+                      ? 'border-4 border-purple-500 shadow-xl scale-105' 
+                      : 'border-2 border-gray-200 hover:border-purple-300 hover:shadow-lg'
+                  }`}
+                  onClick={() => handleSelectVault(vault)}
+                >
+                  <CardContent className="p-6">
+                    <div className="flex items-center justify-between mb-3">
+                      <h3 className="text-xl font-bold text-gray-900">
+                        {getLPPairName(vault.lpToken)}
+                      </h3>
+                      {isSelected && <span className="text-purple-600 font-bold">✓ Selected</span>}
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <div className="flex justify-between">
+                        <span className="text-sm text-gray-600">APY:</span>
+                        <span className="font-bold text-purple-600 text-lg">{vault.apy}%</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-sm text-gray-600">Total Staked:</span>
+                        <span className="font-semibold text-gray-900">{parseFloat(vault.totalStaked).toFixed(2)}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-sm text-gray-600">Lock Period:</span>
+                        <span className="font-semibold text-gray-900">{vault.lockPeriodDays} days</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-sm text-gray-600">Min Stake:</span>
+                        <span className="font-semibold text-gray-900">{vault.minimumStake} LP</span>
+                      </div>
+                      
+                      {userStake && userStake.isStaking && (
+                        <div className="mt-3 pt-3 border-t border-gray-200">
+                          <div className="bg-green-50 p-2 rounded text-center">
+                            <div className="text-xs text-gray-600">Your Stake</div>
+                            <div className="font-bold text-green-600">{parseFloat(userStake.amount).toFixed(4)} LP</div>
+                            <div className="text-xs text-green-700 mt-1">Rewards: {parseFloat(userStake.pendingRewards).toFixed(6)}</div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
         </div>
 
-        {/* Provide Liquidity Section */}
-        <ProvideLiquidity />
-
-        {/* User Stake Info */}
-        {userStake && (
+        {/* User's Portfolio Across All Vaults */}
+        {userStakes.length > 0 && userStakes.some(s => s.isStaking) && (
           <Card className="border-2 border-indigo-200">
             <CardContent className="p-6">
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">Your Stake</h2>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="bg-indigo-50 p-4 rounded-lg">
-                  <div className="text-sm text-gray-600 mb-1">Staked Amount</div>
-                  <div className="text-2xl font-bold text-indigo-600">
-                    {parseFloat(userStake.amount).toLocaleString(undefined, {maximumFractionDigits: 4})} LP
-                  </div>
-                </div>
-                <div className="bg-green-50 p-4 rounded-lg">
-                  <div className="text-sm text-gray-600 mb-1">Pending Rewards</div>
-                  <div className="text-2xl font-bold text-green-600">
-                    {parseFloat(userStake.pendingRewards).toLocaleString(undefined, {maximumFractionDigits: 6})}
-                  </div>
-                </div>
-                <div className="bg-blue-50 p-4 rounded-lg">
-                  <div className="text-sm text-gray-600 mb-1">Stake Duration</div>
-                  <div className="text-2xl font-bold text-blue-600">
-                    {userStake.stakeDurationDays} days
-                  </div>
-                </div>
-              </div>
-              {userStake.isStaking && userStake.startTime > 0 && (
-                <div className="mt-4 text-sm text-gray-600">
-                  Staking since: {formatDate(userStake.startTime)}
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Transaction Messages */}
-        {txMessage && (
-          <div className="bg-green-50 border-2 border-green-200 rounded-lg p-4">
-            <div className="text-green-800 font-medium">{txMessage}</div>
-          </div>
-        )}
-        {txError && (
-          <div className="bg-red-50 border-2 border-red-200 rounded-lg p-4">
-            <div className="text-red-800 font-medium">{txError}</div>
-          </div>
-        )}
-
-        {/* Stake/Unstake Actions */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <Card className="border-2 border-green-200">
-            <CardContent className="p-6">
-              <h3 className="text-xl font-semibold text-gray-900 mb-4">💰 Stake LP Tokens</h3>
-              <p className="text-gray-600 text-sm mb-4">
-                Deposit your LP tokens to start earning rewards
-              </p>
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Amount (LP Tokens)
-                  </label>
-                  <Input
-                    type="number"
-                    placeholder={`Min: ${stats.minimumStake}`}
-                    value={stakeAmount}
-                    onChange={(e) => setStakeAmount(e.target.value)}
-                    className="text-lg"
-                  />
-                  <div className="mt-2 text-xs text-gray-600">
-                    Your LP balance: {parseFloat(lpBalance).toFixed(4)} LP tokens
-                  </div>
-                </div>
-                
-                {/* Check if approval is needed */}
-                {stakeAmount && parseFloat(stakeAmount) > 0 && ethers.BigNumber.from(allowance).lt(ethers.utils.parseEther(stakeAmount)) && (
-                  <Button
-                    onClick={handleApprove}
-                    className="w-full bg-blue-600 hover:bg-blue-700 text-white"
-                    disabled={isApproving}
-                  >
-                    {isApproving ? '⏳ Approving...' : '✅ Approve LP Tokens'}
-                  </Button>
-                )}
-                
-                <Button
-                  onClick={handleStake}
-                  className="w-full bg-green-600 hover:bg-green-700 text-white"
-                  disabled={!stakeAmount || parseFloat(stakeAmount) < parseFloat(stats.minimumStake) || isStaking || ethers.BigNumber.from(allowance).lt(ethers.utils.parseEther(stakeAmount || '0'))}
-                >
-                  {isStaking ? '⏳ Staking...' : 'Stake LP Tokens'}
-                </Button>
-                <div className="text-xs text-gray-500">
-                  Minimum stake: {stats.minimumStake} LP tokens
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="border-2 border-orange-200">
-            <CardContent className="p-6">
-              <h3 className="text-xl font-semibold text-gray-900 mb-4">🔓 Unstake LP Tokens</h3>
-              <p className="text-gray-600 text-sm mb-4">
-                Withdraw your LP tokens (after lock period)
-              </p>
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Amount (LP Tokens)
-                  </label>
-                  <Input
-                    type="number"
-                    placeholder={userStake ? `Max: ${userStake.amount}` : '0'}
-                    value={unstakeAmount}
-                    onChange={(e) => setUnstakeAmount(e.target.value)}
-                    className="text-lg"
-                  />
-                </div>
-                <Button
-                  onClick={handleUnstake}
-                  className="w-full bg-orange-600 hover:bg-orange-700 text-white"
-                  disabled={!unstakeAmount || !userStake || parseFloat(unstakeAmount) > parseFloat(userStake.amount) || isUnstaking}
-                >
-                  {isUnstaking ? '⏳ Unstaking...' : 'Unstake LP Tokens'}
-                </Button>
-                {userStake && (
-                  <div className="text-xs text-gray-500">
-                    Your stake: {parseFloat(userStake.amount).toFixed(4)} LP tokens
-                  </div>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Claim Rewards */}
-        {userStake && parseFloat(userStake.pendingRewards) > 0 && (
-          <Card className="border-2 border-green-200 bg-green-50">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h3 className="text-xl font-semibold text-gray-900 mb-2">🎁 Claim Rewards</h3>
-                  <p className="text-gray-600">
-                    You have {parseFloat(userStake.pendingRewards).toFixed(6)} tokens ready to claim!
-                  </p>
-                </div>
-                <Button className="bg-green-600 hover:bg-green-700 text-white">
-                  Claim Rewards
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Staking History */}
-        {history.length > 0 && (
-          <Card className="border-2 border-gray-200">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-2xl font-bold text-gray-900">📜 Recent Staking Activity</h2>
-                <Button
-                  onClick={loadHistory}
-                  className="bg-blue-600 hover:bg-blue-700 text-white text-sm"
-                >
-                  Refresh
-                </Button>
-              </div>
-              <div className="space-y-3">
-                {history.slice(0, 20).map((event, index) => {
-                  const eventColors = {
-                    stake: { bg: 'bg-green-50', text: 'text-green-800', icon: '⬆️', label: 'Stake' },
-                    unstake: { bg: 'bg-orange-50', text: 'text-orange-800', icon: '⬇️', label: 'Unstake' },
-                    claim: { bg: 'bg-purple-50', text: 'text-purple-800', icon: '🎁', label: 'Claim' }
-                  };
-                  const style = eventColors[event.type];
-
-                  return (
-                    <div key={index} className={`${style.bg} p-4 rounded-lg flex justify-between items-center`}>
-                      <div>
-                        <div className={`font-medium ${style.text} mb-1`}>
-                          {style.icon} {style.label} - {parseFloat(event.amount).toLocaleString(undefined, {maximumFractionDigits: 4})} LP
-                        </div>
-                        <div className="text-sm text-gray-600">
-                          {formatDate(event.timestamp)}
-                        </div>
-                        <div className="text-xs text-gray-500 font-mono mt-1">
-                          User: {event.user.substring(0, 10)}...{event.user.substring(event.user.length - 8)}
-                        </div>
+              <h2 className="text-2xl font-bold text-gray-900 mb-4">📊 Your Portfolio</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {userStakes.filter(s => s.isStaking).map((stake) => (
+                  <div key={stake.vaultAddress} className="bg-gradient-to-br from-indigo-50 to-purple-50 p-4 rounded-lg border-2 border-indigo-200">
+                    <div className="font-semibold text-indigo-900 mb-2">{getLPPairName(stake.lpToken)}</div>
+                    <div className="space-y-1 text-sm">
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">Staked:</span>
+                        <span className="font-bold text-indigo-600">{parseFloat(stake.amount).toFixed(4)} LP</span>
                       </div>
-                      <a
-                        href={`https://bscscan.com/tx/${event.txHash}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-blue-600 hover:text-blue-700 text-sm"
-                      >
-                        View TX →
-                      </a>
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">Pending:</span>
+                        <span className="font-bold text-green-600">{parseFloat(stake.pendingRewards).toFixed(6)}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">APY:</span>
+                        <span className="font-bold text-purple-600">{stake.apy}%</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">Duration:</span>
+                        <span className="font-semibold">{stake.stakeDurationDays} days</span>
+                      </div>
                     </div>
-                  );
-                })}
+                  </div>
+                ))}
               </div>
             </CardContent>
           </Card>
         )}
 
-        {/* Contract Info */}
-        <Card className="border-2 border-gray-200 bg-gray-50">
-          <CardContent className="p-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <h3 className="font-semibold text-gray-900 mb-2">Vault Contract</h3>
-                <div className="font-mono text-sm text-gray-600 break-all">
-                  {stats.contractAddress}
-                </div>
-                <a
-                  href={`https://bscscan.com/address/${stats.contractAddress}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-blue-600 hover:text-blue-700 text-sm mt-1 inline-block"
-                >
-                  View on BSCScan →
-                </a>
-              </div>
-              <div>
-                <h3 className="font-semibold text-gray-900 mb-2">LP Token</h3>
-                <div className="font-mono text-sm text-gray-600 break-all">
-                  {stats.lpTokenAddress}
-                </div>
-                <a
-                  href={`https://bscscan.com/address/${stats.lpTokenAddress}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-blue-600 hover:text-blue-700 text-sm mt-1 inline-block"
-                >
-                  View on BSCScan →
-                </a>
+        {!selectedVault && (
+          <Card className="border-2 border-yellow-200 bg-yellow-50">
+            <CardContent className="p-6 text-center">
+              <p className="text-yellow-800 font-medium">
+                ⬆️ Select a vault above to start staking
+              </p>
+            </CardContent>
+          </Card>
+        )}
+
+        {selectedVault && (
+          <>
+            {/* Selected Vault Stats */}
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900 mb-4">📈 {getLPPairName(selectedVault.lpToken)} Vault</h2>
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <Card className="border-2 border-purple-200 bg-gradient-to-br from-purple-50 to-pink-50">
+                  <CardContent className="p-6 text-center">
+                    <div className="text-sm text-gray-600 mb-2">Current APY</div>
+                    <div className="text-4xl font-bold text-purple-600">{selectedVault.apy}%</div>
+                    <div className="text-xs text-gray-500 mt-2">Annual Yield</div>
+                  </CardContent>
+                </Card>
+                
+                <Card className="border-2 border-blue-200 bg-gradient-to-br from-blue-50 to-indigo-50">
+                  <CardContent className="p-6 text-center">
+                    <div className="text-sm text-gray-600 mb-2">Total Staked</div>
+                    <div className="text-3xl font-bold text-blue-600">
+                      {parseFloat(selectedVault.totalStaked).toLocaleString(undefined, {maximumFractionDigits: 2})}
+                    </div>
+                    <div className="text-xs text-gray-500 mt-2">LP Tokens</div>
+                  </CardContent>
+                </Card>
+
+                <Card className="border-2 border-green-200 bg-gradient-to-br from-green-50 to-emerald-50">
+                  <CardContent className="p-6 text-center">
+                    <div className="text-sm text-gray-600 mb-2">Daily Rewards</div>
+                    <div className="text-3xl font-bold text-green-600">
+                      {parseFloat(selectedVault.rewardRatePerDay).toLocaleString(undefined, {maximumFractionDigits: 4})}
+                    </div>
+                    <div className="text-xs text-gray-500 mt-2">Tokens/Day</div>
+                  </CardContent>
+                </Card>
+
+                <Card className="border-2 border-orange-200 bg-gradient-to-br from-orange-50 to-yellow-50">
+                  <CardContent className="p-6 text-center">
+                    <div className="text-sm text-gray-600 mb-2">Lock Period</div>
+                    <div className="text-3xl font-bold text-orange-600">{selectedVault.lockPeriodDays}</div>
+                    <div className="text-xs text-gray-500 mt-2">Days</div>
+                  </CardContent>
+                </Card>
               </div>
             </div>
-          </CardContent>
-        </Card>
+
+            {/* Provide Liquidity Section */}
+            <ProvideLiquidity />
+
+            {/* Transaction Messages */}
+            {txMessage && (
+              <div className="bg-green-50 border-2 border-green-200 rounded-lg p-4">
+                <div className="text-green-800 font-medium">{txMessage}</div>
+              </div>
+            )}
+            {txError && (
+              <div className="bg-red-50 border-2 border-red-200 rounded-lg p-4">
+                <div className="text-red-800 font-medium">{txError}</div>
+              </div>
+            )}
+
+            {/* Stake/Unstake Actions */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <Card className="border-2 border-green-200">
+                <CardContent className="p-6">
+                  <h3 className="text-xl font-semibold text-gray-900 mb-4">💰 Stake LP Tokens</h3>
+                  <p className="text-gray-600 text-sm mb-4">
+                    Deposit your {getLPPairName(selectedVault.lpToken)} LP tokens to earn {selectedVault.apy}% APY
+                  </p>
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Amount (LP Tokens)
+                      </label>
+                      <Input
+                        type="number"
+                        placeholder={`Min: ${selectedVault.minimumStake}`}
+                        value={stakeAmount}
+                        onChange={(e) => setStakeAmount(e.target.value)}
+                        className="text-lg"
+                      />
+                      <div className="mt-2 text-xs text-gray-600">
+                        Your LP balance: {parseFloat(lpBalance).toFixed(4)} LP tokens
+                      </div>
+                    </div>
+                    
+                    {stakeAmount && parseFloat(stakeAmount) > 0 && ethers.BigNumber.from(allowance).lt(ethers.utils.parseEther(stakeAmount || '0')) && (
+                      <Button
+                        onClick={handleApprove}
+                        className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+                        disabled={isApproving}
+                      >
+                        {isApproving ? '⏳ Approving...' : '✅ Approve LP Tokens'}
+                      </Button>
+                    )}
+                    
+                    <Button
+                      onClick={handleStake}
+                      className="w-full bg-green-600 hover:bg-green-700 text-white"
+                      disabled={!stakeAmount || parseFloat(stakeAmount) < parseFloat(selectedVault.minimumStake) || isStaking || ethers.BigNumber.from(allowance).lt(ethers.utils.parseEther(stakeAmount || '0'))}
+                    >
+                      {isStaking ? '⏳ Staking...' : 'Stake LP Tokens'}
+                    </Button>
+                    <div className="text-xs text-gray-500">
+                      Minimum stake: {selectedVault.minimumStake} LP tokens
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="border-2 border-orange-200">
+                <CardContent className="p-6">
+                  <h3 className="text-xl font-semibold text-gray-900 mb-4">🔓 Unstake LP Tokens</h3>
+                  <p className="text-gray-600 text-sm mb-4">
+                    Withdraw your LP tokens (after lock period)
+                  </p>
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Amount (LP Tokens)
+                      </label>
+                      <Input
+                        type="number"
+                        placeholder={currentStake ? `Max: ${currentStake.amount}` : '0'}
+                        value={unstakeAmount}
+                        onChange={(e) => setUnstakeAmount(e.target.value)}
+                        className="text-lg"
+                      />
+                    </div>
+                    <Button
+                      onClick={handleUnstake}
+                      className="w-full bg-orange-600 hover:bg-orange-700 text-white"
+                      disabled={!unstakeAmount || !currentStake || parseFloat(unstakeAmount) > parseFloat(currentStake.amount) || isUnstaking}
+                    >
+                      {isUnstaking ? '⏳ Unstaking...' : 'Unstake LP Tokens'}
+                    </Button>
+                    {currentStake && (
+                      <div className="text-xs text-gray-500">
+                        Your stake: {parseFloat(currentStake.amount).toFixed(4)} LP tokens
+                        {!currentStake.canWithdraw && <div className="text-orange-600 mt-1">⏳ Lock period active</div>}
+                      </div>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Claim Rewards */}
+            {currentStake && parseFloat(currentStake.pendingRewards) > 0 && (
+              <Card className="border-2 border-green-200 bg-green-50">
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h3 className="text-xl font-semibold text-gray-900 mb-2">🎁 Claim Rewards</h3>
+                      <p className="text-gray-600">
+                        You have {parseFloat(currentStake.pendingRewards).toFixed(6)} tokens ready to claim!
+                      </p>
+                    </div>
+                    <Button 
+                      onClick={handleClaimRewards}
+                      className="bg-green-600 hover:bg-green-700 text-white"
+                      disabled={isClaiming}
+                    >
+                      {isClaiming ? '⏳ Claiming...' : 'Claim Rewards'}
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Contract Info */}
+            <Card className="border-2 border-gray-200 bg-gray-50">
+              <CardContent className="p-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <h3 className="font-semibold text-gray-900 mb-2">Vault Contract</h3>
+                    <div className="font-mono text-sm text-gray-600 break-all">
+                      {selectedVault.vaultAddress}
+                    </div>
+                    <a
+                      href={`https://bscscan.com/address/${selectedVault.vaultAddress}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-600 hover:text-blue-700 text-sm mt-1 inline-block"
+                    >
+                      View on BSCScan →
+                    </a>
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-gray-900 mb-2">LP Token</h3>
+                    <div className="font-mono text-sm text-gray-600 break-all">
+                      {selectedVault.lpToken}
+                    </div>
+                    <a
+                      href={`https://bscscan.com/address/${selectedVault.lpToken}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-600 hover:text-blue-700 text-sm mt-1 inline-block"
+                    >
+                      View on BSCScan →
+                    </a>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </>
+        )}
       </div>
     </div>
   );
