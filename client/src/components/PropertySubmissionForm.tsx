@@ -101,13 +101,20 @@ export default function PropertySubmissionForm({ onClose }: { onClose: () => voi
           formData.zipCode
         );
       case 2: // Financials
+        // Check if fields are filled (not empty strings)
+        if (formData.purchasePrice === '' || formData.monthlyRent === '' || 
+            formData.totalShares === '' || formData.pricePerShare === '') {
+          return false;
+        }
+        
         const purchasePrice = Number(formData.purchasePrice);
         const monthlyRent = Number(formData.monthlyRent);
         const totalShares = Number(formData.totalShares);
         const pricePerShare = Number(formData.pricePerShare);
         
-        // Validate all required fields are present
-        if (!purchasePrice || !monthlyRent || !totalShares || !pricePerShare) {
+        // Validate numbers are valid and positive
+        if (purchasePrice <= 0 || monthlyRent <= 0 || totalShares <= 0 || pricePerShare <= 0) {
+          setError('All financial values must be positive numbers');
           return false;
         }
         
@@ -118,6 +125,7 @@ export default function PropertySubmissionForm({ onClose }: { onClose: () => voi
           return false;
         }
         
+        setError(''); // Clear any previous errors
         return true;
       case 3: // Documents - optional for now, but admins will add metadataURI during approval
         return true;
