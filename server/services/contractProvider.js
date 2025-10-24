@@ -11,16 +11,35 @@ class ContractProvider {
   }
 
   /**
-   * Load ABI from file
+   * Load ABI from file (handles both raw ABIs and Hardhat-style artifacts)
    */
   loadABI(contractName) {
     if (!this.abis[contractName]) {
       try {
         const abiPath = path.join(__dirname, '../../client/src/abis', `${contractName}.json`);
-        this.abis[contractName] = require(abiPath);
+        const raw = require(abiPath);
+        
+        // Handle Hardhat-style artifacts where ABI is under .abi property
+        let abi;
+        if (Array.isArray(raw)) {
+          abi = raw;
+        } else if (raw && raw.abi && Array.isArray(raw.abi)) {
+          abi = raw.abi;
+        } else {
+          throw new Error(`Invalid ABI format for ${contractName} - must be array or object with .abi property`);
+        }
+        
+        // Validate ABI is not empty
+        if (abi.length === 0) {
+          throw new Error(`Empty ABI for ${contractName} - contract may not be deployed yet`);
+        }
+        
+        this.abis[contractName] = abi;
       } catch (error) {
         console.error(`❌ Failed to load ABI for ${contractName}:`, error.message);
-        throw new Error(`ABI not found for ${contractName}`);
+        // Clear cache on error to allow retry
+        delete this.abis[contractName];
+        throw new Error(`ABI not found for ${contractName}: ${error.message}`);
       }
     }
     return this.abis[contractName];
