@@ -594,13 +594,12 @@ export const WalletProvider: React.FC<WalletProviderProps> = ({ children }) => {
       try {
         const provider = providerRef.current;
         
-        // Hex-encode message for MetaMask Mobile compatibility
-        const hexEncodedMessage = hexEncodeMessage(challengeMessage);
-        console.log('🔤 Using hex-encoded message for mobile compatibility');
+        // Use raw UTF-8 message (backend expects the original challenge string)
+        console.log('🔤 Using raw challenge message for signature');
         
         signature = await provider.request({
           method: 'personal_sign',
-          params: [hexEncodedMessage, walletAddress],
+          params: [challengeMessage, walletAddress],
         });
         
         if (!signature) {
@@ -609,12 +608,12 @@ export const WalletProvider: React.FC<WalletProviderProps> = ({ children }) => {
         
         console.log('✅ Message signed successfully!');
       } catch (signError: any) {
-        console.error('🚨 Signing error:', signError);
+        console.error('🚨 Wallet signature error:', signError);
         
         if (signError.code === 4001 || signError.message?.includes('User rejected')) {
           throw new Error('Authentication was cancelled. Please sign the message to securely log in.');
         }
-        throw new Error('Failed to sign authentication message. Please try again.');
+        throw new Error('Wallet signature failed. Please try again.');
       }
 
       // Step 3: Verify signature with server to complete authentication
