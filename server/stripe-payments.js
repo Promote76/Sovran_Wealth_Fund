@@ -341,4 +341,54 @@ router.get('/enterprise-services', (req, res) => {
     res.json(ENTERPRISE_SERVICES);
 });
 
+// Create payment intent for KeyGrow registration
+router.post('/create-keygrow-registration', async (req, res) => {
+    if (!stripe) {
+        return res.status(200).json({ 
+            clientSecret: 'demo_client_secret_for_testing',
+            amount: 500,
+            description: 'Demo mode - Stripe not configured'
+        });
+    }
+
+    try {
+        const { amount } = req.body;
+
+        if (amount !== 500) {
+            return res.status(400).json({ error: 'Invalid registration amount' });
+        }
+
+        const paymentIntent = await stripe.paymentIntents.create({
+            amount: 50000, // $500 in cents
+            currency: 'usd',
+            description: 'KeyGrow Rent-to-Own Program - 2-Year Registration',
+            metadata: {
+                type: 'keygrow_registration',
+                programDuration: '24', // months
+                registrationFee: '500'
+            }
+        });
+
+        res.json({
+            clientSecret: paymentIntent.client_secret,
+            amount: 500,
+            description: 'KeyGrow 2-Year Program Registration'
+        });
+
+        console.log('KeyGrow registration payment intent created: $500');
+    } catch (error) {
+        console.error('KeyGrow registration payment intent error:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// Get Stripe public key
+router.get('/public-key', (req, res) => {
+    const publicKey = process.env.VITE_STRIPE_PUBLIC_KEY;
+    if (!publicKey) {
+        return res.status(500).json({ error: 'Stripe public key not configured' });
+    }
+    res.json({ publicKey });
+});
+
 module.exports = router;

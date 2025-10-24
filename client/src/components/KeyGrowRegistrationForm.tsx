@@ -1,6 +1,24 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import { loadStripe } from '@stripe/stripe-js';
+import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import { Button } from './ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
+
+// Load Stripe promise
+let stripePromise: Promise<any> | null = null;
+
+const getStripePromise = () => {
+  if (!stripePromise) {
+    stripePromise = fetch('/api/stripe/public-key')
+      .then(res => res.json())
+      .then(data => loadStripe(data.publicKey))
+      .catch(err => {
+        console.error('Failed to load Stripe:', err);
+        return null;
+      });
+  }
+  return stripePromise;
+};
 
 interface KeyGrowRegistrationData {
   // Personal Information
@@ -73,12 +91,149 @@ interface KeyGrowRegistrationFormProps {
   walletAddress?: string;
 }
 
+// Payment Form Component
+interface PaymentStepProps {
+  onPaymentSuccess: (paymentIntentId: string) => void;
+  onError: (error: string) => void;
+}
+
+const PaymentStep: React.FC<PaymentStepProps> = ({ onPaymentSuccess, onError }) => {
+  const stripe = useStripe();
+  const elements = useElements();
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [clientSecret, setClientSecret] = useState('');
+  const hasCreatedIntent = useRef(false);
+
+  useEffect(() => {
+    if (hasCreatedIntent.current) return;
+    hasCreatedIntent.current = true;
+
+    const createPaymentIntent = async () => {
+      try {
+        const response = await fetch('/api/stripe/create-keygrow-registration', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ amount: 500 }), // $500 registration fee
+        });
+
+        const data = await response.json();
+        if (data.clientSecret) {
+          setClientSecret(data.clientSecret);
+        } else {
+          onError('Failed to initialize payment');
+        }
+      } catch (err: any) {
+        onError(err.message || 'Payment initialization failed');
+      }
+    };
+
+    createPaymentIntent();
+  }, []);
+
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
+
+    if (!stripe || !elements || !clientSecret) {
+      return;
+    }
+
+    setIsProcessing(true);
+
+    const cardElement = elements.getElement(CardElement);
+    if (!cardElement) {
+      onError('Card element not found');
+      setIsProcessing(false);
+      return;
+    }
+
+    try {
+      const { error, paymentIntent } = await stripe.confirmCardPayment(clientSecret, {
+        payment_method: {
+          card: cardElement,
+          billing_details: {
+            name: 'KeyGrow Registration',
+          },
+        }
+      });
+
+      if (error) {
+        onError(error.message || 'Payment failed');
+      } else if (paymentIntent && paymentIntent.status === 'succeeded') {
+        onPaymentSuccess(paymentIntent.id);
+      } else {
+        onError('Payment was not completed');
+      }
+    } catch (error: any) {
+      onError(error.message || 'Payment processing failed');
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const cardElementOptions = {
+    style: {
+      base: {
+        fontSize: '16px',
+        color: '#424770',
+        fontFamily: 'system-ui, -apple-system, sans-serif',
+        '::placeholder': {
+          color: '#aab7c4',
+        },
+      },
+      invalid: {
+        color: '#9e2146',
+      },
+    },
+  };
+
+  if (!clientSecret) {
+    return (
+      <div className="flex items-center justify-center p-8">
+        <div className="animate-spin w-6 h-6 border-2 border-blue-500 border-t-transparent rounded-full"></div>
+        <span className="ml-2 text-gray-600">Loading payment form...</span>
+      </div>
+    );
+  }
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <div className="p-4 border rounded-lg">
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          Card Information
+        </label>
+        <div className="min-h-[40px] p-3 border border-gray-300 rounded bg-white">
+          <CardElement options={cardElementOptions} />
+        </div>
+      </div>
+      
+      <div className="text-sm text-gray-600 bg-blue-50 p-4 rounded">
+        <div className="flex justify-between items-center">
+          <strong>Registration Fee (2-Year Program):</strong>
+          <span className="text-lg font-bold text-blue-900">$500.00 USD</span>
+        </div>
+        <p className="text-xs mt-2 text-gray-500">
+          One-time fee includes 24 months of personalized homeownership coaching, savings tracking, and property matching.
+        </p>
+      </div>
+
+      <Button
+        type="submit"
+        disabled={!stripe || isProcessing}
+        className="w-full bg-green-600 hover:bg-green-700"
+      >
+        {isProcessing ? 'Processing Payment...' : 'Pay $500 & Complete Registration'}
+      </Button>
+    </form>
+  );
+};
+
 export default function KeyGrowRegistrationForm({ onClose, walletAddress }: KeyGrowRegistrationFormProps) {
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState<KeyGrowRegistrationData>(initialFormData);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
+  const [paymentIntentId, setPaymentIntentId] = useState('');
 
   const handleChange = (field: keyof KeyGrowRegistrationData, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -136,6 +291,8 @@ export default function KeyGrowRegistrationForm({ onClose, walletAddress }: KeyG
           formData.targetHomePrice &&
           formData.downPaymentPercent
         );
+      case 5: // Review - always valid to proceed to payment
+        return true;
       default:
         return true;
     }
@@ -155,7 +312,13 @@ export default function KeyGrowRegistrationForm({ onClose, walletAddress }: KeyG
     setError('');
   };
 
-  const handleSubmit = async () => {
+  const handlePaymentSuccess = (intentId: string) => {
+    setPaymentIntentId(intentId);
+    // Payment successful, now submit registration
+    handleSubmit(intentId);
+  };
+
+  const handleSubmit = async (paymentId: string) => {
     if (!walletAddress) {
       setError('Please connect your wallet first');
       return;
@@ -183,6 +346,9 @@ export default function KeyGrowRegistrationForm({ onClose, walletAddress }: KeyG
           closingCosts,
           totalNeeded,
           monthsToGoal,
+          paymentIntentId: paymentId,
+          registrationFee: 500,
+          programDuration: 24, // 2 years in months
         }),
       });
 
@@ -227,16 +393,16 @@ export default function KeyGrowRegistrationForm({ onClose, walletAddress }: KeyG
         {/* Mobile: Compact */}
         <div className="flex sm:hidden justify-center items-center mb-4">
           <span className="text-sm font-medium text-gray-600">
-            Step {currentStep} of 5
+            Step {currentStep} of 6
           </span>
         </div>
         
         {/* Desktop: Full */}
         <div className="hidden sm:flex justify-between items-center">
-          {[1, 2, 3, 4, 5].map(step => (
+          {[1, 2, 3, 4, 5, 6].map(step => (
             <div key={step} className="flex items-center">
               <div
-                className={`w-10 h-10 rounded-full flex items-center justify-center font-bold ${
+                className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm ${
                   step === currentStep
                     ? 'bg-blue-600 text-white'
                     : step < currentStep
@@ -246,14 +412,15 @@ export default function KeyGrowRegistrationForm({ onClose, walletAddress }: KeyG
               >
                 {step < currentStep ? '✓' : step}
               </div>
-              <div className="ml-3 text-sm font-medium hidden md:block">
+              <div className="ml-2 text-xs font-medium hidden lg:block">
                 {step === 1 && 'Personal'}
                 {step === 2 && 'Financial'}
-                {step === 3 && 'Preferences'}
+                {step === 3 && 'Property'}
                 {step === 4 && 'Goals'}
                 {step === 5 && 'Review'}
+                {step === 6 && 'Payment'}
               </div>
-              {step < 5 && <div className="w-8 md:w-12 h-1 mx-2 md:mx-4 bg-gray-300" />}
+              {step < 6 && <div className="w-6 lg:w-10 h-1 mx-1 lg:mx-2 bg-gray-300" />}
             </div>
           ))}
         </div>
@@ -262,7 +429,7 @@ export default function KeyGrowRegistrationForm({ onClose, walletAddress }: KeyG
         <div className="sm:hidden w-full bg-gray-200 rounded-full h-2">
           <div 
             className="bg-blue-600 h-2 rounded-full transition-all duration-300"
-            style={{ width: `${(currentStep / 5) * 100}%` }}
+            style={{ width: `${(currentStep / 6) * 100}%` }}
           />
         </div>
       </div>
@@ -274,7 +441,8 @@ export default function KeyGrowRegistrationForm({ onClose, walletAddress }: KeyG
             {currentStep === 2 && 'Financial Information'}
             {currentStep === 3 && 'Property Preferences'}
             {currentStep === 4 && 'Home Buying Goals'}
-            {currentStep === 5 && 'Review & Submit'}
+            {currentStep === 5 && 'Review Summary'}
+            {currentStep === 6 && 'Registration Payment'}
           </CardTitle>
         </CardHeader>
         <CardContent className="p-4 sm:p-6">
@@ -840,6 +1008,56 @@ export default function KeyGrowRegistrationForm({ onClose, walletAddress }: KeyG
             </div>
           )}
 
+          {/* Step 6: Registration Payment */}
+          {currentStep === 6 && (
+            <div className="space-y-6">
+              <div className="bg-gradient-to-r from-green-50 to-blue-50 border border-green-200 rounded p-6">
+                <h3 className="text-lg font-bold text-gray-900 mb-4">💳 Complete Your Registration</h3>
+                <p className="text-gray-700 mb-4">
+                  You're one step away from joining the KeyGrow 2-Year Rent-to-Own Program!
+                </p>
+                
+                <div className="bg-white rounded p-4 space-y-3 border border-blue-200">
+                  <div className="flex items-start">
+                    <div className="text-2xl mr-3">🏠</div>
+                    <div>
+                      <p className="font-semibold text-gray-900">2-Year Homeownership Program</p>
+                      <p className="text-sm text-gray-600">24 months of personalized support and coaching</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start">
+                    <div className="text-2xl mr-3">📊</div>
+                    <div>
+                      <p className="font-semibold text-gray-900">Savings Tracking & Goal Planning</p>
+                      <p className="text-sm text-gray-600">Monitor your progress toward homeownership</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start">
+                    <div className="text-2xl mr-3">🎯</div>
+                    <div>
+                      <p className="font-semibold text-gray-900">Property Matching Service</p>
+                      <p className="text-sm text-gray-600">Find rent-to-own homes that match your criteria</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start">
+                    <div className="text-2xl mr-3">💰</div>
+                    <div>
+                      <p className="font-semibold text-gray-900">Monthly Revenue Allocations</p>
+                      <p className="text-sm text-gray-600">Receive platform revenue share based on your tier</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <Elements stripe={getStripePromise()}>
+                <PaymentStep 
+                  onPaymentSuccess={handlePaymentSuccess}
+                  onError={setError}
+                />
+              </Elements>
+            </div>
+          )}
+
           {error && (
             <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded">
               <p className="text-sm text-red-800">❌ {error}</p>
@@ -869,7 +1087,7 @@ export default function KeyGrowRegistrationForm({ onClose, walletAddress }: KeyG
               >
                 Cancel
               </Button>
-              {currentStep < 5 ? (
+              {currentStep < 6 ? (
                 <Button 
                   onClick={handleNext} 
                   disabled={loading}
@@ -877,15 +1095,7 @@ export default function KeyGrowRegistrationForm({ onClose, walletAddress }: KeyG
                 >
                   Next →
                 </Button>
-              ) : (
-                <Button 
-                  onClick={handleSubmit} 
-                  disabled={loading} 
-                  className="w-full sm:w-auto bg-green-600 hover:bg-green-700"
-                >
-                  {loading ? 'Submitting...' : 'Complete Registration'}
-                </Button>
-              )}
+              ) : null}
             </div>
           </div>
         </CardContent>

@@ -35,19 +35,88 @@ router.get('/stats', async (req, res) => {
   }
 });
 
+// Full KeyGrow program registration with payment
 router.post('/register', async (req, res) => {
   try {
-    const { walletAddress, tier } = req.body;
+    const {
+      walletAddress,
+      firstName,
+      lastName,
+      email,
+      phone,
+      isFirstTimeBuyer,
+      hasStableEmployment,
+      employmentYears,
+      creditScore,
+      monthlyIncome,
+      monthlyDebt,
+      monthlyExpenses,
+      emergencyFund,
+      currentSavings,
+      monthlySavings,
+      preferredLocation,
+      targetZipCode,
+      priceRangeMin,
+      priceRangeMax,
+      bedrooms,
+      bathrooms,
+      preferredPropertyType,
+      targetHomePrice,
+      downPaymentPercent,
+      loanType,
+      targetTimeframe,
+      savingsRate,
+      downPaymentAmount,
+      closingCosts,
+      totalNeeded,
+      monthsToGoal,
+      paymentIntentId,
+      registrationFee,
+      programDuration,
+      tier
+    } = req.body;
     
     if (!walletAddress) {
       return res.status(400).json({ success: false, error: 'Wallet address required' });
     }
 
-    const renter = await keygrowService.registerRenter(walletAddress, tier || 0);
+    // If this is a full registration with payment
+    if (paymentIntentId) {
+      console.log(`✅ KeyGrow registration with payment: ${email}, Payment: ${paymentIntentId}, Fee: $${registrationFee}`);
+      
+      // Register on blockchain (if tier provided)
+      if (tier !== undefined) {
+        try {
+          await keygrowService.registerRenter(walletAddress, tier);
+        } catch (error) {
+          console.warn('Blockchain registration pending:', error.message);
+        }
+      }
+      
+      // Store comprehensive registration data in database
+      // This would be saved to keygrow_progress table
+      // For now, log the registration
+      console.log(`📝 Registered: ${firstName} ${lastName}, ${email}`);
+      console.log(`💰 Financial: Income: $${monthlyIncome}, Savings: $${currentSavings}`);
+      console.log(`🏠 Goal: ${preferredLocation}, $${targetHomePrice}, ${monthsToGoal} months`);
+    } else {
+      // Simple blockchain registration (backward compatibility)
+      const renter = await keygrowService.registerRenter(walletAddress, tier || 0);
+      return res.json({
+        success: true,
+        data: renter
+      });
+    }
     
     res.json({
       success: true,
-      data: renter
+      message: 'Registration completed successfully',
+      data: {
+        walletAddress,
+        email,
+        programDuration: programDuration || 24,
+        registrationFee: registrationFee || 500
+      }
     });
   } catch (error) {
     console.error('❌ Registration error:', error);
