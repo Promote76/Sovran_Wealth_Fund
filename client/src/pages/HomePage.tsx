@@ -152,14 +152,14 @@ export default function HomePage() {
           </p>
           <div className="flex flex-col sm:flex-row justify-center gap-6">
             <Button 
-              className="text-xl px-12 py-4 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105"
+              className="text-base px-8 py-3 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105"
               onClick={() => handlePathClick('keygrow')}
             >
               🏠 Start Your Homeownership Journey
             </Button>
             <Button 
               variant="outline" 
-              className="text-xl px-12 py-4 border-2 border-blue-700 text-blue-800 hover:bg-blue-50 font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200"
+              className="text-base px-8 py-3 border-2 border-blue-700 text-blue-800 hover:bg-blue-50 font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200"
               onClick={() => navigate('/learn-how-it-works')}
             >
               Learn How It Works
@@ -267,7 +267,7 @@ export default function HomePage() {
 
             <div className="mt-10 text-center">
               <Button 
-                className="text-lg px-8 py-3 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105"
+                className="text-base px-6 py-2.5 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105"
                 onClick={() => handlePathClick('keygrow')}
               >
                 Register Now - $500 One-Time Fee
