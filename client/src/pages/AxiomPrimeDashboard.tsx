@@ -88,29 +88,29 @@ export default function AxiomPrimeDashboard() {
   if (!isConnected) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-pink-50">
-        <div className="max-w-7xl mx-auto px-4 py-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-12">
           {/* Hero Section */}
-          <div className="text-center mb-16">
-            <div className="text-6xl mb-4">💎</div>
-            <h1 className="text-5xl font-bold mb-4 bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+          <div className="text-center mb-8 sm:mb-16">
+            <div className="text-4xl sm:text-6xl mb-4">💎</div>
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent px-2">
               Axiom Prime Membership
             </h1>
-            <p className="text-xl text-gray-700 mb-8 max-w-3xl mx-auto">
+            <p className="text-base sm:text-lg md:text-xl text-gray-700 mb-6 sm:mb-8 max-w-3xl mx-auto px-4">
               Earn More, Pay Less, Own Your Future. Join our tiered membership program to unlock 
               loyalty multipliers up to 1.6x, fee discounts up to 50%, and passive income through referrals.
             </p>
             <button 
               onClick={() => (wallet as any)?.connectWallet?.()}
-              className="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-10 py-4 rounded-xl font-bold text-lg hover:from-purple-700 hover:to-pink-700 shadow-xl transform hover:scale-105 transition-all"
+              className="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-6 sm:px-10 py-3 sm:py-4 rounded-xl font-bold text-base sm:text-lg hover:from-purple-700 hover:to-pink-700 shadow-xl transform hover:scale-105 transition-all"
             >
               Connect Wallet to Get Started
             </button>
           </div>
 
           {/* Tier Comparison Grid */}
-          <div className="mb-16">
-            <h2 className="text-3xl font-bold text-center mb-8">Choose Your Tier</h2>
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+          <div className="mb-8 sm:mb-16">
+            <h2 className="text-2xl sm:text-3xl font-bold text-center mb-6 sm:mb-8">Choose Your Tier</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
               {[
                 { name: 'Free', emoji: '🆓', tvl: '$0-4,999', multiplier: '1.0x', fees: '2.0%', bg: 'bg-gray-100', border: 'border-gray-300' },
                 { name: 'Silver', emoji: '🥈', tvl: '$5K-24K', multiplier: '1.2x', fees: '1.5%', bg: 'bg-gradient-to-br from-gray-100 to-gray-200', border: 'border-gray-400' },
@@ -119,12 +119,12 @@ export default function AxiomPrimeDashboard() {
               ].map((tier) => (
                 <div 
                   key={tier.name}
-                  className={`${tier.bg} border-2 ${tier.border} rounded-2xl p-6 ${tier.highlight ? 'shadow-2xl scale-105' : 'shadow-lg'} transform hover:scale-105 transition-all`}
+                  className={`${tier.bg} border-2 ${tier.border} rounded-2xl p-4 sm:p-6 ${tier.highlight ? 'shadow-2xl lg:scale-105' : 'shadow-lg'} transform hover:scale-105 transition-all`}
                 >
-                  <div className="text-5xl text-center mb-3">{tier.emoji}</div>
-                  <h3 className="text-2xl font-bold text-center mb-2">{tier.name}</h3>
-                  <p className="text-center text-gray-700 font-semibold mb-4">{tier.tvl}</p>
-                  <div className="space-y-2 text-sm">
+                  <div className="text-4xl sm:text-5xl text-center mb-3">{tier.emoji}</div>
+                  <h3 className="text-xl sm:text-2xl font-bold text-center mb-2">{tier.name}</h3>
+                  <p className="text-center text-gray-700 font-semibold mb-4 text-sm sm:text-base">{tier.tvl}</p>
+                  <div className="space-y-2 text-xs sm:text-sm">
                     <div className="flex justify-between">
                       <span className="text-gray-600">Multiplier:</span>
                       <span className="font-bold text-purple-600">{tier.multiplier}</span>
@@ -140,50 +140,50 @@ export default function AxiomPrimeDashboard() {
           </div>
 
           {/* Features Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
-            <div className="bg-white rounded-xl p-8 shadow-lg border border-purple-200">
-              <div className="text-4xl mb-4">⚡</div>
-              <h3 className="text-2xl font-bold mb-3">Loyalty Multipliers</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8 mb-8 sm:mb-16">
+            <div className="bg-white rounded-xl p-6 sm:p-8 shadow-lg border border-purple-200">
+              <div className="text-3xl sm:text-4xl mb-4">⚡</div>
+              <h3 className="text-xl sm:text-2xl font-bold mb-3">Loyalty Multipliers</h3>
               <p className="text-gray-700">
                 Earn up to 1.6x more rewards on staking, real estate investments, and liquidity provision. 
                 Your tier automatically adjusts based on Total Value Locked (TVL).
               </p>
             </div>
-            <div className="bg-white rounded-xl p-8 shadow-lg border border-purple-200">
-              <div className="text-4xl mb-4">💰</div>
-              <h3 className="text-2xl font-bold mb-3">Fee Discounts</h3>
+            <div className="bg-white rounded-xl p-6 sm:p-8 shadow-lg border border-purple-200">
+              <div className="text-3xl sm:text-4xl mb-4">💰</div>
+              <h3 className="text-xl sm:text-2xl font-bold mb-3">Fee Discounts</h3>
               <p className="text-gray-700">
                 Save up to 50% on platform fees. Platinum members pay just 0.4% compared to the base 2.0% fee, 
                 saving thousands on large transactions.
               </p>
             </div>
-            <div className="bg-white rounded-xl p-8 shadow-lg border border-purple-200">
-              <div className="text-4xl mb-4">🎁</div>
-              <h3 className="text-2xl font-bold mb-3">Axiom Points Rewards</h3>
+            <div className="bg-white rounded-xl p-6 sm:p-8 shadow-lg border border-purple-200">
+              <div className="text-3xl sm:text-4xl mb-4">🎁</div>
+              <h3 className="text-xl sm:text-2xl font-bold mb-3">Axiom Points Rewards</h3>
               <p className="text-gray-700">
                 Earn points on every transaction, stake, and referral. Redeem for fee rebates, NFT rewards, 
                 governance power, and exclusive merchandise.
               </p>
             </div>
-            <div className="bg-white rounded-xl p-8 shadow-lg border border-purple-200">
-              <div className="text-4xl mb-4">🔗</div>
-              <h3 className="text-2xl font-bold mb-3">3-Level Referral System</h3>
+            <div className="bg-white rounded-xl p-6 sm:p-8 shadow-lg border border-purple-200">
+              <div className="text-3xl sm:text-4xl mb-4">🔗</div>
+              <h3 className="text-xl sm:text-2xl font-bold mb-3">3-Level Referral System</h3>
               <p className="text-gray-700">
                 Earn 5% commission on direct referrals, 2% on their referrals, and 1% on the third level. 
                 Build your network and earn passive income forever.
               </p>
             </div>
-            <div className="bg-white rounded-xl p-8 shadow-lg border border-purple-200">
-              <div className="text-4xl mb-4">🛡️</div>
-              <h3 className="text-2xl font-bold mb-3">Premium Benefits</h3>
+            <div className="bg-white rounded-xl p-6 sm:p-8 shadow-lg border border-purple-200">
+              <div className="text-3xl sm:text-4xl mb-4">🛡️</div>
+              <h3 className="text-xl sm:text-2xl font-bold mb-3">Premium Benefits</h3>
               <p className="text-gray-700">
                 Priority support, smart contract insurance, early access to new features, exclusive airdrops, 
                 and VIP access to platform governance.
               </p>
             </div>
-            <div className="bg-white rounded-xl p-8 shadow-lg border border-purple-200">
-              <div className="text-4xl mb-4">📊</div>
-              <h3 className="text-2xl font-bold mb-3">Transparent Tracking</h3>
+            <div className="bg-white rounded-xl p-6 sm:p-8 shadow-lg border border-purple-200">
+              <div className="text-3xl sm:text-4xl mb-4">📊</div>
+              <h3 className="text-xl sm:text-2xl font-bold mb-3">Transparent Tracking</h3>
               <p className="text-gray-700">
                 Real-time dashboard showing your tier status, TVL across all contracts, points balance, 
                 referral network size, and projected earnings.
@@ -192,14 +192,14 @@ export default function AxiomPrimeDashboard() {
           </div>
 
           {/* CTA Section */}
-          <div className="bg-gradient-to-r from-purple-600 to-pink-600 rounded-2xl p-12 text-white text-center shadow-2xl">
-            <h2 className="text-4xl font-bold mb-4">Ready to Unlock Premium Benefits?</h2>
-            <p className="text-xl mb-8 opacity-90">
+          <div className="bg-gradient-to-r from-purple-600 to-pink-600 rounded-2xl p-6 sm:p-8 md:p-12 text-white text-center shadow-2xl">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4">Ready to Unlock Premium Benefits?</h2>
+            <p className="text-base sm:text-lg md:text-xl mb-6 sm:mb-8 opacity-90 px-2">
               Connect your wallet to view your current tier, start earning points, and get your unique referral code.
             </p>
             <button 
               onClick={() => (wallet as any)?.connectWallet?.()}
-              className="bg-white text-purple-600 px-12 py-4 rounded-xl font-bold text-lg hover:bg-gray-100 shadow-xl transform hover:scale-105 transition-all"
+              className="bg-white text-purple-600 px-8 sm:px-12 py-3 sm:py-4 rounded-xl font-bold text-base sm:text-lg hover:bg-gray-100 shadow-xl transform hover:scale-105 transition-all"
             >
               Connect Wallet Now →
             </button>
@@ -219,29 +219,29 @@ export default function AxiomPrimeDashboard() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-8">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
       {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-4xl font-bold mb-2">Axiom Prime Dashboard</h1>
-        <p className="text-gray-600">Earn More, Pay Less, Own Your Future</p>
+      <div className="mb-6 sm:mb-8">
+        <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-2">Axiom Prime Dashboard</h1>
+        <p className="text-sm sm:text-base text-gray-600">Earn More, Pay Less, Own Your Future</p>
       </div>
 
       {/* Tier Card */}
       {tier && (
-        <div className={`bg-gradient-to-r ${getTierColor(tier.currentTier.name)} p-6 rounded-2xl text-white mb-6 shadow-xl`}>
-          <div className="flex items-center justify-between">
+        <div className={`bg-gradient-to-r ${getTierColor(tier.currentTier.name)} p-4 sm:p-6 rounded-2xl text-white mb-6 shadow-xl`}>
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div>
-              <div className="flex items-center gap-3 mb-2">
-                <span className="text-4xl">{getTierBadge(tier.currentTier.name)}</span>
-                <h2 className="text-3xl font-bold">{tier.currentTier.name} Member</h2>
+              <div className="flex items-center gap-2 sm:gap-3 mb-2">
+                <span className="text-3xl sm:text-4xl">{getTierBadge(tier.currentTier.name)}</span>
+                <h2 className="text-2xl sm:text-3xl font-bold">{tier.currentTier.name} Member</h2>
               </div>
-              <p className="text-white/90 text-lg">
+              <p className="text-white/90 text-base sm:text-lg">
                 {tier.currentTier.multiplier}x Loyalty Multiplier
               </p>
             </div>
-            <div className="text-right">
-              <p className="text-white/90 text-sm">Total Value Locked</p>
-              <p className="text-4xl font-bold">${tier.holdings.totalUSD.toLocaleString()}</p>
+            <div className="text-left sm:text-right">
+              <p className="text-white/90 text-xs sm:text-sm">Total Value Locked</p>
+              <p className="text-3xl sm:text-4xl font-bold">${tier.holdings.totalUSD.toLocaleString()}</p>
             </div>
           </div>
 
@@ -266,7 +266,7 @@ export default function AxiomPrimeDashboard() {
         </div>
       )}
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-6">
         {/* Points Card */}
         {points && (
           <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-200">
@@ -351,36 +351,36 @@ export default function AxiomPrimeDashboard() {
 
       {/* Holdings Breakdown */}
       {tier && (
-        <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-200">
-          <h3 className="text-xl font-bold mb-4">Portfolio Breakdown</h3>
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-            <div className="text-center p-4 bg-blue-50 rounded-lg">
-              <p className="text-sm text-gray-600 mb-1">Real Estate</p>
-              <p className="text-2xl font-bold text-blue-600">
+        <div className="bg-white rounded-xl shadow-lg p-4 sm:p-6 border border-gray-200">
+          <h3 className="text-lg sm:text-xl font-bold mb-4">Portfolio Breakdown</h3>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
+            <div className="text-center p-3 sm:p-4 bg-blue-50 rounded-lg">
+              <p className="text-xs sm:text-sm text-gray-600 mb-1">Real Estate</p>
+              <p className="text-lg sm:text-2xl font-bold text-blue-600">
                 ${tier.holdings.realEstate.valueUSD.toLocaleString()}
               </p>
             </div>
-            <div className="text-center p-4 bg-green-50 rounded-lg">
-              <p className="text-sm text-gray-600 mb-1">Staking</p>
-              <p className="text-2xl font-bold text-green-600">
+            <div className="text-center p-3 sm:p-4 bg-green-50 rounded-lg">
+              <p className="text-xs sm:text-sm text-gray-600 mb-1">Staking</p>
+              <p className="text-lg sm:text-2xl font-bold text-green-600">
                 ${tier.holdings.staking.valueUSD.toLocaleString()}
               </p>
             </div>
-            <div className="text-center p-4 bg-purple-50 rounded-lg">
-              <p className="text-sm text-gray-600 mb-1">Liquidity</p>
-              <p className="text-2xl font-bold text-purple-600">
+            <div className="text-center p-3 sm:p-4 bg-purple-50 rounded-lg">
+              <p className="text-xs sm:text-sm text-gray-600 mb-1">Liquidity</p>
+              <p className="text-lg sm:text-2xl font-bold text-purple-600">
                 ${tier.holdings.liquidity.valueUSD.toLocaleString()}
               </p>
             </div>
-            <div className="text-center p-4 bg-orange-50 rounded-lg">
-              <p className="text-sm text-gray-600 mb-1">Governance</p>
-              <p className="text-2xl font-bold text-orange-600">
+            <div className="text-center p-3 sm:p-4 bg-orange-50 rounded-lg">
+              <p className="text-xs sm:text-sm text-gray-600 mb-1">Governance</p>
+              <p className="text-lg sm:text-2xl font-bold text-orange-600">
                 ${tier.holdings.governance?.valueUSD.toLocaleString() || 0}
               </p>
             </div>
-            <div className="text-center p-4 bg-pink-50 rounded-lg">
-              <p className="text-sm text-gray-600 mb-1">Basket</p>
-              <p className="text-2xl font-bold text-pink-600">
+            <div className="text-center p-3 sm:p-4 bg-pink-50 rounded-lg">
+              <p className="text-xs sm:text-sm text-gray-600 mb-1">Basket</p>
+              <p className="text-lg sm:text-2xl font-bold text-pink-600">
                 ${tier.holdings.basket?.valueUSD.toLocaleString() || 0}
               </p>
             </div>
@@ -390,9 +390,9 @@ export default function AxiomPrimeDashboard() {
 
       {/* Tier Benefits */}
       {tier && (
-        <div className="mt-6 bg-white rounded-xl shadow-lg p-6 border border-gray-200">
-          <h3 className="text-xl font-bold mb-4">Your {tier.currentTier.name} Benefits</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="mt-6 bg-white rounded-xl shadow-lg p-4 sm:p-6 border border-gray-200">
+          <h3 className="text-lg sm:text-xl font-bold mb-4">Your {tier.currentTier.name} Benefits</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
             <div className="flex items-start gap-3 p-4 bg-gray-50 rounded-lg">
               <span className="text-2xl">📊</span>
               <div>
