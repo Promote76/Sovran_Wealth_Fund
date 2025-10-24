@@ -1,0 +1,20 @@
+{
+  "network": "BSC Mainnet",
+  "timestamp": "2025-10-24T00:39:07.022Z",
+  "factory": {
+    "address": "0x45214E837caf29974b900Fcd5537Bc04E8809926",
+    "defaultRewardToken": "0x83E17aeB148d9b4b7Be0Be7C87dd73531a5a5738",
+    "vaultCount": 1
+  },
+  "vaults": [
+    {
+      "lpToken": "0x3aA970cD91f792427CF28Bc687B4713Ee26e2090",
+      "lpTokenName": "SWF-WBNB LP",
+      "address": "0xB67Ed87ef71b3db567d829736E9Aa714640FFd9f",
+      "rewardRate": "10000000000000",
+      "lockPeriod": 604800,
+      "minimumStake": "100000000000000000",
+      "apy": "0.00"
+    }
+  ]
+}

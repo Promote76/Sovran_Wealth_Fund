@@ -1,8 +1,8 @@
 const { ethers } = require('ethers');
 const { getContractProvider } = require('./contractProvider');
 
-// Will be updated after deployment
-const VAULT_FACTORY_ADDRESS = process.env.VAULT_FACTORY_ADDRESS || '0x0000000000000000000000000000000000000000';
+// VaultFactory deployed on BSC Mainnet - 2025-10-24
+const VAULT_FACTORY_ADDRESS = process.env.VAULT_FACTORY_ADDRESS || '0x45214E837caf29974b900Fcd5537Bc04E8809926';
 
 const VAULT_FACTORY_ABI = [
   "function allVaults(uint256) view returns (address)",

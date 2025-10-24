@@ -54,7 +54,20 @@ The platform includes an investment management system for 8 product types (Crypt
 ### Smart Contract System & Tokenomics
 The AXM token has a finite supply of 10 billion, representing verified energy and contribution, with distribution across Treasury & Liquidity (40%), Community Growth Fund (30%), Founders (15%), Adoption Incentives (10%), and Institutional Liquidity Reserve (5%). The ecosystem includes the AXM token, PoC staking engines (10-30% dynamic APR), AxiomBasketVault, DynamicAPRController, and the Axiom Council governance system. PoC staking rewards time and impact, contributing to a slow-deflationary curve through partial fee burns and "energy locks."
 
-Smart contracts deployed include: BasketIndex, AdvancedStaking, EnhancedNFTMarketplace, DynamicAPRController, LiquidityVault, GovernanceDividendPool, SWFVaultAdapter, RealEstateAcquisitionFund, and AXIOMRevenueRouter.
+Smart contracts deployed include: BasketIndex, AdvancedStaking, EnhancedNFTMarketplace, DynamicAPRController, LiquidityVault, GovernanceDividendPool, SWFVaultAdapter, RealEstateAcquisitionFund, AXIOMRevenueRouter, VaultFactory, and LiquidityRewardsVault.
+
+### Multi-Vault Liquidity Staking System
+The platform features a VaultFactory system (deployed 2025-10-24) that enables deployment of isolated staking vaults for different LP token pairs. Each vault operates independently with configurable reward rates, lock periods, and minimum stakes.
+
+**VaultFactory** (`0x45214E837caf29974b900Fcd5537Bc04E8809926`):
+- Factory pattern for deploying unlimited LP staking vaults
+- Vault registry and discovery system
+- Default reward token: SWF (0x83E17aeB148d9b4b7Be0BE7C87dd73531a5a5738)
+
+**Active Vaults:**
+- **SWF-WBNB Vault** (`0xB67Ed87ef71b3db567d829736E9Aa714640FFd9f`): 7-day lock period, 0.1 LP minimum stake, verified on Sourcify
+
+The LiquidityVaultPage provides a unified dashboard displaying all active vaults with vault selection grid, portfolio overview across all vaults, individual vault statistics, and seamless switching between different LP pairs.
 
 ### KeyGrow Rent-to-Own Program
 20% of all platform revenue is allocated to a Real Estate Acquisition Fund through the AXIOMRevenueRouter (80% Treasury, 20% KeyGrow). This fund assists renters with down payments and property acquisition based on tiered allocations and time-weighted multipliers.
