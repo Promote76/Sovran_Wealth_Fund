@@ -224,10 +224,10 @@ export default function PropertySubmissionForm({ onClose }: { onClose: () => voi
   if (success) {
     return (
       <Card className="max-w-2xl mx-auto">
-        <CardContent className="p-8 text-center">
-          <div className="text-6xl mb-4">✅</div>
-          <h3 className="text-2xl font-bold text-green-600 mb-2">Property Submitted Successfully!</h3>
-          <p className="text-gray-600">
+        <CardContent className="p-6 sm:p-8 text-center">
+          <div className="text-5xl sm:text-6xl mb-4">✅</div>
+          <h3 className="text-xl sm:text-2xl font-bold text-green-600 mb-2">Property Submitted Successfully!</h3>
+          <p className="text-sm sm:text-base text-gray-600 px-2">
             Your property submission is now under review. You'll be notified once it's approved.
           </p>
         </CardContent>
@@ -236,43 +236,61 @@ export default function PropertySubmissionForm({ onClose }: { onClose: () => voi
   }
 
   return (
-    <div className="max-w-4xl mx-auto">
-      {/* Progress Steps */}
-      <div className="flex justify-between items-center mb-8">
-        {[1, 2, 3, 4].map(step => (
-          <div key={step} className="flex items-center">
-            <div
-              className={`w-10 h-10 rounded-full flex items-center justify-center font-bold ${
-                step === currentStep
-                  ? 'bg-blue-600 text-white'
-                  : step < currentStep
-                  ? 'bg-green-500 text-white'
-                  : 'bg-gray-200 text-gray-500'
-              }`}
-            >
-              {step < currentStep ? '✓' : step}
+    <div className="max-w-4xl mx-auto px-4 sm:px-6">
+      {/* Progress Steps - Mobile Optimized */}
+      <div className="mb-6 sm:mb-8">
+        {/* Mobile: Compact Step Indicator */}
+        <div className="flex sm:hidden justify-center items-center mb-4">
+          <span className="text-sm font-medium text-gray-600">
+            Step {currentStep} of 4
+          </span>
+        </div>
+        
+        {/* Desktop: Full Step Indicator */}
+        <div className="hidden sm:flex justify-between items-center">
+          {[1, 2, 3, 4].map(step => (
+            <div key={step} className="flex items-center">
+              <div
+                className={`w-10 h-10 rounded-full flex items-center justify-center font-bold ${
+                  step === currentStep
+                    ? 'bg-blue-600 text-white'
+                    : step < currentStep
+                    ? 'bg-green-500 text-white'
+                    : 'bg-gray-200 text-gray-500'
+                }`}
+              >
+                {step < currentStep ? '✓' : step}
+              </div>
+              <div className="ml-3 text-sm font-medium hidden md:block">
+                {step === 1 && 'Property Details'}
+                {step === 2 && 'Financials'}
+                {step === 3 && 'Documents'}
+                {step === 4 && 'Review & Submit'}
+              </div>
+              {step < 4 && <div className="w-8 md:w-16 h-1 mx-2 md:mx-4 bg-gray-300" />}
             </div>
-            <div className="ml-3 text-sm font-medium">
-              {step === 1 && 'Property Details'}
-              {step === 2 && 'Financials'}
-              {step === 3 && 'Documents'}
-              {step === 4 && 'Review & Submit'}
-            </div>
-            {step < 4 && <div className="w-16 h-1 mx-4 bg-gray-300" />}
-          </div>
-        ))}
+          ))}
+        </div>
+        
+        {/* Mobile: Progress Bar */}
+        <div className="sm:hidden w-full bg-gray-200 rounded-full h-2">
+          <div 
+            className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+            style={{ width: `${(currentStep / 4) * 100}%` }}
+          />
+        </div>
       </div>
 
       <Card>
-        <CardHeader>
-          <CardTitle>
+        <CardHeader className="p-4 sm:p-6">
+          <CardTitle className="text-lg sm:text-xl">
             {currentStep === 1 && 'Property Details'}
             {currentStep === 2 && 'Financial Information'}
             {currentStep === 3 && 'Documents & Media'}
             {currentStep === 4 && 'Review & Submit'}
           </CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-4 sm:p-6">
           {/* Step 1: Property Details */}
           {currentStep === 1 && (
             <div className="space-y-4">
@@ -707,25 +725,43 @@ export default function PropertySubmissionForm({ onClose }: { onClose: () => voi
             </div>
           )}
 
-          {/* Navigation Buttons */}
-          <div className="flex justify-between mt-8">
-            <div>
+          {/* Navigation Buttons - Mobile Optimized */}
+          <div className="flex flex-col sm:flex-row justify-between gap-4 mt-6 sm:mt-8">
+            <div className="order-2 sm:order-1">
               {currentStep > 1 && (
-                <Button onClick={handleBack} variant="outline" disabled={loading}>
+                <Button 
+                  onClick={handleBack} 
+                  variant="outline" 
+                  disabled={loading}
+                  className="w-full sm:w-auto"
+                >
                   ← Back
                 </Button>
               )}
             </div>
-            <div className="flex gap-3">
-              <Button onClick={onClose} variant="outline" disabled={loading}>
+            <div className="flex flex-col sm:flex-row gap-3 order-1 sm:order-2">
+              <Button 
+                onClick={onClose} 
+                variant="outline" 
+                disabled={loading}
+                className="w-full sm:w-auto"
+              >
                 Cancel
               </Button>
               {currentStep < 4 ? (
-                <Button onClick={handleNext} disabled={loading}>
+                <Button 
+                  onClick={handleNext} 
+                  disabled={loading}
+                  className="w-full sm:w-auto"
+                >
                   Next →
                 </Button>
               ) : (
-                <Button onClick={handleSubmit} disabled={loading} className="bg-green-600 hover:bg-green-700">
+                <Button 
+                  onClick={handleSubmit} 
+                  disabled={loading} 
+                  className="w-full sm:w-auto bg-green-600 hover:bg-green-700"
+                >
                   {loading ? 'Submitting...' : 'Submit Property'}
                 </Button>
               )}
