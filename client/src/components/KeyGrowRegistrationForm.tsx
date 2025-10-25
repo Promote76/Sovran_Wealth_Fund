@@ -306,6 +306,73 @@ export default function KeyGrowRegistrationForm({ onClose, walletAddress }: KeyG
     return Math.ceil(currentGap / Number(formData.monthlySavings));
   };
 
+  // 📚 EDUCATIONAL FINANCIAL CALCULATIONS
+  const calculateDebtToIncomeRatio = (): number => {
+    // DTI = (Total Monthly Debt Payments / Gross Monthly Income) × 100
+    const totalDebt = Number(formData.monthlyDebt || 0);
+    const income = Number(formData.monthlyIncome || 0);
+    if (income === 0) return 0;
+    return (totalDebt / income) * 100;
+  };
+
+  const calculateEstimatedMortgagePayment = (): number => {
+    // Formula: M = P[r(1+r)^n]/[(1+r)^n-1]
+    // M = Monthly payment, P = Principal, r = Monthly interest rate, n = Number of payments
+    const homePrice = Number(formData.targetHomePrice || 0);
+    const downPayment = calculateDownPaymentAmount();
+    const principal = homePrice - downPayment;
+    const annualRate = 0.07; // 7% assumed interest rate
+    const monthlyRate = annualRate / 12;
+    const numPayments = 30 * 12; // 30-year mortgage
+    
+    if (principal <= 0) return 0;
+    
+    const payment = principal * (monthlyRate * Math.pow(1 + monthlyRate, numPayments)) / 
+                   (Math.pow(1 + monthlyRate, numPayments) - 1);
+    
+    return payment;
+  };
+
+  const calculatePMI = (): number => {
+    // PMI (Private Mortgage Insurance) if down payment < 20%
+    const downPaymentPercent = Number(formData.downPaymentPercent || 0);
+    if (downPaymentPercent >= 20) return 0;
+    
+    const homePrice = Number(formData.targetHomePrice || 0);
+    const loanAmount = homePrice - calculateDownPaymentAmount();
+    const pmiRate = 0.005; // 0.5% annual PMI rate
+    return (loanAmount * pmiRate) / 12; // Monthly PMI
+  };
+
+  const calculateFrontEndRatio = (): number => {
+    // Front-end ratio: (Housing costs / Gross income) × 100
+    // Should be ≤ 28% for mortgage approval
+    const monthlyPayment = calculateEstimatedMortgagePayment();
+    const pmi = calculatePMI();
+    const propertyTax = (Number(formData.targetHomePrice || 0) * 0.012) / 12; // 1.2% annual tax
+    const insurance = 100; // Estimated homeowner's insurance
+    const totalHousing = monthlyPayment + pmi + propertyTax + insurance;
+    const income = Number(formData.monthlyIncome || 0);
+    
+    if (income === 0) return 0;
+    return (totalHousing / income) * 100;
+  };
+
+  const calculateBackEndRatio = (): number => {
+    // Back-end ratio: (Housing + Debt / Gross income) × 100
+    // Should be ≤ 36% for mortgage approval
+    const monthlyPayment = calculateEstimatedMortgagePayment();
+    const pmi = calculatePMI();
+    const propertyTax = (Number(formData.targetHomePrice || 0) * 0.012) / 12;
+    const insurance = 100;
+    const totalHousing = monthlyPayment + pmi + propertyTax + insurance;
+    const totalDebt = Number(formData.monthlyDebt || 0);
+    const income = Number(formData.monthlyIncome || 0);
+    
+    if (income === 0) return 0;
+    return ((totalHousing + totalDebt) / income) * 100;
+  };
+
   const validateStep = (step: number): boolean => {
     switch (step) {
       case 1: // Personal Info
@@ -697,10 +764,44 @@ export default function KeyGrowRegistrationForm({ onClose, walletAddress }: KeyG
                 <p className="text-xs text-gray-500 mt-1">Separate from down payment savings</p>
               </div>
 
+              {/* EDUCATIONAL: Debt-to-Income Ratio */}
+              {formData.monthlyIncome && formData.monthlyDebt !== '' && (
+                <div className="bg-purple-50 border-2 border-purple-300 rounded-lg p-4 space-y-3">
+                  <div className="flex items-start gap-2">
+                    <span className="text-2xl">📊</span>
+                    <div className="flex-1">
+                      <p className="text-sm font-bold text-purple-900">
+                        Debt-to-Income (DTI) Ratio: {calculateDebtToIncomeRatio().toFixed(1)}%
+                      </p>
+                      <p className="text-xs text-purple-700 mt-1">
+                        <strong>Formula:</strong> (Monthly Debt ÷ Monthly Income) × 100
+                      </p>
+                      <p className="text-xs text-purple-700">
+                        ({Number(formData.monthlyDebt).toLocaleString()} ÷ {Number(formData.monthlyIncome).toLocaleString()}) × 100 = {calculateDebtToIncomeRatio().toFixed(1)}%
+                      </p>
+                    </div>
+                  </div>
+                  <div className="pl-9 border-l-2 border-purple-200">
+                    <p className="text-xs font-semibold text-gray-800">💡 What this means:</p>
+                    <p className="text-xs text-gray-700">
+                      {calculateDebtToIncomeRatio() < 36
+                        ? '✅ Excellent! DTI < 36% makes you a strong mortgage candidate.'
+                        : calculateDebtToIncomeRatio() < 43
+                        ? '⚠️ Fair. DTI 36-43% may qualify but focus on reducing debt.'
+                        : '🚨 High DTI (>43%). Work on lowering debt before applying for a mortgage.'}
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {/* EDUCATIONAL: Savings Rate */}
               {formData.monthlyIncome && formData.monthlySavings && (
                 <div className="bg-blue-50 border border-blue-200 rounded p-4">
                   <p className="text-sm font-semibold text-blue-900">
                     💡 Your Savings Rate: {calculateSavingsRate().toFixed(1)}%
+                  </p>
+                  <p className="text-xs text-blue-700 mt-1">
+                    <strong>Formula:</strong> (Monthly Savings ÷ Monthly Income) × 100 = {calculateSavingsRate().toFixed(1)}%
                   </p>
                   <p className="text-xs text-blue-700 mt-1">
                     {calculateSavingsRate() >= 20 
@@ -891,9 +992,10 @@ export default function KeyGrowRegistrationForm({ onClose, walletAddress }: KeyG
                 </div>
               </div>
 
+              {/* EDUCATIONAL SECTION 1: Savings Plan */}
               {formData.targetHomePrice && formData.downPaymentPercent && (
-                <div className="bg-gradient-to-r from-blue-50 to-green-50 border border-blue-200 rounded p-4 space-y-3">
-                  <h3 className="font-bold text-gray-900">📊 Your Savings Plan:</h3>
+                <div className="bg-gradient-to-r from-blue-50 to-green-50 border-2 border-blue-300 rounded-lg p-4 space-y-3">
+                  <h3 className="font-bold text-gray-900">💰 Your Savings Plan</h3>
                   
                   <div className="grid grid-cols-2 gap-4 text-sm">
                     <div>
@@ -901,15 +1003,17 @@ export default function KeyGrowRegistrationForm({ onClose, walletAddress }: KeyG
                       <p className="font-bold text-gray-900">
                         ${calculateDownPaymentAmount().toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                       </p>
+                      <p className="text-xs text-gray-500">({formData.downPaymentPercent}% of ${Number(formData.targetHomePrice).toLocaleString()})</p>
                     </div>
                     <div>
                       <p className="text-gray-600">Estimated Closing Costs:</p>
                       <p className="font-bold text-gray-900">
                         ${(calculateDownPaymentAmount() * 0.03).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                       </p>
+                      <p className="text-xs text-gray-500">(~3% of down payment)</p>
                     </div>
                     <div>
-                      <p className="text-gray-600">Total Needed:</p>
+                      <p className="text-gray-600">Total Cash Needed:</p>
                       <p className="font-bold text-blue-900">
                         ${(calculateDownPaymentAmount() * 1.03).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                       </p>
@@ -935,6 +1039,97 @@ export default function KeyGrowRegistrationForm({ onClose, walletAddress }: KeyG
                       )}
                     </div>
                   )}
+                </div>
+              )}
+
+              {/* EDUCATIONAL SECTION 2: Estimated Monthly Mortgage Payment */}
+              {formData.targetHomePrice && formData.downPaymentPercent && formData.monthlyIncome && (
+                <div className="bg-gradient-to-r from-orange-50 to-yellow-50 border-2 border-orange-300 rounded-lg p-4 space-y-3">
+                  <h3 className="font-bold text-gray-900">🏠 Estimated Monthly Mortgage Payment</h3>
+                  
+                  <div className="bg-white rounded p-3 space-y-2 text-sm">
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Principal & Interest:</span>
+                      <span className="font-semibold">${calculateEstimatedMortgagePayment().toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                    </div>
+                    {calculatePMI() > 0 && (
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">PMI ({'<'} 20% down):</span>
+                        <span className="font-semibold text-amber-700">+${calculatePMI().toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                      </div>
+                    )}
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Property Tax (est.):</span>
+                      <span className="font-semibold">+${((Number(formData.targetHomePrice) * 0.012) / 12).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Homeowner's Insurance:</span>
+                      <span className="font-semibold">+$100.00</span>
+                    </div>
+                    <div className="border-t pt-2 flex justify-between text-base">
+                      <span className="font-bold text-gray-900">Total Monthly Payment:</span>
+                      <span className="font-bold text-orange-900">
+                        ${(calculateEstimatedMortgagePayment() + calculatePMI() + ((Number(formData.targetHomePrice) * 0.012) / 12) + 100).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="text-xs text-gray-600 bg-white rounded p-2">
+                    <p><strong>📐 Formula Used:</strong> M = P[r(1+r)^n] / [(1+r)^n - 1]</p>
+                    <p className="mt-1">Loan: ${(Number(formData.targetHomePrice) - calculateDownPaymentAmount()).toLocaleString()} @ 7% for 30 years</p>
+                  </div>
+                </div>
+              )}
+
+              {/* EDUCATIONAL SECTION 3: Mortgage Affordability Analysis */}
+              {formData.targetHomePrice && formData.monthlyIncome && formData.monthlyDebt !== '' && (
+                <div className="bg-gradient-to-r from-purple-50 to-pink-50 border-2 border-purple-300 rounded-lg p-4 space-y-3">
+                  <h3 className="font-bold text-gray-900">📈 Mortgage Affordability Analysis</h3>
+                  
+                  <div className="space-y-3">
+                    {/* Front-End Ratio */}
+                    <div className="bg-white rounded p-3">
+                      <div className="flex justify-between items-center mb-2">
+                        <span className="text-sm font-semibold text-gray-800">Front-End Ratio (Housing Only)</span>
+                        <span className={`text-lg font-bold ${calculateFrontEndRatio() <= 28 ? 'text-green-600' : 'text-red-600'}`}>
+                          {calculateFrontEndRatio().toFixed(1)}%
+                        </span>
+                      </div>
+                      <p className="text-xs text-gray-600">
+                        <strong>Formula:</strong> (Housing Costs ÷ Income) × 100
+                      </p>
+                      <p className="text-xs text-gray-600 mt-1">
+                        Target: ≤ 28% | {calculateFrontEndRatio() <= 28 ? '✅ You qualify!' : '⚠️ Too high - may not qualify'}
+                      </p>
+                    </div>
+
+                    {/* Back-End Ratio */}
+                    <div className="bg-white rounded p-3">
+                      <div className="flex justify-between items-center mb-2">
+                        <span className="text-sm font-semibold text-gray-800">Back-End Ratio (All Debt)</span>
+                        <span className={`text-lg font-bold ${calculateBackEndRatio() <= 36 ? 'text-green-600' : 'text-red-600'}`}>
+                          {calculateBackEndRatio().toFixed(1)}%
+                        </span>
+                      </div>
+                      <p className="text-xs text-gray-600">
+                        <strong>Formula:</strong> (Housing + Debt ÷ Income) × 100
+                      </p>
+                      <p className="text-xs text-gray-600 mt-1">
+                        Target: ≤ 36% | {calculateBackEndRatio() <= 36 ? '✅ You qualify!' : '⚠️ Too high - may not qualify'}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="bg-blue-100 rounded p-3 text-xs text-blue-900">
+                    <p className="font-semibold">💡 Lender Requirements:</p>
+                    <p className="mt-1">Most lenders require both ratios to qualify for a mortgage. If yours are high, consider:</p>
+                    <ul className="list-disc ml-4 mt-1 space-y-1">
+                      <li>Reducing monthly debt payments</li>
+                      <li>Increasing your down payment (lowers PMI)</li>
+                      <li>Looking at lower-priced homes</li>
+                      <li>Increasing your income</li>
+                    </ul>
+                  </div>
                 </div>
               )}
             </div>
