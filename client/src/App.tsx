@@ -79,6 +79,7 @@ import UserGuidePage from './pages/UserGuidePage';
 import StatusPage from './pages/StatusPage';
 import UnifiedRegistrationPage from './pages/UnifiedRegistrationPage';
 import UnifiedRegistrationAdminPage from './pages/UnifiedRegistrationAdminPage';
+import MarketingHubPage from './pages/MarketingHubPage';
 
 // Legacy component for KeyGrow integration
 function KeyGrowPage() {
@@ -469,6 +470,7 @@ function App() {
                               <Route path="/real-estate-investor" element={<RealEstateInvestorPage />} />
                               <Route path="/investor-register" element={<InvestorRegistrationPage />} />
                               <Route path="/real-estate-investor/submit" element={<PropertySubmitPage />} />
+                              <Route path="/marketing-hub" element={<MarketingHubPage />} />
                               <Route path="/nft-marketplace" element={<NFTMarketplacePage />} />
                               <Route path="/advanced-staking" element={<AdvancedStakingPage />} />
                               <Route path="/basket-index" element={<BasketIndexPage />} />

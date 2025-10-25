@@ -795,6 +795,10 @@ app.use('/api/unified-registration-admin', unifiedRegistrationAdminRouter);
 const kycRouter = require('./server/routes/kyc');
 app.use('/api/kyc', kycRouter);
 
+// Marketing scripts routes
+const marketingScriptsRouter = require('./server/routes/marketingScripts');
+app.use('/api/marketing-scripts', marketingScriptsRouter);
+
 app.use('/api/keygrow', keygrowRouter);
 app.use('/api/real-estate-investor', realEstateInvestorRouter);
 app.use('/api/nft-marketplace', nftMarketplaceRouter);
