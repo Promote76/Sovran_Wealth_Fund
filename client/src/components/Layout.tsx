@@ -268,7 +268,6 @@ const Layout: React.FC<LayoutProps> = ({
     { path: '/about', label: 'About Us', isExternal: false },
     { path: '/contact-us', label: 'Contact', isExternal: false },
     { path: '/learn-how-it-works', label: 'Learn How It Works', isExternal: false },
-    { path: '/admin', label: 'Admin', isExternal: false },
     { path: '/pricing', label: 'Pricing', isExternal: false },
     { path: '/terms-and-conditions', label: 'Terms & Conditions', isExternal: false },
     { path: '/privacy-policy', label: 'Privacy Policy', isExternal: false },
