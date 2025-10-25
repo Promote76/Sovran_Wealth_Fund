@@ -197,15 +197,45 @@ const PaymentStep: React.FC<PaymentStepProps> = ({ onPaymentSuccess, onError }) 
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      <div className="p-4 border rounded-lg">
+      <div className="p-4 border rounded-lg bg-gray-50">
         <label className="block text-sm font-medium text-gray-700 mb-2">
-          Card Information
+          💳 Card Information
         </label>
-        <div className="min-h-[40px] p-3 border border-gray-300 rounded bg-white">
-          <CardElement options={cardElementOptions} />
+        <div className="p-4 border-2 border-gray-300 rounded-lg bg-white focus-within:border-blue-500 transition-colors">
+          <CardElement 
+            options={cardElementOptions}
+            onReady={() => console.log('✅ Stripe CardElement ready')}
+            onChange={(event) => {
+              console.log('📝 CardElement changed:', event.complete, event.error);
+              if (event.error) {
+                onError(event.error.message);
+              }
+            }}
+          />
         </div>
+        <p className="text-xs text-gray-500 mt-2">
+          💡 Enter your card details above. Your payment information is secure and encrypted.
+        </p>
       </div>
       
+      <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 text-sm">
+        <p className="font-semibold text-yellow-900 mb-2">🧪 Test Card (Development Mode)</p>
+        <div className="grid grid-cols-2 gap-2 text-xs text-yellow-800">
+          <div>
+            <span className="font-medium">Card:</span> 4242 4242 4242 4242
+          </div>
+          <div>
+            <span className="font-medium">Expiry:</span> Any future date
+          </div>
+          <div>
+            <span className="font-medium">CVC:</span> Any 3 digits
+          </div>
+          <div>
+            <span className="font-medium">ZIP:</span> Any 5 digits
+          </div>
+        </div>
+      </div>
+
       <div className="text-sm text-gray-600 bg-blue-50 p-4 rounded">
         <div className="flex justify-between items-center">
           <strong>Registration Fee (2-Year Program):</strong>
@@ -218,11 +248,22 @@ const PaymentStep: React.FC<PaymentStepProps> = ({ onPaymentSuccess, onError }) 
 
       <Button
         type="submit"
-        disabled={!stripe || isProcessing}
-        className="w-full bg-green-600 hover:bg-green-700"
+        disabled={!stripe || isProcessing || !clientSecret}
+        className="w-full bg-green-600 hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
       >
-        {isProcessing ? 'Processing Payment...' : 'Pay $500 & Complete Registration'}
+        {isProcessing ? (
+          <>
+            <div className="inline-block animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2"></div>
+            Processing Payment...
+          </>
+        ) : (
+          'Pay $500 & Complete Registration'
+        )}
       </Button>
+      
+      {!stripe && (
+        <p className="text-xs text-amber-600 text-center">⏳ Initializing Stripe...</p>
+      )}
     </form>
   );
 };
