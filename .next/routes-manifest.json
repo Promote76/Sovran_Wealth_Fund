@@ -76,12 +76,6 @@
       "namedRegex": "^/security(?:/)?$"
     },
     {
-      "page": "/team",
-      "regex": "^/team(?:/)?$",
-      "routeKeys": {},
-      "namedRegex": "^/team(?:/)?$"
-    },
-    {
       "page": "/terms-and-conditions",
       "regex": "^/terms\\-and\\-conditions(?:/)?$",
       "routeKeys": {},
