@@ -258,9 +258,68 @@ router.post('/save', async (req, res) => {
   }
 });
 
-// Analyze the entire platform (contracts, components, pages)
+// Helper function to recursively scan directories
+async function scanDirectory(dirPath, fileExtensions) {
+  const results = [];
+  
+  async function walk(currentPath, relativePath = '') {
+    try {
+      const entries = await fs.readdir(currentPath, { withFileTypes: true });
+      
+      for (const entry of entries) {
+        const fullPath = path.join(currentPath, entry.name);
+        const relPath = path.join(relativePath, entry.name);
+        
+        if (entry.isDirectory()) {
+          // Skip node_modules, .git, build, dist directories
+          if (!['node_modules', '.git', 'build', 'dist', '.next'].includes(entry.name)) {
+            await walk(fullPath, relPath);
+          }
+        } else if (entry.isFile()) {
+          const ext = path.extname(entry.name);
+          if (fileExtensions.includes(ext)) {
+            results.push({
+              name: entry.name,
+              path: relPath,
+              fullPath: fullPath
+            });
+          }
+        }
+      }
+    } catch (error) {
+      // Silently skip directories that can't be read
+      console.log(`Skipping directory ${currentPath}:`, error.message);
+    }
+  }
+  
+  await walk(dirPath);
+  return results;
+}
+
+// Analyze the entire platform (contracts, components, pages) - with caching
+let platformAnalysisCache = null;
+let cacheTimestamp = null;
+const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+
 router.get('/platform-analysis', async (req, res) => {
   try {
+    // Check cache
+    const now = Date.now();
+    if (platformAnalysisCache && cacheTimestamp && (now - cacheTimestamp) < CACHE_DURATION) {
+      return res.json({
+        success: true,
+        analysis: platformAnalysisCache,
+        summary: {
+          totalContracts: platformAnalysisCache.contracts.length,
+          totalComponents: platformAnalysisCache.components.length,
+          totalPages: platformAnalysisCache.pages.length,
+          totalFeatures: platformAnalysisCache.features.length
+        },
+        cached: true,
+        cacheAge: Math.floor((now - cacheTimestamp) / 1000)
+      });
+    }
+
     const analysis = {
       contracts: [],
       components: [],
@@ -268,58 +327,63 @@ router.get('/platform-analysis', async (req, res) => {
       features: []
     };
 
-    // Scan contracts directory
+    // Recursively scan contracts directory
     const contractsDir = path.join(process.cwd(), 'contracts');
     try {
-      const contractFiles = await fs.readdir(contractsDir);
-      for (const file of contractFiles.filter(f => f.endsWith('.sol'))) {
-        const content = await fs.readFile(path.join(contractsDir, file), 'utf-8');
-        const contractName = file.replace('.sol', '');
+      const contractFiles = await scanDirectory(contractsDir, ['.sol']);
+      for (const file of contractFiles) {
+        const content = await fs.readFile(file.fullPath, 'utf-8');
+        const contractName = file.name.replace('.sol', '');
         
         // Extract basic info
         const comments = content.match(/\/\*\*([\s\S]*?)\*\//);
         const description = comments ? comments[1].trim() : '';
         
+        // Extract contract type (is it interface, abstract, or normal contract?)
+        const isInterface = content.includes('interface ');
+        const isAbstract = content.includes('abstract contract');
+        
         analysis.contracts.push({
           name: contractName,
-          file: file,
-          description: description.substring(0, 200)
+          file: file.path,
+          description: description.substring(0, 200),
+          type: isInterface ? 'Interface' : isAbstract ? 'Abstract Contract' : 'Contract'
         });
       }
     } catch (e) {
-      console.log('No contracts directory or error reading contracts');
+      console.log('No contracts directory or error reading contracts:', e.message);
     }
 
-    // Scan React components
+    // Recursively scan React components
     const componentsDir = path.join(process.cwd(), 'client', 'src', 'components');
     try {
-      const componentFiles = await fs.readdir(componentsDir);
-      for (const file of componentFiles.filter(f => f.endsWith('.tsx') || f.endsWith('.jsx'))) {
-        const componentName = file.replace(/\.(tsx|jsx)$/, '');
+      const componentFiles = await scanDirectory(componentsDir, ['.tsx', '.jsx']);
+      for (const file of componentFiles) {
+        const componentName = file.name.replace(/\.(tsx|jsx)$/, '');
         analysis.components.push({
           name: componentName,
-          file: file,
+          file: file.path,
           type: 'React Component'
         });
       }
     } catch (e) {
-      console.log('Error reading components');
+      console.log('Error reading components:', e.message);
     }
 
-    // Scan React pages
+    // Recursively scan React pages
     const pagesDir = path.join(process.cwd(), 'client', 'src', 'pages');
     try {
-      const pageFiles = await fs.readdir(pagesDir);
-      for (const file of pageFiles.filter(f => f.endsWith('.tsx') || f.endsWith('.jsx'))) {
-        const pageName = file.replace(/Page\.(tsx|jsx)$/, '').replace(/\.(tsx|jsx)$/, '');
+      const pageFiles = await scanDirectory(pagesDir, ['.tsx', '.jsx']);
+      for (const file of pageFiles) {
+        const pageName = file.name.replace(/Page\.(tsx|jsx)$/, '').replace(/\.(tsx|jsx)$/, '');
         analysis.pages.push({
           name: pageName,
-          file: file,
+          file: file.path,
           type: 'Page'
         });
       }
     } catch (e) {
-      console.log('Error reading pages');
+      console.log('Error reading pages:', e.message);
     }
 
     // Add known features
@@ -361,6 +425,10 @@ router.get('/platform-analysis', async (req, res) => {
       }
     ];
 
+    // Store in cache
+    platformAnalysisCache = analysis;
+    cacheTimestamp = Date.now();
+
     res.json({
       success: true,
       analysis,
@@ -369,7 +437,8 @@ router.get('/platform-analysis', async (req, res) => {
         totalComponents: analysis.components.length,
         totalPages: analysis.pages.length,
         totalFeatures: analysis.features.length
-      }
+      },
+      cached: false
     });
   } catch (error) {
     console.error('Error analyzing platform:', error);
