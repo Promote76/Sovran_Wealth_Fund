@@ -17,7 +17,9 @@ const {
   savingsAccounts, savingsTransactions, savingsAccountSettings, savingsGoals,
   checkingAccounts, checkingTransactions, transfers, payees, scheduledPayments,
   investmentAccounts, instruments, positions, orders, executions, investmentLedger,
-  deNetFiles, deNetNodeState
+  deNetFiles, deNetNodeState,
+  investorProfiles, investorFinancialProfiles, investorRiskAssessments, 
+  investorPreferences, investmentOrders, shareAllocations, rentalDistributions
 } = require('./shared/schema');
 const { eq, and, desc, sql } = require('drizzle-orm');
 
@@ -3427,6 +3429,395 @@ app.post('/api/market/clear-cache', async (req, res) => {
 });
 
 // Debug endpoint removed for security
+
+// ====================================
+// REAL ESTATE INVESTOR REGISTRATION
+// ====================================
+
+// Register new investor
+app.post('/api/investor/register', async (req, res) => {
+  try {
+    const {
+      walletAddress,
+      personalInfo,
+      financialInfo,
+      riskAssessment,
+      preferences,
+      paymentMethod
+    } = req.body;
+
+    console.log('📝 Investor registration request:', { walletAddress, paymentMethod });
+
+    // Validate required fields
+    if (!walletAddress || !personalInfo || !financialInfo || !riskAssessment || !preferences) {
+      return res.status(400).json({
+        success: false,
+        error: 'Missing required registration information'
+      });
+    }
+
+    // Normalize wallet address to lowercase for consistency
+    const normalizedAddress = walletAddress.toLowerCase();
+
+    // Check if investor already exists
+    const existingInvestor = await db
+      .select()
+      .from(investorProfiles)
+      .where(eq(investorProfiles.walletAddress, normalizedAddress))
+      .limit(1);
+
+    if (existingInvestor && existingInvestor.length > 0) {
+      return res.status(409).json({
+        success: false,
+        error: 'Investor already registered with this wallet address',
+        investorId: existingInvestor[0].id
+      });
+    }
+
+    // Start transaction
+    await db.transaction(async (tx) => {
+      // 1. Create investor profile
+      const [profile] = await tx
+        .insert(investorProfiles)
+        .values({
+          walletAddress: normalizedAddress,
+          firstName: personalInfo.firstName,
+          lastName: personalInfo.lastName,
+          email: personalInfo.email,
+          phone: personalInfo.phone || null,
+          dateOfBirth: personalInfo.dateOfBirth ? new Date(personalInfo.dateOfBirth) : null,
+          country: personalInfo.country || 'United States',
+          isAccreditedInvestor: personalInfo.isAccreditedInvestor || false,
+          status: 'active'
+        })
+        .returning();
+
+      console.log('✅ Investor profile created:', profile.id);
+
+      // 2. Create financial profile
+      await tx
+        .insert(investorFinancialProfiles)
+        .values({
+          investorId: profile.id,
+          annualIncome: financialInfo.annualIncome || null,
+          netWorth: financialInfo.netWorth || null,
+          liquidAssets: financialInfo.liquidAssets || null,
+          investmentExperience: financialInfo.investmentExperience || 'beginner',
+          investmentKnowledge: financialInfo.investmentKnowledge || []
+        });
+
+      console.log('✅ Financial profile created');
+
+      // 3. Create risk assessment
+      await tx
+        .insert(investorRiskAssessments)
+        .values({
+          investorId: profile.id,
+          riskTolerance: riskAssessment.riskTolerance || 'moderate',
+          investmentHorizon: riskAssessment.investmentHorizon || '3-5',
+          liquidityNeeds: riskAssessment.liquidityNeeds || 'medium',
+          portfolioDiversification: riskAssessment.portfolioDiversification || 20
+        });
+
+      console.log('✅ Risk assessment created');
+
+      // 4. Create investment preferences
+      await tx
+        .insert(investorPreferences)
+        .values({
+          investorId: profile.id,
+          preferredPropertyTypes: preferences.preferredPropertyTypes || [],
+          preferredLocations: preferences.preferredLocations || [],
+          targetAnnualReturn: preferences.targetAnnualReturn || 8.0,
+          minimumInvestment: '30.00',
+          maxPropertyAllocation: preferences.maxPropertyAllocation || 25,
+          reinvestDividends: preferences.reinvestDividends !== false
+        });
+
+      console.log('✅ Investment preferences created');
+
+      return profile;
+    });
+
+    res.json({
+      success: true,
+      message: 'Investor registration completed successfully',
+      walletAddress: normalizedAddress
+    });
+
+  } catch (error) {
+    console.error('❌ Investor registration error:', error);
+    
+    // Handle unique constraint violations
+    if (error.code === '23505' && error.constraint === 'investor_profiles_wallet_address_unique') {
+      return res.status(409).json({
+        success: false,
+        error: 'Investor already registered with this wallet address'
+      });
+    }
+    
+    res.status(500).json({
+      success: false,
+      error: 'Registration failed',
+      details: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+});
+
+// Get investor profile
+app.get('/api/investor/profile/:walletAddress', async (req, res) => {
+  try {
+    const { walletAddress } = req.params;
+
+    const profile = await db
+      .select()
+      .from(investorProfiles)
+      .where(eq(investorProfiles.walletAddress, walletAddress.toLowerCase()))
+      .limit(1);
+
+    if (!profile || profile.length === 0) {
+      return res.status(404).json({
+        success: false,
+        error: 'Investor not found'
+      });
+    }
+
+    const investorId = profile[0].id;
+
+    // Get financial profile
+    const financial = await db
+      .select()
+      .from(investorFinancialProfiles)
+      .where(eq(investorFinancialProfiles.investorId, investorId))
+      .limit(1);
+
+    // Get risk assessment
+    const risk = await db
+      .select()
+      .from(investorRiskAssessments)
+      .where(eq(investorRiskAssessments.investorId, investorId))
+      .limit(1);
+
+    // Get preferences
+    const prefs = await db
+      .select()
+      .from(investorPreferences)
+      .where(eq(investorPreferences.investorId, investorId))
+      .limit(1);
+
+    // Get investment orders
+    const investmentHistory = await db
+      .select()
+      .from(investmentOrders)
+      .where(eq(investmentOrders.investorId, investorId))
+      .orderBy(desc(investmentOrders.createdAt))
+      .limit(50);
+
+    // Get share allocations
+    const shares = await db
+      .select()
+      .from(shareAllocations)
+      .where(eq(shareAllocations.investorId, investorId));
+
+    res.json({
+      success: true,
+      profile: profile[0],
+      financial: financial[0] || null,
+      riskAssessment: risk[0] || null,
+      preferences: prefs[0] || null,
+      investmentHistory,
+      shares
+    });
+
+  } catch (error) {
+    console.error('❌ Get investor profile error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to retrieve investor profile'
+    });
+  }
+});
+
+// Create investment order
+app.post('/api/investor/invest/create-order', async (req, res) => {
+  try {
+    const {
+      walletAddress,
+      propertyId,
+      propertyName,
+      propertyAddress,
+      numberOfShares,
+      pricePerShare,
+      paymentMethod
+    } = req.body;
+
+    console.log('🏠 Creating investment order:', {
+      walletAddress,
+      propertyId,
+      numberOfShares,
+      paymentMethod
+    });
+
+    // Validate inputs
+    if (!walletAddress || !numberOfShares || !pricePerShare || !paymentMethod) {
+      return res.status(400).json({
+        success: false,
+        error: 'Missing required order information'
+      });
+    }
+
+    // Get investor profile
+    const profile = await db
+      .select()
+      .from(investorProfiles)
+      .where(eq(investorProfiles.walletAddress, walletAddress.toLowerCase()))
+      .limit(1);
+
+    if (!profile || profile.length === 0) {
+      return res.status(404).json({
+        success: false,
+        error: 'Investor not registered. Please complete registration first.'
+      });
+    }
+
+    const investorId = profile[0].id;
+
+    // Calculate total amount and platform fee (2.5%)
+    const totalAmount = new Decimal(pricePerShare).times(numberOfShares);
+    const platformFee = totalAmount.times(0.025); // 2.5% fee
+
+    // Create investment order
+    const [order] = await db
+      .insert(investmentOrders)
+      .values({
+        investorId,
+        propertyId: propertyId || null,
+        propertyName: propertyName || null,
+        propertyAddress: propertyAddress || null,
+        numberOfShares: parseInt(numberOfShares),
+        pricePerShare: pricePerShare.toString(),
+        totalAmount: totalAmount.toString(),
+        platformFee: platformFee.toString(),
+        paymentMethod: paymentMethod.toLowerCase(),
+        status: 'pending'
+      })
+      .returning();
+
+    console.log('✅ Investment order created:', order.id);
+
+    res.json({
+      success: true,
+      order: {
+        id: order.id,
+        totalAmount: totalAmount.toString(),
+        platformFee: platformFee.toString(),
+        status: order.status
+      }
+    });
+
+  } catch (error) {
+    console.error('❌ Create investment order error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to create investment order',
+      details: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+});
+
+// Create Stripe payment intent for share purchase
+app.post('/api/investor/stripe-payment', async (req, res) => {
+  try {
+    const { amount, propertyId, walletAddress } = req.body;
+
+    if (!amount || amount < 30) {
+      return res.status(400).json({
+        success: false,
+        error: 'Minimum investment is $30'
+      });
+    }
+
+    // Get Stripe instance
+    const stripeModule = require('./server/stripe-payments');
+    const stripe = stripeModule.stripe || require('stripe')(process.env.STRIPE_SECRET_KEY);
+
+    if (!stripe) {
+      return res.status(500).json({
+        success: false,
+        error: 'Payment processing unavailable'
+      });
+    }
+
+    // Create payment intent
+    const paymentIntent = await stripe.paymentIntents.create({
+      amount: Math.round(amount * 100), // Convert to cents
+      currency: 'usd',
+      description: `Real Estate Investment - Property ${propertyId || 'TBD'}`,
+      metadata: {
+        propertyId: propertyId || '',
+        walletAddress: walletAddress || '',
+        type: 'share_purchase'
+      }
+    });
+
+    console.log(`💳 Stripe payment intent created: $${amount}`);
+
+    res.json({
+      success: true,
+      clientSecret: paymentIntent.client_secret,
+      amount: amount
+    });
+
+  } catch (error) {
+    console.error('❌ Stripe payment intent error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to create payment intent',
+      details: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+});
+
+// Complete investment order payment
+app.post('/api/investor/invest/complete-payment', async (req, res) => {
+  try {
+    const { orderId, paymentIntentId, transactionHash } = req.body;
+
+    if (!orderId) {
+      return res.status(400).json({
+        success: false,
+        error: 'Order ID required'
+      });
+    }
+
+    // Update order status
+    const [updatedOrder] = await db
+      .update(investmentOrders)
+      .set({
+        status: 'completed',
+        paymentIntentId: paymentIntentId || null,
+        transactionHash: transactionHash || null,
+        completedAt: new Date(),
+        sharesAllocated: false // Will be allocated later by admin/blockchain
+      })
+      .where(eq(investmentOrders.id, orderId))
+      .returning();
+
+    console.log('✅ Investment order payment completed:', orderId);
+
+    res.json({
+      success: true,
+      order: updatedOrder
+    });
+
+  } catch (error) {
+    console.error('❌ Complete payment error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to complete payment'
+    });
+  }
+});
 
 // Serve static files from React build
 app.use(express.static(path.join(__dirname, 'client/build'), {

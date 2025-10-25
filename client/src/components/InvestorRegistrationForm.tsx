@@ -284,14 +284,113 @@ export default function InvestorRegistrationForm({ onClose, walletAddress }: Inv
         return;
       }
 
+      // Structure data to match backend expectations
+      const registrationPayload = {
+        walletAddress,
+        paymentMethod: 'bnb',
+        personalInfo: {
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          email: formData.email,
+          phone: formData.phone,
+          dateOfBirth: formData.dateOfBirth,
+          country: formData.country,
+          isAccreditedInvestor: formData.isAccreditedInvestor
+        },
+        financialInfo: {
+          annualIncome: formData.annualIncome,
+          netWorth: formData.netWorth,
+          liquidAssets: formData.liquidAssets,
+          investmentExperience: formData.investmentExperience,
+          investmentKnowledge: formData.investmentKnowledge
+        },
+        riskAssessment: {
+          riskTolerance: formData.riskTolerance,
+          investmentHorizon: formData.investmentHorizon,
+          liquidityNeeds: formData.liquidityNeeds,
+          portfolioDiversification: formData.portfolioDiversification
+        },
+        preferences: {
+          preferredPropertyTypes: formData.preferredPropertyTypes,
+          preferredLocations: formData.preferredLocations,
+          targetAnnualReturn: formData.targetAnnualReturn,
+          minimumInvestment: formData.minimumInvestment,
+          maxPropertyAllocation: formData.maxPropertyAllocation,
+          reinvestDividends: formData.reinvestDividends
+        }
+      };
+
       const response = await fetch('/api/investor/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ...formData,
-          walletAddress,
-          paymentMethod: 'bnb',
-        }),
+        body: JSON.stringify(registrationPayload),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        setSuccess(true);
+        setTimeout(() => onClose(), 3000);
+      } else {
+        setError(data.error || 'Registration failed');
+      }
+    } catch (err: any) {
+      setError(err.message || 'Registration failed');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleStripeRegistration = async () => {
+    setLoading(true);
+    setError('');
+
+    try {
+      if (!walletAddress) {
+        setError('Please connect your wallet');
+        return;
+      }
+
+      // Structure data to match backend expectations
+      const registrationPayload = {
+        walletAddress,
+        paymentMethod: 'stripe',
+        personalInfo: {
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          email: formData.email,
+          phone: formData.phone,
+          dateOfBirth: formData.dateOfBirth,
+          country: formData.country,
+          isAccreditedInvestor: formData.isAccreditedInvestor
+        },
+        financialInfo: {
+          annualIncome: formData.annualIncome,
+          netWorth: formData.netWorth,
+          liquidAssets: formData.liquidAssets,
+          investmentExperience: formData.investmentExperience,
+          investmentKnowledge: formData.investmentKnowledge
+        },
+        riskAssessment: {
+          riskTolerance: formData.riskTolerance,
+          investmentHorizon: formData.investmentHorizon,
+          liquidityNeeds: formData.liquidityNeeds,
+          portfolioDiversification: formData.portfolioDiversification
+        },
+        preferences: {
+          preferredPropertyTypes: formData.preferredPropertyTypes,
+          preferredLocations: formData.preferredLocations,
+          targetAnnualReturn: formData.targetAnnualReturn,
+          minimumInvestment: formData.minimumInvestment,
+          maxPropertyAllocation: formData.maxPropertyAllocation,
+          reinvestDividends: formData.reinvestDividends
+        }
+      };
+
+      const response = await fetch('/api/investor/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(registrationPayload),
       });
 
       const data = await response.json();
@@ -311,15 +410,47 @@ export default function InvestorRegistrationForm({ onClose, walletAddress }: Inv
 
   const handleStripePaymentSuccess = async (paymentIntentId: string) => {
     try {
+      // Structure data to match backend expectations
+      const registrationPayload = {
+        walletAddress,
+        paymentMethod: 'stripe',
+        paymentIntentId,
+        personalInfo: {
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          email: formData.email,
+          phone: formData.phone,
+          dateOfBirth: formData.dateOfBirth,
+          country: formData.country,
+          isAccreditedInvestor: formData.isAccreditedInvestor
+        },
+        financialInfo: {
+          annualIncome: formData.annualIncome,
+          netWorth: formData.netWorth,
+          liquidAssets: formData.liquidAssets,
+          investmentExperience: formData.investmentExperience,
+          investmentKnowledge: formData.investmentKnowledge
+        },
+        riskAssessment: {
+          riskTolerance: formData.riskTolerance,
+          investmentHorizon: formData.investmentHorizon,
+          liquidityNeeds: formData.liquidityNeeds,
+          portfolioDiversification: formData.portfolioDiversification
+        },
+        preferences: {
+          preferredPropertyTypes: formData.preferredPropertyTypes,
+          preferredLocations: formData.preferredLocations,
+          targetAnnualReturn: formData.targetAnnualReturn,
+          minimumInvestment: formData.minimumInvestment,
+          maxPropertyAllocation: formData.maxPropertyAllocation,
+          reinvestDividends: formData.reinvestDividends
+        }
+      };
+
       const response = await fetch('/api/investor/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ...formData,
-          walletAddress,
-          paymentMethod: 'stripe',
-          paymentIntentId,
-        }),
+        body: JSON.stringify(registrationPayload),
       });
 
       const data = await response.json();
@@ -943,21 +1074,26 @@ export default function InvestorRegistrationForm({ onClose, walletAddress }: Inv
                   )}
 
                   {paymentMethod === 'stripe' && (
-                    <div>
+                    <div className="space-y-4">
                       <Button
                         onClick={() => setPaymentMethod(null)}
                         variant="outline"
-                        className="mb-4"
                       >
                         ← Change Payment Method
                       </Button>
-                      <Elements stripe={getStripePromise()}>
-                        <PaymentStep
-                          investmentAmount={0}
-                          onPaymentSuccess={handleStripePaymentSuccess}
-                          onError={setError}
-                        />
-                      </Elements>
+                      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                        <p className="text-sm text-blue-900">
+                          <strong>Note:</strong> Registration is free! Your payment method will be saved 
+                          for future property investments (minimum $30 per transaction).
+                        </p>
+                      </div>
+                      <Button
+                        onClick={() => handleStripeRegistration()}
+                        disabled={loading}
+                        className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3"
+                      >
+                        {loading ? '⏳ Processing...' : '✓ Complete Registration (Free)'}
+                      </Button>
                     </div>
                   )}
 

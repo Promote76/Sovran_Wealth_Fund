@@ -1435,6 +1435,226 @@ export const propertySubmissions = pgTable("property_submissions", {
   submittedAtIdx: index("property_submissions_submitted_at_idx").on(table.submittedAt),
 }));
 
+// ==== INVESTOR REGISTRATION SYSTEM ====
+
+// Investor registration status enum
+export const investorStatusEnum = pgEnum('investor_status', [
+  'pending',
+  'active',
+  'suspended',
+  'inactive'
+]);
+
+// Investment experience enum
+export const investmentExperienceEnum = pgEnum('investment_experience', [
+  'none',
+  'beginner',
+  'intermediate',
+  'advanced'
+]);
+
+// Risk tolerance enum
+export const riskToleranceEnum = pgEnum('risk_tolerance', [
+  'conservative',
+  'moderate',
+  'aggressive'
+]);
+
+// Investor profiles - Personal information and accreditation
+export const investorProfiles = pgTable("investor_profiles", {
+  id: serial("id").primaryKey(),
+  
+  // Personal Information
+  walletAddress: varchar("wallet_address", { length: 42 }).notNull().unique(),
+  firstName: varchar("first_name", { length: 100 }).notNull(),
+  lastName: varchar("last_name", { length: 100 }).notNull(),
+  email: varchar("email", { length: 200 }).notNull(),
+  phone: varchar("phone", { length: 20 }),
+  dateOfBirth: timestamp("date_of_birth"),
+  country: varchar("country", { length: 100 }).default('United States'),
+  
+  // Accreditation
+  isAccreditedInvestor: boolean("is_accredited_investor").default(false),
+  accreditationVerifiedAt: timestamp("accreditation_verified_at"),
+  
+  // Account Status
+  status: investorStatusEnum("status").default('active'),
+  
+  // Timestamps
+  registeredAt: timestamp("registered_at").defaultNow(),
+  lastUpdated: timestamp("last_updated").defaultNow(),
+}, (table) => ({
+  walletIdx: index("investor_profiles_wallet_idx").on(table.walletAddress),
+  emailIdx: index("investor_profiles_email_idx").on(table.email),
+  statusIdx: index("investor_profiles_status_idx").on(table.status),
+}));
+
+// Investor financial profiles - Financial data
+export const investorFinancialProfiles = pgTable("investor_financial_profiles", {
+  id: serial("id").primaryKey(),
+  investorId: integer("investor_id").notNull().references(() => investorProfiles.id),
+  
+  // Financial Information
+  annualIncome: integer("annual_income"), // Stored as range midpoint
+  netWorth: integer("net_worth"),
+  liquidAssets: integer("liquid_assets"),
+  investmentExperience: investmentExperienceEnum("investment_experience").default('beginner'),
+  investmentKnowledge: jsonb("investment_knowledge"), // Array of asset classes
+  
+  // Portfolio Information
+  totalInvested: decimal("total_invested", { precision: 18, scale: 8 }).default('0'),
+  totalShares: integer("total_shares").default(0),
+  totalRentalEarned: decimal("total_rental_earned", { precision: 18, scale: 8 }).default('0'),
+  
+  // Timestamps
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => ({
+  investorIdx: index("investor_financial_profiles_investor_idx").on(table.investorId),
+}));
+
+// Investor risk assessments - Risk tolerance and investment objectives
+export const investorRiskAssessments = pgTable("investor_risk_assessments", {
+  id: serial("id").primaryKey(),
+  investorId: integer("investor_id").notNull().references(() => investorProfiles.id),
+  
+  // Risk Profile
+  riskTolerance: riskToleranceEnum("risk_tolerance").default('moderate'),
+  investmentHorizon: varchar("investment_horizon", { length: 10 }), // '1-3', '3-5', '5-10', '10+'
+  liquidityNeeds: varchar("liquidity_needs", { length: 20 }), // 'high', 'medium', 'low'
+  portfolioDiversification: integer("portfolio_diversification"), // Percentage for RE
+  
+  // Timestamps
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => ({
+  investorIdx: index("investor_risk_assessments_investor_idx").on(table.investorId),
+}));
+
+// Investor preferences - Property types, locations, returns
+export const investorPreferences = pgTable("investor_preferences", {
+  id: serial("id").primaryKey(),
+  investorId: integer("investor_id").notNull().references(() => investorProfiles.id),
+  
+  // Investment Preferences
+  preferredPropertyTypes: jsonb("preferred_property_types"), // Array of property types
+  preferredLocations: jsonb("preferred_locations"), // Array of locations
+  targetAnnualReturn: decimal("target_annual_return", { precision: 5, scale: 2 }), // Percentage
+  minimumInvestment: decimal("minimum_investment", { precision: 18, scale: 2 }).default('30.00'), // USD
+  maxPropertyAllocation: decimal("max_property_allocation", { precision: 5, scale: 2 }), // Percentage
+  reinvestDividends: boolean("reinvest_dividends").default(true),
+  
+  // Timestamps
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => ({
+  investorIdx: index("investor_preferences_investor_idx").on(table.investorId),
+}));
+
+// Investment orders - Track share purchases
+export const investmentOrderStatusEnum = pgEnum('investment_order_status', [
+  'pending',
+  'processing',
+  'completed',
+  'failed',
+  'cancelled'
+]);
+
+export const paymentMethodEnum = pgEnum('payment_method', [
+  'stripe',
+  'bnb',
+  'credit_card',
+  'crypto'
+]);
+
+export const investmentOrders = pgTable("investment_orders", {
+  id: serial("id").primaryKey(),
+  investorId: integer("investor_id").notNull().references(() => investorProfiles.id),
+  
+  // Order Details
+  propertyId: integer("property_id"), // Reference to on-chain property ID
+  propertyName: varchar("property_name", { length: 200 }),
+  propertyAddress: text("property_address"),
+  
+  // Investment Amount
+  numberOfShares: integer("number_of_shares").notNull(),
+  pricePerShare: decimal("price_per_share", { precision: 18, scale: 8 }).notNull(),
+  totalAmount: decimal("total_amount", { precision: 18, scale: 8 }).notNull(), // In USD or BNB
+  platformFee: decimal("platform_fee", { precision: 18, scale: 8 }), // 2.5%
+  
+  // Payment Information
+  paymentMethod: paymentMethodEnum("payment_method").notNull(),
+  paymentIntentId: varchar("payment_intent_id", { length: 200 }), // Stripe PaymentIntent ID
+  transactionHash: varchar("transaction_hash", { length: 66 }), // Blockchain tx hash for BNB
+  
+  // Order Status
+  status: investmentOrderStatusEnum("status").default('pending'),
+  
+  // Share Allocation
+  sharesAllocated: boolean("shares_allocated").default(false),
+  allocationTxHash: varchar("allocation_tx_hash", { length: 66 }), // On-chain allocation tx
+  
+  // Timestamps
+  createdAt: timestamp("created_at").defaultNow(),
+  completedAt: timestamp("completed_at"),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => ({
+  investorIdx: index("investment_orders_investor_idx").on(table.investorId),
+  propertyIdx: index("investment_orders_property_idx").on(table.propertyId),
+  statusIdx: index("investment_orders_status_idx").on(table.status),
+  createdAtIdx: index("investment_orders_created_at_idx").on(table.createdAt),
+}));
+
+// Share allocations - Track investor ownership
+export const shareAllocations = pgTable("share_allocations", {
+  id: serial("id").primaryKey(),
+  investorId: integer("investor_id").notNull().references(() => investorProfiles.id),
+  orderId: integer("order_id").notNull().references(() => investmentOrders.id),
+  
+  // Property Details
+  propertyId: integer("property_id").notNull(),
+  propertyName: varchar("property_name", { length: 200 }),
+  
+  // Share Ownership
+  sharesOwned: integer("shares_owned").notNull(),
+  purchasePrice: decimal("purchase_price", { precision: 18, scale: 8 }).notNull(),
+  currentValue: decimal("current_value", { precision: 18, scale: 8 }),
+  
+  // Rental Income Tracking
+  totalRentalEarned: decimal("total_rental_earned", { precision: 18, scale: 8 }).default('0'),
+  pendingRental: decimal("pending_rental", { precision: 18, scale: 8 }).default('0'),
+  lastRentalClaim: timestamp("last_rental_claim"),
+  
+  // Timestamps
+  allocatedAt: timestamp("allocated_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => ({
+  investorIdx: index("share_allocations_investor_idx").on(table.investorId),
+  propertyIdx: index("share_allocations_property_idx").on(table.propertyId),
+  orderIdx: index("share_allocations_order_idx").on(table.orderId),
+}));
+
+// Rental distribution history
+export const rentalDistributions = pgTable("rental_distributions", {
+  id: serial("id").primaryKey(),
+  allocationId: integer("allocation_id").notNull().references(() => shareAllocations.id),
+  investorId: integer("investor_id").notNull().references(() => investorProfiles.id),
+  
+  // Distribution Details
+  propertyId: integer("property_id").notNull(),
+  amount: decimal("amount", { precision: 18, scale: 8 }).notNull(),
+  distributionDate: timestamp("distribution_date").defaultNow(),
+  transactionHash: varchar("transaction_hash", { length: 66 }),
+  
+  // Timestamps
+  createdAt: timestamp("created_at").defaultNow(),
+}, (table) => ({
+  allocationIdx: index("rental_distributions_allocation_idx").on(table.allocationId),
+  investorIdx: index("rental_distributions_investor_idx").on(table.investorId),
+  propertyIdx: index("rental_distributions_property_idx").on(table.propertyId),
+  distributionDateIdx: index("rental_distributions_date_idx").on(table.distributionDate),
+}));
+
 // Type exports for TypeScript
 export type User = typeof users.$inferSelect;
 export type InsertUser = typeof users.$inferInsert;
@@ -1546,3 +1766,19 @@ export type InsertSavingsAccountSettings = typeof savingsAccountSettings.$inferI
 // Real Estate Investor types
 export type PropertySubmission = typeof propertySubmissions.$inferSelect;
 export type InsertPropertySubmission = typeof propertySubmissions.$inferInsert;
+
+// Investor registration types
+export type InvestorProfile = typeof investorProfiles.$inferSelect;
+export type InsertInvestorProfile = typeof investorProfiles.$inferInsert;
+export type InvestorFinancialProfile = typeof investorFinancialProfiles.$inferSelect;
+export type InsertInvestorFinancialProfile = typeof investorFinancialProfiles.$inferInsert;
+export type InvestorRiskAssessment = typeof investorRiskAssessments.$inferSelect;
+export type InsertInvestorRiskAssessment = typeof investorRiskAssessments.$inferInsert;
+export type InvestorPreference = typeof investorPreferences.$inferSelect;
+export type InsertInvestorPreference = typeof investorPreferences.$inferInsert;
+export type InvestmentOrder = typeof investmentOrders.$inferSelect;
+export type InsertInvestmentOrder = typeof investmentOrders.$inferInsert;
+export type ShareAllocation = typeof shareAllocations.$inferSelect;
+export type InsertShareAllocation = typeof shareAllocations.$inferInsert;
+export type RentalDistribution = typeof rentalDistributions.$inferSelect;
+export type InsertRentalDistribution = typeof rentalDistributions.$inferInsert;
