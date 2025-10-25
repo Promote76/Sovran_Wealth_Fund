@@ -96,14 +96,19 @@ router.post('/login', async (req, res) => {
     if (!email || !password) {
       return res.status(400).json({
         success: false,
-        error: 'Email and password are required'
+        error: 'Email/username and password are required'
       });
     }
 
+    // Try to find user by email or username
+    const { or } = require('drizzle-orm');
     const [user] = await db
       .select()
       .from(users)
-      .where(eq(users.email, email))
+      .where(or(
+        eq(users.email, email),
+        eq(users.username, email)
+      ))
       .limit(1);
 
     if (!user || !user.password) {
