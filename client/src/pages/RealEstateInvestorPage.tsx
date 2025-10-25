@@ -156,12 +156,20 @@ export default function RealEstateInvestorPage() {
               </p>
             </div>
             <div className="flex flex-col items-end space-y-2">
-              <Button
-                onClick={() => navigate('/real-estate-investor/submit')}
-                className="bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-bold shadow-lg border-2 border-yellow-400"
-              >
-                📤 Submit Property
-              </Button>
+              <div className="flex gap-2">
+                <Button
+                  onClick={() => navigate('/investor-register')}
+                  className="bg-blue-500 hover:bg-blue-600 text-white font-bold shadow-lg border-2 border-blue-400"
+                >
+                  🚀 Become an Investor
+                </Button>
+                <Button
+                  onClick={() => navigate('/real-estate-investor/submit')}
+                  className="bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-bold shadow-lg border-2 border-yellow-400"
+                >
+                  📤 Submit Property
+                </Button>
+              </div>
               {isConnected ? (
                 <div className="bg-white/10 backdrop-blur-sm rounded-lg px-4 py-2 border border-white/20">
                   <div className="text-xs text-green-100 mb-1">Connected</div>

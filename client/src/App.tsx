@@ -41,6 +41,7 @@ import RealEstatePage from './pages/RealEstatePage';
 import KeyGrowDashboardPage from './pages/KeyGrowDashboardPage';
 import KeyGrowRegistrationPage from './pages/KeyGrowRegistrationPage';
 import RealEstateInvestorPage from './pages/RealEstateInvestorPage';
+import InvestorRegistrationPage from './pages/InvestorRegistrationPage';
 import PropertySubmitPage from './pages/PropertySubmitPage';
 import NFTMarketplacePage from './pages/NFTMarketplacePage';
 import AdvancedStakingPage from './pages/AdvancedStakingPage';
@@ -463,6 +464,7 @@ function App() {
                               <Route path="/keygrow-dashboard" element={<KeyGrowDashboardPage />} />
                               <Route path="/keygrow-register" element={<KeyGrowRegistrationPage />} />
                               <Route path="/real-estate-investor" element={<RealEstateInvestorPage />} />
+                              <Route path="/investor-register" element={<InvestorRegistrationPage />} />
                               <Route path="/real-estate-investor/submit" element={<PropertySubmitPage />} />
                               <Route path="/nft-marketplace" element={<NFTMarketplacePage />} />
                               <Route path="/advanced-staking" element={<AdvancedStakingPage />} />
