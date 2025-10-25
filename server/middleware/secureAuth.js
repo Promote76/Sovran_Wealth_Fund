@@ -73,10 +73,50 @@ function optionalAuthMiddleware(req, res, next) {
   next();
 }
 
+function requireAdmin(req, res, next) {
+  const token = req.cookies?.auth_token;
+
+  if (!token) {
+    return res.status(401).json({
+      success: false,
+      error: 'Authentication required',
+      message: 'Admin access only'
+    });
+  }
+
+  const decoded = verifySecureToken(token);
+
+  if (!decoded) {
+    res.clearCookie('auth_token', COOKIE_OPTIONS);
+    return res.status(401).json({
+      success: false,
+      error: 'Invalid or expired token'
+    });
+  }
+
+  // Check if user is admin or super_admin
+  if (decoded.role !== 'admin' && decoded.role !== 'super_admin') {
+    return res.status(403).json({
+      success: false,
+      error: 'Access denied',
+      message: 'Admin privileges required'
+    });
+  }
+
+  req.user = {
+    id: decoded.userId,
+    email: decoded.email,
+    role: decoded.role
+  };
+
+  next();
+}
+
 module.exports = {
   generateSecureToken,
   verifySecureToken,
   secureAuthMiddleware,
   optionalAuthMiddleware,
+  requireAdmin,
   COOKIE_OPTIONS
 };
