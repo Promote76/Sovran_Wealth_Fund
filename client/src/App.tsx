@@ -78,6 +78,7 @@ import { KYCVerificationPage } from './components/kyc';
 import UserGuidePage from './pages/UserGuidePage';
 import StatusPage from './pages/StatusPage';
 import UnifiedRegistrationPage from './pages/UnifiedRegistrationPage';
+import UnifiedRegistrationAdminPage from './pages/UnifiedRegistrationAdminPage';
 
 // Legacy component for KeyGrow integration
 function KeyGrowPage() {
@@ -483,6 +484,7 @@ function App() {
                               <Route path="/risk-dashboard" element={<RiskDashboardPage />} />
                               <Route path="/gold-certificates" element={<GoldCertificatesPage />} />
                               <Route path="/admin" element={<AdminDashboardPage />} />
+                              <Route path="/admin/unified-registration" element={<UnifiedRegistrationAdminPage />} />
                               <Route path="/liquidity-management" element={<LiquidityManagementPage />} />
                               <Route path="/premium-courses" element={<PremiumCoursesPage />} />
                               <Route path="/learn-how-it-works" element={<LearnHowItWorksPage />} />
