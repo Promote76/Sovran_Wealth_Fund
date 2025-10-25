@@ -6,6 +6,8 @@ import { EventToast } from '../components/EventToast';
 import { keygrowService, type RenterInfo } from '../services/contracts';
 import { Button } from '../components/ui/button';
 import { Card, CardContent } from '../components/ui/card';
+import { ProgramComparison } from '../components/ProgramComparison';
+import KeyGrowRegistrationForm from '../components/KeyGrowRegistrationForm';
 
 export default function KeyGrowDashboardPage() {
   const { isConnected, isLoggedIn, account, connectWallet, isConnecting, loginError } = useWallet();
@@ -22,6 +24,11 @@ export default function KeyGrowDashboardPage() {
   const [loading, setLoading] = useState(true);
   const [selectedTier, setSelectedTier] = useState(0);
   const [toastEvents, setToastEvents] = useState<ContractEvent[]>([]);
+  
+  // Payment method selection
+  const [paymentMethod, setPaymentMethod] = useState<'stripe' | 'bnb' | null>(null);
+  const [showStripeForm, setShowStripeForm] = useState(false);
+  const [showProgramComparison, setShowProgramComparison] = useState(false);
   
   // Fund Statistics
   const [fundStats, setFundStats] = useState({
@@ -161,11 +168,18 @@ export default function KeyGrowDashboardPage() {
         {/* Header */}
         <div className="bg-gradient-to-r from-blue-600 to-blue-700 rounded-xl shadow-lg p-4 sm:p-6 md:p-8 text-white">
           <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
-            <div>
+            <div className="flex-1">
               <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-2">🏠 KeyGrow Dashboard</h1>
-              <p className="text-blue-100 text-sm sm:text-base md:text-lg">
+              <p className="text-blue-100 text-sm sm:text-base md:text-lg mb-3">
                 Your path from renting to homeownership through platform revenue sharing
               </p>
+              <Button
+                onClick={() => setShowProgramComparison(true)}
+                variant="outline"
+                className="bg-white/10 hover:bg-white/20 text-white border-white/30 text-xs sm:text-sm"
+              >
+                📊 Compare KeyGrow vs Real Estate Investor
+              </Button>
             </div>
             <div className="flex flex-col items-start sm:items-end space-y-2 w-full sm:w-auto">
               {isWalletReady ? (
@@ -828,41 +842,120 @@ export default function KeyGrowDashboardPage() {
                   </div>
                 </div>
 
-                {/* Enrollment Fee Reminder */}
-                <div className="bg-yellow-100 border-2 border-yellow-400 rounded-xl p-6 mb-8">
-                  <div className="flex items-start gap-4">
-                    <div className="text-4xl">💰</div>
-                    <div>
-                      <h4 className="font-bold text-lg text-gray-900 mb-2">One-Time Enrollment Fee: $500 (in BNB)</h4>
-                      <p className="text-sm text-gray-700">
-                        By clicking "Register" below, you'll be prompted to pay the $500 enrollment fee in BNB. 
-                        This covers property research, credit reporting, legal services, and platform maintenance. 
-                        <strong className="text-green-700"> All platform revenue allocations go 100% to you!</strong>
+                {/* Payment Method Selection */}
+                <div className="bg-gradient-to-r from-yellow-50 to-blue-50 border-2 border-blue-400 rounded-xl p-6 mb-8">
+                  <div className="text-center mb-4">
+                    <h4 className="font-bold text-2xl text-gray-900 mb-2">💳 Choose Your Payment Method</h4>
+                    <p className="text-sm text-gray-600">
+                      One-time enrollment fee: <strong className="text-blue-700">$500</strong>
+                    </p>
+                  </div>
+                  
+                  <div className="grid md:grid-cols-2 gap-4 mb-4">
+                    {/* Stripe Payment Option */}
+                    <button
+                      onClick={() => setPaymentMethod('stripe')}
+                      className={`p-6 rounded-xl border-3 transition-all transform hover:scale-105 ${
+                        paymentMethod === 'stripe'
+                          ? 'bg-blue-100 border-blue-500 ring-4 ring-blue-300 shadow-2xl scale-105'
+                          : 'bg-white border-gray-300 hover:bg-gray-50 shadow-lg'
+                      }`}
+                    >
+                      <div className="text-4xl mb-3 text-center">💳</div>
+                      <h5 className="font-bold text-lg text-gray-900 mb-2 text-center">Credit/Debit Card</h5>
+                      <p className="text-sm text-gray-600 text-center mb-2">
+                        Pay $500 via Stripe
                       </p>
-                    </div>
+                      <ul className="text-xs text-gray-600 space-y-1">
+                        <li>✓ No crypto wallet required</li>
+                        <li>✓ Instant card processing</li>
+                        <li>✓ Secure Stripe payment</li>
+                        <li>✓ Best for beginners</li>
+                      </ul>
+                      {paymentMethod === 'stripe' && (
+                        <div className="mt-3 bg-blue-600 text-white rounded-lg p-2 text-xs font-semibold text-center">
+                          ✓ Selected
+                        </div>
+                      )}
+                    </button>
+
+                    {/* BNB Crypto Payment Option */}
+                    <button
+                      onClick={() => setPaymentMethod('bnb')}
+                      className={`p-6 rounded-xl border-3 transition-all transform hover:scale-105 ${
+                        paymentMethod === 'bnb'
+                          ? 'bg-yellow-100 border-yellow-500 ring-4 ring-yellow-300 shadow-2xl scale-105'
+                          : 'bg-white border-gray-300 hover:bg-gray-50 shadow-lg'
+                      }`}
+                    >
+                      <div className="text-4xl mb-3 text-center">⛓️</div>
+                      <h5 className="font-bold text-lg text-gray-900 mb-2 text-center">Cryptocurrency (BNB)</h5>
+                      <p className="text-sm text-gray-600 text-center mb-2">
+                        Pay $500 worth of BNB
+                      </p>
+                      <ul className="text-xs text-gray-600 space-y-1">
+                        <li>✓ Fully decentralized</li>
+                        <li>✓ On-chain transparency</li>
+                        <li>✓ Lower fees</li>
+                        <li>✓ Requires BSC wallet</li>
+                      </ul>
+                      {paymentMethod === 'bnb' && (
+                        <div className="mt-3 bg-yellow-600 text-white rounded-lg p-2 text-xs font-semibold text-center">
+                          ✓ Selected
+                        </div>
+                      )}
+                    </button>
+                  </div>
+
+                  <div className="bg-white rounded-lg p-4 text-center">
+                    <p className="text-xs text-gray-600">
+                      <strong>What's covered:</strong> Property research, credit reporting, legal services, 
+                      platform maintenance. <strong className="text-green-700">All revenue allocations go 100% to you!</strong>
+                    </p>
                   </div>
                 </div>
 
                 {/* Register Button */}
-                <Button
-                  onClick={handleRegister}
-                  disabled={!isWalletReady || txStatus.loading}
-                  className="w-full bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 text-white text-2xl py-8 shadow-2xl transform hover:scale-105 transition-all"
-                >
-                  {txStatus.loading ? (
-                    <>
-                      <span className="animate-spin mr-3">⏳</span>
-                      Registering for KeyGrow...
-                    </>
-                  ) : (
-                    <>
-                      🏡 Register as {tierNames[selectedTier]} & Pay $500 Fee
-                    </>
-                  )}
-                </Button>
-                <p className="text-center text-sm text-gray-600 mt-4">
-                  You'll be prompted to approve the transaction in your wallet
-                </p>
+                {!paymentMethod && (
+                  <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-center">
+                    <p className="text-sm text-red-700">
+                      ⚠️ Please select a payment method above (Stripe or BNB) to continue
+                    </p>
+                  </div>
+                )}
+                
+                {paymentMethod === 'stripe' && (
+                  <Button
+                    onClick={() => setShowStripeForm(true)}
+                    className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white text-2xl py-8 shadow-2xl transform hover:scale-105 transition-all"
+                  >
+                    💳 Continue to Credit Card Payment ($500)
+                  </Button>
+                )}
+                
+                {paymentMethod === 'bnb' && (
+                  <>
+                    <Button
+                      onClick={handleRegister}
+                      disabled={!isWalletReady || txStatus.loading}
+                      className="w-full bg-gradient-to-r from-yellow-600 to-yellow-700 hover:from-yellow-700 hover:to-yellow-800 text-white text-2xl py-8 shadow-2xl transform hover:scale-105 transition-all"
+                    >
+                      {txStatus.loading ? (
+                        <>
+                          <span className="animate-spin mr-3">⏳</span>
+                          Registering for KeyGrow...
+                        </>
+                      ) : (
+                        <>
+                          ⛓️ Register as {tierNames[selectedTier]} & Pay in BNB
+                        </>
+                      )}
+                    </Button>
+                    <p className="text-center text-sm text-gray-600 mt-4">
+                      You'll be prompted to approve the transaction in your wallet
+                    </p>
+                  </>
+                )}
 
                 {/* Transaction Status */}
                 {txStatus.loading && (
@@ -1089,6 +1182,31 @@ export default function KeyGrowDashboardPage() {
         <div className="fixed bottom-4 right-4 bg-green-100 border border-green-300 rounded-full px-3 py-1 text-xs text-green-700 flex items-center gap-2">
           <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
           Live Updates Active
+        </div>
+      )}
+
+      {/* Stripe Registration Form Modal */}
+      {showStripeForm && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-white rounded-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+            <KeyGrowRegistrationForm 
+              onClose={() => {
+                setShowStripeForm(false);
+                // Refresh data after successful registration
+                loadRenterData();
+              }}
+              walletAddress={account}
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Program Comparison Modal */}
+      {showProgramComparison && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-white rounded-xl max-w-7xl w-full max-h-[90vh] overflow-y-auto">
+            <ProgramComparison onClose={() => setShowProgramComparison(false)} />
+          </div>
         </div>
       )}
     </div>
