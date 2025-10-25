@@ -1655,6 +1655,263 @@ export const rentalDistributions = pgTable("rental_distributions", {
   distributionDateIdx: index("rental_distributions_date_idx").on(table.distributionDate),
 }));
 
+// ==== UNIFIED REGISTRATION SYSTEM ====
+
+// Program type enum
+export const programTypeEnum = pgEnum('program_type', [
+  'real_estate_investor',
+  'keygrow_rent_to_own',
+  'property_owner',
+  'banking',
+  'staking',
+  'nft_marketplace',
+  'governance'
+]);
+
+// Program enrollment status enum
+export const enrollmentStatusEnum = pgEnum('enrollment_status', [
+  'browsing',
+  'profile_started',
+  'profile_completed',
+  'kyc_pending',
+  'kyc_verified',
+  'payment_pending',
+  'enrolled',
+  'suspended',
+  'cancelled'
+]);
+
+// Payment status enum
+export const paymentStatusEnum = pgEnum('payment_status', [
+  'pending',
+  'processing',
+  'succeeded',
+  'failed',
+  'refunded',
+  'cancelled'
+]);
+
+// Unified personal profiles - Canonical source for shared personal data
+export const unifiedPersonalProfiles = pgTable("unified_personal_profiles", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id),
+  
+  // Personal Information (shared across all programs)
+  firstName: varchar("first_name", { length: 100 }).notNull(),
+  lastName: varchar("last_name", { length: 100 }).notNull(),
+  email: varchar("email", { length: 255 }).notNull(),
+  phone: varchar("phone", { length: 20 }),
+  dateOfBirth: timestamp("date_of_birth"),
+  country: varchar("country", { length: 100 }),
+  state: varchar("state", { length: 100 }),
+  city: varchar("city", { length: 100 }),
+  zipCode: varchar("zip_code", { length: 20 }),
+  address: text("address"),
+  
+  // Employment Status
+  employmentStatus: varchar("employment_status", { length: 50 }), // employed, self-employed, unemployed, retired
+  employmentYears: integer("employment_years"),
+  employer: varchar("employer", { length: 200 }),
+  occupation: varchar("occupation", { length: 100 }),
+  
+  // Completion tracking
+  isComplete: boolean("is_complete").default(false),
+  completedAt: timestamp("completed_at"),
+  
+  // Timestamps
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => ({
+  userIdx: index("unified_personal_profiles_user_idx").on(table.userId),
+  emailIdx: index("unified_personal_profiles_email_idx").on(table.email),
+}));
+
+// Unified financial profiles - Shared financial data across programs
+export const unifiedFinancialProfiles = pgTable("unified_financial_profiles", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id),
+  
+  // Income Data
+  annualIncome: decimal("annual_income", { precision: 15, scale: 2 }),
+  monthlyIncome: decimal("monthly_income", { precision: 15, scale: 2 }),
+  incomeSource: varchar("income_source", { length: 100 }), // salary, business, investments, etc.
+  
+  // Assets & Liabilities
+  totalNetWorth: decimal("total_net_worth", { precision: 18, scale: 2 }),
+  liquidAssets: decimal("liquid_assets", { precision: 18, scale: 2 }),
+  realEstateValue: decimal("real_estate_value", { precision: 18, scale: 2 }),
+  investmentValue: decimal("investment_value", { precision: 18, scale: 2 }),
+  totalDebt: decimal("total_debt", { precision: 18, scale: 2 }),
+  monthlyDebt: decimal("monthly_debt", { precision: 15, scale: 2 }),
+  monthlyExpenses: decimal("monthly_expenses", { precision: 15, scale: 2 }),
+  
+  // Savings & Emergency Fund
+  emergencyFund: decimal("emergency_fund", { precision: 15, scale: 2 }),
+  currentSavings: decimal("current_savings", { precision: 15, scale: 2 }),
+  monthlySavings: decimal("monthly_savings", { precision: 15, scale: 2 }),
+  
+  // Credit Information
+  creditScore: integer("credit_score"), // 300-850
+  hasBankruptcy: boolean("has_bankruptcy").default(false),
+  hasForeclosure: boolean("has_foreclosure").default(false),
+  
+  // Completion tracking
+  isComplete: boolean("is_complete").default(false),
+  completedAt: timestamp("completed_at"),
+  
+  // Timestamps
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => ({
+  userIdx: index("unified_financial_profiles_user_idx").on(table.userId),
+}));
+
+// Unified risk profiles - Shared risk assessment across programs
+export const unifiedRiskProfiles = pgTable("unified_risk_profiles", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id),
+  
+  // Risk Tolerance
+  riskTolerance: varchar("risk_tolerance", { length: 50 }), // conservative, moderate, aggressive
+  investmentExperience: varchar("investment_experience", { length: 50 }), // none, beginner, intermediate, advanced
+  investmentHorizon: varchar("investment_horizon", { length: 20 }), // 1-3, 3-5, 5-10, 10+ years
+  liquidityNeeds: varchar("liquidity_needs", { length: 20 }), // high, medium, low
+  
+  // Investment Knowledge
+  investmentKnowledge: jsonb("investment_knowledge"), // Array of asset classes user understands
+  hasRealEstateExperience: boolean("has_real_estate_experience").default(false),
+  hasCryptoExperience: boolean("has_crypto_experience").default(false),
+  hasStockExperience: boolean("has_stock_experience").default(false),
+  
+  // Portfolio Preferences
+  portfolioDiversification: integer("portfolio_diversification"), // % allocated to real estate
+  comfortWithVolatility: integer("comfort_with_volatility"), // 1-10 scale
+  lossComfort: decimal("loss_comfort", { precision: 5, scale: 2 }), // Max % loss they can handle
+  
+  // Completion tracking
+  isComplete: boolean("is_complete").default(false),
+  completedAt: timestamp("completed_at"),
+  
+  // Timestamps
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => ({
+  userIdx: index("unified_risk_profiles_user_idx").on(table.userId),
+}));
+
+// Program enrollments - Track which programs users have enrolled in
+export const programEnrollments = pgTable("program_enrollments", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id),
+  programType: programTypeEnum("program_type").notNull(),
+  
+  // Enrollment Status
+  status: enrollmentStatusEnum("status").default('browsing'),
+  statusUpdatedAt: timestamp("status_updated_at").defaultNow(),
+  
+  // Program-Specific References
+  investorProfileId: integer("investor_profile_id").references(() => investorProfiles.id),
+  keygrowProgressId: integer("keygrow_progress_id").references(() => keygrowProgress.id),
+  kycVerificationId: integer("kyc_verification_id").references(() => kycVerifications.id),
+  
+  // Registration Data
+  registrationData: jsonb("registration_data"), // Program-specific fields
+  requiresPayment: boolean("requires_payment").default(false),
+  paymentAmount: decimal("payment_amount", { precision: 15, scale: 2 }),
+  paymentCurrency: varchar("payment_currency", { length: 10 }), // USD, BNB, etc.
+  paymentCompleted: boolean("payment_completed").default(false),
+  paymentCompletedAt: timestamp("payment_completed_at"),
+  
+  // Eligibility
+  isEligible: boolean("is_eligible").default(true),
+  eligibilityReason: text("eligibility_reason"),
+  
+  // Timestamps
+  enrolledAt: timestamp("enrolled_at"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => ({
+  userIdx: index("program_enrollments_user_idx").on(table.userId),
+  programIdx: index("program_enrollments_program_idx").on(table.programType),
+  statusIdx: index("program_enrollments_status_idx").on(table.status),
+  userProgramIdx: index("program_enrollments_user_program_idx").on(table.userId, table.programType),
+}));
+
+// Unified payment intents - Track all payments across programs
+export const unifiedPaymentIntents = pgTable("unified_payment_intents", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id),
+  enrollmentId: integer("enrollment_id").references(() => programEnrollments.id),
+  
+  // Payment Details
+  amount: decimal("amount", { precision: 18, scale: 8 }).notNull(),
+  currency: varchar("currency", { length: 10 }).notNull(), // USD, BNB
+  paymentMethod: paymentMethodEnum("payment_method").notNull(),
+  status: paymentStatusEnum("status").default('pending'),
+  
+  // Provider-Specific Data
+  stripePaymentIntentId: varchar("stripe_payment_intent_id", { length: 255 }),
+  stripeClientSecret: varchar("stripe_client_secret", { length: 255 }),
+  cryptoTransactionHash: varchar("crypto_transaction_hash", { length: 66 }),
+  cryptoWalletAddress: varchar("crypto_wallet_address", { length: 42 }),
+  
+  // Purpose
+  programType: programTypeEnum("program_type"),
+  purposeDescription: text("purpose_description"), // "KeyGrow Registration Fee", "Property Share Purchase", etc.
+  metadata: jsonb("metadata"), // Additional payment context
+  
+  // Processing
+  processedAt: timestamp("processed_at"),
+  failureReason: text("failure_reason"),
+  refundedAt: timestamp("refunded_at"),
+  refundAmount: decimal("refund_amount", { precision: 18, scale: 8 }),
+  
+  // Timestamps
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => ({
+  userIdx: index("unified_payment_intents_user_idx").on(table.userId),
+  enrollmentIdx: index("unified_payment_intents_enrollment_idx").on(table.enrollmentId),
+  statusIdx: index("unified_payment_intents_status_idx").on(table.status),
+  stripeIdx: index("unified_payment_intents_stripe_idx").on(table.stripePaymentIntentId),
+}));
+
+// Registration journey - Track user progress through unified onboarding
+export const registrationJourney = pgTable("registration_journey", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id),
+  
+  // Journey Progress
+  currentStep: varchar("current_step", { length: 50 }).default('account_creation'), // account_creation, personal_profile, financial_profile, risk_profile, program_selection, program_enrollment
+  completedSteps: jsonb("completed_steps").default('[]'), // Array of completed step names
+  
+  // Profile Completion Status
+  hasPersonalProfile: boolean("has_personal_profile").default(false),
+  hasFinancialProfile: boolean("has_financial_profile").default(false),
+  hasRiskProfile: boolean("has_risk_profile").default(false),
+  hasKycVerification: boolean("has_kyc_verification").default(false),
+  
+  // Journey State
+  isActive: boolean("is_active").default(true),
+  isCompleted: boolean("is_completed").default(false),
+  completedAt: timestamp("completed_at"),
+  abandonedAt: timestamp("abandoned_at"),
+  
+  // Analytics
+  totalTimeSpent: integer("total_time_spent"), // seconds
+  stepTransitions: jsonb("step_transitions"), // Array of { from, to, timestamp }
+  
+  // Timestamps
+  startedAt: timestamp("started_at").defaultNow(),
+  lastActivityAt: timestamp("last_activity_at").defaultNow(),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => ({
+  userIdx: index("registration_journey_user_idx").on(table.userId),
+  currentStepIdx: index("registration_journey_current_step_idx").on(table.currentStep),
+  isActiveIdx: index("registration_journey_is_active_idx").on(table.isActive),
+}));
+
 // Type exports for TypeScript
 export type User = typeof users.$inferSelect;
 export type InsertUser = typeof users.$inferInsert;
@@ -1782,3 +2039,17 @@ export type ShareAllocation = typeof shareAllocations.$inferSelect;
 export type InsertShareAllocation = typeof shareAllocations.$inferInsert;
 export type RentalDistribution = typeof rentalDistributions.$inferSelect;
 export type InsertRentalDistribution = typeof rentalDistributions.$inferInsert;
+
+// Unified registration system types
+export type UnifiedPersonalProfile = typeof unifiedPersonalProfiles.$inferSelect;
+export type InsertUnifiedPersonalProfile = typeof unifiedPersonalProfiles.$inferInsert;
+export type UnifiedFinancialProfile = typeof unifiedFinancialProfiles.$inferSelect;
+export type InsertUnifiedFinancialProfile = typeof unifiedFinancialProfiles.$inferInsert;
+export type UnifiedRiskProfile = typeof unifiedRiskProfiles.$inferSelect;
+export type InsertUnifiedRiskProfile = typeof unifiedRiskProfiles.$inferInsert;
+export type ProgramEnrollment = typeof programEnrollments.$inferSelect;
+export type InsertProgramEnrollment = typeof programEnrollments.$inferInsert;
+export type UnifiedPaymentIntent = typeof unifiedPaymentIntents.$inferSelect;
+export type InsertUnifiedPaymentIntent = typeof unifiedPaymentIntents.$inferInsert;
+export type RegistrationJourney = typeof registrationJourney.$inferSelect;
+export type InsertRegistrationJourney = typeof registrationJourney.$inferInsert;

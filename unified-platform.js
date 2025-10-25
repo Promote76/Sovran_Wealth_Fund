@@ -6,6 +6,7 @@ const bodyParser = require('body-parser');
 const session = require('express-session');
 const rateLimit = require('express-rate-limit');
 const compression = require('compression');
+const cookieParser = require('cookie-parser');
 require('dotenv').config();
 
 // Price Oracle Service for real-time crypto pricing
@@ -55,6 +56,7 @@ app.use(limiter);
 // Body parsing middleware
 app.use(bodyParser.json({ limit: '50mb' }));
 app.use(bodyParser.urlencoded({ extended: true, limit: '50mb' }));
+app.use(cookieParser());
 
 // Session configuration
 app.use(session({
@@ -776,6 +778,14 @@ const pancakePoolsRouter = require('./server/routes/pancakePools');
 const realEstateInvestorRouter = require('./server/routes/realEstateInvestor');
 const axiomPrimeRouter = require('./server/routes/axiomPrime');
 const stripePaymentRouter = require('./server/stripe-payments');
+
+// Secure authentication routes (httpOnly cookies - no localStorage!)
+const secureAuthRouter = require('./server/routes/secureAuth');
+app.use('/api/secure-auth', secureAuthRouter);
+
+// Unified registration system routes
+const registrationRouter = require('./server/routes/registration');
+app.use('/api/registration', registrationRouter);
 
 app.use('/api/keygrow', keygrowRouter);
 app.use('/api/real-estate-investor', realEstateInvestorRouter);
