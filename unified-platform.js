@@ -263,6 +263,24 @@ app.get('/api/platform-stats', async (req, res) => {
   }
 });
 
+// Stripe public key endpoint for frontend initialization
+app.get('/api/stripe/public-key', (req, res) => {
+  try {
+    const publicKey = process.env.VITE_STRIPE_PUBLIC_KEY;
+    
+    if (!publicKey) {
+      console.error('❌ VITE_STRIPE_PUBLIC_KEY environment variable not set');
+      return res.status(500).json({ error: 'Stripe configuration error' });
+    }
+    
+    console.log('🔑 Stripe public key requested');
+    res.json({ publicKey });
+  } catch (error) {
+    console.error('❌ Error fetching Stripe public key:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 // Analytics endpoint for performance metrics
 app.post('/api/analytics/performance', (req, res) => {
   try {
