@@ -791,6 +791,10 @@ app.use('/api/registration', registrationRouter);
 const unifiedRegistrationAdminRouter = require('./server/routes/unifiedRegistrationAdmin');
 app.use('/api/unified-registration-admin', unifiedRegistrationAdminRouter);
 
+// KYC verification routes (admin-only access)
+const kycRouter = require('./server/routes/kyc');
+app.use('/api/kyc', kycRouter);
+
 app.use('/api/keygrow', keygrowRouter);
 app.use('/api/real-estate-investor', realEstateInvestorRouter);
 app.use('/api/nft-marketplace', nftMarketplaceRouter);
