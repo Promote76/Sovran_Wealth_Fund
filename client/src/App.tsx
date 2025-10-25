@@ -430,7 +430,7 @@ function App() {
                       <Routes>
                         {/* Special routes WITHOUT Layout */}
                         <Route path="/onboarding" element={<OnboardingFlow />} />
-                        <Route path="/keygrow" element={<KeyGrowPage />} />
+                        <Route path="/keygrow" element={<KeyGrowDashboardPage />} />
                         <Route path="/circles" element={<CirclesHub />} />
                         <Route path="/circles/create" element={<CreateCirclePage />} />
                         <Route path="/circles/:circleId" element={<CirclePage />} />

@@ -153,7 +153,7 @@ export default function HomePage() {
           <div className="flex flex-col sm:flex-row justify-center gap-6">
             <Button 
               className="text-base px-8 py-3 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105"
-              onClick={() => handlePathClick('keygrow')}
+              onClick={() => navigate('/keygrow-dashboard')}
             >
               🏠 Start Your Homeownership Journey
             </Button>
@@ -268,7 +268,7 @@ export default function HomePage() {
             <div className="mt-10 flex flex-col items-center justify-center">
               <Button 
                 className="text-sm px-4 py-2 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white font-bold rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105"
-                onClick={() => handlePathClick('keygrow')}
+                onClick={() => navigate('/keygrow-dashboard')}
               >
                 Register Now - $500 One-Time Fee
               </Button>
