@@ -64,7 +64,7 @@ router.get('/analytics/funnel', async (req, res) => {
     const programStats = await db
       .select({
         programType: programEnrollments.programType,
-        count: sql<number>`count(*)`,
+        count: sql`count(*)`,
       })
       .from(programEnrollments)
       .groupBy(programEnrollments.programType);
