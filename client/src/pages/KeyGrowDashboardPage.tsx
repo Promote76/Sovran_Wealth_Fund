@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useWallet } from '../contexts/WalletContext';
 import { useContractTransactions } from '../hooks/useContractTransactions';
 import { useKeygrowEvents, ContractEvent } from '../hooks/useContractEvents';
@@ -7,9 +8,9 @@ import { keygrowService, type RenterInfo } from '../services/contracts';
 import { Button } from '../components/ui/button';
 import { Card, CardContent } from '../components/ui/card';
 import { ProgramComparison } from '../components/ProgramComparison';
-import KeyGrowRegistrationForm from '../components/KeyGrowRegistrationForm';
 
 export default function KeyGrowDashboardPage() {
+  const navigate = useNavigate();
   const { isConnected, isLoggedIn, account, connectWallet, isConnecting, loginError } = useWallet();
   const {
     registerAsRenter,
@@ -27,7 +28,6 @@ export default function KeyGrowDashboardPage() {
   
   // Payment method selection
   const [paymentMethod, setPaymentMethod] = useState<'stripe' | 'bnb' | null>(null);
-  const [showStripeForm, setShowStripeForm] = useState(false);
   const [showProgramComparison, setShowProgramComparison] = useState(false);
   
   // Fund Statistics
@@ -926,7 +926,7 @@ export default function KeyGrowDashboardPage() {
                 
                 {paymentMethod === 'stripe' && (
                   <Button
-                    onClick={() => setShowStripeForm(true)}
+                    onClick={() => navigate('/keygrow-register')}
                     className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white text-2xl py-8 shadow-2xl transform hover:scale-105 transition-all"
                   >
                     💳 Continue to Credit Card Payment ($500)
@@ -1182,22 +1182,6 @@ export default function KeyGrowDashboardPage() {
         <div className="fixed bottom-4 right-4 bg-green-100 border border-green-300 rounded-full px-3 py-1 text-xs text-green-700 flex items-center gap-2">
           <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
           Live Updates Active
-        </div>
-      )}
-
-      {/* Stripe Registration Form Modal */}
-      {showStripeForm && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 overflow-y-auto">
-          <div className="bg-white rounded-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-            <KeyGrowRegistrationForm 
-              onClose={() => {
-                setShowStripeForm(false);
-                // Refresh data after successful registration
-                loadRenterData();
-              }}
-              walletAddress={account}
-            />
-          </div>
         </div>
       )}
 
