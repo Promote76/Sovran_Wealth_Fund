@@ -245,12 +245,19 @@ export const kycRiskLevelEnum = pgEnum('kyc_risk_level', [
   'high'
 ]);
 
+// KYC tier level enum - Light KYC vs Full KYC
+export const kycTierEnum = pgEnum('kyc_tier', [
+  'light', // Basic verification - name, email, phone
+  'full'   // Full verification - SSN, ID documents, proof of address
+]);
+
 // KYC document type enum
 export const kycDocumentTypeEnum = pgEnum('kyc_document_type', [
   'identity_front',
   'identity_back',
   'proof_of_address',
-  'selfie_verification'
+  'selfie_verification',
+  'ssn_document'
 ]);
 
 // KYC document verification status enum
@@ -279,6 +286,9 @@ export const kycVerifications = pgTable("kyc_verifications", {
   id: serial("id").primaryKey(),
   userId: integer("user_id").references(() => users.id).notNull(),
   
+  // KYC Tier Level
+  kycTier: kycTierEnum("kyc_tier").default('light').notNull(),
+  
   // Personal Information
   firstName: varchar("first_name", { length: 100 }).notNull(),
   lastName: varchar("last_name", { length: 100 }).notNull(),
@@ -286,6 +296,11 @@ export const kycVerifications = pgTable("kyc_verifications", {
   nationality: varchar("nationality", { length: 100 }).notNull(),
   address: text("address").notNull(),
   phoneNumber: varchar("phone_number", { length: 20 }).notNull(),
+  
+  // Full KYC Only - SSN/Tax ID (encrypted)
+  ssnLast4: varchar("ssn_last_4", { length: 4 }), // Last 4 digits for display
+  ssnHash: varchar("ssn_hash", { length: 128 }), // Hashed full SSN for verification
+  governmentIdNumber: varchar("government_id_number"), // Encrypted ID number
   
   // Verification Status and Workflow
   verificationStatus: kycStatusEnum("verification_status").default('pending'),
