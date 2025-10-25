@@ -19,7 +19,11 @@ interface Template {
   structure: string;
 }
 
-const MarketingHubPage: React.FC = () => {
+interface MarketingHubPageProps {
+  standalone?: boolean;
+}
+
+const MarketingHubPage: React.FC<MarketingHubPageProps> = ({ standalone = true }) => {
   const [activeTab, setActiveTab] = useState<'library' | 'generator'>('library');
   const [scripts, setScripts] = useState<Script[]>([]);
   const [templates, setTemplates] = useState<Record<string, Template>>({});
@@ -125,10 +129,9 @@ const MarketingHubPage: React.FC = () => {
     alert('Script copied to clipboard!');
   };
 
-  return (
-    <Layout>
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white py-12 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto">
+  const content = (
+    <div className={standalone ? "min-h-screen bg-gradient-to-br from-blue-50 to-white py-12 px-4 sm:px-6 lg:px-8" : ""}>
+      <div className="max-w-7xl mx-auto">
           <div className="text-center mb-12">
             <h1 className="text-4xl font-bold text-gray-900 mb-4">
               Marketing Hub
@@ -483,8 +486,10 @@ const MarketingHubPage: React.FC = () => {
           </div>
         </div>
       </div>
-    </Layout>
+    </div>
   );
+
+  return standalone ? <Layout>{content}</Layout> : content;
 };
 
 export default MarketingHubPage;

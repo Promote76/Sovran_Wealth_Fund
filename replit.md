@@ -6,9 +6,18 @@ AXIOM is a decentralized finance (DeFi) platform on BSC and Polygon, designed to
 **Key Programs:**
 -   **KeyGrow Rent-to-Own**: Allocates 20% of platform revenue to facilitate homeownership for renters.
 -   **Real Estate Investor**: A gas-efficient platform for fractional property investment offering multiple earning mechanisms like rental income, appreciation, and exit profits.
+-   **Marketing Hub**: Professional video script library and AI-powered script generator for creating marketing content.
 
 ## User Preferences
 Preferred communication style: Simple, everyday language.
+
+## Recent Updates (October 25, 2025)
+- **Marketing Hub Integration**: Added comprehensive marketing tools to admin dashboard
+  - 5 professionally written video marketing scripts (Platform Overview, KeyGrow, Real Estate Investor, Staking, Testimonials)
+  - AI-powered script generator using Replit AI Integrations (OpenAI)
+  - 5 customizable templates (Explainer, Testimonial, Social Media, Product Demo, Comparison)
+  - Script library with download and copy features
+  - Integrated into admin dashboard at `/admin` with tabbed navigation
 
 ## System Architecture
 

@@ -1,10 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { KYCComprehensiveAdminDashboard } from '../components/kyc/KYCComprehensiveAdminDashboard';
 import AdminLoginForm from '../components/AdminLoginForm';
 import { useAuth } from '../hooks/useAuth';
+import MarketingHubPage from './MarketingHubPage';
 
 const AdminDashboardPage: React.FC = () => {
   const { user, loading, error, login, logout, isAdmin, isAuthenticated } = useAuth();
+  const [activeTab, setActiveTab] = useState<'kyc' | 'marketing'>('kyc');
 
   // Show loading spinner while checking authentication
   if (loading) {
@@ -60,10 +62,10 @@ const AdminDashboardPage: React.FC = () => {
           <div className="flex justify-between items-center">
             <div>
               <h1 className="text-3xl font-bold text-blue-800 mb-2">
-                🏛️ SWF Admin Dashboard
+                🏛️ AXIOM Admin Dashboard
               </h1>
               <p className="text-gray-600">
-                Comprehensive platform administration and KYC management
+                Comprehensive platform administration, KYC management, and marketing tools
               </p>
             </div>
             <div className="text-right">
@@ -82,8 +84,48 @@ const AdminDashboardPage: React.FC = () => {
             </div>
           </div>
         </div>
-        
-        <KYCComprehensiveAdminDashboard />
+
+        {/* Navigation Tabs */}
+        <div className="bg-white rounded-lg shadow-md mb-6">
+          <div className="border-b border-gray-200">
+            <nav className="flex -mb-px">
+              <button
+                onClick={() => setActiveTab('kyc')}
+                className={`px-8 py-4 text-lg font-medium border-b-2 transition-colors ${
+                  activeTab === 'kyc'
+                    ? 'border-blue-600 text-blue-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                <span className="flex items-center gap-2">
+                  <span>🔐</span>
+                  <span>KYC Admin</span>
+                </span>
+              </button>
+              <button
+                onClick={() => setActiveTab('marketing')}
+                className={`px-8 py-4 text-lg font-medium border-b-2 transition-colors ${
+                  activeTab === 'marketing'
+                    ? 'border-blue-600 text-blue-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                <span className="flex items-center gap-2">
+                  <span>🎬</span>
+                  <span>Marketing Hub</span>
+                </span>
+              </button>
+            </nav>
+          </div>
+        </div>
+
+        {/* Tab Content */}
+        {activeTab === 'kyc' && <KYCComprehensiveAdminDashboard />}
+        {activeTab === 'marketing' && (
+          <div className="bg-white rounded-lg shadow-md p-6">
+            <MarketingHubPage standalone={false} />
+          </div>
+        )}
       </div>
     </div>
   );
