@@ -199,7 +199,7 @@ router.get('/users', async (req, res) => {
 
     // Get total count for pagination
     const [countResult] = await db
-      .select({ count: sql<number>`count(*)` })
+      .select({ count: sql`count(*)` })
       .from(users)
       .where(filters.length > 0 ? and(...filters) : undefined);
 

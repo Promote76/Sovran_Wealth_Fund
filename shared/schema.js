@@ -3,10 +3,118 @@ const { pgTable, serial, text, boolean, timestamp, varchar, decimal, integer, js
 // User table - match the exact column names in the database
 const users = pgTable('users', {
   id: serial('id').primaryKey(),
-  username: text('username').notNull().unique(),
-  password: text('password').notNull(),
-  is_admin: boolean('is_admin').default(false).notNull(),
-  created_at: timestamp('created_at').defaultNow().notNull()
+  firstName: varchar('first_name', { length: 255 }),
+  lastName: varchar('last_name', { length: 255 }),
+  email: varchar('email', { length: 255 }).notNull().unique(),
+  username: varchar('username', { length: 255 }).notNull().unique(),
+  password: varchar('password', { length: 255 }).notNull(),
+  role: varchar('role', { length: 50 }).default('user'),
+  accountStatus: varchar('account_status', { length: 50 }).default('active'),
+  emailVerified: boolean('email_verified').default(false),
+  walletAddress: varchar('wallet_address', { length: 42 }),
+  swfTokenBalance: decimal('swf_token_balance', { precision: 18, scale: 8 }).default('0'),
+  loginCount: integer('login_count').default(0),
+  lastLoginAt: timestamp('last_login_at'),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow()
+});
+
+// Registration Journey table
+const registrationJourney = pgTable('registration_journey', {
+  id: serial('id').primaryKey(),
+  userId: integer('user_id').notNull(),
+  currentStep: varchar('current_step', { length: 50 }),
+  completedSteps: jsonb('completed_steps'),
+  hasPersonalProfile: boolean('has_personal_profile').default(false),
+  hasFinancialProfile: boolean('has_financial_profile').default(false),
+  hasRiskProfile: boolean('has_risk_profile').default(false),
+  hasKycVerification: boolean('has_kyc_verification').default(false),
+  isActive: boolean('is_active').default(true),
+  isCompleted: boolean('is_completed').default(false),
+  completedAt: timestamp('completed_at'),
+  abandonedAt: timestamp('abandoned_at'),
+  totalTimeSpent: integer('total_time_spent').default(0),
+  stepTransitions: jsonb('step_transitions'),
+  startedAt: timestamp('started_at').defaultNow(),
+  lastActivityAt: timestamp('last_activity_at'),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow()
+});
+
+// Unified Personal Profiles table
+const unifiedPersonalProfiles = pgTable('unified_personal_profiles', {
+  id: serial('id').primaryKey(),
+  userId: integer('user_id').notNull().unique(),
+  phoneNumber: varchar('phone_number', { length: 20 }),
+  dateOfBirth: timestamp('date_of_birth'),
+  address: text('address'),
+  city: varchar('city', { length: 100 }),
+  state: varchar('state', { length: 50 }),
+  zipCode: varchar('zip_code', { length: 10 }),
+  country: varchar('country', { length: 100 }).default('United States'),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow()
+});
+
+// Unified Financial Profiles table
+const unifiedFinancialProfiles = pgTable('unified_financial_profiles', {
+  id: serial('id').primaryKey(),
+  userId: integer('user_id').notNull().unique(),
+  annualIncome: decimal('annual_income', { precision: 15, scale: 2 }),
+  employmentStatus: varchar('employment_status', { length: 50 }),
+  employer: varchar('employer', { length: 255 }),
+  sourceOfIncome: text('source_of_income'),
+  netWorth: decimal('net_worth', { precision: 15, scale: 2 }),
+  liquidAssets: decimal('liquid_assets', { precision: 15, scale: 2 }),
+  monthlyRent: decimal('monthly_rent', { precision: 15, scale: 2 }),
+  monthlyExpenses: decimal('monthly_expenses', { precision: 15, scale: 2 }),
+  creditScore: integer('credit_score'),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow()
+});
+
+// Unified Risk Profiles table
+const unifiedRiskProfiles = pgTable('unified_risk_profiles', {
+  id: serial('id').primaryKey(),
+  userId: integer('user_id').notNull().unique(),
+  riskTolerance: varchar('risk_tolerance', { length: 20 }),
+  investmentExperience: varchar('investment_experience', { length: 20 }),
+  investmentGoals: jsonb('investment_goals'),
+  investmentHorizon: varchar('investment_horizon', { length: 50 }),
+  liquidityNeeds: varchar('liquidity_needs', { length: 50 }),
+  investmentKnowledge: varchar('investment_knowledge', { length: 50 }),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow()
+});
+
+// KYC Verifications table
+const kycVerifications = pgTable('kyc_verifications', {
+  id: serial('id').primaryKey(),
+  userId: integer('user_id').notNull().unique(),
+  verificationType: varchar('verification_type', { length: 20 }),
+  status: varchar('status', { length: 20 }).default('pending'),
+  ssnHash: varchar('ssn_hash', { length: 255 }),
+  governmentIdType: varchar('government_id_type', { length: 50 }),
+  governmentIdNumber: varchar('government_id_number', { length: 100 }),
+  documentUrls: jsonb('document_urls'),
+  verifiedAt: timestamp('verified_at'),
+  verifiedBy: integer('verified_by'),
+  rejectionReason: text('rejection_reason'),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow()
+});
+
+// Program Enrollments table
+const programEnrollments = pgTable('program_enrollments', {
+  id: serial('id').primaryKey(),
+  userId: integer('user_id').notNull(),
+  programType: varchar('program_type', { length: 50 }).notNull(),
+  enrollmentStatus: varchar('enrollment_status', { length: 20 }).default('pending'),
+  enrolledAt: timestamp('enrolled_at').defaultNow(),
+  completedAt: timestamp('completed_at'),
+  metadata: jsonb('metadata'),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow()
 });
 
 // Savings Accounts table - matching actual database structure
@@ -561,6 +669,12 @@ const contractEvents = pgTable('contract_events', {
 
 module.exports = {
   users,
+  registrationJourney,
+  unifiedPersonalProfiles,
+  unifiedFinancialProfiles,
+  unifiedRiskProfiles,
+  kycVerifications,
+  programEnrollments,
   savingsAccounts,
   savingsTransactions,
   savingsAccountSettings,
