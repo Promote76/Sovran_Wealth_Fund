@@ -2,7 +2,7 @@ const express = require('express');
 const bcrypt = require('bcrypt');
 const { db } = require('../db');
 const { users } = require('../../shared/schema');
-const { eq } = require('drizzle-orm');
+const { eq, or } = require('drizzle-orm');
 const { 
   generateSecureToken, 
   verifySecureToken,
@@ -101,7 +101,6 @@ router.post('/login', async (req, res) => {
     }
 
     // Try to find user by email or username
-    const { or } = require('drizzle-orm');
     const [user] = await db
       .select()
       .from(users)
