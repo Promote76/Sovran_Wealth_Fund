@@ -12,12 +12,18 @@ AXIOM is a decentralized finance (DeFi) platform on BSC and Polygon, designed to
 Preferred communication style: Simple, everyday language.
 
 ## Recent Updates (October 25, 2025)
-- **Marketing Hub Integration**: Added comprehensive marketing tools to admin dashboard
-  - 5 professionally written video marketing scripts (Platform Overview, KeyGrow, Real Estate Investor, Staking, Testimonials)
-  - AI-powered script generator using Replit AI Integrations (OpenAI)
-  - 5 customizable templates (Explainer, Testimonial, Social Media, Product Demo, Comparison)
+- **Marketing Hub Enhancement**: Expanded with AI-powered Social Media Post Generator
+  - **Video Scripts**: 5 professionally written video marketing scripts (Platform Overview, KeyGrow, Real Estate Investor, Staking, Testimonials)
+  - **Script Generator**: AI-powered script generator with 5 customizable templates (Explainer, Testimonial, Social Media, Product Demo, Comparison)
+  - **Social Media Generator**: NEW - Platform-aware social media post generator
+    - Analyzes entire platform (contracts, components, pages) using recursive directory scanning
+    - Supports 5 platforms: Twitter/X, LinkedIn, Facebook, Instagram, Telegram
+    - Platform-specific formatting (character limits, style guides, hashtag/emoji preferences)
+    - 5-minute response caching for performance optimization
+    - Feature-specific posts for KeyGrow, Real Estate Investor, Staking, etc.
+  - **Platform Analysis API**: `/api/marketing-scripts/platform-analysis` with recursive file scanning
   - Script library with download and copy features
-  - Integrated into admin dashboard at `/admin` with tabbed navigation
+  - Integrated into admin dashboard at `/admin` with 3-tab navigation
 
 ## System Architecture
 
