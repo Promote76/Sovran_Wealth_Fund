@@ -35,7 +35,7 @@ router.get('/analytics/funnel', async (req, res) => {
     }
 
     // Get funnel statistics
-    const [funnelStats] = await db.execute(sql`
+    const result = await db.execute(sql`
       SELECT
         COUNT(DISTINCT rj.user_id) as total_started,
         COUNT(DISTINCT CASE WHEN rj.has_personal_profile THEN rj.user_id END) as completed_personal,
@@ -48,6 +48,17 @@ router.get('/analytics/funnel', async (req, res) => {
       FROM registration_journey rj
       ${dateFilter.length > 0 ? sql`WHERE ${and(...dateFilter)}` : sql``}
     `);
+    
+    const funnelStats = result.rows[0] || {
+      total_started: 0,
+      completed_personal: 0,
+      completed_financial: 0,
+      completed_risk: 0,
+      completed_kyc: 0,
+      completed_registration: 0,
+      avg_time_spent: 0,
+      abandoned_count: 0
+    };
 
     // Get program enrollment statistics
     const programStats = await db
@@ -101,7 +112,7 @@ router.get('/analytics/daily-signups', async (req, res) => {
   try {
     const { days = 30 } = req.query;
 
-    const dailySignups = await db.execute(sql`
+    const result = await db.execute(sql`
       SELECT
         DATE(started_at) as date,
         COUNT(*) as signups,
@@ -112,7 +123,7 @@ router.get('/analytics/daily-signups', async (req, res) => {
       ORDER BY date DESC
     `);
 
-    res.json(dailySignups.rows);
+    res.json(result.rows || []);
   } catch (error) {
     console.error('Error fetching daily signups:', error);
     res.status(500).json({ error: 'Failed to fetch daily signups' });
