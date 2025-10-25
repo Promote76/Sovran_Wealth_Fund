@@ -3819,6 +3819,203 @@ app.post('/api/investor/invest/complete-payment', async (req, res) => {
   }
 });
 
+// Create payment intent for property investment
+app.post('/api/investor/invest/create-payment', async (req, res) => {
+  try {
+    const { amount, propertyId, walletAddress } = req.body;
+
+    if (!amount || amount < 30) {
+      return res.status(400).json({
+        success: false,
+        error: 'Minimum investment is $30'
+      });
+    }
+
+    if (!walletAddress) {
+      return res.status(400).json({
+        success: false,
+        error: 'Wallet address required'
+      });
+    }
+
+    // Check investor registration
+    const [investor] = await db
+      .select()
+      .from(investorProfiles)
+      .where(eq(investorProfiles.walletAddress, walletAddress.toLowerCase()))
+      .limit(1);
+
+    if (!investor) {
+      return res.status(403).json({
+        success: false,
+        error: 'Investor registration required'
+      });
+    }
+
+    // Get Stripe instance
+    const stripeModule = require('./server/stripe-payments');
+    const stripe = stripeModule.stripe || require('stripe')(process.env.STRIPE_SECRET_KEY);
+
+    if (!stripe) {
+      return res.status(500).json({
+        success: false,
+        error: 'Payment processing unavailable'
+      });
+    }
+
+    // Create payment intent
+    const paymentIntent = await stripe.paymentIntents.create({
+      amount: Math.round(amount * 100), // Convert to cents
+      currency: 'usd',
+      description: `Real Estate Investment - Property #${propertyId}`,
+      metadata: {
+        propertyId: propertyId.toString(),
+        walletAddress: walletAddress.toLowerCase(),
+        investorId: investor.id.toString(),
+        type: 'property_investment'
+      }
+    });
+
+    console.log(`💳 Payment intent created for investor ${walletAddress}: $${amount}`);
+
+    res.json({
+      success: true,
+      data: {
+        clientSecret: paymentIntent.client_secret,
+        paymentIntentId: paymentIntent.id,
+        amount: amount
+      }
+    });
+
+  } catch (error) {
+    console.error('❌ Create payment intent error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to create payment intent',
+      details: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+});
+
+// Complete investment and allocate shares
+app.post('/api/investor/invest/complete', async (req, res) => {
+  try {
+    const { walletAddress, propertyId, amount, paymentIntentId, txHash, paymentMethod, shares } = req.body;
+
+    if (!walletAddress || !propertyId || !amount || !paymentMethod || !shares) {
+      return res.status(400).json({
+        success: false,
+        error: 'Missing required fields'
+      });
+    }
+
+    // Validate shares
+    if (shares <= 0) {
+      return res.status(400).json({
+        success: false,
+        error: 'Shares must be greater than 0'
+      });
+    }
+
+    if (!Number.isFinite(amount) || amount <= 0) {
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid investment amount'
+      });
+    }
+
+    const normalizedWallet = walletAddress.toLowerCase();
+
+    // Get investor profile
+    const [investor] = await db
+      .select()
+      .from(investorProfiles)
+      .where(eq(investorProfiles.walletAddress, normalizedWallet))
+      .limit(1);
+
+    if (!investor) {
+      return res.status(403).json({
+        success: false,
+        error: 'Investor registration required'
+      });
+    }
+
+    // Validate available shares (prevent oversubscription)
+    // Note: This is a simplified check. In production with the RealEstateInvestor contract,
+    // you would query the contract for sharesIssued to get the authoritative count.
+    // For now, we check against a reasonable limit.
+    const maxSharesPerInvestment = 10000; // Reasonable limit
+    if (shares > maxSharesPerInvestment) {
+      return res.status(400).json({
+        success: false,
+        error: `Maximum ${maxSharesPerInvestment} shares per investment`
+      });
+    }
+
+    // Calculate price per share safely
+    const pricePerShare = amount / shares;
+    
+    if (!Number.isFinite(pricePerShare) || pricePerShare <= 0) {
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid share calculation'
+      });
+    }
+
+    // Create investment order
+    const [order] = await db
+      .insert(investmentOrders)
+      .values({
+        investorId: investor.id,
+        propertyId: propertyId,
+        numberOfShares: shares,
+        pricePerShare: pricePerShare.toString(),
+        totalAmount: amount.toString(),
+        platformFee: (amount * 0.025).toString(), // 2.5% fee
+        paymentMethod: paymentMethod,
+        status: 'completed',
+        paymentIntentId: paymentIntentId || null,
+        transactionHash: txHash || null,
+        sharesAllocated: true,
+        completedAt: new Date()
+      })
+      .returning();
+
+    // Allocate shares
+    const [allocation] = await db
+      .insert(shareAllocations)
+      .values({
+        investorId: investor.id,
+        propertyId: propertyId,
+        numberOfShares: shares,
+        purchasePrice: pricePerShare.toString(),
+        purchaseDate: new Date(),
+        currentValue: pricePerShare.toString()
+      })
+      .returning();
+
+    console.log(`✅ Investment completed: ${shares} shares allocated to ${normalizedWallet} for property ${propertyId} (${paymentMethod})`);
+
+    res.json({
+      success: true,
+      data: {
+        orderId: order.id,
+        allocationId: allocation.id,
+        shares: shares,
+        totalAmount: amount
+      }
+    });
+
+  } catch (error) {
+    console.error('❌ Complete investment error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to complete investment',
+      details: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+});
+
 // Serve static files from React build
 app.use(express.static(path.join(__dirname, 'client/build'), {
   setHeaders: (res, path) => {

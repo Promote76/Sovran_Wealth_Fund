@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useWallet } from '../contexts/WalletContext';
 import { Button } from '../components/ui/button';
 import { Card, CardContent } from '../components/ui/card';
+import PropertyInvestmentModal from '../components/PropertyInvestmentModal';
 
 interface Property {
   id: number;
@@ -32,8 +33,7 @@ export default function RealEstateInvestorPage() {
   const { isConnected, account, connectWallet, isConnecting } = useWallet();
   const [properties, setProperties] = useState<Property[]>([]);
   const [portfolio, setPortfolio] = useState<Investment[]>([]);
-  const [selectedProperty, setSelectedProperty] = useState<number | null>(null);
-  const [investmentAmount, setInvestmentAmount] = useState('');
+  const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
   const [loading, setLoading] = useState(true);
   const [txStatus, setTxStatus] = useState({ loading: false, success: false, error: '', txHash: '' });
 
@@ -81,40 +81,6 @@ export default function RealEstateInvestorPage() {
     }
   };
 
-  const handleInvest = async () => {
-    if (!selectedProperty || !investmentAmount) return;
-    
-    setTxStatus({ loading: true, success: false, error: '', txHash: '' });
-    
-    try {
-      // Build transaction
-      const response = await fetch('/api/real-estate-investor/tx/invest', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          walletAddress: account,
-          propertyId: selectedProperty,
-          amount: investmentAmount
-        })
-      });
-
-      const data = await response.json();
-      
-      if (data.success) {
-        setTxStatus({ loading: false, success: true, error: '', txHash: data.data.txHash });
-        setTimeout(() => {
-          loadProperties();
-          loadPortfolio();
-          setSelectedProperty(null);
-          setInvestmentAmount('');
-        }, 2000);
-      } else {
-        setTxStatus({ loading: false, success: false, error: data.error, txHash: '' });
-      }
-    } catch (error: any) {
-      setTxStatus({ loading: false, success: false, error: error.message, txHash: '' });
-    }
-  };
 
   const handleClaimRental = async (propertyId?: number) => {
     setTxStatus({ loading: true, success: false, error: '', txHash: '' });
@@ -396,52 +362,13 @@ export default function RealEstateInvestorPage() {
                       </div>
                     </div>
 
-                    {/* Investment Form */}
-                    {!property.isFunded && isConnected && (
-                      <div className="border-t pt-4">
-                        <div className="mb-3">
-                          <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Investment Amount (BNB)
-                          </label>
-                          <input
-                            type="number"
-                            step="0.01"
-                            min="0.05"
-                            value={selectedProperty === property.id ? investmentAmount : ''}
-                            onChange={(e) => {
-                              setSelectedProperty(property.id);
-                              setInvestmentAmount(e.target.value);
-                            }}
-                            placeholder="Min: 0.05 BNB"
-                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
-                          />
-                          <div className="text-xs text-gray-500 mt-1">
-                            {investmentAmount && parseFloat(investmentAmount) > 0 && (
-                              <>You'll receive ~{Math.floor(parseFloat(investmentAmount) / parseFloat(property.pricePerShare))} shares</>
-                            )}
-                          </div>
-                        </div>
-                        <Button
-                          onClick={handleInvest}
-                          disabled={
-                            txStatus.loading || 
-                            !investmentAmount || 
-                            selectedProperty !== property.id ||
-                            parseFloat(investmentAmount) < 0.05
-                          }
-                          className="w-full bg-green-600 hover:bg-green-700"
-                        >
-                          {txStatus.loading ? '⏳ Processing...' : '💰 Invest Now'}
-                        </Button>
-                      </div>
-                    )}
-
-                    {!isConnected && (
+                    {/* Investment Button */}
+                    {!property.isFunded && (
                       <Button
-                        onClick={connectWallet}
-                        className="w-full bg-blue-600 hover:bg-blue-700"
+                        onClick={() => isConnected ? setSelectedProperty(property) : connectWallet()}
+                        className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold"
                       >
-                        🔗 Connect to Invest
+                        {isConnected ? '🏠 Invest Now' : '🔗 Connect Wallet to Invest'}
                       </Button>
                     )}
                   </div>
@@ -522,6 +449,18 @@ export default function RealEstateInvestorPage() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Investment Modal */}
+      {selectedProperty && (
+        <PropertyInvestmentModal
+          property={selectedProperty}
+          onClose={() => setSelectedProperty(null)}
+          onSuccess={() => {
+            loadProperties();
+            loadPortfolio();
+          }}
+        />
+      )}
     </div>
   );
 }
