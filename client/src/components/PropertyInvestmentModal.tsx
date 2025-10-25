@@ -34,10 +34,29 @@ export default function PropertyInvestmentModal({ property, onClose, onSuccess }
   const [error, setError] = useState('');
   const [investorProfile, setInvestorProfile] = useState<any>(null);
   const [checkingProfile, setCheckingProfile] = useState(true);
+  const [bnbPrice, setBnbPrice] = useState(600); // Live BNB price, defaults to 600
+  const [priceLoading, setPriceLoading] = useState(true);
 
   useEffect(() => {
     checkInvestorProfile();
+    fetchBNBPrice();
   }, [account]);
+
+  const fetchBNBPrice = async () => {
+    try {
+      const response = await fetch('/api/crypto/price/bnb-usd');
+      const data = await response.json();
+      
+      if (data.success && data.data) {
+        setBnbPrice(data.data.price);
+        console.log(`✅ Live BNB price loaded: $${data.data.price}`);
+      }
+    } catch (err) {
+      console.warn('⚠️ Failed to load BNB price, using fallback: $600', err);
+    } finally {
+      setPriceLoading(false);
+    }
+  };
 
   const checkInvestorProfile = async () => {
     if (!account) {
@@ -64,7 +83,7 @@ export default function PropertyInvestmentModal({ property, onClose, onSuccess }
   const calculateShares = () => {
     const amount = parseFloat(investmentAmount);
     const pricePerShare = parseFloat(formatEther(property.pricePerShare));
-    const bnbPrice = 600; // Approximate BNB price in USD
+    // Use live BNB price from API
     
     if (paymentMethod === 'stripe') {
       // For Stripe: USD amount / (BNB price * pricePerShare in BNB)
@@ -90,7 +109,7 @@ export default function PropertyInvestmentModal({ property, onClose, onSuccess }
       }
 
       const usdAmount = parseFloat(investmentAmount);
-      const bnbAmount = usdAmount / 600; // Convert USD to BNB equivalent for consistent storage
+      const bnbAmount = usdAmount / bnbPrice; // Convert USD to BNB using live price
 
       // Step 1: Create payment intent
       const paymentResponse = await fetch('/api/investor/invest/create-payment', {
@@ -155,7 +174,7 @@ export default function PropertyInvestmentModal({ property, onClose, onSuccess }
         return;
       }
 
-      const bnbAmount = parseFloat(investmentAmount) / 600; // Convert USD to BNB
+      const bnbAmount = parseFloat(investmentAmount) / bnbPrice; // Convert USD to BNB using live price
       
       const response = await fetch('/api/real-estate-investor/tx/invest', {
         method: 'POST',

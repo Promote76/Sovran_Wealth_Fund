@@ -113,6 +113,32 @@ class RealEstateInvestorService {
     }
   }
 
+  /**
+   * Get available shares for a property from the smart contract
+   */
+  async getAvailableShares(propertyId) {
+    try {
+      const contract = this.contractProvider.getContract('RealEstateInvestor');
+      const prop = await contract.properties(propertyId);
+      
+      const totalShares = Number(prop.totalShares);
+      const sharesIssued = Number(prop.sharesIssued);
+      const availableShares = totalShares - sharesIssued;
+      
+      return {
+        totalShares,
+        sharesIssued,
+        availableShares,
+        pricePerShare: this.contractProvider.formatEther(prop.pricePerShare),
+        isFunded: prop.isFunded,
+        isActive: prop.isActive
+      };
+    } catch (error) {
+      console.error('❌ getAvailableShares error:', error);
+      throw new Error(`Failed to query property ${propertyId} from contract`);
+    }
+  }
+
   async buildInvestTx(walletAddress, propertyId, amount) {
     try {
       const value = this.contractProvider.parseEther(amount.toString());

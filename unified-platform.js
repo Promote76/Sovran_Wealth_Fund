@@ -8,6 +8,10 @@ const rateLimit = require('express-rate-limit');
 const compression = require('compression');
 require('dotenv').config();
 
+// Price Oracle Service for real-time crypto pricing
+const PriceOracleService = require('./server/services/priceOracleService');
+const priceOracle = new PriceOracleService();
+
 // Database imports - WebSocket mode for transaction support
 const { drizzle } = require('drizzle-orm/neon-serverless');
 const { Pool, neonConfig } = require('@neondatabase/serverless');
@@ -3779,6 +3783,37 @@ app.post('/api/investor/stripe-payment', async (req, res) => {
 });
 
 // Complete investment order payment
+// Get real-time BNB/USD price
+app.get('/api/crypto/price/bnb-usd', async (req, res) => {
+  try {
+    const price = await priceOracle.getBNBPrice();
+    
+    res.json({
+      success: true,
+      data: {
+        price: price,
+        currency: 'USD',
+        timestamp: new Date().toISOString(),
+        cached: priceOracle.cache['BNB_USD'] ? true : false
+      }
+    });
+  } catch (error) {
+    console.error('❌ Failed to fetch BNB price:', error);
+    
+    // Return fallback price on error
+    res.json({
+      success: true,
+      data: {
+        price: 600,
+        currency: 'USD',
+        timestamp: new Date().toISOString(),
+        cached: false,
+        fallback: true
+      }
+    });
+  }
+});
+
 app.post('/api/investor/invest/complete-payment', async (req, res) => {
   try {
     const { orderId, paymentIntentId, transactionHash } = req.body;
@@ -3940,16 +3975,45 @@ app.post('/api/investor/invest/complete', async (req, res) => {
       });
     }
 
-    // Validate available shares (prevent oversubscription)
-    // Note: This is a simplified check. In production with the RealEstateInvestor contract,
-    // you would query the contract for sharesIssued to get the authoritative count.
-    // For now, we check against a reasonable limit.
-    const maxSharesPerInvestment = 10000; // Reasonable limit
-    if (shares > maxSharesPerInvestment) {
-      return res.status(400).json({
-        success: false,
-        error: `Maximum ${maxSharesPerInvestment} shares per investment`
-      });
+    // Validate available shares (prevent oversubscription) - Query smart contract
+    try {
+      const realEstateService = require('./server/services/realEstateInvestorService');
+      const service = new realEstateService();
+      const shareInfo = await service.getAvailableShares(propertyId);
+      
+      if (!shareInfo.isActive) {
+        return res.status(400).json({
+          success: false,
+          error: 'Property is not active for investment'
+        });
+      }
+      
+      if (shareInfo.isFunded) {
+        return res.status(400).json({
+          success: false,
+          error: 'Property is already fully funded'
+        });
+      }
+      
+      if (shares > shareInfo.availableShares) {
+        return res.status(400).json({
+          success: false,
+          error: `Only ${shareInfo.availableShares} shares available (requested: ${shares})`
+        });
+      }
+      
+      console.log(`✅ Share validation passed: ${shares} of ${shareInfo.availableShares} available`);
+    } catch (contractError) {
+      console.error('⚠️ Contract validation failed, using fallback validation:', contractError.message);
+      
+      // Fallback validation if contract query fails
+      const maxSharesPerInvestment = 10000;
+      if (shares > maxSharesPerInvestment) {
+        return res.status(400).json({
+          success: false,
+          error: `Maximum ${maxSharesPerInvestment} shares per investment`
+        });
+      }
     }
 
     // Calculate price per share safely

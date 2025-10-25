@@ -105,6 +105,22 @@ router.get('/stats', async (req, res) => {
   }
 });
 
+// Get available shares for a property (from smart contract)
+router.get('/properties/:propertyId/available-shares', async (req, res) => {
+  try {
+    const { propertyId } = req.params;
+    const shareInfo = await realEstateInvestorService.getAvailableShares(propertyId);
+    
+    res.json({
+      success: true,
+      data: shareInfo
+    });
+  } catch (error) {
+    console.error('❌ Get available shares error:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
 // ==== PROPERTY SUBMISSION ROUTES ====
 
 // Submit a new property
