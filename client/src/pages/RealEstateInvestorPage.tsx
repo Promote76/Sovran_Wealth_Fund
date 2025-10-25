@@ -114,28 +114,14 @@ export default function RealEstateInvestorPage() {
         
         {/* Header */}
         <div className="bg-gradient-to-r from-green-600 to-green-700 rounded-xl shadow-lg p-8 text-white">
-          <div className="flex justify-between items-start">
+          <div className="flex justify-between items-center">
             <div>
               <h1 className="text-4xl font-bold mb-2">🏢 Real Estate Investor</h1>
               <p className="text-green-100 text-lg">
                 Invest in fractional real estate - Earn from rent, appreciation & exits
               </p>
             </div>
-            <div className="flex flex-col items-end space-y-2">
-              <div className="flex gap-2">
-                <Button
-                  onClick={() => navigate('/investor-register')}
-                  className="bg-blue-500 hover:bg-blue-600 text-white font-bold shadow-lg border-2 border-blue-400"
-                >
-                  🚀 Become an Investor
-                </Button>
-                <Button
-                  onClick={() => navigate('/real-estate-investor/submit')}
-                  className="bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-bold shadow-lg border-2 border-yellow-400"
-                >
-                  📤 Submit Property
-                </Button>
-              </div>
+            <div>
               {isConnected ? (
                 <div className="bg-white/10 backdrop-blur-sm rounded-lg px-4 py-2 border border-white/20">
                   <div className="text-xs text-green-100 mb-1">Connected</div>
@@ -373,6 +359,24 @@ export default function RealEstateInvestorPage() {
                     )}
                   </div>
                 ))}
+
+                {/* Submit Property Card - Strategic Placement */}
+                <div className="bg-gradient-to-br from-yellow-50 to-orange-50 border-2 border-yellow-300 rounded-lg p-5 hover:shadow-lg transition-shadow flex flex-col justify-center items-center min-h-[400px]">
+                  <div className="text-6xl mb-4">🏗️</div>
+                  <h3 className="text-2xl font-bold text-gray-900 mb-3 text-center">Own a Property?</h3>
+                  <p className="text-gray-700 text-center mb-6 max-w-sm">
+                    List your property for fractional investment and get funded faster. Reach investors worldwide!
+                  </p>
+                  <Button
+                    onClick={() => navigate('/real-estate-investor/submit')}
+                    className="bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-bold shadow-lg border-2 border-yellow-400 px-8 py-6 text-lg"
+                  >
+                    📤 Submit Your Property
+                  </Button>
+                  <div className="mt-4 text-sm text-gray-600 text-center">
+                    Fast approval • Low fees • Global reach
+                  </div>
+                </div>
               </div>
             )}
           </CardContent>
@@ -445,6 +449,23 @@ export default function RealEstateInvestorPage() {
                 <li>✅ <strong>Low Entry Barrier:</strong> Start with just $30 (0.05 BNB)</li>
                 <li>✅ <strong>Diversification:</strong> Invest in multiple properties to spread risk</li>
               </ul>
+            </div>
+
+            {/* Call-to-Action - Become an Investor */}
+            <div className="mt-6 bg-gradient-to-r from-blue-500 to-blue-600 p-8 rounded-lg text-white text-center">
+              <h3 className="text-2xl font-bold mb-3">Ready to Start Building Wealth?</h3>
+              <p className="text-blue-100 mb-6 text-lg">
+                Register as an investor today and get access to exclusive real estate opportunities starting at just $30!
+              </p>
+              <Button
+                onClick={() => navigate('/investor-register')}
+                className="bg-white hover:bg-blue-50 text-blue-600 font-bold shadow-xl border-2 border-blue-200 px-10 py-6 text-lg"
+              >
+                🚀 Become an Investor Now
+              </Button>
+              <div className="mt-4 text-sm text-blue-100">
+                Free registration • No hidden fees • Cancel anytime
+              </div>
             </div>
           </CardContent>
         </Card>
