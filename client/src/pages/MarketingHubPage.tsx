@@ -463,25 +463,24 @@ const MarketingHubPage: React.FC<MarketingHubPageProps> = ({ standalone = true }
             </div>
           </div>
 
-          <div className="mt-12 bg-blue-50 rounded-lg p-8">
-            <h3 className="text-2xl font-bold text-gray-900 mb-4">
-              About Marketing Hub
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-gray-700">
-              <div>
-                <h4 className="font-semibold mb-2">Script Library</h4>
-                <p>
-                  Access professionally written video marketing scripts for all major AXIOM features.
-                  Each script includes voiceover dialogue, visual direction, production notes, and timing.
-                </p>
-              </div>
-              <div>
-                <h4 className="font-semibold mb-2">AI Generator</h4>
-                <p>
-                  Create custom marketing scripts instantly using AI. Choose a template, specify your
-                  requirements, and get a professional script tailored to your needs in seconds.
-                </p>
-              </div>
+        <div className="mt-12 bg-blue-50 rounded-lg p-8">
+          <h3 className="text-2xl font-bold text-gray-900 mb-4">
+            About Marketing Hub
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-gray-700">
+            <div>
+              <h4 className="font-semibold mb-2">Script Library</h4>
+              <p>
+                Access professionally written video marketing scripts for all major AXIOM features.
+                Each script includes voiceover dialogue, visual direction, production notes, and timing.
+              </p>
+            </div>
+            <div>
+              <h4 className="font-semibold mb-2">AI Generator</h4>
+              <p>
+                Create custom marketing scripts instantly using AI. Choose a template, specify your
+                requirements, and get a professional script tailored to your needs in seconds.
+              </p>
             </div>
           </div>
         </div>
