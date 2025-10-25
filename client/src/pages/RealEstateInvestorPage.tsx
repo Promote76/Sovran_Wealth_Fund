@@ -271,11 +271,27 @@ export default function RealEstateInvestorPage() {
 
         {/* Available Properties */}
         <Card className="border-2 border-green-200">
-          <CardContent className="p-6">
-            <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
-              <span className="text-3xl">🏠</span>
-              Available Investment Properties
-            </h2>
+          <CardContent className="p-4 md:p-6">
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-6">
+              <h2 className="text-xl md:text-2xl font-bold text-gray-900 flex items-center gap-2">
+                <span className="text-2xl md:text-3xl">🏠</span>
+                Available Properties
+              </h2>
+              <div className="flex gap-2">
+                <Button
+                  onClick={() => navigate('/investor-register')}
+                  className="bg-blue-500 hover:bg-blue-600 text-white font-semibold px-3 py-2 text-xs md:text-sm"
+                >
+                  🚀 Register
+                </Button>
+                <Button
+                  onClick={() => navigate('/real-estate-investor/submit')}
+                  className="bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-semibold px-3 py-2 text-xs md:text-sm"
+                >
+                  📤 Submit
+                </Button>
+              </div>
+            </div>
 
             {loading ? (
               <div className="text-center py-12 text-gray-500">
@@ -360,21 +376,21 @@ export default function RealEstateInvestorPage() {
                   </div>
                 ))}
 
-                {/* Submit Property Card - Strategic Placement */}
-                <div className="bg-gradient-to-br from-yellow-50 to-orange-50 border-2 border-yellow-300 rounded-lg p-5 hover:shadow-lg transition-shadow flex flex-col justify-center items-center min-h-[400px]">
-                  <div className="text-6xl mb-4">🏗️</div>
-                  <h3 className="text-2xl font-bold text-gray-900 mb-3 text-center">Own a Property?</h3>
-                  <p className="text-gray-700 text-center mb-6 max-w-sm">
-                    List your property for fractional investment and get funded faster. Reach investors worldwide!
+                {/* Submit Property Card - Mobile Friendly */}
+                <div className="bg-gradient-to-br from-yellow-50 to-orange-50 border-2 border-yellow-300 rounded-lg p-4 md:p-5 hover:shadow-lg transition-shadow flex flex-col justify-center items-center min-h-[300px] md:min-h-[400px]">
+                  <div className="text-4xl md:text-6xl mb-3 md:mb-4">🏗️</div>
+                  <h3 className="text-lg md:text-2xl font-bold text-gray-900 mb-2 md:mb-3 text-center">Own a Property?</h3>
+                  <p className="text-sm md:text-base text-gray-700 text-center mb-4 md:mb-6 max-w-sm px-2">
+                    List your property for fractional investment and get funded faster.
                   </p>
                   <Button
                     onClick={() => navigate('/real-estate-investor/submit')}
-                    className="bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-bold shadow-lg border-2 border-yellow-400 px-8 py-6 text-lg"
+                    className="bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-bold shadow-lg border-2 border-yellow-400 px-4 py-2 md:px-6 md:py-3 text-sm md:text-base w-full md:w-auto"
                   >
-                    📤 Submit Your Property
+                    📤 Submit Property
                   </Button>
-                  <div className="mt-4 text-sm text-gray-600 text-center">
-                    Fast approval • Low fees • Global reach
+                  <div className="mt-3 md:mt-4 text-xs md:text-sm text-gray-600 text-center">
+                    Fast approval • Low fees
                   </div>
                 </div>
               </div>
@@ -451,20 +467,20 @@ export default function RealEstateInvestorPage() {
               </ul>
             </div>
 
-            {/* Call-to-Action - Become an Investor */}
-            <div className="mt-6 bg-gradient-to-r from-blue-500 to-blue-600 p-8 rounded-lg text-white text-center">
-              <h3 className="text-2xl font-bold mb-3">Ready to Start Building Wealth?</h3>
-              <p className="text-blue-100 mb-6 text-lg">
-                Register as an investor today and get access to exclusive real estate opportunities starting at just $30!
+            {/* Call-to-Action - Become an Investor - Mobile Friendly */}
+            <div className="mt-6 bg-gradient-to-r from-blue-500 to-blue-600 p-4 md:p-8 rounded-lg text-white text-center">
+              <h3 className="text-lg md:text-2xl font-bold mb-2 md:mb-3">Ready to Start Building Wealth?</h3>
+              <p className="text-blue-100 mb-4 md:mb-6 text-sm md:text-lg px-2">
+                Register as an investor and get access to exclusive opportunities starting at just $30!
               </p>
               <Button
                 onClick={() => navigate('/investor-register')}
-                className="bg-white hover:bg-blue-50 text-blue-600 font-bold shadow-xl border-2 border-blue-200 px-10 py-6 text-lg"
+                className="bg-white hover:bg-blue-50 text-blue-600 font-bold shadow-xl border-2 border-blue-200 px-6 py-3 md:px-8 md:py-4 text-sm md:text-base w-full md:w-auto"
               >
-                🚀 Become an Investor Now
+                🚀 Become an Investor
               </Button>
-              <div className="mt-4 text-sm text-blue-100">
-                Free registration • No hidden fees • Cancel anytime
+              <div className="mt-3 md:mt-4 text-xs md:text-sm text-blue-100">
+                Free registration • No fees
               </div>
             </div>
           </CardContent>
