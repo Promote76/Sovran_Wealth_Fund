@@ -803,7 +803,8 @@ const Layout: React.FC<LayoutProps> = ({
           <div className="flex justify-center items-center space-x-6 mb-4 flex-wrap gap-y-2">
             <Link to="/dashboard" className="text-sm hover:text-blue-800 transition-colors font-medium">Dashboard</Link>
             <Link to="/learn-how-it-works" className="text-sm hover:text-blue-800 transition-colors font-medium">Learn How It Works</Link>
-            <Link to="/admin" className="text-sm hover:text-blue-800 transition-colors font-medium">Admin</Link>
+            <Link to="/admin" className="text-sm hover:text-blue-800 transition-colors font-medium">🔒 Admin</Link>
+            <Link to="/admin/unified-registration" className="text-sm hover:text-blue-800 transition-colors font-medium">🔒 Registration Admin</Link>
             <Link to="/status" className="text-sm hover:text-blue-800 transition-colors font-medium">Status</Link>
           </div>
           <div className="text-center">
