@@ -77,6 +77,7 @@ import DownloadLogsPage from './pages/DownloadLogsPage';
 import { KYCVerificationPage } from './components/kyc';
 import UserGuidePage from './pages/UserGuidePage';
 import StatusPage from './pages/StatusPage';
+import UnifiedRegistrationPage from './pages/UnifiedRegistrationPage';
 
 // Legacy component for KeyGrow integration
 function KeyGrowPage() {
@@ -431,6 +432,7 @@ function App() {
                     <ErrorBoundary level="section">
                       <Routes>
                         {/* Special routes WITHOUT Layout */}
+                        <Route path="/register" element={<UnifiedRegistrationPage />} />
                         <Route path="/onboarding" element={<OnboardingFlow />} />
                         <Route path="/keygrow" element={<KeyGrowDashboardPage />} />
                         <Route path="/circles" element={<CirclesHub />} />

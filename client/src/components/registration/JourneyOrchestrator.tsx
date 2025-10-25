@@ -2,6 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { StepWizard } from '../shared/StepWizard';
 import { RegistrationJourneyState, RegistrationStep, ProgramType } from '../../types/registration';
 import { useSecureAuth } from '../../hooks/useSecureAuth';
+import { useRegistration } from '../../contexts/RegistrationContext';
+import { PersonalProfileStep } from './PersonalProfileStep';
+import { FinancialProfileStep } from './FinancialProfileStep';
+import { RiskProfileStep } from './RiskProfileStep';
+import { ProgramSelectionStep } from './ProgramSelectionStep';
 
 interface JourneyOrchestratorProps {
   onComplete?: () => void;
@@ -46,119 +51,42 @@ export function JourneyOrchestrator({
   initialStep = 'account_creation'
 }: JourneyOrchestratorProps) {
   const { user, isAuthenticated } = useSecureAuth();
+  const {
+    journey,
+    loading: contextLoading,
+    error: contextError,
+    loadJourney,
+    updatePersonalProfile,
+    updateFinancialProfile,
+    updateRiskProfile,
+    enrollInProgram
+  } = useRegistration();
+  
   const [currentStepIndex, setCurrentStepIndex] = useState(1);
-  const [journeyState, setJourneyState] = useState<RegistrationJourneyState>({
-    currentStep: initialStep,
-    completedSteps: [],
-    hasPersonalProfile: false,
-    hasFinancialProfile: false,
-    hasRiskProfile: false,
-    hasKycVerification: false
-  });
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (isAuthenticated) {
-      loadJourneyState();
+      loadJourney();
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated, loadJourney]);
 
-  const loadJourneyState = async () => {
-    try {
-      const response = await fetch('/api/registration/journey', {
-        credentials: 'include'
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        if (data.journey) {
-          setJourneyState(data.journey);
-          const stepIndex = JOURNEY_STEPS.findIndex(
-            s => s.id === data.journey.currentStep
-          );
-          setCurrentStepIndex(stepIndex + 1);
-        }
-      }
-    } catch (err) {
-      console.error('Failed to load journey state:', err);
-    }
-  };
-
-  const saveJourneyState = async (updates: Partial<RegistrationJourneyState>) => {
-    setLoading(true);
-    setError(null);
-
-    try {
-      const response = await fetch('/api/registration/journey', {
-        method: 'POST',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(updates)
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        setJourneyState(prev => ({ ...prev, ...data.journey }));
-        return true;
-      } else {
-        const data = await response.json();
-        setError(data.error || 'Failed to save progress');
-        return false;
-      }
-    } catch (err) {
-      console.error('Failed to save journey state:', err);
-      setError('Network error');
-      return false;
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const completeStep = async (step: RegistrationStep, data?: any) => {
-    const completedSteps = [...journeyState.completedSteps];
-    if (!completedSteps.includes(step)) {
-      completedSteps.push(step);
-    }
-
-    const updates: Partial<RegistrationJourneyState> = {
-      completedSteps,
-      currentStep: getNextStep(step)
-    };
-
-    if (step === 'personal_profile' && data) {
-      updates.personalProfile = data;
-      updates.hasPersonalProfile = true;
-    } else if (step === 'financial_profile' && data) {
-      updates.financialProfile = data;
-      updates.hasFinancialProfile = true;
-    } else if (step === 'risk_profile' && data) {
-      updates.riskProfile = data;
-      updates.hasRiskProfile = true;
-    }
-
-    const success = await saveJourneyState(updates);
-    if (success) {
-      const nextStepIndex = JOURNEY_STEPS.findIndex(
-        s => s.id === updates.currentStep
+  useEffect(() => {
+    if (journey) {
+      const stepIndex = JOURNEY_STEPS.findIndex(
+        s => s.id === journey.currentStep
       );
-      setCurrentStepIndex(nextStepIndex + 1);
+      if (stepIndex >= 0) {
+        setCurrentStepIndex(stepIndex + 1);
+      }
     }
+  }, [journey]);
 
-    return success;
-  };
-
-  const getNextStep = (current: RegistrationStep): RegistrationStep => {
-    const stepOrder: RegistrationStep[] = [
-      'account_creation',
-      'personal_profile',
-      'financial_profile',
-      'risk_profile',
-      'program_selection'
-    ];
-
-    const currentIndex = stepOrder.indexOf(current);
-    return stepOrder[currentIndex + 1] || current;
+  const handleProgramSelection = async (programType: ProgramType) => {
+    const success = await enrollInProgram(programType);
+    if (success && onComplete) {
+      onComplete();
+    }
   };
 
   const handleNext = async () => {
@@ -179,60 +107,82 @@ export function JourneyOrchestrator({
   const renderStepContent = () => {
     const step = JOURNEY_STEPS[currentStepIndex - 1];
 
+    if (!journey) {
+      return (
+        <div className="text-center py-12">
+          <div className="animate-spin text-4xl mb-4">⏳</div>
+          <p className="text-gray-600">Loading your journey...</p>
+        </div>
+      );
+    }
+
     switch (step.id) {
       case 'account_creation':
         return (
           <div className="text-center py-12">
-            <div className="text-6xl mb-4">👤</div>
-            <h2 className="text-2xl font-bold mb-4">Account Creation Step</h2>
+            <div className="text-6xl mb-4">✓</div>
+            <h2 className="text-2xl font-bold mb-4 text-green-600">Account Created!</h2>
+            <p className="text-gray-600 mb-6">
+              You're logged in as <strong>{user?.email}</strong>
+            </p>
             <p className="text-gray-600">
-              This step will integrate with the secure auth system
+              Let's set up your profile to personalize your AXIOM experience.
             </p>
           </div>
         );
 
       case 'personal_profile':
         return (
-          <div className="text-center py-12">
-            <div className="text-6xl mb-4">📝</div>
-            <h2 className="text-2xl font-bold mb-4">Personal Profile Step</h2>
-            <p className="text-gray-600">
-              Collect shared personal information
-            </p>
-          </div>
+          <PersonalProfileStep
+            initialData={journey.personalProfile}
+            onSubmit={async (data) => {
+              const success = await updatePersonalProfile(data);
+              if (success) {
+                await loadJourney();
+              }
+              return success;
+            }}
+            onBack={() => setCurrentStepIndex(prev => Math.max(1, prev - 1))}
+          />
         );
 
       case 'financial_profile':
         return (
-          <div className="text-center py-12">
-            <div className="text-6xl mb-4">💰</div>
-            <h2 className="text-2xl font-bold mb-4">Financial Profile Step</h2>
-            <p className="text-gray-600">
-              Collect shared financial information
-            </p>
-          </div>
+          <FinancialProfileStep
+            initialData={journey.financialProfile}
+            onSubmit={async (data) => {
+              const success = await updateFinancialProfile(data);
+              if (success) {
+                await loadJourney();
+              }
+              return success;
+            }}
+            onBack={() => setCurrentStepIndex(prev => Math.max(1, prev - 1))}
+          />
         );
 
       case 'risk_profile':
         return (
-          <div className="text-center py-12">
-            <div className="text-6xl mb-4">📊</div>
-            <h2 className="text-2xl font-bold mb-4">Risk Profile Step</h2>
-            <p className="text-gray-600">
-              Assess investment risk tolerance
-            </p>
-          </div>
+          <RiskProfileStep
+            initialData={journey.riskProfile}
+            onSubmit={async (data) => {
+              const success = await updateRiskProfile(data);
+              if (success) {
+                await loadJourney();
+              }
+              return success;
+            }}
+            onBack={() => setCurrentStepIndex(prev => Math.max(1, prev - 1))}
+          />
         );
 
       case 'program_selection':
         return (
-          <div className="text-center py-12">
-            <div className="text-6xl mb-4">🎯</div>
-            <h2 className="text-2xl font-bold mb-4">Program Selection Step</h2>
-            <p className="text-gray-600">
-              Choose which programs to enroll in
-            </p>
-          </div>
+          <ProgramSelectionStep
+            journeyState={journey}
+            onSelectProgram={handleProgramSelection}
+            onBack={() => setCurrentStepIndex(prev => Math.max(1, prev - 1))}
+          />
         );
 
       default:
@@ -260,14 +210,14 @@ export function JourneyOrchestrator({
         onNext={handleNext}
         onPrevious={handlePrevious}
         onComplete={onComplete}
-        isLoading={loading}
+        isLoading={contextLoading}
         title="Welcome to AXIOM"
         subtitle="Let's set up your account and get you started"
         showProgress={true}
       >
-        {error && (
+        {(error || contextError) && (
           <div className="mb-6 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
-            ⚠️ {error}
+            ⚠️ {error || contextError}
           </div>
         )}
 
