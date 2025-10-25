@@ -70,6 +70,7 @@ const MarketingHubPage: React.FC<MarketingHubPageProps> = ({ standalone = true }
     includeHashtags: true,
     includeEmojis: true,
     callToAction: '',
+    customInstructions: '',
     length: 'optimal'
   });
   const [generatedPost, setGeneratedPost] = useState<string>('');
@@ -616,6 +617,25 @@ const MarketingHubPage: React.FC<MarketingHubPageProps> = ({ standalone = true }
                             required
                             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                           />
+                        </div>
+
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            <span className="flex items-center gap-2">
+                              <span>✨ Custom Instructions & Details</span>
+                              <span className="text-xs text-blue-600 font-normal">(Recommended for best results)</span>
+                            </span>
+                          </label>
+                          <textarea
+                            value={socialFormData.customInstructions}
+                            onChange={(e) => setSocialFormData({ ...socialFormData, customInstructions: e.target.value })}
+                            placeholder="Provide specific instructions, key details, or context for the AI. Examples:&#10;• Highlight our 20% revenue allocation to KeyGrow&#10;• Mention $30 minimum investment for Real Estate Investor&#10;• Focus on security and transparency&#10;• Include statistics or specific numbers&#10;• Target audience: first-time crypto investors&#10;• Emphasize low entry barriers and passive income"
+                            rows={6}
+                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm font-mono"
+                          />
+                          <p className="text-xs text-gray-500 mt-2">
+                            💡 Pro tip: Be specific! The more detailed your instructions, the better and more comprehensive the AI-generated post will be.
+                          </p>
                         </div>
 
                         <div>

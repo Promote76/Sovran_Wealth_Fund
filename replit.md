@@ -19,6 +19,10 @@ Preferred communication style: Simple, everyday language.
     - Analyzes entire platform (contracts, components, pages) using recursive directory scanning
     - Supports 5 platforms: Twitter/X, LinkedIn, Facebook, Instagram, Telegram
     - Platform-specific formatting (character limits, style guides, hashtag/emoji preferences)
+    - **Custom Instructions Field**: Large textarea for detailed AI direction with comprehensive input options
+      - Allows users to specify exact details, statistics, target audience, and specific messaging
+      - Priority field in AI prompt for maximum control over generated content
+      - Supports multi-line detailed instructions for comprehensive, tailored responses
     - 5-minute response caching for performance optimization
     - Feature-specific posts for KeyGrow, Real Estate Investor, Staking, etc.
   - **Platform Analysis API**: `/api/marketing-scripts/platform-analysis` with recursive file scanning

@@ -494,6 +494,7 @@ router.post('/social-media', async (req, res) => {
       includeHashtags,
       includeEmojis,
       callToAction,
+      customInstructions,
       length
     } = req.body;
     
@@ -594,6 +595,10 @@ Requirements:
 - Include Hashtags: ${includeHashtags !== false ? 'Yes' : 'No'}
 - Include Emojis: ${includeEmojis !== false ? 'Yes' : 'No'}
 - Call to Action: ${callToAction || 'Visit AXIOM and connect your wallet'}
+
+${customInstructions ? `\n🎯 CUSTOM INSTRUCTIONS & SPECIFIC DETAILS (PRIORITY - Follow these closely):
+${customInstructions}
+\nMake sure to incorporate all the above custom instructions and details into the post. These are the user's specific requirements and should take priority in the content creation.\n` : ''}
 
 Guidelines:
 1. Hook readers in the first line
