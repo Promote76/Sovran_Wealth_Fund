@@ -258,4 +258,340 @@ router.post('/save', async (req, res) => {
   }
 });
 
+// Analyze the entire platform (contracts, components, pages)
+router.get('/platform-analysis', async (req, res) => {
+  try {
+    const analysis = {
+      contracts: [],
+      components: [],
+      pages: [],
+      features: []
+    };
+
+    // Scan contracts directory
+    const contractsDir = path.join(process.cwd(), 'contracts');
+    try {
+      const contractFiles = await fs.readdir(contractsDir);
+      for (const file of contractFiles.filter(f => f.endsWith('.sol'))) {
+        const content = await fs.readFile(path.join(contractsDir, file), 'utf-8');
+        const contractName = file.replace('.sol', '');
+        
+        // Extract basic info
+        const comments = content.match(/\/\*\*([\s\S]*?)\*\//);
+        const description = comments ? comments[1].trim() : '';
+        
+        analysis.contracts.push({
+          name: contractName,
+          file: file,
+          description: description.substring(0, 200)
+        });
+      }
+    } catch (e) {
+      console.log('No contracts directory or error reading contracts');
+    }
+
+    // Scan React components
+    const componentsDir = path.join(process.cwd(), 'client', 'src', 'components');
+    try {
+      const componentFiles = await fs.readdir(componentsDir);
+      for (const file of componentFiles.filter(f => f.endsWith('.tsx') || f.endsWith('.jsx'))) {
+        const componentName = file.replace(/\.(tsx|jsx)$/, '');
+        analysis.components.push({
+          name: componentName,
+          file: file,
+          type: 'React Component'
+        });
+      }
+    } catch (e) {
+      console.log('Error reading components');
+    }
+
+    // Scan React pages
+    const pagesDir = path.join(process.cwd(), 'client', 'src', 'pages');
+    try {
+      const pageFiles = await fs.readdir(pagesDir);
+      for (const file of pageFiles.filter(f => f.endsWith('.tsx') || f.endsWith('.jsx'))) {
+        const pageName = file.replace(/Page\.(tsx|jsx)$/, '').replace(/\.(tsx|jsx)$/, '');
+        analysis.pages.push({
+          name: pageName,
+          file: file,
+          type: 'Page'
+        });
+      }
+    } catch (e) {
+      console.log('Error reading pages');
+    }
+
+    // Add known features
+    analysis.features = [
+      {
+        name: 'KeyGrow Rent-to-Own',
+        description: '20% of platform revenue allocated to help renters become homeowners',
+        contract: 'KeyGrowRentToOwn.sol',
+        benefits: ['Down payment assistance', 'Tiered allocations', 'Time-weighted multipliers']
+      },
+      {
+        name: 'Real Estate Investor',
+        description: 'Fractional property investment starting at $30/share',
+        contract: 'RealEstateInvestor.sol',
+        benefits: ['Low barrier to entry', 'Rental income distribution', 'Property appreciation tracking', 'Dual payment options (Stripe/BNB)']
+      },
+      {
+        name: 'AXM Token Staking',
+        description: 'Proof of Contribution staking with dynamic APR rewards',
+        contract: 'AdvancedStaking.sol',
+        benefits: ['Dynamic APR adjustments', 'NFT staking support', 'Energy-based rewards']
+      },
+      {
+        name: 'Liquidity Provision',
+        description: 'Multi-vault system for LP token staking',
+        contract: 'VaultFactory.sol',
+        benefits: ['Isolated vaults per LP pair', 'Configurable reward rates', 'Flexible lock periods']
+      },
+      {
+        name: 'Axiom Council Governance',
+        description: 'Decentralized governance with quadratic voting',
+        contract: 'AxiomCouncil.sol',
+        benefits: ['Community-driven decisions', 'Quadratic voting system', 'Transparent proposal process']
+      },
+      {
+        name: 'Unified Registration',
+        description: 'Progressive onboarding with tiered KYC',
+        benefits: ['5-step registration flow', 'Light & Full KYC tiers', 'Secure session management', 'Admin dashboard']
+      }
+    ];
+
+    res.json({
+      success: true,
+      analysis,
+      summary: {
+        totalContracts: analysis.contracts.length,
+        totalComponents: analysis.components.length,
+        totalPages: analysis.pages.length,
+        totalFeatures: analysis.features.length
+      }
+    });
+  } catch (error) {
+    console.error('Error analyzing platform:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to analyze platform'
+    });
+  }
+});
+
+// Social media post templates
+const SOCIAL_PLATFORMS = {
+  twitter: {
+    name: 'Twitter/X',
+    maxLength: 280,
+    style: 'Concise, engaging, hashtag-friendly',
+    format: 'Short punchy statements with emojis and hashtags'
+  },
+  linkedin: {
+    name: 'LinkedIn',
+    maxLength: 3000,
+    style: 'Professional, informative, thought-leadership',
+    format: 'Professional narrative with industry insights'
+  },
+  facebook: {
+    name: 'Facebook',
+    maxLength: 63206,
+    style: 'Conversational, community-focused',
+    format: 'Engaging story with call-to-action'
+  },
+  instagram: {
+    name: 'Instagram',
+    maxLength: 2200,
+    style: 'Visual-first, lifestyle-oriented',
+    format: 'Caption with emojis, line breaks, hashtags at end'
+  },
+  telegram: {
+    name: 'Telegram',
+    maxLength: 4096,
+    style: 'Community-focused, crypto-native',
+    format: 'Informative with links and emojis'
+  }
+};
+
+// Generate social media post
+router.post('/social-media', async (req, res) => {
+  try {
+    const { 
+      platform, 
+      topic, 
+      feature,
+      tone,
+      includeHashtags,
+      includeEmojis,
+      callToAction,
+      length
+    } = req.body;
+    
+    if (!platform || !topic) {
+      return res.status(400).json({
+        success: false,
+        error: 'Platform and topic are required'
+      });
+    }
+    
+    const platformInfo = SOCIAL_PLATFORMS[platform];
+    if (!platformInfo) {
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid platform'
+      });
+    }
+
+    // Build comprehensive platform context
+    const platformContext = `AXIOM DeFi Platform - Complete Overview:
+
+CORE MISSION: Create a lawful digital economy through sovereign wealth building
+
+KEY PROGRAMS:
+1. KeyGrow Rent-to-Own
+   - 20% of platform revenue → Real Estate Acquisition Fund
+   - Helps renters transition to homeownership
+   - Tiered allocations based on contribution and time
+
+2. Real Estate Investor Platform
+   - Fractional property investment from $30/share
+   - Dual payment options: Stripe (credit card) OR BNB (crypto)
+   - Automated rental income distribution
+   - Real-time property appreciation tracking
+   - Professional property management
+
+3. AXM Token Staking
+   - Proof of Contribution (PoC) rewards
+   - Dynamic APR adjustments
+   - NFT staking support
+   - Energy-based circulation mechanics
+
+4. Liquidity Provision
+   - Multi-vault staking system
+   - Configurable reward rates
+   - Support for various LP token pairs
+
+5. Governance System
+   - Axiom Council with quadratic voting
+   - Community-driven decision making
+   - Transparent proposal process
+
+6. Unified Progressive Registration
+   - 5-step onboarding flow
+   - Tiered KYC (Light & Full)
+   - Comprehensive admin dashboard
+   - Educational content integration
+
+TECHNOLOGY STACK:
+- Blockchain: BSC & Polygon Mainnets
+- Smart Contracts: Solidity with OpenZeppelin
+- Frontend: React + TypeScript
+- Backend: Node.js + Express
+- Database: PostgreSQL with Drizzle ORM
+- Payments: Stripe + BNB integration
+- Security: Role-based access, session management
+
+UNIQUE VALUE PROPOSITIONS:
+- Real-world asset integration (real estate)
+- Multiple earning mechanisms
+- Low barrier to entry ($30 minimum)
+- Transparent revenue allocation
+- Community-first governance
+- Educational resources included
+
+TARGET AUDIENCE:
+- DeFi enthusiasts
+- First-time crypto investors
+- Renters aspiring to homeownership
+- Real estate investors
+- Passive income seekers`;
+
+    const prompt = `You are a social media expert creating content for AXIOM, an innovative DeFi platform.
+
+${platformContext}
+
+Create a ${platformInfo.name} post about: ${topic}
+${feature ? `Specific Feature: ${feature}` : ''}
+
+Platform Specs:
+- Max Length: ${platformInfo.maxLength} characters
+- Style: ${platformInfo.style}
+- Format: ${platformInfo.format}
+
+Requirements:
+- Tone: ${tone || 'Professional but approachable'}
+- Target Length: ${length || 'Optimal for platform'}
+- Include Hashtags: ${includeHashtags !== false ? 'Yes' : 'No'}
+- Include Emojis: ${includeEmojis !== false ? 'Yes' : 'No'}
+- Call to Action: ${callToAction || 'Visit AXIOM and connect your wallet'}
+
+Guidelines:
+1. Hook readers in the first line
+2. Focus on specific benefits and data ($30 minimum, 20% revenue allocation, etc.)
+3. Make it authentic - no hype, just real value
+4. Use platform-appropriate formatting
+5. Include relevant AXIOM features naturally
+6. End with clear call-to-action
+${platform === 'twitter' ? '7. Keep under 280 characters\n8. Use thread format if needed (mark as THREAD)' : ''}
+${platform === 'instagram' ? '7. Use line breaks for readability\n8. Put hashtags at the end' : ''}
+${platform === 'linkedin' ? '7. Start with a compelling question or statement\n8. Use professional insights' : ''}
+
+Create an engaging, conversion-focused post that showcases AXIOM's unique value.`;
+
+    const completion = await openai.chat.completions.create({
+      model: 'gpt-4o',
+      messages: [
+        {
+          role: 'system',
+          content: `You are an expert social media marketer specializing in DeFi and fintech content. You create posts that educate, engage, and convert while maintaining authenticity.`
+        },
+        {
+          role: 'user',
+          content: prompt
+        }
+      ],
+      temperature: 0.8,
+      max_tokens: 1000
+    });
+    
+    const post = completion.choices[0].message.content;
+    
+    res.json({
+      success: true,
+      post,
+      metadata: {
+        platform: platformInfo.name,
+        topic,
+        maxLength: platformInfo.maxLength,
+        actualLength: post.length,
+        generatedAt: new Date().toISOString()
+      }
+    });
+    
+  } catch (error) {
+    console.error('Error generating social media post:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to generate social media post',
+      details: error.message
+    });
+  }
+});
+
+// Get social media platforms info
+router.get('/social-platforms', async (req, res) => {
+  try {
+    res.json({
+      success: true,
+      platforms: SOCIAL_PLATFORMS
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch platforms'
+    });
+  }
+});
+
 module.exports = router;
