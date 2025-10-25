@@ -151,17 +151,37 @@ const MarketingHubPage: React.FC<MarketingHubPageProps> = ({ standalone = true }
     e.preventDefault();
     setGenerating(true);
     try {
-      const response = await fetch('/api/marketing-scripts/generate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData)
-      });
-      
-      const data = await response.json();
-      if (data.success) {
-        setGeneratedScript(data.script);
+      // Check if this is a valuation request
+      if (formData.template === 'valuation') {
+        const response = await fetch('/api/marketing-scripts/platform-valuation', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            customInstructions: formData.keyPoints || '',
+            focusAreas: formData.feature || ''
+          })
+        });
+        
+        const data = await response.json();
+        if (data.success) {
+          setGeneratedScript(data.valuation);
+        } else {
+          alert('Error generating valuation: ' + data.error);
+        }
       } else {
-        alert('Error generating script: ' + data.error);
+        // Regular script generation
+        const response = await fetch('/api/marketing-scripts/generate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(formData)
+        });
+        
+        const data = await response.json();
+        if (data.success) {
+          setGeneratedScript(data.script);
+        } else {
+          alert('Error generating script: ' + data.error);
+        }
       }
     } catch (error) {
       console.error('Error generating script:', error);
