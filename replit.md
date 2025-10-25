@@ -24,6 +24,33 @@ The React/TypeScript frontend provides a comprehensive component library for wal
 ### Unified Registration System
 A progressive onboarding system uses a single canonical user profile to eliminate data duplication. It features a security-first approach with httpOnly cookies, a modular design for consistent UI, and a 5-step registration flow (Account, Personal, Financial, Risk, Programs). The system uses PostgreSQL with Drizzle ORM and robust authentication middleware for secure session management.
 
+**Tiered KYC System:**
+- **Light KYC**: Basic identity verification for low-risk activities
+- **Full KYC**: Enhanced verification with SSN and government ID for full platform access
+- Database schema supports both tiers with secure SSN hashing and document verification
+
+**Admin Dashboard** (`/admin/unified-registration`):
+- Complete user management with search, filter, and sort capabilities
+- Individual user detail modals showing full profile and program enrollment data
+- Analytics dashboard with registration funnel metrics and conversion rates
+- Program enrollment statistics across KeyGrow and Real Estate Investor
+- Admin-only access with role-based authentication (admin/super_admin)
+- Manual step completion and account status management tools
+- Real-time progress tracking for every user's registration journey
+
+**API Endpoints** (`/api/unified-registration-admin`):
+- `/analytics/funnel` - Registration funnel conversion metrics
+- `/analytics/daily-signups` - Daily signup trends
+- `/users` - Paginated user list with search/filter/sort
+- `/users/:userId` - Detailed user information and profiles
+- `/users/:userId/journey` - Update registration journey steps
+- `/users/:userId/status` - Manage account status
+- `/users/:userId/complete-step` - Manual step completion
+- `/programs/stats` - Program enrollment statistics
+
+**Data Migration**:
+ETL script (`server/scripts/migrateRegistrationData.js`) migrates legacy onboarding data into the unified system with idempotent design.
+
 ### Investment Platform
 The platform includes an investment management system supporting various asset types (Crypto, Stocks, ETFs, REITs, Bonds, etc.). It features a multi-provider market data service with caching, an investment transaction engine, position management, and P&L calculations. All financial calculations use `Decimal.js` for precision and are wrapped in SQL transactions.
 
