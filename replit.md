@@ -97,6 +97,13 @@ Unified smart contract system enabling fractional real estate investment with mi
 - Portfolio analytics across multiple properties
 - Platform fee: 2.5%, Minimum investment: 0.05 BNB (~$30)
 
+**Production-Ready Investment System (October 2025):**
+- **Real-time BNB Price Oracle**: Multi-source price fetching (CoinGecko, CoinMarketCap, Binance) with 1-minute caching and automatic fallback to $600 if all sources fail
+- **Smart Contract Validation**: Backend queries RealEstateInvestor contract before accepting investments to prevent oversubscription, validate property status (active/funded), and enforce available share limits
+- **Dual Payment Flow**: Both Stripe (credit card) and BNB (cryptocurrency) payments use live BNB/USD conversion for consistent accounting
+- **API Endpoints**: `/api/crypto/price/bnb-usd` for live pricing, `/api/real-estate-investor/properties/:id/available-shares` for contract state
+- **Graceful Degradation**: System falls back to conservative estimates if external services fail
+
 **5 Earning Mechanisms:**
 1. **Rental Income** - Monthly distributions from tenant payments, claimable anytime
 2. **Property Appreciation** - Real-time tracking of value increases
