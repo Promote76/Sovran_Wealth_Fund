@@ -1,5 +1,37 @@
+const gordianApi = require('../services/gordianApiService');
+
 class MLPredictions {
-  predictRepairCost(propertyFacts, marketData, condition) {
+  async predictRepairCost(propertyFacts, marketData, condition, zip = null) {
+    if (gordianApi.isConfigured() && propertyFacts?.squareFeet && propertyFacts?.yearBuilt) {
+      try {
+        const locationId = zip ? gordianApi.zipToLocationId(zip) : 'us-us-national';
+        
+        const gordianEstimate = await gordianApi.getRepairCostEstimate(
+          propertyFacts.propertyType || 'Single Family',
+          propertyFacts.squareFeet,
+          propertyFacts.yearBuilt,
+          condition || 'Fair',
+          locationId
+        );
+
+        if (gordianEstimate) {
+          console.log(`✅ Using Gordian RSMeans data for repair cost estimate`);
+          return {
+            ...gordianEstimate,
+            factors: {
+              size: propertyFacts.squareFeet,
+              age: new Date().getFullYear() - propertyFacts.yearBuilt,
+              condition: condition || 'Fair',
+              propertyType: propertyFacts.propertyType,
+              stories: propertyFacts.stories || 1
+            }
+          };
+        }
+      } catch (error) {
+        console.error('Gordian API failed, falling back to heuristic estimate:', error.message);
+      }
+    }
+
     const baseCost = 25000;
 
     let costMultiplier = 1.0;

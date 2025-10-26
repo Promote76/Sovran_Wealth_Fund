@@ -75,10 +75,11 @@ class DealService {
 
     const enrichments = await enrichmentService.enrichDeal(deal);
 
-    const repairPrediction = mlPredictions.predictRepairCost(
+    const repairPrediction = await mlPredictions.predictRepairCost(
       enrichments.propertyFacts,
       enrichments.marketData,
-      enrichments.propertyFacts?.condition || 'Fair'
+      enrichments.propertyFacts?.condition || 'Fair',
+      deal.parsed?.zip
     );
 
     const repairs = {
