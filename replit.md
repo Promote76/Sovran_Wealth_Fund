@@ -32,7 +32,18 @@ Preferred communication style: Simple, everyday language.
     - Dashboard at `/admin/iela/dashboard` with filtering, search, status management, and stats cards
     - Intake form at `/admin/iela/intake` with manual entry and example loader
     - Both pages integrated into React Router with admin authentication protection
+    - Admin dashboard includes IELA Pipeline tab for easy access
     - Real-time analysis and publishing controls for investors and RTO participants
+  - **Property Scraper**: Extracts images and property data from listing URLs
+    - Supports InvestorLift, Zillow, Realtor.com, and generic property sites
+    - Auto-scrapes during enrichment phase when URL is detected in deal text
+    - Stores property images in media field for marketplace display
+  - **Public Marketplace**: `/deals` - Investor and buyer-facing marketplace
+    - Filter by deal type (investor opportunities, RTO-ready)
+    - Search by location (city, state, ZIP)
+    - Sort by price, ROI, or newest deals
+    - Display property images, pricing, investment analysis, and ROI metrics
+    - No login required - publicly accessible deal listings
   - **Database**: `deals` table with JSONB columns for parsed data, geocoding, property facts, market data, neighborhood scores, ML predictions, analysis results, compliance logs
   - **Feature Flagged**: Controlled by `AXIOM_FEATURE_IELA=true` environment variable (default: OFF)
   - **Tested**: Atlanta property smoke test validates parsing (103k→$103,000), MAO calculations, RTO badges, enrichment, and ML predictions
