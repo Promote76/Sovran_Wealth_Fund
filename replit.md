@@ -12,6 +12,17 @@ AXIOM is a decentralized finance (DeFi) platform on BSC and Polygon, designed to
 Preferred communication style: Simple, everyday language.
 
 ## Recent Updates (October 26, 2025)
+
+- **IELA Pipeline (Ingest-Enrich-Analyze-List)**: NEW - Wholesale real estate deal intake and analysis system
+  - **Parsing Engine**: SMS/email text parser extracts property details (address, asking price, ARV, contact info)
+  - **Analysis Modules**: Profitability calculator (MAO, Price-to-ARV%) and RTO suitability analyzer (DSCR, PTI, badges)
+  - **Deal Management API**: Full CRUD endpoints at `/api/deals` for ingest, enrich, analyze, publish
+  - **Database**: `deals` table with JSONB columns for parsed data, geocoding, analysis results, compliance logs
+  - **Feature Flagged**: Controlled by `AXIOM_FEATURE_IELA=true` environment variable (default: OFF)
+  - **Tested**: Atlanta property smoke test validates parsing (103k→$103,000), MAO calculations ($70.5K-$100.5K), and RTO badges
+  - **Compliance**: Built-in opt-out detection, consent logging, and TOS mode tracking for regulatory compliance
+
+## Recent Updates (October 26, 2025 - Earlier)
 - **KeyGrow Property Acquisition Analyzer**: NEW - External property listing analyzer for rent-to-own acquisition planning
   - **Property Analysis API**: `/api/keygrow/analyze-property` - Comprehensive financial analysis engine
   - **Web Crawler**: `/api/keygrow/crawl-property` - Automated InvestorLift property data extraction

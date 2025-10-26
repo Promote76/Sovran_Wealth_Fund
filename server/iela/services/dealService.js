@@ -43,7 +43,7 @@ class DealService {
       repairs: DEFAULT_REPAIRS,
       media: [],
       compliance,
-      status: 'draft',
+      status: parsed.optOut ? 'suppressed' : 'draft',
       createdBy: userId,
       createdAt: new Date(),
       updatedAt: new Date()

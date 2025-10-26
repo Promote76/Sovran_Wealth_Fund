@@ -163,5 +163,6 @@ function parseAddressParts(address) {
 
 module.exports = {
   parseMessage,
-  normalizeAmount
+  normalizeAmount,
+  extractAmount
 };

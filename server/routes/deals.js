@@ -1,7 +1,18 @@
 const express = require('express');
 const { dealService } = require('../iela/services/dealService');
+const featureFlags = require('../config/featureFlags');
 
 const router = express.Router();
+
+router.use((req, res, next) => {
+  if (!featureFlags.IELA_ENABLED) {
+    return res.status(404).json({
+      success: false,
+      error: 'IELA Pipeline is not enabled. Set AXIOM_FEATURE_IELA=true to activate.'
+    });
+  }
+  next();
+});
 
 router.post('/ingest', async (req, res) => {
   try {
