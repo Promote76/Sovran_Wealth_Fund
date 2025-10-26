@@ -1225,7 +1225,7 @@ export default function KeyGrowDashboardPage() {
                   <div key={deal.id} className="bg-white rounded-lg shadow-md border-2 border-green-200 overflow-hidden hover:shadow-lg transition-shadow">
                     {deal.media?.[0] ? (
                       <img
-                        src={deal.media[0]}
+                        src={deal.media[0]?.url || deal.media[0]}
                         alt={deal.parsed?.address}
                         className="w-full h-48 object-cover"
                       />

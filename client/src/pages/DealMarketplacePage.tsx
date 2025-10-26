@@ -196,7 +196,7 @@ const DealMarketplacePage: React.FC = () => {
                 <div className="relative h-48 bg-gradient-to-br from-gray-200 to-gray-300">
                   {deal.media && deal.media.length > 0 ? (
                     <img
-                      src={deal.media[0]}
+                      src={deal.media[0]?.url || deal.media[0]}
                       alt="Property"
                       className="w-full h-full object-cover"
                       onError={(e) => {
