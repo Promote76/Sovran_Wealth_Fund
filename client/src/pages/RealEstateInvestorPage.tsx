@@ -30,26 +30,68 @@ interface Investment {
 
 interface FractionalProperty {
   id: number;
-  total_shares: number;
-  share_price: number;
-  property_value: number;
-  shares_sold: number;
-  shares_available: number;
-  monthly_rent: number;
-  monthly_expenses: number;
-  net_monthly_income: number;
+  dealId: string;
+  totalShares: number;
+  sharePrice: string;
+  propertyValue: string;
+  sharesSold: number;
+  sharesAvailable: number;
+  fundingProgress: number;
+  minInvestment: string;
+  maxOwnershipPercent: string;
+  lockupMonths: number;
+  monthlyRent: string;
+  monthlyExpenses: string;
+  netMonthlyIncome: string;
+  annualYield: number;
+  reserveFundPercent: string;
   status: string;
-  metadata: any;
+  fundingDeadline: string | null;
+  fullyFundedAt: string | null;
+  createdAt: string;
+  deal: {
+    address: string;
+    city: string;
+    state: string;
+    beds: number;
+    baths: number;
+    squareFeet: number;
+    propertyType: string;
+    yearBuilt: number;
+    condition: string;
+    media: any[];
+    geocode: any;
+  };
 }
 
 interface FractionalInvestment {
-  property_id: number;
-  shares_owned: number;
-  ownership_percent: number;
-  total_invested: number;
+  shareId: number;
+  propertyId: number;
+  sharesOwned: number;
+  ownershipPercent: number;
+  totalInvested: string;
   tier: string;
-  revenue_earned: number;
-  property: FractionalProperty;
+  tierBonus: number;
+  totalRevenueEarned: string;
+  monthlyRevenueEstimate: number;
+  lockupEndsAt: string;
+  property: {
+    address: string;
+    city: string;
+    state: string;
+    beds: number;
+    baths: number;
+    squareFeet: number;
+    totalShares: number;
+    sharePrice: string;
+    propertyValue: string;
+    sharesSold: number;
+    sharesAvailable: number;
+    monthlyRent: string;
+    netMonthlyIncome: string;
+    status: string;
+    media: any[];
+  };
 }
 
 const TIER_INFO = {
@@ -367,7 +409,7 @@ export default function RealEstateInvestorPage() {
                                   {tierInfo.label} +{tierInfo.bonus}%
                                 </span>
                                 <span className="text-sm text-gray-600">
-                                  {inv.shares_owned.toLocaleString()} shares ({inv.ownership_percent.toFixed(2)}%)
+                                  {(inv.sharesOwned || 0).toLocaleString()} shares ({(inv.ownershipPercent || 0).toFixed(2)}%)
                                 </span>
                               </div>
                             </div>
@@ -509,8 +551,8 @@ export default function RealEstateInvestorPage() {
                           ></div>
                         </div>
                         <div className="flex justify-between text-xs text-gray-500 mt-1">
-                          <span>{property.shares_sold.toLocaleString()} / {property.total_shares.toLocaleString()} shares</span>
-                          <span>{property.shares_available.toLocaleString()} available</span>
+                          <span>{(property.sharesSold || 0).toLocaleString()} / {(property.totalShares || 0).toLocaleString()} shares</span>
+                          <span>{(property.sharesAvailable || 0).toLocaleString()} available</span>
                         </div>
                       </div>
 
