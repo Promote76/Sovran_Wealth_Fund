@@ -299,4 +299,64 @@ router.post('/confirm-claim', async (req, res) => {
   }
 });
 
+router.post('/analyze-property', async (req, res) => {
+  try {
+    const {
+      propertyUrl,
+      propertyData,
+      renterProfile
+    } = req.body;
+
+    console.log('🏠 Analyzing property for KeyGrow acquisition...');
+
+    if (!propertyData || !propertyData.price) {
+      return res.status(400).json({ 
+        success: false, 
+        error: 'Property data with price is required' 
+      });
+    }
+
+    const analysis = keygrowService.analyzePropertyAcquisition(propertyData, renterProfile);
+    
+    res.json({
+      success: true,
+      data: analysis,
+      message: 'Property acquisition analysis completed'
+    });
+  } catch (error) {
+    console.error('❌ Property analysis error:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+router.post('/crawl-property', async (req, res) => {
+  try {
+    const { url } = req.body;
+
+    if (!url) {
+      return res.status(400).json({ 
+        success: false, 
+        error: 'Property URL is required' 
+      });
+    }
+
+    console.log('🕷️ Crawling property from:', url);
+
+    const propertyData = await keygrowService.crawlProperty(url);
+    
+    res.json({
+      success: true,
+      data: propertyData,
+      message: 'Property data extracted successfully'
+    });
+  } catch (error) {
+    console.error('❌ Property crawl error:', error);
+    res.status(500).json({ 
+      success: false, 
+      error: error.message,
+      message: 'Could not crawl property. Please provide property data manually.'
+    });
+  }
+});
+
 module.exports = router;
