@@ -290,6 +290,7 @@ const IELADashboardPage: React.FC = () => {
                 <thead className="bg-gray-50">
                   <tr>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Property</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Seller Contact</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Asking</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">ARV</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">MAO</th>
@@ -306,6 +307,34 @@ const IELADashboardPage: React.FC = () => {
                         <div className="text-sm text-gray-500">
                           {deal.parsed?.city}, {deal.parsed?.state} {deal.parsed?.zip}
                         </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        {deal.parsed?.sellerName ? (
+                          <div className="text-sm">
+                            <div className="font-medium text-gray-900">{deal.parsed.sellerName}</div>
+                            {deal.parsed.sellerCompany && (
+                              <div className="text-xs text-gray-600">{deal.parsed.sellerCompany}</div>
+                            )}
+                            {deal.parsed.sellerPhone && (
+                              <a 
+                                href={`tel:${deal.parsed.sellerPhone}`}
+                                className="text-blue-600 hover:text-blue-800 text-xs font-medium flex items-center gap-1 mt-1"
+                              >
+                                📞 {deal.parsed.sellerPhone}
+                              </a>
+                            )}
+                            {deal.parsed.sellerEmail && (
+                              <a 
+                                href={`mailto:${deal.parsed.sellerEmail}`}
+                                className="text-blue-600 hover:text-blue-800 text-xs flex items-center gap-1"
+                              >
+                                ✉️ Email
+                              </a>
+                            )}
+                          </div>
+                        ) : (
+                          <span className="text-xs text-gray-400">No contact info</span>
+                        )}
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-900">
                         ${deal.parsed?.asking?.toLocaleString()}
