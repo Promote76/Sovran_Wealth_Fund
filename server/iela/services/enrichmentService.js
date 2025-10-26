@@ -1,5 +1,6 @@
 const axios = require('axios');
 const attomData = require('./attomDataService');
+const gordianApi = require('./gordianApiService');
 
 class EnrichmentService {
   async geocodeAddress(address, city, state, zip) {
