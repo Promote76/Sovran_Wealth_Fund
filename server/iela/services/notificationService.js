@@ -10,7 +10,7 @@ class NotificationService {
 
   setupTransporter() {
     if (process.env.SMTP_HOST && process.env.SMTP_PORT) {
-      this.transporter = nodemailer.createTransporter({
+      this.transporter = nodemailer.createTransport({
         host: process.env.SMTP_HOST,
         port: parseInt(process.env.SMTP_PORT),
         secure: process.env.SMTP_SECURE === 'true',
@@ -26,8 +26,20 @@ class NotificationService {
   }
 
   async sendNewDealNotification(deal) {
-    if (!this.transporter || this.adminEmails.length === 0) {
-      console.log('⚠️  Cannot send notification: SMTP or admin emails not configured');
+    if (!this.transporter) {
+      console.log('⚠️  Email notifications disabled: SMTP not configured');
+      return false;
+    }
+
+    if (this.adminEmails.length === 0) {
+      console.log('⚠️  Email notifications disabled: No admin emails configured');
+      return false;
+    }
+
+    try {
+      await this.transporter.verify();
+    } catch (error) {
+      console.error('❌ SMTP connection failed:', error.message);
       return false;
     }
 

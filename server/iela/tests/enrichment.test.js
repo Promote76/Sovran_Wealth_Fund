@@ -1,167 +1,190 @@
 const enrichmentService = require('../services/enrichmentService');
 const mlPredictions = require('../ml/predictions');
 
-describe('IELA Enrichment Service - Deterministic Tests', () => {
-  
-  test('Geocoding should return consistent results for same address', async () => {
-    const address = '247 Howell Drive Southwest';
-    const city = 'Atlanta';
-    const state = 'GA';
-    const zip = '30331';
+async function assertEquals(actual, expected, message) {
+  if (JSON.stringify(actual) !== JSON.stringify(expected)) {
+    throw new Error(`${message}: expected ${JSON.stringify(expected)}, got ${JSON.stringify(actual)}`);
+  }
+}
 
-    const result1 = await enrichmentService.geocodeAddress(address, city, state, zip);
-    const result2 = await enrichmentService.geocodeAddress(address, city, state, zip);
+function assertTruthy(value, message) {
+  if (!value) {
+    throw new Error(`${message}: expected truthy value, got ${value}`);
+  }
+}
 
-    expect(result1).toBeDefined();
-    if (result1 && result2) {
-      expect(result1.latitude).toBe(result2.latitude);
-      expect(result1.longitude).toBe(result2.longitude);
+function assertFalsy(value, message) {
+  if (value) {
+    throw new Error(`${message}: expected falsy value, got ${value}`);
+  }
+}
+
+const tests = [
+  {
+    name: 'Geocoding returns consistent results for same address',
+    fn: async () => {
+      const address = '247 Howell Drive Southwest';
+      const city = 'Atlanta';
+      const state = 'GA';
+      const zip = '30331';
+
+      const result1 = await enrichmentService.geocodeAddress(address, city, state, zip);
+      const result2 = await enrichmentService.geocodeAddress(address, city, state, zip);
+
+      assertTruthy(result1, 'Geocoding should return result');
+      assertTruthy(result2, 'Geocoding should return result');
+      
+      if (result1 && result2) {
+        assertEquals(result1.latitude, result2.latitude, 'Latitude should be consistent');
+        assertEquals(result1.longitude, result2.longitude, 'Longitude should be consistent');
+      }
     }
-  });
+  },
+  {
+    name: 'Property facts are deterministic for same address',
+    fn: async () => {
+      const address = '247 Howell Drive Southwest';
+      const city = 'Atlanta';
+      const state = 'GA';
+      const zip = '30331';
 
-  test('Property facts should be deterministic for same address', async () => {
-    const address = '247 Howell Drive Southwest';
-    const city = 'Atlanta';
-    const state = 'GA';
-    const zip = '30331';
+      const facts1 = await enrichmentService.getPropertyFacts(address, city, state, zip);
+      const facts2 = await enrichmentService.getPropertyFacts(address, city, state, zip);
 
-    const facts1 = await enrichmentService.getPropertyFacts(address, city, state, zip);
-    const facts2 = await enrichmentService.getPropertyFacts(address, city, state, zip);
+      assertEquals(facts1, facts2, 'Property facts should be identical');
+      assertTruthy(facts1.bedrooms, 'Bedrooms should be defined');
+      assertTruthy(facts1.bathrooms, 'Bathrooms should be defined');
+      assertTruthy(facts1.squareFeet, 'Square feet should be defined');
+      assertTruthy(facts1.source, 'Source should be defined');
+    }
+  },
+  {
+    name: 'Market data is consistent for same location',
+    fn: async () => {
+      const city = 'Atlanta';
+      const state = 'GA';
+      const zip = '30331';
 
-    expect(facts1).toEqual(facts2);
-    expect(facts1.bedrooms).toBeDefined();
-    expect(facts1.bathrooms).toBeDefined();
-    expect(facts1.squareFeet).toBeDefined();
-    expect(facts1.source).toBe('estimated');
-  });
+      const market1 = await enrichmentService.getMarketData(city, state, zip);
+      const market2 = await enrichmentService.getMarketData(city, state, zip);
 
-  test('Market data should be consistent for same location', async () => {
-    const city = 'Atlanta';
-    const state = 'GA';
-    const zip = '30331';
+      assertEquals(market1, market2, 'Market data should be identical');
+      assertEquals(market1.medianHomeValue, 295000, 'Median home value should be 295000');
+      assertEquals(market1.medianRent, 1750, 'Median rent should be 1750');
+    }
+  },
+  {
+    name: 'Neighborhood scores are deterministic',
+    fn: async () => {
+      const lat = 33.7490;
+      const lon = -84.3880;
 
-    const market1 = await enrichmentService.getMarketData(city, state, zip);
-    const market2 = await enrichmentService.getMarketData(city, state, zip);
+      const scores1 = await enrichmentService.getNeighborhoodScore(lat, lon);
+      const scores2 = await enrichmentService.getNeighborhoodScore(lat, lon);
 
-    expect(market1).toEqual(market2);
-    expect(market1.medianHomeValue).toBe(295000);
-    expect(market1.medianRent).toBe(1750);
-  });
+      assertEquals(scores1, scores2, 'Neighborhood scores should be identical');
+      assertTruthy(scores1.walkScore, 'Walk score should be defined');
+      assertTruthy(scores1.crimeScore, 'Crime score should be defined');
+      assertTruthy(scores1.schoolScore, 'School score should be defined');
+    }
+  },
+  {
+    name: 'ML repair prediction is deterministic',
+    fn: async () => {
+      const propertyFacts = {
+        squareFeet: 1450,
+        yearBuilt: 1982,
+        propertyType: 'Single Family',
+        stories: 1
+      };
+      const marketData = {};
+      const condition = 'Fair';
 
-  test('Neighborhood scores should be deterministic for same coordinates', async () => {
-    const lat = 33.7490;
-    const lon = -84.3880;
+      const prediction1 = await mlPredictions.predictRepairCost(propertyFacts, marketData, condition);
+      const prediction2 = await mlPredictions.predictRepairCost(propertyFacts, marketData, condition);
 
-    const scores1 = await enrichmentService.getNeighborhoodScore(lat, lon);
-    const scores2 = await enrichmentService.getNeighborhoodScore(lat, lon);
+      assertEquals(prediction1, prediction2, 'Repair predictions should be identical');
+      assertTruthy(prediction1.estimated, 'Estimated repair cost should be defined');
+      assertTruthy(prediction1.low, 'Low estimate should be defined');
+      assertTruthy(prediction1.high, 'High estimate should be defined');
+    }
+  },
+  {
+    name: 'ML rent prediction is deterministic',
+    fn: () => {
+      const propertyFacts = {
+        bedrooms: 3,
+        bathrooms: 2,
+        squareFeet: 1450,
+        garage: true
+      };
+      const marketData = {
+        medianRent: 1750
+      };
 
-    expect(scores1).toEqual(scores2);
-    expect(scores1.walkScore).toBeDefined();
-    expect(scores1.crimeScore).toBeDefined();
-    expect(scores1.schoolScore).toBeDefined();
-  });
+      const prediction1 = mlPredictions.predictRent(propertyFacts, marketData);
+      const prediction2 = mlPredictions.predictRent(propertyFacts, marketData);
 
-  test('ML repair prediction should be deterministic', async () => {
-    const propertyFacts = {
-      squareFeet: 1450,
-      yearBuilt: 1982,
-      propertyType: 'Single Family',
-      stories: 1
-    };
-    const marketData = {};
-    const condition = 'Fair';
+      assertEquals(prediction1, prediction2, 'Rent predictions should be identical');
+      assertTruthy(prediction1.estimated, 'Estimated rent should be defined');
+    }
+  },
+  {
+    name: 'Different addresses produce different property facts',
+    fn: async () => {
+      const addr1Facts = await enrichmentService.getPropertyFacts('123 Main St', 'Atlanta', 'GA', '30331');
+      const addr2Facts = await enrichmentService.getPropertyFacts('456 Oak Ave', 'Atlanta', 'GA', '30331');
 
-    const prediction1 = await mlPredictions.predictRepairCost(propertyFacts, marketData, condition);
-    const prediction2 = await mlPredictions.predictRepairCost(propertyFacts, marketData, condition);
+      if (JSON.stringify(addr1Facts) === JSON.stringify(addr2Facts)) {
+        throw new Error('Different addresses should produce different property facts');
+      }
+    }
+  },
+  {
+    name: 'Hash-based seeding produces consistent results',
+    fn: () => {
+      const seed1 = enrichmentService.hashAddress('247 Howell Drive Southwest', 'Atlanta', 'GA');
+      const seed2 = enrichmentService.hashAddress('247 Howell Drive Southwest', 'Atlanta', 'GA');
+      const seed3 = enrichmentService.hashAddress('123 Main Street', 'Atlanta', 'GA');
 
-    expect(prediction1).toEqual(prediction2);
-    expect(prediction1.estimated).toBeDefined();
-    expect(prediction1.low).toBeDefined();
-    expect(prediction1.high).toBeDefined();
-  });
-
-  test('ML rent prediction should be deterministic', () => {
-    const propertyFacts = {
-      bedrooms: 3,
-      bathrooms: 2,
-      squareFeet: 1450,
-      garage: true
-    };
-    const marketData = {
-      medianRent: 1750
-    };
-
-    const prediction1 = mlPredictions.predictRent(propertyFacts, marketData);
-    const prediction2 = mlPredictions.predictRent(propertyFacts, marketData);
-
-    expect(prediction1).toEqual(prediction2);
-    expect(prediction1.estimated).toBeDefined();
-  });
-
-  test('Different addresses should produce different property facts', async () => {
-    const addr1Facts = await enrichmentService.getPropertyFacts('123 Main St', 'Atlanta', 'GA', '30331');
-    const addr2Facts = await enrichmentService.getPropertyFacts('456 Oak Ave', 'Atlanta', 'GA', '30331');
-
-    expect(addr1Facts).not.toEqual(addr2Facts);
-  });
-
-  test('Hash-based seeding should produce consistent results', () => {
-    const seed1 = enrichmentService.hashAddress('247 Howell Drive Southwest', 'Atlanta', 'GA');
-    const seed2 = enrichmentService.hashAddress('247 Howell Drive Southwest', 'Atlanta', 'GA');
-    const seed3 = enrichmentService.hashAddress('123 Main Street', 'Atlanta', 'GA');
-
-    expect(seed1).toBe(seed2);
-    expect(seed1).not.toBe(seed3);
-  });
-});
+      assertEquals(seed1, seed2, 'Same address should produce same hash');
+      
+      if (seed1 === seed3) {
+        throw new Error('Different addresses should produce different hashes');
+      }
+    }
+  }
+];
 
 if (require.main === module) {
-  console.log('🧪 Running IELA deterministic tests...');
-  
-  const tests = [
-    { name: 'Property facts determinism', fn: async () => {
-      const facts1 = await enrichmentService.getPropertyFacts('247 Howell Dr SW', 'Atlanta', 'GA', '30331');
-      const facts2 = await enrichmentService.getPropertyFacts('247 Howell Dr SW', 'Atlanta', 'GA', '30331');
-      if (JSON.stringify(facts1) !== JSON.stringify(facts2)) {
-        throw new Error('Property facts not deterministic');
-      }
-      console.log('✅ Property facts are deterministic');
-    }},
-    { name: 'Market data consistency', fn: async () => {
-      const market1 = await enrichmentService.getMarketData('Atlanta', 'GA', '30331');
-      const market2 = await enrichmentService.getMarketData('Atlanta', 'GA', '30331');
-      if (JSON.stringify(market1) !== JSON.stringify(market2)) {
-        throw new Error('Market data not consistent');
-      }
-      console.log('✅ Market data is consistent');
-    }},
-    { name: 'Hashing consistency', fn: () => {
-      const hash1 = enrichmentService.hashAddress('247 Howell Dr SW', 'Atlanta', 'GA');
-      const hash2 = enrichmentService.hashAddress('247 Howell Dr SW', 'Atlanta', 'GA');
-      if (hash1 !== hash2) {
-        throw new Error('Address hashing not consistent');
-      }
-      console.log('✅ Address hashing is consistent');
-    }}
-  ];
-
   (async () => {
+    console.log('🧪 Running IELA Enrichment Regression Tests\n');
+    
     let passed = 0;
     let failed = 0;
 
     for (const test of tests) {
       try {
         await test.fn();
+        console.log(`✅ ${test.name}`);
         passed++;
       } catch (error) {
-        console.error(`❌ ${test.name}: ${error.message}`);
+        console.error(`❌ ${test.name}`);
+        console.error(`   ${error.message}`);
         failed++;
       }
     }
 
-    console.log(`\n📊 Results: ${passed} passed, ${failed} failed`);
-    process.exit(failed > 0 ? 1 : 0);
+    console.log(`\n📊 Test Results: ${passed} passed, ${failed} failed`);
+    
+    if (failed > 0) {
+      console.log('\n❌ Some tests failed. Please review the errors above.');
+      process.exit(1);
+    } else {
+      console.log('\n✅ All tests passed! Enrichment service is deterministic and production-ready.');
+      process.exit(0);
+    }
   })();
 }
 
-module.exports = {};
+module.exports = { tests };

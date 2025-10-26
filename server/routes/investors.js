@@ -147,11 +147,19 @@ router.post('/contracts/:dealId/offer-letter', async (req, res) => {
     const filepath = await contractGeneration.generateOfferLetter(deal, buyerInfo || {});
 
     res.download(filepath, `offer-letter-${dealId}.pdf`, (err) => {
-      if (err) {
-        console.error('Download error:', err);
-      }
       const fs = require('fs');
-      fs.unlinkSync(filepath);
+      try {
+        if (fs.existsSync(filepath)) {
+          fs.unlinkSync(filepath);
+          console.log(`✅ Cleaned up PDF: ${filepath}`);
+        }
+      } catch (cleanupError) {
+        console.error('⚠️  Failed to cleanup PDF:', cleanupError.message);
+      }
+      
+      if (err) {
+        console.error('❌ Download error:', err);
+      }
     });
   } catch (error) {
     console.error('❌ Offer letter generation error:', error);
@@ -182,11 +190,19 @@ router.post('/contracts/:dealId/purchase-agreement', async (req, res) => {
     );
 
     res.download(filepath, `purchase-agreement-${dealId}.pdf`, (err) => {
-      if (err) {
-        console.error('Download error:', err);
-      }
       const fs = require('fs');
-      fs.unlinkSync(filepath);
+      try {
+        if (fs.existsSync(filepath)) {
+          fs.unlinkSync(filepath);
+          console.log(`✅ Cleaned up PDF: ${filepath}`);
+        }
+      } catch (cleanupError) {
+        console.error('⚠️  Failed to cleanup PDF:', cleanupError.message);
+      }
+      
+      if (err) {
+        console.error('❌ Download error:', err);
+      }
     });
   } catch (error) {
     console.error('❌ Purchase agreement generation error:', error);
