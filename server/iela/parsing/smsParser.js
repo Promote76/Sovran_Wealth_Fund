@@ -1,16 +1,8 @@
-import { ParsedFields } from '../models/types';
+function parseMessage(rawText, providedUrl) {
+  const warnings = [];
+  let confidence = 'high';
 
-export interface ParserResult {
-  parsed: ParsedFields;
-  confidence: 'high' | 'medium' | 'low';
-  warnings: string[];
-}
-
-export function parseMessage(rawText: string, providedUrl?: string): ParserResult {
-  const warnings: string[] = [];
-  let confidence: 'high' | 'medium' | 'low' = 'high';
-
-  const parsed: ParsedFields = {
+  const parsed = {
     optOut: detectOptOut(rawText)
   };
 
@@ -45,7 +37,7 @@ export function parseMessage(rawText: string, providedUrl?: string): ParserResul
   return { parsed, confidence, warnings };
 }
 
-function detectOptOut(text: string): boolean {
+function detectOptOut(text) {
   const optOutPatterns = [
     /\bstop\b/i,
     /\bopt[\s-]?out\b/i,
@@ -57,7 +49,7 @@ function detectOptOut(text: string): boolean {
   return optOutPatterns.some(pattern => pattern.test(text));
 }
 
-function extractAddress(text: string): string | undefined {
+function extractAddress(text) {
   const addressPatterns = [
     /(\d+\s+(?:[A-Za-z]+\s+){1,5}(?:Street|St|Avenue|Ave|Road|Rd|Drive|Dr|Lane|Ln|Boulevard|Blvd|Court|Ct|Place|Pl|Way|Circle|Cir|Southwest|Southwest|Northeast|Southeast|Northwest|SW|NW|NE|SE)(?:\.)?(?:\s*,?\s*(?:[A-Za-z\s]+,?\s*)?[A-Z]{2}\s+\d{5})?)/i,
     /(\d+\s+[^,\n]+(?:Street|St|Avenue|Ave|Road|Rd|Drive|Dr|Lane|Ln|Boulevard|Blvd|Southwest|SW|NW|NE|SE)[^,\n]*,?\s*[A-Za-z\s]+,?\s*[A-Z]{2}\s+\d{5})/i,
@@ -74,10 +66,10 @@ function extractAddress(text: string): string | undefined {
   return undefined;
 }
 
-function extractAmount(text: string, labels: string[]): number | undefined {
+function extractAmount(text, labels) {
   for (const label of labels) {
     const patterns = [
-      new RegExp(`${label}[:\\s]+(\\$)?([0-9,]+)k\\b`, 'i'),
+      new RegExp(`${label}[:\\s]+(\\$)?([0-9,]+)(k)\\b`, 'i'),
       new RegExp(`${label}[:\\s]+(\\$)?([0-9,]+)(?:,000)?\\b`, 'i'),
       new RegExp(`${label}[:\\s]+(\\$)?([0-9]{1,3}(?:,[0-9]{3})*)\\b`, 'i')
     ];
@@ -85,7 +77,8 @@ function extractAmount(text: string, labels: string[]): number | undefined {
     for (const pattern of patterns) {
       const match = text.match(pattern);
       if (match) {
-        return normalizeAmount(match[2]);
+        const hasK = match[3];
+        return normalizeAmount(match[2], hasK);
       }
     }
   }
@@ -93,24 +86,24 @@ function extractAmount(text: string, labels: string[]): number | undefined {
   return undefined;
 }
 
-export function normalizeAmount(value: string): number {
+function normalizeAmount(value, hasK) {
   const cleanValue = value.replace(/,/g, '');
 
-  if (/k$/i.test(value)) {
+  if (hasK || /k$/i.test(value)) {
     return parseFloat(cleanValue.replace(/k$/i, '')) * 1000;
   }
 
   return parseInt(cleanValue, 10);
 }
 
-function extractUrl(text: string): string | undefined {
+function extractUrl(text) {
   const urlPattern = /(https?:\/\/[^\s<>"{}|\\^`\[\]]+)/i;
   const match = text.match(urlPattern);
   return match ? match[1] : undefined;
 }
 
-function extractContact(text: string): { name?: string; phone?: string; email?: string } {
-  const contact: { name?: string; phone?: string; email?: string } = {};
+function extractContact(text) {
+  const contact = {};
 
   const namePattern = /contact\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)+)/i;
   const nameMatch = text.match(namePattern);
@@ -146,8 +139,8 @@ function extractContact(text: string): { name?: string; phone?: string; email?: 
   return contact;
 }
 
-function parseAddressParts(address: string): { city?: string; state?: string; zip?: string } {
-  const parts: { city?: string; state?: string; zip?: string } = {};
+function parseAddressParts(address) {
+  const parts = {};
 
   const zipMatch = address.match(/\b(\d{5})(?:-\d{4})?\b/);
   if (zipMatch) {
@@ -167,3 +160,8 @@ function parseAddressParts(address: string): { city?: string; state?: string; zi
 
   return parts;
 }
+
+module.exports = {
+  parseMessage,
+  normalizeAmount
+};

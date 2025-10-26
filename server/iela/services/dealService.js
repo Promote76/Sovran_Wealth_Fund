@@ -1,26 +1,25 @@
-import { db } from '../../db';
-import { deals } from '../../../shared/schema';
-import { eq } from 'drizzle-orm';
-import { Deal, IngestRequest, ParsedFields, RepairEstimate, ComplianceLog } from '../models/types';
-import { parseMessage } from '../parsing/smsParser';
-import { analyzeProfitability } from '../analysis/profitability';
-import { analyzeRTOSuitability } from '../analysis/rtoSuitability';
-import { randomUUID } from 'crypto';
+const { db } = require('../../db');
+const { deals } = require('../../../shared/schema');
+const { eq } = require('drizzle-orm');
+const { parseMessage } = require('../parsing/smsParser');
+const { analyzeProfitability } = require('../analysis/profitability');
+const { analyzeRTOSuitability } = require('../analysis/rtoSuitability');
+const { randomUUID } = require('crypto');
 
-const DEFAULT_REPAIRS: RepairEstimate = {
+const DEFAULT_REPAIRS = {
   estLow: 15000,
   estMid: 30000,
   estHigh: 45000,
   notes: ['Default estimate - update based on property inspection']
 };
 
-export class DealService {
-  async ingestDeal(request: IngestRequest, userId?: string): Promise<Deal> {
+class DealService {
+  async ingestDeal(request, userId) {
     const { source, rawText, url } = request;
 
     const { parsed, confidence, warnings } = parseMessage(rawText, url);
 
-    const compliance: ComplianceLog = {
+    const compliance = {
       consentLog: [
         `Received ${source} message at ${new Date().toISOString()}`,
         confidence === 'low' ? `Low confidence parse: ${warnings.join(', ')}` : 'Parsed successfully'
@@ -40,11 +39,11 @@ export class DealService {
       id: dealId,
       source,
       rawText,
-      parsed: parsed as any,
-      repairs: DEFAULT_REPAIRS as any,
+      parsed,
+      repairs: DEFAULT_REPAIRS,
       media: [],
-      compliance: compliance as any,
-      status: 'draft' as const,
+      compliance,
+      status: 'draft',
       createdBy: userId,
       createdAt: new Date(),
       updatedAt: new Date()
@@ -60,11 +59,7 @@ export class DealService {
     return this.mapToDeal(insertedDeal);
   }
 
-  async enrichDeal(dealId: string, options?: {
-    geocode?: boolean;
-    propertyFacts?: boolean;
-    rentData?: boolean;
-  }): Promise<Deal> {
+  async enrichDeal(dealId, options) {
     const [deal] = await db
       .select()
       .from(deals)
@@ -92,11 +87,7 @@ export class DealService {
     return this.mapToDeal(updated);
   }
 
-  async analyzeDeal(dealId: string, customRepairs?: {
-    low?: number;
-    mid?: number;
-    high?: number;
-  }): Promise<Deal> {
+  async analyzeDeal(dealId, customRepairs) {
     const [deal] = await db
       .select()
       .from(deals)
@@ -106,8 +97,8 @@ export class DealService {
       throw new Error(`Deal not found: ${dealId}`);
     }
 
-    const parsed = deal.parsed as any as ParsedFields;
-    const currentRepairs = deal.repairs as any as RepairEstimate;
+    const parsed = deal.parsed;
+    const currentRepairs = deal.repairs;
 
     if (!parsed.asking || !parsed.arv) {
       throw new Error('Cannot analyze deal: missing asking price or ARV');
@@ -125,7 +116,7 @@ export class DealService {
       repairs
     });
 
-    const rents = deal.rents as any;
+    const rents = deal.rents;
     const rtoAnalysis = analyzeRTOSuitability({
       monthlyRent: rents?.marketRentEst
     });
@@ -140,7 +131,7 @@ export class DealService {
     await db
       .update(deals)
       .set({
-        analysis: analysis as any,
+        analysis,
         updatedAt: new Date()
       })
       .where(eq(deals.id, dealId));
@@ -153,10 +144,7 @@ export class DealService {
     return this.mapToDeal(updated);
   }
 
-  async publishDeal(dealId: string, target: 'investor' | 'rto'): Promise<{
-    cardUrl: string;
-    publishedAt: string;
-  }> {
+  async publishDeal(dealId, target) {
     const [deal] = await db
       .select()
       .from(deals)
@@ -171,7 +159,7 @@ export class DealService {
     await db
       .update(deals)
       .set({
-        status: newStatus as any,
+        status: newStatus,
         updatedAt: new Date()
       })
       .where(eq(deals.id, dealId));
@@ -182,7 +170,7 @@ export class DealService {
     };
   }
 
-  async getDeal(dealId: string): Promise<Deal | null> {
+  async getDeal(dealId) {
     const [deal] = await db
       .select()
       .from(deals)
@@ -191,15 +179,11 @@ export class DealService {
     return deal ? this.mapToDeal(deal) : null;
   }
 
-  async listDeals(filters?: {
-    status?: string;
-    limit?: number;
-    offset?: number;
-  }): Promise<Deal[]> {
+  async listDeals(filters) {
     let query = db.select().from(deals);
 
     if (filters?.status) {
-      query = query.where(eq(deals.status, filters.status as any)) as any;
+      query = query.where(eq(deals.status, filters.status));
     }
 
     const result = await query.limit(filters?.limit || 50).offset(filters?.offset || 0);
@@ -207,7 +191,7 @@ export class DealService {
     return result.map(d => this.mapToDeal(d));
   }
 
-  private mapToDeal(row: any): Deal {
+  mapToDeal(row) {
     return {
       id: row.id,
       source: row.source,
@@ -231,4 +215,9 @@ export class DealService {
   }
 }
 
-export const dealService = new DealService();
+const dealService = new DealService();
+
+module.exports = {
+  DealService,
+  dealService
+};

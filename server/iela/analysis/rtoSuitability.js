@@ -1,40 +1,14 @@
-import { RTOBadge, DSCRCalc } from '../models/types';
-
-export interface RTOInput {
-  monthlyRent?: number;
-  monthlyMortgage?: number;
-  monthlyTaxes?: number;
-  monthlyInsurance?: number;
-  monthlyHOA?: number;
-  monthlyIncome?: number;
-}
-
-export interface RTOOutput {
-  dscr?: number;
-  pti?: number;
-  badge: RTOBadge;
-  dscrByRent: DSCRCalc[];
-  breakevenVacancy?: number;
-  recommendation: string;
-}
-
-export function calculateDSCR(
-  monthlyRent: number,
-  totalMonthlyPayment: number
-): number {
+function calculateDSCR(monthlyRent, totalMonthlyPayment) {
   if (totalMonthlyPayment === 0) return 0;
   return monthlyRent / totalMonthlyPayment;
 }
 
-export function calculatePTI(
-  totalMonthlyPayment: number,
-  monthlyIncome: number
-): number {
+function calculatePTI(totalMonthlyPayment, monthlyIncome) {
   if (monthlyIncome === 0) return 0;
   return (totalMonthlyPayment / monthlyIncome) * 100;
 }
 
-export function determineRTOBadge(input: RTOInput): RTOBadge {
+function determineRTOBadge(input) {
   const { monthlyRent, monthlyMortgage, monthlyTaxes, monthlyInsurance, monthlyHOA, monthlyIncome } = input;
 
   if (!monthlyRent || !monthlyMortgage) {
@@ -68,12 +42,12 @@ export function determineRTOBadge(input: RTOInput): RTOBadge {
   return 'red';
 }
 
-export function analyzeRTOSuitability(input: RTOInput): RTOOutput {
+function analyzeRTOSuitability(input) {
   const { monthlyRent, monthlyMortgage, monthlyTaxes, monthlyInsurance, monthlyHOA, monthlyIncome } = input;
 
   const badge = determineRTOBadge(input);
 
-  const output: RTOOutput = {
+  const output = {
     badge,
     dscrByRent: [],
     recommendation: ''
@@ -125,3 +99,10 @@ export function analyzeRTOSuitability(input: RTOInput): RTOOutput {
 
   return output;
 }
+
+module.exports = {
+  calculateDSCR,
+  calculatePTI,
+  determineRTOBadge,
+  analyzeRTOSuitability
+};

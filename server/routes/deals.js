@@ -1,12 +1,11 @@
-import express from 'express';
-import { dealService } from '../iela/services/dealService';
-import { IngestRequest, EnrichRequest, AnalyzeRequest, PublishRequest } from '../iela/models/types';
+const express = require('express');
+const { dealService } = require('../iela/services/dealService');
 
 const router = express.Router();
 
 router.post('/ingest', async (req, res) => {
   try {
-    const request: IngestRequest = req.body;
+    const request = req.body;
 
     if (!request.rawText) {
       return res.status(400).json({
@@ -15,7 +14,7 @@ router.post('/ingest', async (req, res) => {
       });
     }
 
-    const userId = (req as any).user?.id;
+    const userId = req.user?.id;
 
     const deal = await dealService.ingestDeal(request, userId);
 
@@ -25,7 +24,7 @@ router.post('/ingest', async (req, res) => {
       success: true,
       data: deal
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error('❌ IELA ingest error:', error);
     res.status(500).json({
       success: false,
@@ -37,7 +36,7 @@ router.post('/ingest', async (req, res) => {
 router.post('/:dealId/enrich', async (req, res) => {
   try {
     const { dealId } = req.params;
-    const options: EnrichRequest = req.body;
+    const options = req.body;
 
     const deal = await dealService.enrichDeal(dealId, options);
 
@@ -47,7 +46,7 @@ router.post('/:dealId/enrich', async (req, res) => {
       success: true,
       data: deal
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error('❌ IELA enrich error:', error);
     res.status(500).json({
       success: false,
@@ -59,7 +58,7 @@ router.post('/:dealId/enrich', async (req, res) => {
 router.post('/:dealId/analyze', async (req, res) => {
   try {
     const { dealId } = req.params;
-    const options: AnalyzeRequest = req.body;
+    const options = req.body;
 
     const deal = await dealService.analyzeDeal(dealId, options.customRepairEstimates);
 
@@ -69,7 +68,7 @@ router.post('/:dealId/analyze', async (req, res) => {
       success: true,
       data: deal
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error('❌ IELA analyze error:', error);
     res.status(500).json({
       success: false,
@@ -81,7 +80,7 @@ router.post('/:dealId/analyze', async (req, res) => {
 router.post('/:dealId/publish', async (req, res) => {
   try {
     const { dealId } = req.params;
-    const { target }: PublishRequest = req.body;
+    const { target } = req.body;
 
     if (!target || !['investor', 'rto'].includes(target)) {
       return res.status(400).json({
@@ -98,7 +97,7 @@ router.post('/:dealId/publish', async (req, res) => {
       success: true,
       data: result
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error('❌ IELA publish error:', error);
     res.status(500).json({
       success: false,
@@ -124,7 +123,7 @@ router.get('/:dealId', async (req, res) => {
       success: true,
       data: deal
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error('❌ IELA get deal error:', error);
     res.status(500).json({
       success: false,
@@ -138,9 +137,9 @@ router.get('/', async (req, res) => {
     const { status, limit, offset } = req.query;
 
     const deals = await dealService.listDeals({
-      status: status as string,
-      limit: limit ? parseInt(limit as string) : undefined,
-      offset: offset ? parseInt(offset as string) : undefined
+      status,
+      limit: limit ? parseInt(limit) : undefined,
+      offset: offset ? parseInt(offset) : undefined
     });
 
     res.json({
@@ -148,7 +147,7 @@ router.get('/', async (req, res) => {
       data: deals,
       count: deals.length
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error('❌ IELA list deals error:', error);
     res.status(500).json({
       success: false,
@@ -157,4 +156,4 @@ router.get('/', async (req, res) => {
   }
 });
 
-export default router;
+module.exports = router;

@@ -814,7 +814,7 @@ app.use('/api/stripe', stripePaymentRouter);
 // IELA Pipeline (Ingest-Enrich-Analyze-List) - Feature Flagged
 const featureFlags = require('./server/config/featureFlags');
 if (featureFlags.IELA_ENABLED) {
-  const dealsRouter = require('./server/routes/deals').default;
+  const dealsRouter = require('./server/routes/deals');
   app.use('/api/deals', dealsRouter);
   console.log('✅ IELA Pipeline enabled and mounted at /api/deals');
 } else {
