@@ -105,8 +105,9 @@ class DealService {
       const urlMatch = deal.rawText.match(/https?:\/\/[^\s]+/);
       if (urlMatch) {
         const url = urlMatch[0];
-        // Skip Dropbox image URLs (already handled above)
-        if (!url.includes('dropbox.com') || !url.match(/\.(jpg|jpeg|png|gif|webp)$/i)) {
+        // Skip Dropbox image URLs (already handled above) - only scrape folders
+        const isDropboxImageFile = url.includes('dropbox.com') && url.match(/\.(jpg|jpeg|png|gif|webp)/i);
+        if (!isDropboxImageFile) {
           console.log(`📸 Scraping property listing: ${url}`);
           const scraped = await propertyScraperService.scrapePropertyListing(url);
           const scrapedImages = scraped.images.map(img => ({
@@ -117,6 +118,8 @@ class DealService {
           }));
           scrapedMedia = [...scrapedMedia, ...scrapedImages];
           console.log(`✅ Scraped ${scrapedImages.length} images from listing`);
+        } else {
+          console.log(`⏭️  Skipping Puppeteer scrape - Dropbox image already extracted`);
         }
       }
     }
