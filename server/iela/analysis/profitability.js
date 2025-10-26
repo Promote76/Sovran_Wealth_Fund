@@ -44,17 +44,20 @@ function analyzeProfitability(input) {
     { 
       repair: repairs.low, 
       mao: calculateMAO(arv, repairs.low),
-      roi: parseFloat(calculateROI(arv, asking, repairs.low).toFixed(1))
+      roi: parseFloat(calculateROI(arv, asking, repairs.low).toFixed(1)),
+      profitMargin: arv - (asking + repairs.low)
     },
     { 
       repair: repairs.mid, 
       mao: calculateMAO(arv, repairs.mid),
-      roi: parseFloat(calculateROI(arv, asking, repairs.mid).toFixed(1))
+      roi: parseFloat(calculateROI(arv, asking, repairs.mid).toFixed(1)),
+      profitMargin: arv - (asking + repairs.mid)
     },
     { 
       repair: repairs.high, 
       mao: calculateMAO(arv, repairs.high),
-      roi: parseFloat(calculateROI(arv, asking, repairs.high).toFixed(1))
+      roi: parseFloat(calculateROI(arv, asking, repairs.high).toFixed(1)),
+      profitMargin: arv - (asking + repairs.high)
     }
   ];
 

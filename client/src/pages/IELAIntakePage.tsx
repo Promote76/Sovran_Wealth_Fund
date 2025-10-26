@@ -212,7 +212,7 @@ const IELAIntakePage: React.FC = () => {
                 <h3 className="font-bold text-lg mb-3">💰 Analysis</h3>
                 <p className="text-sm mb-1"><strong>Repair Est:</strong> ${dealResult.repairs?.estMid?.toLocaleString()}</p>
                 <p className="text-sm mb-1"><strong>MAO (1.0x):</strong> ${dealResult.analysis?.maoByRepair?.[1]?.mao?.toLocaleString()}</p>
-                <p className="text-sm mb-1"><strong>Profit Margin:</strong> ${dealResult.analysis?.maoByRepair?.[1]?.profit?.toLocaleString()}</p>
+                <p className="text-sm mb-1"><strong>Profit Margin:</strong> ${dealResult.analysis?.maoByRepair?.[1]?.profitMargin?.toLocaleString()}</p>
                 <p className="text-sm mb-1"><strong>RTO Badge:</strong> 
                   <span className={`ml-2 px-2 py-1 rounded text-xs font-bold ${
                     dealResult.analysis?.rtoBadge === 'green' ? 'bg-green-500 text-white' :
