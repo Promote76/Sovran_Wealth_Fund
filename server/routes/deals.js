@@ -167,4 +167,33 @@ router.get('/', async (req, res) => {
   }
 });
 
+router.put('/:dealId', async (req, res) => {
+  try {
+    const { dealId } = req.params;
+    const { status } = req.body;
+
+    if (!status) {
+      return res.status(400).json({
+        success: false,
+        error: 'status is required'
+      });
+    }
+
+    const deal = await dealService.updateDealStatus(dealId, status);
+
+    console.log(`✅ IELA: Deal ${dealId} status updated to ${status}`);
+
+    res.json({
+      success: true,
+      data: deal
+    });
+  } catch (error) {
+    console.error('❌ IELA update error:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
 module.exports = router;

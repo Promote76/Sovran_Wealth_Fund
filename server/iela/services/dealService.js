@@ -257,6 +257,18 @@ class DealService {
     return result.map(d => this.mapToDeal(d));
   }
 
+  async updateDealStatus(dealId, status) {
+    await db
+      .update(deals)
+      .set({
+        status,
+        updatedAt: new Date()
+      })
+      .where(eq(deals.id, dealId));
+
+    return this.getDeal(dealId);
+  }
+
   mapToDeal(row) {
     return {
       id: row.id,
