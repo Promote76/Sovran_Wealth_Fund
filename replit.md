@@ -18,8 +18,13 @@ Preferred communication style: Simple, everyday language.
   - **Deal Detail Pages**: Full property detail view at `/deals/:id` with images, property facts, investment analysis, pricing, and contact info
   - **KeyGrow Embedded Listings**: Shows top 3 RTO-ready properties (green badge) with asking price and estimated rent
   - **Investor Embedded Listings**: Shows top 3 investment opportunities sorted by ROI with asking, ARV, MAO, and ROI metrics
-  - **Functional View Details**: Buttons now route to individual deal detail pages with complete property information
+  - **Functional View Details**: All "View Details" buttons (marketplace, KeyGrow, Real Estate Investor) now properly route to individual deal pages
   - **React Router Integration**: Added `/deals/:id` route for individual property pages
+  - **Enhanced Property Scraper**: Upgraded to use Puppeteer for JavaScript-rendered sites like InvestorLift
+    - Supports static sites (Zillow, Realtor.com) with Cheerio
+    - Uses headless Chrome for dynamic sites (InvestorLift) to extract images after page load
+    - Automatically extracts property photos, price, beds, baths, sqft, address, description
+    - System dependencies: Chromium installed for headless browser operations
 
 - **IELA Pipeline (Ingest-Enrich-Analyze-List)**: ✅ PRODUCTION-READY - Complete wholesale real estate deal management system with 5 production deployment features
   - **Parsing Engine**: SMS/email text parser extracts property details (address, asking price, ARV, contact info)

@@ -4,7 +4,7 @@ modules = ["nodejs-20", "postgresql-16", "python-3.11", "python3"]
 
 [nix]
 channel = "stable-22_11"
-packages = ["cairo", "giflib", "jq", "libjpeg", "librsvg", "libuuid", "pango", "pkg-config", "unzip", "zip"]
+packages = ["cairo", "giflib", "jq", "libjpeg", "librsvg", "libuuid", "pango", "pkg-config", "unzip", "zip", "chromium"]
 
 [env]
 NODE_ENV = "development"
