@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 interface Deal {
   id: string;
@@ -13,6 +14,7 @@ interface Deal {
 }
 
 const DealMarketplacePage: React.FC = () => {
+  const navigate = useNavigate();
   const [deals, setDeals] = useState<Deal[]>([]);
   const [filteredDeals, setFilteredDeals] = useState<Deal[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -194,7 +196,7 @@ const DealMarketplacePage: React.FC = () => {
                 <div className="relative h-48 bg-gradient-to-br from-gray-200 to-gray-300">
                   {deal.media && deal.media.length > 0 ? (
                     <img
-                      src={deal.media[0].url}
+                      src={deal.media[0]}
                       alt="Property"
                       className="w-full h-full object-cover"
                       onError={(e) => {
@@ -268,7 +270,10 @@ const DealMarketplacePage: React.FC = () => {
                     </div>
                   )}
 
-                  <button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg font-medium transition-colors">
+                  <button 
+                    onClick={() => navigate(`/deals/${deal.id}`)}
+                    className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg font-medium transition-colors"
+                  >
                     View Details
                   </button>
                 </div>
