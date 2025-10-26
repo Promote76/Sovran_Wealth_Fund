@@ -34,13 +34,14 @@ class PropertyScraperService {
 
     try {
       if (url.includes('investorlift.com')) {
+        console.log(`📸 Using Puppeteer for InvestorLift (extended timeout: 60s)`);
         return await this.scrapeInvestorLiftWithPuppeteer(url);
       } else {
         const scrapedData = await this.scrapeUrl(url);
         return scrapedData;
       }
     } catch (error) {
-      console.error(`Failed to scrape property URL ${url}:`, error.message);
+      console.error(`⚠️ Failed to scrape property URL ${url}:`, error.message);
       return { images: [], data: {} };
     }
   }
@@ -55,10 +56,10 @@ class PropertyScraperService {
       console.log(`🌐 Loading InvestorLift page: ${url}`);
       await page.goto(url, { 
         waitUntil: 'networkidle2',
-        timeout: 30000 
+        timeout: 60000 
       });
       
-      await page.waitForTimeout(3000);
+      await page.waitForTimeout(5000);
       
       const scrapedData = await page.evaluate(() => {
         const images = [];
