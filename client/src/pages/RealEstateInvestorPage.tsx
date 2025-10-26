@@ -28,15 +28,46 @@ interface Investment {
   appreciation: string;
 }
 
+interface FractionalProperty {
+  id: number;
+  total_shares: number;
+  share_price: number;
+  property_value: number;
+  shares_sold: number;
+  shares_available: number;
+  monthly_rent: number;
+  monthly_expenses: number;
+  net_monthly_income: number;
+  status: string;
+  metadata: any;
+}
+
+interface FractionalInvestment {
+  property_id: number;
+  shares_owned: number;
+  ownership_percent: number;
+  total_invested: number;
+  tier: string;
+  revenue_earned: number;
+  property: FractionalProperty;
+}
+
+const TIER_INFO = {
+  retail: { min: 500, max: 10000, bonus: 0, color: 'blue', label: 'Retail' },
+  accredited: { min: 10000, max: 100000, bonus: 2, color: 'purple', label: 'Accredited' },
+  premium: { min: 100000, max: 500000, bonus: 5, color: 'orange', label: 'Premium' },
+  institutional: { min: 500000, max: Infinity, bonus: 8, color: 'red', label: 'Institutional' }
+};
+
 export default function RealEstateInvestorPage() {
   const navigate = useNavigate();
   const { isConnected, account, connectWallet, isConnecting } = useWallet();
+  
+  // Blockchain Properties & Portfolio
   const [properties, setProperties] = useState<Property[]>([]);
   const [portfolio, setPortfolio] = useState<Investment[]>([]);
   const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
-  const [loading, setLoading] = useState(true);
   const [txStatus, setTxStatus] = useState({ loading: false, success: false, error: '', txHash: '' });
-
   const [stats, setStats] = useState({
     totalInvested: '0',
     totalRentalEarned: '0',
@@ -45,44 +76,39 @@ export default function RealEstateInvestorPage() {
     propertyCount: 0
   });
 
-  // Available investment deals from marketplace
+  // Fractional Properties & Portfolio
+  const [fractionalProperties, setFractionalProperties] = useState<FractionalProperty[]>([]);
+  const [fractionalPortfolio, setFractionalPortfolio] = useState<FractionalInvestment[]>([]);
+  const [fractionalStats, setFractionalStats] = useState<any>(null);
+  const [selectedFractional, setSelectedFractional] = useState<FractionalProperty | null>(null);
+  const [investmentAmount, setInvestmentAmount] = useState('500');
+  const [loading, setLoading] = useState(true);
+
+  // Available deals
   const [availableDeals, setAvailableDeals] = useState<any[]>([]);
   const [dealsLoading, setDealsLoading] = useState(true);
 
   useEffect(() => {
-    loadProperties();
-    if (isConnected && account) {
-      loadPortfolio();
-    }
+    loadAllData();
   }, [isConnected, account]);
 
-  // Load available investor deals
-  useEffect(() => {
-    const loadAvailableDeals = async () => {
-      setDealsLoading(true);
-      try {
-        const response = await fetch('/api/deals?status=published');
-        const data = await response.json();
-        if (data.success) {
-          // Show all published deals, sorted by ROI
-          const sorted = data.data.sort((a: any, b: any) => {
-            const roiA = a.analysis?.maoByRepair?.[1]?.roi || 0;
-            const roiB = b.analysis?.maoByRepair?.[1]?.roi || 0;
-            return roiB - roiA;
-          });
-          setAvailableDeals(sorted.slice(0, 3)); // Show top 3
-        }
-      } catch (error) {
-        console.error('Failed to load deals:', error);
-      } finally {
-        setDealsLoading(false);
-      }
-    };
-    
-    loadAvailableDeals();
-  }, []);
+  const loadAllData = async () => {
+    setLoading(true);
+    await Promise.all([
+      loadBlockchainProperties(),
+      loadFractionalProperties(),
+      loadAvailableDeals()
+    ]);
+    if (isConnected && account) {
+      await Promise.all([
+        loadBlockchainPortfolio(),
+        loadFractionalPortfolio()
+      ]);
+    }
+    setLoading(false);
+  };
 
-  const loadProperties = async () => {
+  const loadBlockchainProperties = async () => {
     try {
       const response = await fetch('/api/real-estate-investor/properties');
       const data = await response.json();
@@ -90,15 +116,24 @@ export default function RealEstateInvestorPage() {
         setProperties(data.data);
       }
     } catch (error) {
-      console.error('Failed to load properties:', error);
-    } finally {
-      setLoading(false);
+      console.error('Failed to load blockchain properties:', error);
     }
   };
 
-  const loadPortfolio = async () => {
+  const loadFractionalProperties = async () => {
+    try {
+      const response = await fetch('/api/fractional/properties');
+      const data = await response.json();
+      if (data.success) {
+        setFractionalProperties(data.properties || []);
+      }
+    } catch (error) {
+      console.error('Failed to load fractional properties:', error);
+    }
+  };
+
+  const loadBlockchainPortfolio = async () => {
     if (!account) return;
-    
     try {
       const response = await fetch(`/api/real-estate-investor/portfolio/${account}`);
       const data = await response.json();
@@ -107,14 +142,50 @@ export default function RealEstateInvestorPage() {
         setStats(data.data.stats);
       }
     } catch (error) {
-      console.error('Failed to load portfolio:', error);
+      console.error('Failed to load blockchain portfolio:', error);
     }
   };
 
+  const loadFractionalPortfolio = async () => {
+    if (!account) return;
+    try {
+      const response = await fetch(`/api/fractional/portfolio?walletAddress=${account}`, {
+        headers: {
+          'x-wallet-address': account
+        }
+      });
+      const data = await response.json();
+      if (data.success) {
+        setFractionalPortfolio(data.portfolio || []);
+        setFractionalStats(data.totals);
+      }
+    } catch (error) {
+      console.error('Failed to load fractional portfolio:', error);
+    }
+  };
+
+  const loadAvailableDeals = async () => {
+    setDealsLoading(true);
+    try {
+      const response = await fetch('/api/deals?status=published');
+      const data = await response.json();
+      if (data.success) {
+        const sorted = data.data.sort((a: any, b: any) => {
+          const roiA = a.analysis?.maoByRepair?.[1]?.roi || 0;
+          const roiB = b.analysis?.maoByRepair?.[1]?.roi || 0;
+          return roiB - roiA;
+        });
+        setAvailableDeals(sorted.slice(0, 3));
+      }
+    } catch (error) {
+      console.error('Failed to load deals:', error);
+    } finally {
+      setDealsLoading(false);
+    }
+  };
 
   const handleClaimRental = async (propertyId?: number) => {
     setTxStatus({ loading: true, success: false, error: '', txHash: '' });
-    
     try {
       const response = await fetch('/api/real-estate-investor/tx/claim-rental', {
         method: 'POST',
@@ -124,12 +195,10 @@ export default function RealEstateInvestorPage() {
           propertyId: propertyId || 'all'
         })
       });
-
       const data = await response.json();
-      
       if (data.success) {
         setTxStatus({ loading: false, success: true, error: '', txHash: data.data.txHash });
-        setTimeout(() => loadPortfolio(), 2000);
+        setTimeout(() => loadBlockchainPortfolio(), 2000);
       } else {
         setTxStatus({ loading: false, success: false, error: data.error, txHash: '' });
       }
@@ -137,6 +206,31 @@ export default function RealEstateInvestorPage() {
       setTxStatus({ loading: false, success: false, error: error.message, txHash: '' });
     }
   };
+
+  const calculateTier = (amount: number) => {
+    if (amount >= TIER_INFO.institutional.min) return 'institutional';
+    if (amount >= TIER_INFO.premium.min) return 'premium';
+    if (amount >= TIER_INFO.accredited.min) return 'accredited';
+    return 'retail';
+  };
+
+  const getTierInfo = (tier: string) => TIER_INFO[tier as keyof typeof TIER_INFO] || TIER_INFO.retail;
+
+  const formatCurrency = (value: number) => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      minimumFractionDigits: 0
+    }).format(value);
+  };
+
+  const totalPortfolioValue = fractionalStats 
+    ? fractionalStats.totalInvested + parseFloat(stats.portfolioValue || '0') 
+    : parseFloat(stats.portfolioValue || '0');
+
+  const totalRevenue = fractionalStats
+    ? fractionalStats.totalRevenueEarned + parseFloat(stats.totalRentalEarned || '0') * 600
+    : parseFloat(stats.totalRentalEarned || '0') * 600;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 to-white p-6">
@@ -179,34 +273,43 @@ export default function RealEstateInvestorPage() {
             <div className="grid md:grid-cols-4 gap-4">
               <div className="bg-blue-50 p-4 rounded-lg border-2 border-blue-200">
                 <div className="text-sm text-gray-600 mb-1">Available Properties</div>
-                <div className="text-3xl font-bold text-blue-600">{properties.length}</div>
+                <div className="text-3xl font-bold text-blue-600">
+                  {properties.length + fractionalProperties.length}
+                </div>
+                <div className="text-xs text-gray-500 mt-1">
+                  {fractionalProperties.length} fractional
+                </div>
               </div>
               <div className="bg-green-50 p-4 rounded-lg border-2 border-green-200">
                 <div className="text-sm text-gray-600 mb-1">Total Investment</div>
                 <div className="text-3xl font-bold text-green-600">
-                  ${(properties.reduce((sum, p) => sum + parseFloat(p.currentRaise), 0) * 600).toFixed(0)}
+                  {formatCurrency(
+                    fractionalProperties.reduce((sum, p) => sum + (p.shares_sold * p.share_price), 0) +
+                    (properties.reduce((sum, p) => sum + parseFloat(p.currentRaise), 0) * 600)
+                  )}
                 </div>
               </div>
               <div className="bg-purple-50 p-4 rounded-lg border-2 border-purple-200">
                 <div className="text-sm text-gray-600 mb-1">Min Investment</div>
-                <div className="text-3xl font-bold text-purple-600">0.05 BNB</div>
-                <div className="text-xs text-gray-500">~$30 USD</div>
+                <div className="text-3xl font-bold text-purple-600">$500</div>
+                <div className="text-xs text-gray-500">Fractional shares</div>
               </div>
               <div className="bg-orange-50 p-4 rounded-lg border-2 border-orange-200">
-                <div className="text-sm text-gray-600 mb-1">Platform Fee</div>
-                <div className="text-3xl font-bold text-orange-600">2.5%</div>
+                <div className="text-sm text-gray-600 mb-1">Investor Tiers</div>
+                <div className="text-3xl font-bold text-orange-600">4</div>
+                <div className="text-xs text-gray-500">Up to 8% bonus</div>
               </div>
             </div>
           </CardContent>
         </Card>
 
-        {/* Your Portfolio - Only for connected wallets */}
-        {isConnected && portfolio.length > 0 && (
+        {/* Combined Portfolio Dashboard */}
+        {isConnected && (fractionalPortfolio.length > 0 || portfolio.length > 0) && (
           <Card className="border-2 border-blue-200 bg-gradient-to-br from-blue-50 to-white">
             <CardContent className="p-6">
               <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
                 <span className="text-3xl">💼</span>
-                Your Portfolio
+                Your Investment Portfolio
               </h2>
               
               {/* Portfolio Stats */}
@@ -214,81 +317,247 @@ export default function RealEstateInvestorPage() {
                 <div className="bg-white p-4 rounded-lg border-2 border-blue-200">
                   <div className="text-sm text-gray-600 mb-1">Total Invested</div>
                   <div className="text-2xl font-bold text-blue-600">
-                    {parseFloat(stats.totalInvested).toFixed(4)} BNB
+                    {formatCurrency(totalPortfolioValue)}
                   </div>
-                  <div className="text-xs text-gray-500">≈ ${(parseFloat(stats.totalInvested) * 600).toFixed(2)}</div>
+                  <div className="text-xs text-gray-500 mt-1">
+                    {fractionalPortfolio.length + portfolio.length} properties
+                  </div>
                 </div>
                 <div className="bg-white p-4 rounded-lg border-2 border-green-200">
-                  <div className="text-sm text-gray-600 mb-1">Portfolio Value</div>
+                  <div className="text-sm text-gray-600 mb-1">Current Value</div>
                   <div className="text-2xl font-bold text-green-600">
-                    ${stats.portfolioValue}
+                    {formatCurrency(totalPortfolioValue * 1.05)}
                   </div>
-                  <div className="text-xs text-gray-500">{stats.propertyCount} properties</div>
+                  <div className="text-xs text-gray-500">+5% appreciation</div>
                 </div>
                 <div className="bg-white p-4 rounded-lg border-2 border-purple-200">
-                  <div className="text-sm text-gray-600 mb-1">Rental Earned</div>
+                  <div className="text-sm text-gray-600 mb-1">Revenue Earned</div>
                   <div className="text-2xl font-bold text-purple-600">
-                    {parseFloat(stats.totalRentalEarned).toFixed(4)} BNB
+                    {formatCurrency(totalRevenue)}
                   </div>
+                  <div className="text-xs text-gray-500">All-time</div>
                 </div>
                 <div className="bg-white p-4 rounded-lg border-2 border-orange-200">
-                  <div className="text-sm text-gray-600 mb-1">Pending Rental</div>
+                  <div className="text-sm text-gray-600 mb-1">Portfolio Properties</div>
                   <div className="text-2xl font-bold text-orange-600">
-                    {parseFloat(stats.totalPendingRental).toFixed(4)} BNB
+                    {fractionalStats?.propertiesCount || 0}
                   </div>
-                  <Button
-                    onClick={() => handleClaimRental()}
-                    disabled={txStatus.loading || parseFloat(stats.totalPendingRental) === 0}
-                    className="mt-2 w-full bg-orange-600 hover:bg-orange-700 text-sm"
-                  >
-                    💰 Claim All
-                  </Button>
+                  <div className="text-xs text-gray-500">
+                    {fractionalPortfolio.length} investments
+                  </div>
                 </div>
               </div>
 
-              {/* Individual Investments */}
-              <div className="space-y-3">
-                {portfolio.map((inv) => {
-                  const property = properties.find(p => p.id === inv.propertyId);
-                  if (!property) return null;
-
-                  return (
-                    <div key={inv.propertyId} className="bg-white p-4 rounded-lg border border-gray-200">
-                      <div className="flex justify-between items-start mb-2">
-                        <div>
-                          <h4 className="font-semibold text-gray-900">{property.propertyAddress}</h4>
-                          <div className="text-sm text-gray-600 mt-1">
-                            Owns {inv.sharesOwned} shares ({((inv.sharesOwned / property.totalShares) * 100).toFixed(2)}%)
+              {/* Fractional Investments */}
+              {fractionalPortfolio.length > 0 && (
+                <div className="mb-6">
+                  <h3 className="text-lg font-bold text-gray-800 mb-3">🏢 Fractional Holdings</h3>
+                  <div className="space-y-3">
+                    {fractionalPortfolio.map((inv) => {
+                      const tierInfo = getTierInfo(inv.tier);
+                      return (
+                        <div key={inv.property_id} className="bg-white p-4 rounded-lg border border-gray-200">
+                          <div className="flex justify-between items-start mb-2">
+                            <div className="flex-1">
+                              <h4 className="font-semibold text-gray-900">
+                                {inv.property.metadata?.address || `Property #${inv.property_id}`}
+                              </h4>
+                              <div className="flex items-center gap-2 mt-1">
+                                <span className={`text-xs px-2 py-1 rounded-full bg-${tierInfo.color}-100 text-${tierInfo.color}-800 font-semibold`}>
+                                  {tierInfo.label} +{tierInfo.bonus}%
+                                </span>
+                                <span className="text-sm text-gray-600">
+                                  {inv.shares_owned.toLocaleString()} shares ({inv.ownership_percent.toFixed(2)}%)
+                                </span>
+                              </div>
+                            </div>
+                            <div className="text-right">
+                              <div className="text-sm text-gray-600">Invested</div>
+                              <div className="font-bold text-green-600">{formatCurrency(inv.total_invested)}</div>
+                            </div>
+                          </div>
+                          
+                          <div className="grid grid-cols-3 gap-3 mt-3 text-sm">
+                            <div>
+                              <div className="text-gray-600">Monthly Income</div>
+                              <div className="font-semibold">
+                                {formatCurrency(inv.property.net_monthly_income * (inv.ownership_percent / 100))}
+                              </div>
+                            </div>
+                            <div>
+                              <div className="text-gray-600">Revenue Earned</div>
+                              <div className="font-semibold text-green-600">{formatCurrency(inv.revenue_earned || 0)}</div>
+                            </div>
+                            <div>
+                              <div className="text-gray-600">Property Value</div>
+                              <div className="font-semibold">{formatCurrency(inv.property.property_value)}</div>
+                            </div>
                           </div>
                         </div>
-                        <div className="text-right">
-                          <div className="text-sm text-gray-600">Current Value</div>
-                          <div className="font-bold text-green-600">${inv.currentValue}</div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* Blockchain Investments */}
+              {portfolio.length > 0 && (
+                <div>
+                  <h3 className="text-lg font-bold text-gray-800 mb-3">⛓️ Blockchain Holdings</h3>
+                  <div className="space-y-3">
+                    {portfolio.map((inv) => {
+                      const property = properties.find(p => p.id === inv.propertyId);
+                      if (!property) return null;
+                      return (
+                        <div key={inv.propertyId} className="bg-white p-4 rounded-lg border border-gray-200">
+                          <div className="flex justify-between items-start mb-2">
+                            <div>
+                              <h4 className="font-semibold text-gray-900">{property.propertyAddress}</h4>
+                              <div className="text-sm text-gray-600 mt-1">
+                                {inv.sharesOwned} shares ({((inv.sharesOwned / property.totalShares) * 100).toFixed(2)}%)
+                              </div>
+                            </div>
+                            <div className="text-right">
+                              <div className="text-sm text-gray-600">Current Value</div>
+                              <div className="font-bold text-green-600">${inv.currentValue}</div>
+                            </div>
+                          </div>
+                          
+                          <div className="grid grid-cols-3 gap-3 mt-3 text-sm">
+                            <div>
+                              <div className="text-gray-600">Invested</div>
+                              <div className="font-semibold">{inv.investedAmount} BNB</div>
+                            </div>
+                            <div>
+                              <div className="text-gray-600">Appreciation</div>
+                              <div className="font-semibold text-green-600">${inv.appreciation}</div>
+                            </div>
+                            <div>
+                              <div className="text-gray-600">Pending Rental</div>
+                              <div className="font-semibold text-blue-600">{inv.pendingRental} BNB</div>
+                            </div>
+                          </div>
+                          
+                          {parseFloat(inv.pendingRental) > 0 && (
+                            <Button
+                              onClick={() => handleClaimRental(inv.propertyId)}
+                              disabled={txStatus.loading}
+                              className="mt-3 w-full bg-blue-600 hover:bg-blue-700 text-sm"
+                            >
+                              💸 Claim Rental Income
+                            </Button>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Fractional Properties */}
+        {fractionalProperties.length > 0 && (
+          <Card className="border-2 border-purple-200">
+            <CardContent className="p-6">
+              <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+                <span className="text-3xl">🏢</span>
+                Fractional Real Estate
+              </h2>
+              <p className="text-gray-600 mb-6">
+                Invest starting from $500 • 4-tier system with up to 8% revenue bonus
+              </p>
+
+              <div className="grid md:grid-cols-2 gap-6">
+                {fractionalProperties.map((property) => {
+                  const fundingPercent = (property.shares_sold / property.total_shares) * 100;
+                  const minTierInfo = getTierInfo('retail');
+                  
+                  return (
+                    <div key={property.id} className="bg-white border-2 border-purple-200 rounded-lg p-5 hover:shadow-lg transition-shadow">
+                      <div className="flex justify-between items-start mb-3">
+                        <div>
+                          <h3 className="text-xl font-bold text-gray-900">
+                            {property.metadata?.address || `Property #${property.id}`}
+                          </h3>
+                          <div className="text-sm text-gray-600 mt-1">
+                            {property.metadata?.city}, {property.metadata?.state}
+                          </div>
+                        </div>
+                        <div className={`px-3 py-1 rounded-full text-xs font-medium ${
+                          property.status === 'active' 
+                            ? 'bg-green-100 text-green-800' 
+                            : 'bg-gray-100 text-gray-800'
+                        }`}>
+                          {property.status === 'active' ? '🟢 Active' : '⚪ Inactive'}
                         </div>
                       </div>
-                      
-                      <div className="grid grid-cols-3 gap-3 mt-3 text-sm">
-                        <div>
-                          <div className="text-gray-600">Invested</div>
-                          <div className="font-semibold">{inv.investedAmount} BNB</div>
+
+                      {/* Progress Bar */}
+                      <div className="mb-4">
+                        <div className="flex justify-between text-sm mb-1">
+                          <span className="text-gray-600">Funding Progress</span>
+                          <span className="font-semibold text-purple-600">
+                            {fundingPercent.toFixed(1)}%
+                          </span>
                         </div>
-                        <div>
-                          <div className="text-gray-600">Appreciation</div>
-                          <div className="font-semibold text-green-600">${inv.appreciation}</div>
+                        <div className="w-full bg-gray-200 rounded-full h-3">
+                          <div
+                            className="bg-gradient-to-r from-purple-500 to-purple-600 h-3 rounded-full transition-all"
+                            style={{ width: `${Math.min(fundingPercent, 100)}%` }}
+                          ></div>
                         </div>
-                        <div>
-                          <div className="text-gray-600">Pending Rental</div>
-                          <div className="font-semibold text-blue-600">{inv.pendingRental} BNB</div>
+                        <div className="flex justify-between text-xs text-gray-500 mt-1">
+                          <span>{property.shares_sold.toLocaleString()} / {property.total_shares.toLocaleString()} shares</span>
+                          <span>{property.shares_available.toLocaleString()} available</span>
                         </div>
                       </div>
-                      
-                      {parseFloat(inv.pendingRental) > 0 && (
+
+                      {/* Property Details */}
+                      <div className="grid grid-cols-2 gap-3 mb-4 text-sm">
+                        <div className="bg-blue-50 p-3 rounded">
+                          <div className="text-gray-600">Property Value</div>
+                          <div className="font-bold text-blue-600">{formatCurrency(property.property_value)}</div>
+                        </div>
+                        <div className="bg-green-50 p-3 rounded">
+                          <div className="text-gray-600">Share Price</div>
+                          <div className="font-bold text-green-600">{formatCurrency(property.share_price)}</div>
+                        </div>
+                        <div className="bg-purple-50 p-3 rounded">
+                          <div className="text-gray-600">Monthly Income</div>
+                          <div className="font-bold text-purple-600">{formatCurrency(property.net_monthly_income)}</div>
+                        </div>
+                        <div className="bg-orange-50 p-3 rounded">
+                          <div className="text-gray-600">Annual Yield</div>
+                          <div className="font-bold text-orange-600">
+                            {((property.net_monthly_income * 12 / property.property_value) * 100).toFixed(1)}%
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Tier Badges */}
+                      <div className="mb-4">
+                        <div className="text-xs text-gray-600 mb-2">Investment Tiers:</div>
+                        <div className="flex flex-wrap gap-2">
+                          {Object.entries(TIER_INFO).map(([key, tier]) => (
+                            <span
+                              key={key}
+                              className={`text-xs px-2 py-1 rounded-full bg-${tier.color}-100 text-${tier.color}-800`}
+                            >
+                              {tier.label} +{tier.bonus}%
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Investment Button */}
+                      {property.status === 'active' && property.shares_available > 0 && (
                         <Button
-                          onClick={() => handleClaimRental(inv.propertyId)}
-                          disabled={txStatus.loading}
-                          className="mt-3 w-full bg-blue-600 hover:bg-blue-700 text-sm"
+                          onClick={() => isConnected ? setSelectedFractional(property) : connectWallet()}
+                          className="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold"
                         >
-                          💸 Claim Rental Income
+                          {isConnected ? '🏢 Invest Now' : '🔗 Connect Wallet to Invest'}
                         </Button>
                       )}
                     </div>
@@ -299,42 +568,31 @@ export default function RealEstateInvestorPage() {
           </Card>
         )}
 
-        {/* Available Properties */}
-        <Card className="border-2 border-green-200">
-          <CardContent className="p-4 md:p-6">
-            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-6">
-              <h2 className="text-xl md:text-2xl font-bold text-gray-900 flex items-center gap-2">
-                <span className="text-2xl md:text-3xl">🏠</span>
-                Available Properties
-              </h2>
-              <div className="flex gap-2">
-                <Button
-                  onClick={() => navigate('/investor-register')}
-                  className="bg-blue-500 hover:bg-blue-600 text-white font-semibold px-3 py-2 text-xs md:text-sm"
-                >
-                  🚀 Register
-                </Button>
-                <Button
-                  onClick={() => navigate('/real-estate-investor/submit')}
-                  className="bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-semibold px-3 py-2 text-xs md:text-sm"
-                >
-                  📤 Submit
-                </Button>
+        {/* Blockchain Properties */}
+        {properties.length > 0 && (
+          <Card className="border-2 border-green-200">
+            <CardContent className="p-6">
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+                  <span className="text-3xl">⛓️</span>
+                  Blockchain Properties
+                </h2>
+                <div className="flex gap-2">
+                  <Button
+                    onClick={() => navigate('/investor-register')}
+                    className="bg-blue-500 hover:bg-blue-600 text-white font-semibold px-3 py-2 text-sm"
+                  >
+                    🚀 Register
+                  </Button>
+                  <Button
+                    onClick={() => navigate('/real-estate-investor/submit')}
+                    className="bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-semibold px-3 py-2 text-sm"
+                  >
+                    📤 Submit
+                  </Button>
+                </div>
               </div>
-            </div>
 
-            {loading ? (
-              <div className="text-center py-12 text-gray-500">
-                <div className="animate-spin text-4xl mb-4">⏳</div>
-                <div>Loading properties...</div>
-              </div>
-            ) : properties.length === 0 ? (
-              <div className="text-center py-12 text-gray-500">
-                <div className="text-4xl mb-3">🏗️</div>
-                <p className="text-lg font-medium">No properties available yet</p>
-                <p className="text-sm">Check back soon for new investment opportunities!</p>
-              </div>
-            ) : (
               <div className="grid md:grid-cols-2 gap-6">
                 {properties.map((property) => (
                   <div key={property.id} className="bg-white border-2 border-gray-200 rounded-lg p-5 hover:shadow-lg transition-shadow">
@@ -342,7 +600,7 @@ export default function RealEstateInvestorPage() {
                       <div>
                         <h3 className="text-xl font-bold text-gray-900">{property.propertyAddress}</h3>
                         <div className="text-sm text-gray-600 mt-1">
-                          Property Value: <span className="font-semibold">${parseFloat(property.currentValue).toLocaleString()}</span>
+                          Value: <span className="font-semibold">${parseFloat(property.currentValue).toLocaleString()}</span>
                         </div>
                       </div>
                       <div className={`px-3 py-1 rounded-full text-xs font-medium ${
@@ -368,10 +626,6 @@ export default function RealEstateInvestorPage() {
                           style={{ width: `${Math.min((parseFloat(property.currentRaise) / parseFloat(property.targetRaise)) * 100, 100)}%` }}
                         ></div>
                       </div>
-                      <div className="flex justify-between text-xs text-gray-500 mt-1">
-                        <span>{parseFloat(property.currentRaise).toFixed(2)} BNB raised</span>
-                        <span>Target: {parseFloat(property.targetRaise).toFixed(2)} BNB</span>
-                      </div>
                     </div>
 
                     {/* Property Details */}
@@ -381,16 +635,8 @@ export default function RealEstateInvestorPage() {
                         <div className="font-bold text-blue-600">${property.monthlyRent}</div>
                       </div>
                       <div className="bg-green-50 p-3 rounded">
-                        <div className="text-gray-600">Price per Share</div>
+                        <div className="text-gray-600">Price/Share</div>
                         <div className="font-bold text-green-600">{property.pricePerShare} BNB</div>
-                      </div>
-                      <div className="bg-purple-50 p-3 rounded">
-                        <div className="text-gray-600">Total Shares</div>
-                        <div className="font-bold text-purple-600">{property.totalShares}</div>
-                      </div>
-                      <div className="bg-orange-50 p-3 rounded">
-                        <div className="text-gray-600">Available</div>
-                        <div className="font-bold text-orange-600">{property.totalShares - property.sharesIssued}</div>
                       </div>
                     </div>
 
@@ -405,28 +651,10 @@ export default function RealEstateInvestorPage() {
                     )}
                   </div>
                 ))}
-
-                {/* Submit Property Card - Mobile Friendly */}
-                <div className="bg-gradient-to-br from-yellow-50 to-orange-50 border-2 border-yellow-300 rounded-lg p-4 md:p-5 hover:shadow-lg transition-shadow flex flex-col justify-center items-center min-h-[300px] md:min-h-[400px]">
-                  <div className="text-4xl md:text-6xl mb-3 md:mb-4">🏗️</div>
-                  <h3 className="text-lg md:text-2xl font-bold text-gray-900 mb-2 md:mb-3 text-center">Own a Property?</h3>
-                  <p className="text-sm md:text-base text-gray-700 text-center mb-4 md:mb-6 max-w-sm px-2">
-                    List your property for fractional investment and get funded faster.
-                  </p>
-                  <Button
-                    onClick={() => navigate('/real-estate-investor/submit')}
-                    className="bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-bold shadow-lg border-2 border-yellow-400 px-4 py-2 md:px-6 md:py-3 text-sm md:text-base w-full md:w-auto"
-                  >
-                    📤 Submit Property
-                  </Button>
-                  <div className="mt-3 md:mt-4 text-xs md:text-sm text-gray-600 text-center">
-                    Fast approval • Low fees
-                  </div>
-                </div>
               </div>
-            )}
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Transaction Status */}
         {txStatus.success && txStatus.txHash && (
@@ -452,16 +680,7 @@ export default function RealEstateInvestorPage() {
           </Card>
         )}
 
-        {txStatus.error && (
-          <Card>
-            <CardContent className="p-6 bg-red-50">
-              <div className="font-medium text-red-800 mb-1">❌ Transaction Failed</div>
-              <div className="text-sm text-red-600">{txStatus.error}</div>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Educational Section */}
+        {/* How It Works */}
         <Card>
           <CardContent className="p-6">
             <h2 className="text-2xl font-bold text-gray-900 mb-4">💡 How It Works</h2>
@@ -469,159 +688,199 @@ export default function RealEstateInvestorPage() {
               <div className="bg-blue-50 p-4 rounded-lg">
                 <div className="text-blue-600 font-bold text-lg mb-2">1️⃣ Browse Properties</div>
                 <div className="text-gray-700 text-sm">
-                  View available real estate investments. Each property is divided into shares, allowing you to own fractional pieces.
+                  View available real estate investments. Each property is divided into 10,000 shares for fractional ownership.
                 </div>
               </div>
               <div className="bg-green-50 p-4 rounded-lg">
                 <div className="text-green-600 font-bold text-lg mb-2">2️⃣ Invest & Own</div>
                 <div className="text-gray-700 text-sm">
-                  Buy shares starting from 0.05 BNB. Your ownership is recorded on the blockchain - completely transparent and secure.
+                  Buy shares starting from $500. Your tier determines revenue bonuses (0-8%).
                 </div>
               </div>
               <div className="bg-purple-50 p-4 rounded-lg">
                 <div className="text-purple-600 font-bold text-lg mb-2">3️⃣ Earn Monthly</div>
                 <div className="text-gray-700 text-sm">
-                  Receive your share of monthly rental income + property appreciation. Claim rewards anytime directly to your wallet.
+                  Receive monthly rental income + property appreciation + tier bonuses.
                 </div>
               </div>
             </div>
-            
-            <div className="mt-6 bg-gradient-to-r from-yellow-50 to-orange-50 p-6 rounded-lg border-2 border-yellow-300">
-              <h3 className="text-xl font-semibold text-gray-900 mb-3">🎯 5 Ways to Earn</h3>
-              <ul className="space-y-2 text-gray-700">
-                <li>✅ <strong>Rental Income:</strong> Monthly distributions from tenant rent payments</li>
-                <li>✅ <strong>Property Appreciation:</strong> Value gains as property prices increase</li>
-                <li>✅ <strong>Exit Profits:</strong> Share in profits when properties are sold</li>
-                <li>✅ <strong>Low Entry Barrier:</strong> Start with just $30 (0.05 BNB)</li>
-                <li>✅ <strong>Diversification:</strong> Invest in multiple properties to spread risk</li>
-              </ul>
-            </div>
-
-            {/* Call-to-Action - Become an Investor - Mobile Friendly */}
-            <div className="mt-6 bg-gradient-to-r from-blue-500 to-blue-600 p-4 md:p-8 rounded-lg text-white text-center">
-              <h3 className="text-lg md:text-2xl font-bold mb-2 md:mb-3">Ready to Start Building Wealth?</h3>
-              <p className="text-blue-100 mb-4 md:mb-6 text-sm md:text-lg px-2">
-                Register as an investor and get access to exclusive opportunities starting at just $30!
-              </p>
-              <Button
-                onClick={() => navigate('/investor-register')}
-                className="bg-white hover:bg-blue-50 text-blue-600 font-bold shadow-xl border-2 border-blue-200 px-6 py-3 md:px-8 md:py-4 text-sm md:text-base w-full md:w-auto"
-              >
-                🚀 Become an Investor
-              </Button>
-              <div className="mt-3 md:mt-4 text-xs md:text-sm text-blue-100">
-                Free registration • No fees
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Available Investment Opportunities */}
-        <Card className="border-2 border-blue-200 bg-gradient-to-br from-blue-50 to-white">
-          <CardContent className="p-6">
-            <div className="flex justify-between items-center mb-6">
-              <div>
-                <h2 className="text-2xl font-bold text-gray-900">💰 Investment Opportunities</h2>
-                <p className="text-gray-600">High ROI wholesale properties ready for investment</p>
-              </div>
-              <Button
-                onClick={() => navigate('/deals')}
-                className="bg-blue-600 hover:bg-blue-700 text-white"
-              >
-                View All Deals
-              </Button>
-            </div>
-
-            {dealsLoading ? (
-              <div className="text-center py-8">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-                <p className="text-gray-600">Loading opportunities...</p>
-              </div>
-            ) : availableDeals.length === 0 ? (
-              <div className="text-center py-8">
-                <div className="text-6xl mb-4">📊</div>
-                <p className="text-gray-600">No investment opportunities available at the moment</p>
-              </div>
-            ) : (
-              <div className="grid md:grid-cols-3 gap-6">
-                {availableDeals.map((deal) => (
-                  <div key={deal.id} className="bg-white rounded-lg shadow-md border-2 border-blue-200 overflow-hidden hover:shadow-lg transition-shadow">
-                    {deal.media?.[0] ? (
-                      <img
-                        src={deal.media[0]?.url || deal.media[0]}
-                        alt={deal.parsed?.address}
-                        className="w-full h-48 object-cover"
-                      />
-                    ) : (
-                      <div className="w-full h-48 bg-gray-200 flex items-center justify-center text-6xl">
-                        🏢
-                      </div>
-                    )}
-                    <div className="p-4">
-                      <h3 className="font-bold text-lg mb-2">{deal.parsed?.address}</h3>
-                      <p className="text-gray-600 text-sm mb-3">
-                        {deal.parsed?.city}, {deal.parsed?.state} {deal.parsed?.zip}
-                      </p>
-                      
-                      <div className="grid grid-cols-2 gap-2 mb-3">
-                        <div>
-                          <div className="text-xs text-gray-500">Asking Price</div>
-                          <div className="font-bold text-blue-600">
-                            ${deal.parsed?.asking?.toLocaleString()}
-                          </div>
-                        </div>
-                        <div>
-                          <div className="text-xs text-gray-500">ARV</div>
-                          <div className="font-bold text-green-600">
-                            ${deal.parsed?.arv?.toLocaleString()}
-                          </div>
-                        </div>
-                        <div>
-                          <div className="text-xs text-gray-500">MAO</div>
-                          <div className="font-bold text-purple-600">
-                            ${deal.analysis?.maoByRepair?.[1]?.mao?.toLocaleString()}
-                          </div>
-                        </div>
-                        <div>
-                          <div className="text-xs text-gray-500">Est. ROI</div>
-                          <div className="font-bold text-orange-600">
-                            {deal.analysis?.maoByRepair?.[1]?.roi?.toFixed(0)}%
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="flex items-center justify-between">
-                        <span className="bg-blue-100 text-blue-800 text-xs font-semibold px-2 py-1 rounded-full">
-                          💎 INVESTOR DEAL
-                        </span>
-                        <Button
-                          onClick={() => navigate(`/deals/${deal.id}`)}
-                          size="sm"
-                          className="bg-blue-600 hover:bg-blue-700 text-white text-xs"
-                        >
-                          View Details
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
           </CardContent>
         </Card>
       </div>
 
-      {/* Investment Modal */}
+      {/* Investment Modals */}
       {selectedProperty && (
         <PropertyInvestmentModal
           property={selectedProperty}
           onClose={() => setSelectedProperty(null)}
           onSuccess={() => {
-            loadProperties();
-            loadPortfolio();
+            loadBlockchainProperties();
+            loadBlockchainPortfolio();
+          }}
+        />
+      )}
+
+      {selectedFractional && (
+        <FractionalInvestmentModal
+          property={selectedFractional}
+          walletAddress={account}
+          onClose={() => setSelectedFractional(null)}
+          onSuccess={() => {
+            loadFractionalProperties();
+            loadFractionalPortfolio();
           }}
         />
       )}
     </div>
   );
+}
+
+// Fractional Investment Modal Component
+function FractionalInvestmentModal({ property, walletAddress, onClose, onSuccess }: any) {
+  const [amount, setAmount] = useState('500');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  const shares = Math.floor(parseFloat(amount) / property.share_price);
+  const tier = parseFloat(amount) >= 500000 ? 'institutional' 
+    : parseFloat(amount) >= 100000 ? 'premium'
+    : parseFloat(amount) >= 10000 ? 'accredited' 
+    : 'retail';
+  const tierInfo = TIER_INFO[tier as keyof typeof TIER_INFO];
+  const monthlyIncome = (shares / property.total_shares) * property.net_monthly_income;
+  const annualIncome = monthlyIncome * 12;
+  const tierBonus = annualIncome * (tierInfo.bonus / 100);
+
+  const handleInvest = async () => {
+    setLoading(true);
+    setError('');
+
+    try {
+      const response = await fetch('/api/fractional/purchase', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          propertyId: property.id,
+          investmentAmount: parseFloat(amount),
+          walletAddress,
+          paymentMethod: 'crypto'
+        })
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        onSuccess();
+        onClose();
+      } else {
+        setError(data.error || 'Investment failed');
+      }
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+      <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full p-6">
+        <h3 className="text-2xl font-bold text-gray-900 mb-4">
+          Invest in Fractional Real Estate
+        </h3>
+        
+        <div className="bg-purple-50 border border-purple-200 rounded-lg p-4 mb-6">
+          <h4 className="font-semibold text-gray-900 mb-2">
+            {property.metadata?.address || `Property #${property.id}`}
+          </h4>
+          <div className="grid grid-cols-2 gap-3 text-sm">
+            <div>
+              <div className="text-gray-600">Property Value</div>
+              <div className="font-semibold">{formatCurrency(property.property_value)}</div>
+            </div>
+            <div>
+              <div className="text-gray-600">Share Price</div>
+              <div className="font-semibold">{formatCurrency(property.share_price)}</div>
+            </div>
+          </div>
+        </div>
+
+        {/* Investment Amount */}
+        <div className="mb-6">
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Investment Amount (USD)
+          </label>
+          <input
+            type="number"
+            value={amount}
+            onChange={(e) => setAmount(e.target.value)}
+            min="500"
+            step="100"
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+          />
+        </div>
+
+        {/* Investment Details */}
+        <div className="bg-gray-50 rounded-lg p-4 mb-6 space-y-3">
+          <div className="flex justify-between">
+            <span className="text-gray-700">Shares Purchased:</span>
+            <span className="font-semibold">{shares.toLocaleString()}</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-gray-700">Ownership:</span>
+            <span className="font-semibold">{((shares / property.total_shares) * 100).toFixed(2)}%</span>
+          </div>
+          <div className="flex justify-between items-center">
+            <span className="text-gray-700">Your Tier:</span>
+            <span className={`px-3 py-1 rounded-full text-sm font-semibold bg-${tierInfo.color}-100 text-${tierInfo.color}-800`}>
+              {tierInfo.label} +{tierInfo.bonus}%
+            </span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-gray-700">Monthly Income:</span>
+            <span className="font-semibold text-green-600">{formatCurrency(monthlyIncome)}</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-gray-700">Tier Bonus (Annual):</span>
+            <span className="font-semibold text-orange-600">+{formatCurrency(tierBonus)}</span>
+          </div>
+          <div className="border-t pt-3 flex justify-between">
+            <span className="text-gray-900 font-medium">Annual Income:</span>
+            <span className="font-bold text-green-600">{formatCurrency(annualIncome + tierBonus)}</span>
+          </div>
+        </div>
+
+        {error && (
+          <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-800 text-sm">
+            {error}
+          </div>
+        )}
+
+        <div className="flex gap-3">
+          <button
+            onClick={onClose}
+            disabled={loading}
+            className="flex-1 px-4 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handleInvest}
+            disabled={loading || shares === 0}
+            className="flex-1 px-4 py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-semibold transition-colors disabled:opacity-50"
+          >
+            {loading ? '🔄 Processing...' : `💳 Invest ${formatCurrency(parseFloat(amount))}`}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function formatCurrency(value: number) {
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    minimumFractionDigits: 0
+  }).format(value);
 }

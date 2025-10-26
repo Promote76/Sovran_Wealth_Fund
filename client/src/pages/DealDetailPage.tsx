@@ -26,10 +26,18 @@ const DealDetailPage: React.FC = () => {
   const [deal, setDeal] = useState<Deal | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState(0);
+  const [fractionalProperty, setFractionalProperty] = useState<any>(null);
+  const [fractionalLoading, setFractionalLoading] = useState(false);
 
   useEffect(() => {
     loadDeal();
   }, [id]);
+
+  useEffect(() => {
+    if (deal) {
+      checkFractionalization();
+    }
+  }, [deal]);
 
   const loadDeal = async () => {
     setIsLoading(true);
@@ -43,6 +51,22 @@ const DealDetailPage: React.FC = () => {
       console.error('Failed to load deal:', err);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const checkFractionalization = async () => {
+    setFractionalLoading(true);
+    try {
+      const response = await fetch('/api/fractional/properties');
+      const data = await response.json();
+      if (data.success) {
+        const fractional = (data.properties || []).find((p: any) => p.deal_id === id);
+        setFractionalProperty(fractional);
+      }
+    } catch (err) {
+      console.error('Failed to check fractionalization:', err);
+    } finally {
+      setFractionalLoading(false);
     }
   };
 
@@ -192,6 +216,90 @@ const DealDetailPage: React.FC = () => {
             </div>
           </CardContent>
         </Card>
+
+        {/* Fractional Investment Status */}
+        {!fractionalLoading && fractionalProperty && (
+          <Card className="mb-6 border-2 border-purple-500 bg-gradient-to-br from-purple-50 to-white">
+            <CardContent className="p-6">
+              <div className="flex justify-between items-start mb-4">
+                <div>
+                  <h2 className="text-2xl font-bold text-purple-900 mb-2">
+                    🏢 Fractional Investment Available
+                  </h2>
+                  <p className="text-gray-600">
+                    This property is available for fractional ownership with as little as $500
+                  </p>
+                </div>
+                <span className="bg-purple-100 text-purple-800 px-4 py-2 rounded-full text-sm font-semibold">
+                  ✅ FRACTIONALIZED
+                </span>
+              </div>
+
+              <div className="grid md:grid-cols-4 gap-4 mb-4">
+                <div className="bg-white p-4 rounded-lg border border-purple-200">
+                  <div className="text-sm text-gray-600 mb-1">Share Price</div>
+                  <div className="text-2xl font-bold text-purple-600">
+                    {formatCurrency(fractionalProperty.share_price)}
+                  </div>
+                </div>
+                <div className="bg-white p-4 rounded-lg border border-purple-200">
+                  <div className="text-sm text-gray-600 mb-1">Shares Available</div>
+                  <div className="text-2xl font-bold text-blue-600">
+                    {fractionalProperty.shares_available?.toLocaleString() || 0}
+                  </div>
+                  <div className="text-xs text-gray-500">of {fractionalProperty.total_shares?.toLocaleString()}</div>
+                </div>
+                <div className="bg-white p-4 rounded-lg border border-purple-200">
+                  <div className="text-sm text-gray-600 mb-1">Monthly Income</div>
+                  <div className="text-2xl font-bold text-green-600">
+                    {formatCurrency(fractionalProperty.net_monthly_income || 0)}
+                  </div>
+                </div>
+                <div className="bg-white p-4 rounded-lg border border-purple-200">
+                  <div className="text-sm text-gray-600 mb-1">Annual Yield</div>
+                  <div className="text-2xl font-bold text-orange-600">
+                    {((fractionalProperty.net_monthly_income * 12 / fractionalProperty.property_value) * 100).toFixed(1)}%
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex gap-3">
+                <Button
+                  onClick={() => navigate('/real-estate-investor')}
+                  className="flex-1 bg-purple-600 hover:bg-purple-700 text-white font-bold text-lg py-6"
+                >
+                  🏢 Invest in Fractional Shares
+                </Button>
+                <Button
+                  onClick={() => navigate('/real-estate-investor')}
+                  variant="outline"
+                  className="px-6 border-purple-300 text-purple-700 hover:bg-purple-50"
+                >
+                  View All Properties
+                </Button>
+              </div>
+
+              <div className="mt-4 grid grid-cols-4 gap-2 text-xs">
+                <div className="bg-blue-50 px-3 py-2 rounded text-center">
+                  <div className="font-semibold text-blue-800">Retail +0%</div>
+                  <div className="text-gray-600">$500-$10K</div>
+                </div>
+                <div className="bg-purple-50 px-3 py-2 rounded text-center">
+                  <div className="font-semibold text-purple-800">Accredited +2%</div>
+                  <div className="text-gray-600">$10K-$100K</div>
+                </div>
+                <div className="bg-orange-50 px-3 py-2 rounded text-center">
+                  <div className="font-semibold text-orange-800">Premium +5%</div>
+                  <div className="text-gray-600">$100K-$500K</div>
+                </div>
+                <div className="bg-red-50 px-3 py-2 rounded text-center">
+                  <div className="font-semibold text-red-800">Institutional +8%</div>
+                  <div className="text-gray-600">$500K+</div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         <div className="grid lg:grid-cols-3 gap-6">
           {/* Left Column - Images & Gallery */}
