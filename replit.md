@@ -28,9 +28,10 @@ Preferred communication style: Simple, everyday language.
   - **Analysis Modules**: Profitability calculator (MAO, Price-to-ARV%) and RTO suitability analyzer (DSCR, PTI, badges)
   - **Deal Management API**: Full CRUD endpoints at `/api/deals` for ingest, enrich, analyze, publish
   - **Automation Webhooks**: `/api/webhooks` for InvestorLift email, Twilio SMS, and generic integrations
-  - **Admin UI**: 
-    - Dashboard at `/admin-iela.html` with filtering, search, status management
-    - Intake form at `/admin-iela-intake.html` with manual entry and example loader
+  - **Admin UI** (React Integration):
+    - Dashboard at `/admin/iela/dashboard` with filtering, search, status management, and stats cards
+    - Intake form at `/admin/iela/intake` with manual entry and example loader
+    - Both pages integrated into React Router with admin authentication protection
     - Real-time analysis and publishing controls for investors and RTO participants
   - **Database**: `deals` table with JSONB columns for parsed data, geocoding, property facts, market data, neighborhood scores, ML predictions, analysis results, compliance logs
   - **Feature Flagged**: Controlled by `AXIOM_FEATURE_IELA=true` environment variable (default: OFF)
