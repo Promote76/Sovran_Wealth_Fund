@@ -6,7 +6,7 @@ import MarketingHubPage from './MarketingHubPage';
 
 const AdminDashboardPage: React.FC = () => {
   const { user, loading, error, login, logout, isAdmin, isAuthenticated } = useAuth();
-  const [activeTab, setActiveTab] = useState<'kyc' | 'marketing'>('kyc');
+  const [activeTab, setActiveTab] = useState<'kyc' | 'marketing' | 'iela'>('kyc');
 
   // Show loading spinner while checking authentication
   if (loading) {
@@ -115,6 +115,19 @@ const AdminDashboardPage: React.FC = () => {
                   <span>Marketing Hub</span>
                 </span>
               </button>
+              <button
+                onClick={() => setActiveTab('iela')}
+                className={`px-8 py-4 text-lg font-medium border-b-2 transition-colors ${
+                  activeTab === 'iela'
+                    ? 'border-blue-600 text-blue-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                <span className="flex items-center gap-2">
+                  <span>🏘️</span>
+                  <span>IELA Pipeline</span>
+                </span>
+              </button>
             </nav>
           </div>
         </div>
@@ -124,6 +137,60 @@ const AdminDashboardPage: React.FC = () => {
         {activeTab === 'marketing' && (
           <div className="bg-white rounded-lg shadow-md p-6">
             <MarketingHubPage standalone={false} />
+          </div>
+        )}
+        {activeTab === 'iela' && (
+          <div className="bg-white rounded-lg shadow-md p-8">
+            <h2 className="text-2xl font-bold text-gray-800 mb-4">
+              🏘️ IELA Pipeline - Wholesale Real Estate
+            </h2>
+            <p className="text-gray-600 mb-8">
+              Manage wholesale real estate deals with automated enrichment, analysis, and investor matching.
+            </p>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <a
+                href="/admin/iela/dashboard"
+                className="block bg-gradient-to-br from-blue-50 to-purple-50 rounded-lg p-6 hover:shadow-lg transition-shadow border-2 border-blue-200 hover:border-blue-400"
+              >
+                <div className="text-4xl mb-3">📊</div>
+                <h3 className="text-xl font-bold text-gray-800 mb-2">Deal Dashboard</h3>
+                <p className="text-gray-600 mb-4">
+                  View and manage all wholesale real estate deals. Filter by status, search properties, and publish deals to investors.
+                </p>
+                <div className="flex items-center text-blue-600 font-medium">
+                  <span>Open Dashboard</span>
+                  <span className="ml-2">→</span>
+                </div>
+              </a>
+
+              <a
+                href="/admin/iela/intake"
+                className="block bg-gradient-to-br from-green-50 to-teal-50 rounded-lg p-6 hover:shadow-lg transition-shadow border-2 border-green-200 hover:border-green-400"
+              >
+                <div className="text-4xl mb-3">📝</div>
+                <h3 className="text-xl font-bold text-gray-800 mb-2">Create New Deal</h3>
+                <p className="text-gray-600 mb-4">
+                  Add new wholesale deals manually or load examples. Includes automated enrichment with property data and financial analysis.
+                </p>
+                <div className="flex items-center text-green-600 font-medium">
+                  <span>Create Deal</span>
+                  <span className="ml-2">→</span>
+                </div>
+              </a>
+            </div>
+
+            <div className="mt-8 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+              <h4 className="font-semibold text-yellow-800 mb-2">📋 Features:</h4>
+              <ul className="text-sm text-yellow-700 space-y-1">
+                <li>✅ Automated property enrichment with Attom Data API</li>
+                <li>✅ ML-powered repair estimates and rent predictions</li>
+                <li>✅ Profitability analysis (MAO, ROI, cap rate)</li>
+                <li>✅ Rent-to-Own suitability scoring</li>
+                <li>✅ Automated investor matching</li>
+                <li>✅ PDF contract generation</li>
+              </ul>
+            </div>
           </div>
         )}
       </div>
