@@ -18,6 +18,7 @@ interface Deal {
   propertyFacts: any;
   marketData: any;
   neighborhoodScores: any;
+  highlights?: string;
 }
 
 const DealDetailPage: React.FC = () => {
@@ -452,6 +453,23 @@ const DealDetailPage: React.FC = () => {
                 )}
               </CardContent>
             </Card>
+
+            {/* Property Highlights */}
+            {deal.parsed?.highlights && (
+              <Card className="border-2 border-blue-200 bg-gradient-to-br from-blue-50 to-white">
+                <CardContent className="p-6">
+                  <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+                    <span className="text-2xl">✨</span>
+                    Property Highlights
+                  </h2>
+                  <div className="prose prose-blue max-w-none">
+                    <p className="text-gray-700 leading-relaxed whitespace-pre-line">
+                      {deal.parsed.highlights}
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
 
             {/* Investment Analysis */}
             <Card>
