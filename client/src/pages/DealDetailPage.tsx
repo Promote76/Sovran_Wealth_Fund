@@ -80,6 +80,33 @@ const DealDetailPage: React.FC = () => {
 
   const isRTOReady = deal.analysis?.rtoBadge === 'green';
   const midRepairAnalysis = deal.analysis?.maoByRepair?.[1];
+  
+  // Calculate profit margin if not present (for old deals)
+  const profitMargin = midRepairAnalysis?.profitMargin ?? 
+    (deal.parsed?.arv && deal.parsed?.asking && deal.repairs?.estMid ? 
+      deal.parsed.arv - (deal.parsed.asking + deal.repairs.estMid) : 0);
+  
+  // Extract property facts from predictions or repairs notes if propertyFacts is null
+  const getPropertyDetails = () => {
+    if (deal.propertyFacts) return deal.propertyFacts;
+    
+    // Try to parse from repairs notes
+    const notesStr = deal.repairs?.notes?.join(' ') || '';
+    const sqftMatch = notesStr.match(/(\d+)\s*sqft/i);
+    const ageMatch = notesStr.match(/(\d+)\s*years?\s*old/i);
+    const conditionMatch = notesStr.match(/(Good|Fair|Poor|Excellent)\s*condition/i);
+    
+    return {
+      sqft: sqftMatch ? parseInt(sqftMatch[1]) : null,
+      yearBuilt: ageMatch ? new Date().getFullYear() - parseInt(ageMatch[1]) : null,
+      condition: conditionMatch ? conditionMatch[1] : null,
+      beds: deal.predictions?.beds || null,
+      baths: deal.predictions?.baths || null,
+      propertyType: deal.predictions?.propertyType || 'Single Family'
+    };
+  };
+  
+  const propertyDetails = getPropertyDetails();
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50">
@@ -163,27 +190,27 @@ const DealDetailPage: React.FC = () => {
                 <div className="grid md:grid-cols-2 gap-4">
                   <div className="bg-gray-50 p-4 rounded-lg">
                     <div className="text-sm text-gray-500">Bedrooms</div>
-                    <div className="text-lg font-bold">{deal.propertyFacts?.beds || 'N/A'}</div>
+                    <div className="text-lg font-bold">{propertyDetails?.beds || 'N/A'}</div>
                   </div>
                   <div className="bg-gray-50 p-4 rounded-lg">
                     <div className="text-sm text-gray-500">Bathrooms</div>
-                    <div className="text-lg font-bold">{deal.propertyFacts?.baths || 'N/A'}</div>
+                    <div className="text-lg font-bold">{propertyDetails?.baths || 'N/A'}</div>
                   </div>
                   <div className="bg-gray-50 p-4 rounded-lg">
                     <div className="text-sm text-gray-500">Square Feet</div>
-                    <div className="text-lg font-bold">{deal.propertyFacts?.sqft?.toLocaleString() || 'N/A'}</div>
+                    <div className="text-lg font-bold">{propertyDetails?.sqft?.toLocaleString() || 'N/A'}</div>
                   </div>
                   <div className="bg-gray-50 p-4 rounded-lg">
                     <div className="text-sm text-gray-500">Year Built</div>
-                    <div className="text-lg font-bold">{deal.propertyFacts?.yearBuilt || 'N/A'}</div>
+                    <div className="text-lg font-bold">{propertyDetails?.yearBuilt || 'N/A'}</div>
                   </div>
                   <div className="bg-gray-50 p-4 rounded-lg">
                     <div className="text-sm text-gray-500">Property Type</div>
-                    <div className="text-lg font-bold">{deal.propertyFacts?.propertyType || 'N/A'}</div>
+                    <div className="text-lg font-bold">{propertyDetails?.propertyType || 'N/A'}</div>
                   </div>
                   <div className="bg-gray-50 p-4 rounded-lg">
                     <div className="text-sm text-gray-500">Condition</div>
-                    <div className="text-lg font-bold">{deal.propertyFacts?.condition || 'N/A'}</div>
+                    <div className="text-lg font-bold">{propertyDetails?.condition || 'N/A'}</div>
                   </div>
                 </div>
               </CardContent>
@@ -198,26 +225,40 @@ const DealDetailPage: React.FC = () => {
                 <div className="mb-6">
                   <h3 className="text-lg font-semibold mb-3">Maximum Allowable Offer (MAO) by Repair Level</h3>
                   <div className="space-y-2">
-                    {deal.analysis?.maoByRepair?.map((scenario: any, idx: number) => (
-                      <div key={idx} className="bg-gray-50 p-4 rounded-lg flex justify-between items-center">
-                        <div>
-                          <div className="font-semibold text-gray-700">
-                            {['Light', 'Medium', 'Heavy'][idx]} Repairs
+                    {deal.analysis?.maoByRepair?.map((scenario: any, idx: number) => {
+                      const scenarioProfit = scenario.profitMargin ?? 
+                        (deal.parsed?.arv && deal.parsed?.asking && scenario.repair ? 
+                          deal.parsed.arv - (deal.parsed.asking + scenario.repair) : 0);
+                      
+                      return (
+                        <div key={idx} className="bg-gray-50 p-4 rounded-lg">
+                          <div className="flex justify-between items-start mb-2">
+                            <div>
+                              <div className="font-semibold text-gray-700">
+                                {['Light', 'Medium', 'Heavy'][idx]} Repairs
+                              </div>
+                              <div className="text-sm text-gray-500">
+                                Est. Cost: {formatCurrency(scenario.repair)}
+                              </div>
+                            </div>
+                            <div className="text-right">
+                              <div className="text-lg font-bold text-purple-600">
+                                MAO: {formatCurrency(scenario.mao)}
+                              </div>
+                              <div className="text-sm font-semibold text-orange-600">
+                                ROI: {scenario.roi?.toFixed(1)}%
+                              </div>
+                            </div>
                           </div>
-                          <div className="text-sm text-gray-500">
-                            Est. Cost: {formatCurrency(scenario.repair)}
+                          <div className="pt-2 border-t border-gray-200 flex justify-between items-center">
+                            <span className="text-sm text-gray-600">Profit Margin:</span>
+                            <span className="text-lg font-bold text-yellow-600">
+                              {formatCurrency(scenarioProfit)}
+                            </span>
                           </div>
                         </div>
-                        <div className="text-right">
-                          <div className="text-lg font-bold text-purple-600">
-                            MAO: {formatCurrency(scenario.mao)}
-                          </div>
-                          <div className="text-sm font-semibold text-orange-600">
-                            ROI: {scenario.roi?.toFixed(1)}%
-                          </div>
-                        </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 </div>
 
@@ -262,6 +303,21 @@ const DealDetailPage: React.FC = () => {
                     <div className="text-sm text-gray-500">After Repair Value (ARV)</div>
                     <div className="text-2xl font-bold text-green-600">
                       {formatCurrency(deal.parsed?.arv)}
+                    </div>
+                  </div>
+                  <div className="pt-4 border-t">
+                    <div className="text-sm text-gray-500">Estimated Repairs</div>
+                    <div className="text-xl font-bold text-gray-700">
+                      {formatCurrency(deal.repairs?.estMid || 0)}
+                    </div>
+                  </div>
+                  <div className="bg-yellow-50 p-3 rounded-lg border-2 border-yellow-200">
+                    <div className="text-sm text-gray-600 font-semibold">💰 Profit Margin</div>
+                    <div className="text-2xl font-bold text-yellow-600">
+                      {formatCurrency(profitMargin)}
+                    </div>
+                    <div className="text-xs text-gray-500 mt-1">
+                      ARV - (Asking + Repairs)
                     </div>
                   </div>
                   <div className="pt-4 border-t">
