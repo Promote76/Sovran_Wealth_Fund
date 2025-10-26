@@ -332,25 +332,25 @@ const FractionalAdminPanel: React.FC = () => {
               <div key={prop.id} className="border border-gray-200 rounded-lg p-4">
                 <div className="flex justify-between items-start">
                   <div>
-                    <h4 className="font-semibold text-gray-900">{prop.metadata?.address || `Property #${prop.id}`}</h4>
+                    <h4 className="font-semibold text-gray-900">{prop.deal?.address || `Property #${prop.id}`}</h4>
                     <div className="text-sm text-gray-600 mt-1">
-                      {prop.shares_sold.toLocaleString()} / {prop.total_shares.toLocaleString()} shares sold
+                      {(prop.sharesSold || 0).toLocaleString()} / {(prop.totalShares || 0).toLocaleString()} shares sold
                     </div>
                   </div>
                   <div className="text-right">
                     <div className="text-sm text-gray-600">Property Value</div>
-                    <div className="font-bold text-green-600">{formatCurrency(prop.property_value)}</div>
+                    <div className="font-bold text-green-600">{formatCurrency(parseFloat(prop.propertyValue || 0))}</div>
                   </div>
                 </div>
                 
                 <div className="grid grid-cols-4 gap-3 mt-4 text-sm">
                   <div>
                     <div className="text-gray-600">Share Price</div>
-                    <div className="font-semibold">{formatCurrency(prop.share_price)}</div>
+                    <div className="font-semibold">{formatCurrency(parseFloat(prop.sharePrice || 0))}</div>
                   </div>
                   <div>
                     <div className="text-gray-600">Monthly Rent</div>
-                    <div className="font-semibold">{formatCurrency(prop.monthly_rent)}</div>
+                    <div className="font-semibold">{formatCurrency(parseFloat(prop.monthlyRent || 0))}</div>
                   </div>
                   <div>
                     <div className="text-gray-600">Status</div>
