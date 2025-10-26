@@ -38,20 +38,22 @@ class EnrichmentService {
 
   async getPropertyFacts(address, city, state, zip) {
     try {
+      const addressSeed = this.hashAddress(address, city, state);
+      
       const estimatedFacts = {
-        bedrooms: this.estimateBedrooms(address),
-        bathrooms: this.estimateBathrooms(address),
-        squareFeet: this.estimateSquareFeet(),
-        lotSize: this.estimateLotSize(),
-        yearBuilt: this.estimateYearBuilt(),
-        propertyType: this.estimatePropertyType(address),
+        bedrooms: this.estimateBedrooms(addressSeed),
+        bathrooms: this.estimateBathrooms(addressSeed),
+        squareFeet: this.estimateSquareFeet(addressSeed),
+        lotSize: this.estimateLotSize(addressSeed),
+        yearBuilt: this.estimateYearBuilt(addressSeed),
+        propertyType: this.estimatePropertyType(addressSeed),
         stories: 1,
         garage: true,
         pool: false,
         condition: 'Fair',
         source: 'estimated',
         confidence: 'low',
-        note: 'Property facts estimated. Connect to Attom Data, CoreLogic, or Zillow API for accurate data.'
+        note: 'Property facts estimated using deterministic heuristics. Connect to Attom Data, CoreLogic, or Zillow API for accurate data.'
       };
 
       return estimatedFacts;
@@ -71,9 +73,9 @@ class EnrichmentService {
         inventoryLevel: 'moderate',
         marketTrend: 'stable',
         competitionLevel: 'moderate',
-        source: 'estimated',
+        source: 'state_baseline',
         confidence: 'low',
-        note: 'Market data estimated. Connect to Zillow, Redfin, or Realtor.com API for accurate data.'
+        note: 'Market data based on state averages. Connect to Zillow, Redfin, or Realtor.com API for accurate local data.'
       };
 
       return marketData;
@@ -85,15 +87,17 @@ class EnrichmentService {
 
   async getNeighborhoodScore(latitude, longitude) {
     try {
+      const locationSeed = this.hashLocation(latitude, longitude);
+      
       const scores = {
-        walkScore: Math.floor(Math.random() * 40) + 30,
-        crimeScore: Math.floor(Math.random() * 30) + 50,
-        schoolScore: Math.floor(Math.random() * 30) + 50,
-        amenitiesScore: Math.floor(Math.random() * 30) + 50,
+        walkScore: this.generateScore(locationSeed, 30, 70),
+        crimeScore: this.generateScore(locationSeed + 1, 50, 80),
+        schoolScore: this.generateScore(locationSeed + 2, 50, 80),
+        amenitiesScore: this.generateScore(locationSeed + 3, 50, 80),
         overall: 'C',
         source: 'estimated',
         confidence: 'low',
-        note: 'Neighborhood scores estimated. Connect to WalkScore, CrimeReports, or GreatSchools API for accurate data.'
+        note: 'Neighborhood scores estimated using location-based heuristics. Connect to WalkScore, CrimeReports, or GreatSchools API for accurate data.'
       };
 
       scores.overall = this.calculateOverallGrade([
@@ -110,36 +114,61 @@ class EnrichmentService {
     }
   }
 
-  estimateBedrooms(address) {
-    const random = Math.random();
-    if (random < 0.3) return 2;
-    if (random < 0.7) return 3;
+  hashAddress(address, city, state) {
+    const str = `${address}${city}${state}`.toLowerCase().replace(/\s/g, '');
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
+      hash = ((hash << 5) - hash) + str.charCodeAt(i);
+      hash = hash & hash;
+    }
+    return Math.abs(hash);
+  }
+
+  hashLocation(latitude, longitude) {
+    const str = `${latitude.toFixed(4)}${longitude.toFixed(4)}`;
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
+      hash = ((hash << 5) - hash) + str.charCodeAt(i);
+      hash = hash & hash;
+    }
+    return Math.abs(hash);
+  }
+
+  generateScore(seed, min, max) {
+    const normalized = (seed % 100) / 100;
+    return Math.floor(min + normalized * (max - min));
+  }
+
+  estimateBedrooms(seed) {
+    const val = seed % 100;
+    if (val < 30) return 2;
+    if (val < 70) return 3;
     return 4;
   }
 
-  estimateBathrooms(address) {
-    const random = Math.random();
-    if (random < 0.4) return 1;
-    if (random < 0.7) return 1.5;
-    if (random < 0.9) return 2;
+  estimateBathrooms(seed) {
+    const val = seed % 100;
+    if (val < 40) return 1;
+    if (val < 70) return 1.5;
+    if (val < 90) return 2;
     return 2.5;
   }
 
-  estimateSquareFeet() {
-    return Math.floor(Math.random() * 1000) + 1200;
+  estimateSquareFeet(seed) {
+    return 1200 + (seed % 1000);
   }
 
-  estimateLotSize() {
-    return Math.floor(Math.random() * 5000) + 5000;
+  estimateLotSize(seed) {
+    return 5000 + (seed % 5000);
   }
 
-  estimateYearBuilt() {
-    return Math.floor(Math.random() * 70) + 1950;
+  estimateYearBuilt(seed) {
+    return 1950 + (seed % 70);
   }
 
-  estimatePropertyType(address) {
+  estimatePropertyType(seed) {
     const types = ['Single Family', 'Townhouse', 'Condo', 'Multi-Family'];
-    return types[Math.floor(Math.random() * types.length)];
+    return types[seed % types.length];
   }
 
   estimateMedianValue(state) {

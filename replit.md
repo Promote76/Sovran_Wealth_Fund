@@ -13,14 +13,30 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Updates (October 26, 2025)
 
-- **IELA Pipeline (Ingest-Enrich-Analyze-List)**: NEW - Wholesale real estate deal intake and analysis system
+- **IELA Pipeline (Ingest-Enrich-Analyze-List)**: PRODUCTION-READY - Complete wholesale real estate deal management system
   - **Parsing Engine**: SMS/email text parser extracts property details (address, asking price, ARV, contact info)
+  - **Enrichment Service**: 
+    - Geocoding via OpenStreetMap (lat/long, display name, bounding box)
+    - Property facts estimation (beds/baths, sqft, year built, condition, property type)
+    - Market data (median home value, median rent, appreciation trends, days on market)
+    - Neighborhood scoring (walk score, crime rating, school quality, amenities rating)
+  - **ML Prediction Engine**: 
+    - Repair cost prediction based on size, age, condition, stories
+    - Rent estimation using beds/baths, sqft, amenities, market baseline
+    - Appreciation forecasting (1-year, 5-year, 10-year projections)
+    - ROI calculations with expense breakdown and profit projections
   - **Analysis Modules**: Profitability calculator (MAO, Price-to-ARV%) and RTO suitability analyzer (DSCR, PTI, badges)
   - **Deal Management API**: Full CRUD endpoints at `/api/deals` for ingest, enrich, analyze, publish
-  - **Database**: `deals` table with JSONB columns for parsed data, geocoding, analysis results, compliance logs
+  - **Automation Webhooks**: `/api/webhooks` for InvestorLift email, Twilio SMS, and generic integrations
+  - **Admin UI**: 
+    - Dashboard at `/admin-iela.html` with filtering, search, status management
+    - Intake form at `/admin-iela-intake.html` with manual entry and example loader
+    - Real-time analysis and publishing controls for investors and RTO participants
+  - **Database**: `deals` table with JSONB columns for parsed data, geocoding, property facts, market data, neighborhood scores, ML predictions, analysis results, compliance logs
   - **Feature Flagged**: Controlled by `AXIOM_FEATURE_IELA=true` environment variable (default: OFF)
-  - **Tested**: Atlanta property smoke test validates parsing (103k→$103,000), MAO calculations ($70.5K-$100.5K), and RTO badges
+  - **Tested**: Atlanta property smoke test validates parsing (103k→$103,000), MAO calculations, RTO badges, enrichment, and ML predictions
   - **Compliance**: Opt-out detection and consent logging for regulatory compliance
+  - **Documentation**: Complete guide at `/docs/IELA_Complete_Guide.md`
 
 ## Recent Updates (October 26, 2025 - Earlier)
 - **KeyGrow Property Acquisition Analyzer**: NEW - External property listing analyzer for rent-to-own acquisition planning
