@@ -14,6 +14,7 @@ interface Deal {
   createdAt: string;
   predictions: any;
   geocoding: any;
+  facts: any;
   propertyFacts: any;
   marketData: any;
   neighborhoodScores: any;
@@ -86,9 +87,29 @@ const DealDetailPage: React.FC = () => {
     (deal.parsed?.arv && deal.parsed?.asking && deal.repairs?.estMid ? 
       deal.parsed.arv - (deal.parsed.asking + deal.repairs.estMid) : 0);
   
-  // Extract property facts from predictions or repairs notes if propertyFacts is null
+  // Extract property facts from facts field (new) or propertyFacts (legacy) or predictions/repairs notes
   const getPropertyDetails = () => {
-    if (deal.propertyFacts) return deal.propertyFacts;
+    if (deal.facts) {
+      return {
+        beds: deal.facts.bedrooms,
+        baths: deal.facts.bathrooms,
+        sqft: deal.facts.squareFeet,
+        yearBuilt: deal.facts.yearBuilt,
+        condition: deal.facts.condition,
+        propertyType: deal.facts.propertyType
+      };
+    }
+    
+    if (deal.propertyFacts) {
+      return {
+        beds: deal.propertyFacts.bedrooms,
+        baths: deal.propertyFacts.bathrooms,
+        sqft: deal.propertyFacts.squareFeet,
+        yearBuilt: deal.propertyFacts.yearBuilt,
+        condition: deal.propertyFacts.condition,
+        propertyType: deal.propertyFacts.propertyType
+      };
+    }
     
     // Try to parse from repairs notes
     const notesStr = deal.repairs?.notes?.join(' ') || '';
@@ -155,7 +176,7 @@ const DealDetailPage: React.FC = () => {
                 {deal.media && deal.media.length > 0 ? (
                   <>
                     <img
-                      src={deal.media[selectedImage]}
+                      src={deal.media[selectedImage]?.url || deal.media[selectedImage]}
                       alt={`Property ${selectedImage + 1}`}
                       className="w-full h-96 object-cover rounded-t-lg"
                     />
@@ -164,7 +185,7 @@ const DealDetailPage: React.FC = () => {
                         {deal.media.map((img, idx) => (
                           <img
                             key={idx}
-                            src={img}
+                            src={img?.url || img}
                             alt={`Thumbnail ${idx + 1}`}
                             className={`h-20 object-cover rounded cursor-pointer border-2 ${
                               idx === selectedImage ? 'border-blue-600' : 'border-gray-300'
