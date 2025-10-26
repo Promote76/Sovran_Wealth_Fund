@@ -45,6 +45,42 @@ function parseMessage(rawText, providedUrl) {
   // Extract square footage
   parsed.squareFeet = extractSquareFeet(rawText);
 
+  // Extract property type
+  parsed.propertyType = extractPropertyType(rawText);
+
+  // Extract year built
+  parsed.yearBuilt = extractYearBuilt(rawText);
+
+  // Extract lot size
+  parsed.lotSize = extractLotSize(rawText);
+
+  // Extract rent/rental income
+  parsed.monthlyRent = extractRent(rawText);
+
+  // Extract condition
+  parsed.condition = extractCondition(rawText);
+
+  // Extract occupancy status
+  parsed.occupancy = extractOccupancy(rawText);
+
+  // Extract HOA fees
+  parsed.hoaFees = extractHOAFees(rawText);
+
+  // Extract property taxes
+  parsed.propertyTax = extractPropertyTax(rawText);
+
+  // Extract days on market
+  parsed.daysOnMarket = extractDaysOnMarket(rawText);
+
+  // Extract features (pool, garage, basement, etc.)
+  const features = extractFeatures(rawText);
+  if (features.pool !== undefined) parsed.hasPool = features.pool;
+  if (features.garage !== undefined) parsed.garage = features.garage;
+  if (features.basement !== undefined) parsed.hasBasement = features.basement;
+  if (features.parking !== undefined) parsed.parking = features.parking;
+  if (features.stories !== undefined) parsed.stories = features.stories;
+  if (features.fireplace !== undefined) parsed.hasFireplace = features.fireplace;
+
   return { parsed, confidence, warnings };
 }
 
@@ -325,6 +361,272 @@ function parseAddressParts(address) {
   }
 
   return parts;
+}
+
+function extractPropertyType(text) {
+  const propertyTypes = {
+    'single[ -]?family|sfr|single family home|detached|sfh': 'Single Family',
+    'multi[ -]?family|duplex|triplex|fourplex|multifamily|2 unit|3 unit|4 unit': 'Multi-Family',
+    'condo|condominium': 'Condo',
+    'townhouse|townhome|town home': 'Townhouse',
+    'mobile home|manufactured home|trailer': 'Mobile Home',
+    'apartment building|apt building': 'Apartment',
+    'commercial|retail|office space': 'Commercial',
+    'land|vacant lot|lot only': 'Land'
+  };
+
+  for (const [pattern, type] of Object.entries(propertyTypes)) {
+    const regex = new RegExp(pattern, 'i');
+    if (regex.test(text)) {
+      return type;
+    }
+  }
+
+  return undefined;
+}
+
+function extractYearBuilt(text) {
+  // Patterns: "Built in 1985", "Year Built: 1985", "1985 construction", "Built 1985"
+  const patterns = [
+    /built[\s:]+(?:in\s+)?(\d{4})/i,
+    /year\s+built[\s:]+(\d{4})/i,
+    /construction[\s:]+(\d{4})/i,
+    /(\d{4})\s+built/i
+  ];
+
+  for (const pattern of patterns) {
+    const match = text.match(pattern);
+    if (match) {
+      const year = parseInt(match[1], 10);
+      // Sanity check: year should be between 1800 and current year + 2
+      const currentYear = new Date().getFullYear();
+      if (year >= 1800 && year <= currentYear + 2) {
+        return year;
+      }
+    }
+  }
+
+  return undefined;
+}
+
+function extractLotSize(text) {
+  // Patterns: "0.25 acres", "Lot: 5,000 sqft", "10,000 sq ft lot"
+  const acresPattern = /([\d,.]+)\s*acres?/i;
+  const acresMatch = text.match(acresPattern);
+  if (acresMatch) {
+    const value = parseFloat(acresMatch[1].replace(/,/g, ''));
+    return { value, unit: 'acres' };
+  }
+
+  const lotSqftPattern = /lot[\s:]+([0-9,]+)\s*(?:sq\.?\s*ft|sqft|square\s*feet)/i;
+  const lotSqftMatch = text.match(lotSqftPattern);
+  if (lotSqftMatch) {
+    const value = parseInt(lotSqftMatch[1].replace(/,/g, ''), 10);
+    return { value, unit: 'sqft' };
+  }
+
+  const sqftLotPattern = /([0-9,]+)\s*(?:sq\.?\s*ft|sqft|square\s*feet)\s+lot/i;
+  const sqftLotMatch = text.match(sqftLotPattern);
+  if (sqftLotMatch) {
+    const value = parseInt(sqftLotMatch[1].replace(/,/g, ''), 10);
+    return { value, unit: 'sqft' };
+  }
+
+  return undefined;
+}
+
+function extractRent(text) {
+  // Patterns: "Rent: $1,500/mo", "Monthly rent $1500", "$1,200 per month"
+  const patterns = [
+    /rent[\s:]+\$?([0-9,]+)(?:\/mo|\/month|per\s+month)?/i,
+    /\$([0-9,]+)(?:\/mo|\/month|per\s+month)/i,
+    /monthly\s+rent[\s:]+\$?([0-9,]+)/i
+  ];
+
+  for (const pattern of patterns) {
+    const match = text.match(pattern);
+    if (match) {
+      const value = parseInt(match[1].replace(/,/g, ''), 10);
+      // Sanity check: rent should be reasonable ($100-$20,000/month)
+      if (value >= 100 && value <= 20000) {
+        return value;
+      }
+    }
+  }
+
+  return undefined;
+}
+
+function extractCondition(text) {
+  const conditions = {
+    'turnkey|move-in ready|excellent condition|pristine|like new': 'Excellent',
+    'good condition|well maintained|updated': 'Good',
+    'fair condition|needs some work|needs updates': 'Fair',
+    'poor condition|needs work|fixer|fixer-upper|tlc|handyman special|distressed': 'Poor',
+    'tear down|demolition|rebuild': 'Tear Down'
+  };
+
+  for (const [pattern, condition] of Object.entries(conditions)) {
+    const regex = new RegExp(pattern, 'i');
+    if (regex.test(text)) {
+      return condition;
+    }
+  }
+
+  return undefined;
+}
+
+function extractOccupancy(text) {
+  if (/\bvacant\b|\bempty\b|\bunoccupied\b/i.test(text)) {
+    return 'Vacant';
+  }
+  if (/\boccupied\b|\btenant occupied\b|\brented\b|\btenants?\b/i.test(text)) {
+    return 'Occupied';
+  }
+  if (/\bowner occupied\b|\bowner living\b/i.test(text)) {
+    return 'Owner Occupied';
+  }
+  return undefined;
+}
+
+function extractHOAFees(text) {
+  // Patterns: "HOA: $150/mo", "HOA fees $150", "$150 HOA"
+  const patterns = [
+    /hoa[\s:]+(fees?[\s:]+)?\$?([0-9,]+)(?:\/mo|\/month|per\s+month)?/i,
+    /\$([0-9,]+)\s+hoa/i
+  ];
+
+  for (const pattern of patterns) {
+    const match = text.match(pattern);
+    if (match) {
+      const value = parseInt((match[2] || match[1]).replace(/,/g, ''), 10);
+      // Sanity check: HOA should be reasonable ($0-$2,000/month)
+      if (value >= 0 && value <= 2000) {
+        return value;
+      }
+    }
+  }
+
+  // Check for "no HOA"
+  if (/no\s+hoa/i.test(text)) {
+    return 0;
+  }
+
+  return undefined;
+}
+
+function extractPropertyTax(text) {
+  // Patterns: "Property tax: $3,500/yr", "Taxes $3500", "$3,500 annual tax"
+  const patterns = [
+    /(?:property\s+)?tax(?:es)?[\s:]+\$?([0-9,]+)(?:\/yr|\/year|per\s+year|annually)?/i,
+    /\$([0-9,]+)\s+(?:annual|yearly)\s+tax/i
+  ];
+
+  for (const pattern of patterns) {
+    const match = text.match(pattern);
+    if (match) {
+      const value = parseInt(match[1].replace(/,/g, ''), 10);
+      // Sanity check: property tax should be reasonable ($0-$50,000/year for residential)
+      if (value >= 0 && value <= 50000) {
+        return value;
+      }
+    }
+  }
+
+  return undefined;
+}
+
+function extractDaysOnMarket(text) {
+  // Patterns: "30 days on market", "DOM: 45", "Listed 60 days ago"
+  const patterns = [
+    /(\d+)\s+days?\s+on\s+market/i,
+    /dom[\s:]+(\d+)/i,
+    /listed\s+(\d+)\s+days?\s+ago/i,
+    /on\s+market\s+(\d+)\s+days?/i
+  ];
+
+  for (const pattern of patterns) {
+    const match = text.match(pattern);
+    if (match) {
+      const value = parseInt(match[1], 10);
+      // Sanity check: DOM should be reasonable (0-3650 days = 10 years)
+      if (value >= 0 && value <= 3650) {
+        return value;
+      }
+    }
+  }
+
+  return undefined;
+}
+
+function extractFeatures(text) {
+  const features = {};
+
+  // Pool
+  if (/\bpool\b/i.test(text)) {
+    features.pool = true;
+  }
+
+  // Garage
+  const garagePatterns = [
+    /(\d+)\s*car\s+garage/i,
+    /garage[\s:]+(\d+)/i,
+    /(\d+)\s*garage/i
+  ];
+  for (const pattern of garagePatterns) {
+    const match = text.match(pattern);
+    if (match) {
+      features.garage = parseInt(match[1], 10);
+      break;
+    }
+  }
+  if (!features.garage && /\bgarage\b/i.test(text)) {
+    features.garage = 1; // Has garage but number not specified
+  }
+
+  // Parking
+  const parkingPatterns = [
+    /(\d+)\s*(?:car\s+)?parking/i,
+    /parking[\s:]+(\d+)/i
+  ];
+  for (const pattern of parkingPatterns) {
+    const match = text.match(pattern);
+    if (match) {
+      features.parking = parseInt(match[1], 10);
+      break;
+    }
+  }
+
+  // Basement
+  if (/\bbasement\b/i.test(text)) {
+    features.basement = true;
+  }
+  if (/finished\s+basement/i.test(text)) {
+    features.basement = 'Finished';
+  }
+  if (/unfinished\s+basement/i.test(text)) {
+    features.basement = 'Unfinished';
+  }
+
+  // Stories
+  const storyPatterns = [
+    /(\d+)\s*story|stories/i,
+    /(\d+)\s*level/i
+  ];
+  for (const pattern of storyPatterns) {
+    const match = text.match(pattern);
+    if (match) {
+      features.stories = parseInt(match[1], 10);
+      break;
+    }
+  }
+
+  // Fireplace
+  if (/\bfireplace\b/i.test(text)) {
+    features.fireplace = true;
+  }
+
+  return features;
 }
 
 module.exports = {
