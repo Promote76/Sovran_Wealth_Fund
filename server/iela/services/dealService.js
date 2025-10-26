@@ -40,13 +40,20 @@ class DealService {
 
     const dealId = randomUUID();
 
+    const mediaFromParsed = (parsed.imageUrls || []).map(url => ({
+      type: 'image',
+      url,
+      source: 'dropbox',
+      addedAt: new Date().toISOString()
+    }));
+
     const dealData = {
       id: dealId,
       source,
       rawText,
       parsed,
       repairs: DEFAULT_REPAIRS,
-      media: [],
+      media: mediaFromParsed,
       compliance,
       status: 'draft',
       createdBy: userId,
@@ -89,15 +96,10 @@ class DealService {
 
     let scrapedMedia = [];
     
-    // Add Dropbox images from parsed data
-    if (deal.parsed?.imageUrls && deal.parsed.imageUrls.length > 0) {
-      scrapedMedia = deal.parsed.imageUrls.map(url => ({
-        type: 'image',
-        url: url,
-        source: 'dropbox',
-        addedAt: new Date().toISOString()
-      }));
-      console.log(`✅ Added ${scrapedMedia.length} Dropbox images from parsed data`);
+    // Preserve existing media from ingestion (Dropbox images)
+    if (deal.media && deal.media.length > 0) {
+      scrapedMedia = [...deal.media];
+      console.log(`✅ Preserving ${scrapedMedia.length} images from ingestion`);
     }
     
     // Also try to scrape from property listing URL
