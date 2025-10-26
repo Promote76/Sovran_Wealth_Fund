@@ -80,6 +80,8 @@ import StatusPage from './pages/StatusPage';
 import UnifiedRegistrationPage from './pages/UnifiedRegistrationPage';
 import UnifiedRegistrationAdminPage from './pages/UnifiedRegistrationAdminPage';
 import MarketingHubPage from './pages/MarketingHubPage';
+import IELAIntakePage from './pages/IELAIntakePage';
+import IELADashboardPage from './pages/IELADashboardPage';
 
 // Legacy component for KeyGrow integration
 function KeyGrowPage() {
@@ -487,6 +489,8 @@ function App() {
                               <Route path="/gold-certificates" element={<GoldCertificatesPage />} />
                               <Route path="/admin" element={<AdminDashboardPage />} />
                               <Route path="/admin/unified-registration" element={<UnifiedRegistrationAdminPage />} />
+                              <Route path="/admin/iela/intake" element={<IELAIntakePage />} />
+                              <Route path="/admin/iela/dashboard" element={<IELADashboardPage />} />
                               <Route path="/liquidity-management" element={<LiquidityManagementPage />} />
                               <Route path="/premium-courses" element={<PremiumCoursesPage />} />
                               <Route path="/learn-how-it-works" element={<LearnHowItWorksPage />} />
