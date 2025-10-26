@@ -88,19 +88,36 @@ class DealService {
     const enrichments = await enrichmentService.enrichDeal(deal);
 
     let scrapedMedia = [];
+    
+    // Add Dropbox images from parsed data
+    if (deal.parsed?.imageUrls && deal.parsed.imageUrls.length > 0) {
+      scrapedMedia = deal.parsed.imageUrls.map(url => ({
+        type: 'image',
+        url: url,
+        source: 'dropbox',
+        addedAt: new Date().toISOString()
+      }));
+      console.log(`✅ Added ${scrapedMedia.length} Dropbox images from parsed data`);
+    }
+    
+    // Also try to scrape from property listing URL
     if (deal.rawText && (deal.rawText.includes('http://') || deal.rawText.includes('https://'))) {
       const urlMatch = deal.rawText.match(/https?:\/\/[^\s]+/);
       if (urlMatch) {
         const url = urlMatch[0];
-        console.log(`📸 Scraping property listing: ${url}`);
-        const scraped = await propertyScraperService.scrapePropertyListing(url);
-        scrapedMedia = scraped.images.map(img => ({
-          type: 'image',
-          url: img,
-          source: 'scraped',
-          scrapedAt: new Date().toISOString()
-        }));
-        console.log(`✅ Scraped ${scrapedMedia.length} images from listing`);
+        // Skip Dropbox image URLs (already handled above)
+        if (!url.includes('dropbox.com') || !url.match(/\.(jpg|jpeg|png|gif|webp)$/i)) {
+          console.log(`📸 Scraping property listing: ${url}`);
+          const scraped = await propertyScraperService.scrapePropertyListing(url);
+          const scrapedImages = scraped.images.map(img => ({
+            type: 'image',
+            url: img,
+            source: 'scraped',
+            scrapedAt: new Date().toISOString()
+          }));
+          scrapedMedia = [...scrapedMedia, ...scrapedImages];
+          console.log(`✅ Scraped ${scrapedImages.length} images from listing`);
+        }
       }
     }
 

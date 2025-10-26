@@ -21,6 +21,9 @@ function parseMessage(rawText, providedUrl) {
   }
 
   parsed.url = providedUrl || extractUrl(rawText);
+  
+  // Extract Dropbox image links
+  parsed.imageUrls = extractDropboxImages(rawText);
 
   const contact = extractContact(rawText);
   parsed.contactName = contact.name;
@@ -100,6 +103,27 @@ function extractUrl(text) {
   const urlPattern = /(https?:\/\/[^\s<>"{}|\\^`\[\]]+)/i;
   const match = text.match(urlPattern);
   return match ? match[1] : undefined;
+}
+
+function extractDropboxImages(text) {
+  const dropboxImageUrls = [];
+  
+  // Pattern to match Dropbox file links (images)
+  const dropboxPattern = /(https?:\/\/(?:www\.)?dropbox\.com\/[^\s<>"{}|\\^`\[\]]+\.(?:jpg|jpeg|png|gif|webp|JPG|JPEG|PNG|GIF|WEBP)[^\s<>"{}|\\^`\[\]]*)/gi;
+  
+  const matches = text.matchAll(dropboxPattern);
+  
+  for (const match of matches) {
+    let url = match[1];
+    // Convert to direct download URL (dl=0 -> dl=1)
+    url = url.replace(/[?&]dl=0/i, '?dl=1').replace(/[?&]dl=0&/i, '?dl=1&');
+    if (!url.includes('dl=1')) {
+      url += (url.includes('?') ? '&' : '?') + 'dl=1';
+    }
+    dropboxImageUrls.push(url);
+  }
+  
+  return dropboxImageUrls;
 }
 
 function extractContact(text) {
