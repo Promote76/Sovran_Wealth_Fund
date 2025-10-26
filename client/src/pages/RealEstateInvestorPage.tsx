@@ -338,12 +338,12 @@ export default function RealEstateInvestorPage() {
                   <div className="text-xs text-gray-500">All-time</div>
                 </div>
                 <div className="bg-white p-4 rounded-lg border-2 border-orange-200">
-                  <div className="text-sm text-gray-600 mb-1">Portfolio Properties</div>
+                  <div className="text-sm text-gray-600 mb-1">Your Tier</div>
                   <div className="text-2xl font-bold text-orange-600">
-                    {fractionalStats?.propertiesCount || 0}
+                    {fractionalStats?.currentTier ? getTierInfo(fractionalStats.currentTier).label : 'Retail'}
                   </div>
                   <div className="text-xs text-gray-500">
-                    {fractionalPortfolio.length} investments
+                    +{fractionalStats?.currentTier ? getTierInfo(fractionalStats.currentTier).bonus : 0}% revenue bonus
                   </div>
                 </div>
               </div>

@@ -149,6 +149,18 @@ router.post('/purchase', authenticateWallet, async (req, res) => {
 });
 
 /**
+ * Determine investor tier based on total investment
+ * @param {number} totalInvested - Total amount invested
+ * @returns {string} Tier name (retail, accredited, premium, institutional)
+ */
+function determineInvestorTier(totalInvested) {
+  if (totalInvested >= 500000) return 'institutional';
+  if (totalInvested >= 100000) return 'premium';
+  if (totalInvested >= 10000) return 'accredited';
+  return 'retail';
+}
+
+/**
  * GET /api/fractional/portfolio
  * Get investor's portfolio
  */
@@ -170,6 +182,9 @@ router.get('/portfolio', authenticateWallet, async (req, res) => {
       monthlyRevenueEstimate: 0,
       propertiesCount: 0
     });
+    
+    // Add current tier based on total investment
+    totals.currentTier = determineInvestorTier(totals.totalInvested);
     
     res.json({
       success: true,
