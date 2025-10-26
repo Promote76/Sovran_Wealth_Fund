@@ -811,6 +811,16 @@ app.use('/api/pancake-pools', pancakePoolsRouter);
 app.use('/api/axiom-prime', axiomPrimeRouter);
 app.use('/api/stripe', stripePaymentRouter);
 
+// IELA Pipeline (Ingest-Enrich-Analyze-List) - Feature Flagged
+const featureFlags = require('./server/config/featureFlags');
+if (featureFlags.IELA_ENABLED) {
+  const dealsRouter = require('./server/routes/deals').default;
+  app.use('/api/deals', dealsRouter);
+  console.log('✅ IELA Pipeline enabled and mounted at /api/deals');
+} else {
+  console.log('ℹ️  IELA Pipeline disabled (set AXIOM_FEATURE_IELA=true to enable)');
+}
+
 console.log('✅ New contract routers mounted: KeyGrow, Real Estate Investor, NFT Marketplace, Advanced Staking, Revenue Router, Basket Index, Dynamic APR, Liquidity Vault, PancakeSwap Pools, Axiom Prime, Stripe Payments');
 
 // ========================================
