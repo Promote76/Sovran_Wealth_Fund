@@ -477,14 +477,16 @@ function extractCondition(text) {
 }
 
 function extractOccupancy(text) {
-  if (/\bvacant\b|\bempty\b|\bunoccupied\b/i.test(text)) {
-    return 'Vacant';
-  }
-  if (/\boccupied\b|\btenant occupied\b|\brented\b|\btenants?\b/i.test(text)) {
-    return 'Occupied';
-  }
+  // Priority order: most specific first
   if (/\bowner occupied\b|\bowner living\b/i.test(text)) {
     return 'Owner Occupied';
+  }
+  if (/\btenant occupied\b|\brented\b|\btenants?\sin\b|\boccupied\b/i.test(text)) {
+    return 'Occupied';
+  }
+  // Only match "vacant" if not part of "vacant lot"
+  if (/\bvacant\b(?!\s+lot)|\bempty\b|\bunoccupied\b/i.test(text)) {
+    return 'Vacant';
   }
   return undefined;
 }
@@ -610,8 +612,8 @@ function extractFeatures(text) {
 
   // Stories
   const storyPatterns = [
-    /(\d+)\s*story|stories/i,
-    /(\d+)\s*level/i
+    /(\d+)[\s-]*(?:story|stories)/i,
+    /(\d+)[\s-]*level/i
   ];
   for (const pattern of storyPatterns) {
     const match = text.match(pattern);
