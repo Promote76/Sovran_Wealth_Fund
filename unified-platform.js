@@ -827,6 +827,13 @@ if (featureFlags.IELA_ENABLED) {
   console.log('ℹ️  IELA Pipeline disabled (set AXIOM_FEATURE_IELA=true to enable)');
 }
 
+// ========================================
+// FRACTIONAL REAL ESTATE OWNERSHIP
+// ========================================
+const fractionalOwnershipRouter = require('./server/routes/fractionalOwnership');
+app.use('/api/fractional', fractionalOwnershipRouter);
+console.log('✅ Fractional Real Estate Ownership enabled and mounted at /api/fractional');
+
 console.log('✅ New contract routers mounted: KeyGrow, Real Estate Investor, NFT Marketplace, Advanced Staking, Revenue Router, Basket Index, Dynamic APR, Liquidity Vault, PancakeSwap Pools, Axiom Prime, Stripe Payments');
 
 // ========================================
