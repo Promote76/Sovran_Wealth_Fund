@@ -11,11 +11,21 @@ AXIOM is a decentralized finance (DeFi) platform on BSC and Polygon, designed to
 ## User Preferences
 Preferred communication style: Simple, everyday language.
 
-## Recent Updates (October 25, 2025)
-- **Marketing Hub Enhancement**: Expanded with AI-powered Social Media Post Generator
+## Recent Updates (October 26, 2025)
+- **KeyGrow Property Acquisition Analyzer**: NEW - External property listing analyzer for rent-to-own acquisition planning
+  - **Property Analysis API**: `/api/keygrow/analyze-property` - Comprehensive financial analysis engine
+  - **Web Crawler**: `/api/keygrow/crawl-property` - Automated InvestorLift property data extraction
+  - **Acquisition Calculations**: Down payment needs, KeyGrow allocation, timeline projections, financing details
+  - **Investment Metrics**: Cash flow analysis, ROI, cap rate, affordability ratings (DTI)
+  - **Tier Optimization**: Shows how upgrading KeyGrow tier accelerates down payment timeline
+  - **Current Savings Integration**: Properly accounts for existing savings in timeline calculations
+  - **Smart Recommendations**: Personalized guidance based on credit score, DTI, equity potential
+  - **Production Testing**: Validated with Atlanta property ($103K, 18-month timeline, 67.6% KeyGrow contribution)
+
+- **Marketing Hub Enhancement** (October 25, 2025): Expanded with AI-powered Social Media Post Generator
   - **Video Scripts**: 5 professionally written video marketing scripts (Platform Overview, KeyGrow, Real Estate Investor, Staking, Testimonials)
-  - **Script Generator**: AI-powered script generator with 5 customizable templates (Explainer, Testimonial, Social Media, Product Demo, Comparison)
-  - **Social Media Generator**: NEW - Platform-aware social media post generator
+  - **Script Generator**: AI-powered script generator with 6 customizable templates (Explainer, Testimonial, Social Media, Product Demo, Comparison, Platform Valuation)
+  - **Social Media Generator**: Platform-aware social media post generator
     - Analyzes entire platform (contracts, components, pages) using recursive directory scanning
     - Supports 5 platforms: Twitter/X, LinkedIn, Facebook, Instagram, Telegram
     - Platform-specific formatting (character limits, style guides, hashtag/emoji preferences)
