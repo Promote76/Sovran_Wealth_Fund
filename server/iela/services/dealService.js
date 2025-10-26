@@ -30,7 +30,7 @@ class DealService {
     };
 
     if (parsed.optOut) {
-      compliance.consentLog.push('Opt-out detected - message marked as suppressed');
+      compliance.consentLog.push('Opt-out keyword detected in message text');
     }
 
     const dealId = randomUUID();
@@ -43,7 +43,7 @@ class DealService {
       repairs: DEFAULT_REPAIRS,
       media: [],
       compliance,
-      status: parsed.optOut ? 'suppressed' : 'draft',
+      status: 'draft',
       createdBy: userId,
       createdAt: new Date(),
       updatedAt: new Date()

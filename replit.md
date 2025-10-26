@@ -20,7 +20,7 @@ Preferred communication style: Simple, everyday language.
   - **Database**: `deals` table with JSONB columns for parsed data, geocoding, analysis results, compliance logs
   - **Feature Flagged**: Controlled by `AXIOM_FEATURE_IELA=true` environment variable (default: OFF)
   - **Tested**: Atlanta property smoke test validates parsing (103k→$103,000), MAO calculations ($70.5K-$100.5K), and RTO badges
-  - **Compliance**: Built-in opt-out detection, consent logging, and TOS mode tracking for regulatory compliance
+  - **Compliance**: Opt-out detection and consent logging for regulatory compliance
 
 ## Recent Updates (October 26, 2025 - Earlier)
 - **KeyGrow Property Acquisition Analyzer**: NEW - External property listing analyzer for rent-to-own acquisition planning
