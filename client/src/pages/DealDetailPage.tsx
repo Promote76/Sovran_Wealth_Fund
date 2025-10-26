@@ -87,8 +87,33 @@ const DealDetailPage: React.FC = () => {
     (deal.parsed?.arv && deal.parsed?.asking && deal.repairs?.estMid ? 
       deal.parsed.arv - (deal.parsed.asking + deal.repairs.estMid) : 0);
   
-  // Extract property facts from facts field (new) or propertyFacts (legacy) or predictions/repairs notes
+  // Extract property facts from parsed (parser output) or facts field (enrichment) or propertyFacts (legacy)
   const getPropertyDetails = () => {
+    // Priority 1: Check parsed data from parser (most reliable for user-pasted data)
+    if (deal.parsed) {
+      return {
+        beds: deal.parsed.beds || null,
+        baths: deal.parsed.baths || null,
+        sqft: deal.parsed.squareFeet || null,
+        yearBuilt: deal.parsed.yearBuilt || null,
+        condition: deal.parsed.condition || null,
+        propertyType: deal.parsed.propertyType || null,
+        lotSize: deal.parsed.lotSize || null,
+        garage: deal.parsed.garage || null,
+        parking: deal.parsed.parking || null,
+        hasPool: deal.parsed.hasPool || null,
+        hasBasement: deal.parsed.hasBasement || null,
+        hasFireplace: deal.parsed.hasFireplace || null,
+        stories: deal.parsed.stories || null,
+        monthlyRent: deal.parsed.monthlyRent || null,
+        occupancy: deal.parsed.occupancy || null,
+        hoaFees: deal.parsed.hoaFees || null,
+        propertyTax: deal.parsed.propertyTax || null,
+        daysOnMarket: deal.parsed.daysOnMarket || null
+      };
+    }
+    
+    // Priority 2: Check enriched facts
     if (deal.facts) {
       return {
         beds: deal.facts.bedrooms,
@@ -100,6 +125,7 @@ const DealDetailPage: React.FC = () => {
       };
     }
     
+    // Priority 3: Legacy propertyFacts
     if (deal.propertyFacts) {
       return {
         beds: deal.propertyFacts.bedrooms,
@@ -111,7 +137,7 @@ const DealDetailPage: React.FC = () => {
       };
     }
     
-    // Try to parse from repairs notes
+    // Priority 4: Try to parse from repairs notes
     const notesStr = deal.repairs?.notes?.join(' ') || '';
     const sqftMatch = notesStr.match(/(\d+)\s*sqft/i);
     const ageMatch = notesStr.match(/(\d+)\s*years?\s*old/i);
@@ -233,7 +259,89 @@ const DealDetailPage: React.FC = () => {
                     <div className="text-sm text-gray-500">Condition</div>
                     <div className="text-lg font-bold">{propertyDetails?.condition || 'N/A'}</div>
                   </div>
+                  {propertyDetails?.lotSize && (
+                    <div className="bg-gray-50 p-4 rounded-lg">
+                      <div className="text-sm text-gray-500">Lot Size</div>
+                      <div className="text-lg font-bold">
+                        {propertyDetails.lotSize.value} {propertyDetails.lotSize.unit}
+                      </div>
+                    </div>
+                  )}
+                  {propertyDetails?.occupancy && (
+                    <div className="bg-gray-50 p-4 rounded-lg">
+                      <div className="text-sm text-gray-500">Occupancy</div>
+                      <div className="text-lg font-bold">{propertyDetails.occupancy}</div>
+                    </div>
+                  )}
+                  {propertyDetails?.garage && (
+                    <div className="bg-gray-50 p-4 rounded-lg">
+                      <div className="text-sm text-gray-500">Garage</div>
+                      <div className="text-lg font-bold">{propertyDetails.garage} car</div>
+                    </div>
+                  )}
+                  {propertyDetails?.parking && (
+                    <div className="bg-gray-50 p-4 rounded-lg">
+                      <div className="text-sm text-gray-500">Parking</div>
+                      <div className="text-lg font-bold">{propertyDetails.parking} spaces</div>
+                    </div>
+                  )}
+                  {propertyDetails?.stories && (
+                    <div className="bg-gray-50 p-4 rounded-lg">
+                      <div className="text-sm text-gray-500">Stories</div>
+                      <div className="text-lg font-bold">{propertyDetails.stories}</div>
+                    </div>
+                  )}
+                  {propertyDetails?.monthlyRent && (
+                    <div className="bg-gray-50 p-4 rounded-lg">
+                      <div className="text-sm text-gray-500">Monthly Rent</div>
+                      <div className="text-lg font-bold">{formatCurrency(propertyDetails.monthlyRent)}/mo</div>
+                    </div>
+                  )}
+                  {propertyDetails?.hoaFees !== null && propertyDetails?.hoaFees !== undefined && (
+                    <div className="bg-gray-50 p-4 rounded-lg">
+                      <div className="text-sm text-gray-500">HOA Fees</div>
+                      <div className="text-lg font-bold">
+                        {propertyDetails.hoaFees === 0 ? 'None' : `${formatCurrency(propertyDetails.hoaFees)}/mo`}
+                      </div>
+                    </div>
+                  )}
+                  {propertyDetails?.propertyTax && (
+                    <div className="bg-gray-50 p-4 rounded-lg">
+                      <div className="text-sm text-gray-500">Property Tax</div>
+                      <div className="text-lg font-bold">{formatCurrency(propertyDetails.propertyTax)}/yr</div>
+                    </div>
+                  )}
+                  {propertyDetails?.daysOnMarket && (
+                    <div className="bg-gray-50 p-4 rounded-lg">
+                      <div className="text-sm text-gray-500">Days on Market</div>
+                      <div className="text-lg font-bold">{propertyDetails.daysOnMarket} days</div>
+                    </div>
+                  )}
                 </div>
+                
+                {/* Property Features */}
+                {(propertyDetails?.hasPool || propertyDetails?.hasBasement || propertyDetails?.hasFireplace) && (
+                  <div className="mt-6">
+                    <h3 className="text-lg font-semibold mb-3">Features</h3>
+                    <div className="flex flex-wrap gap-2">
+                      {propertyDetails.hasPool && (
+                        <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-semibold">
+                          🏊 Pool
+                        </span>
+                      )}
+                      {propertyDetails.hasBasement && (
+                        <span className="bg-gray-100 text-gray-800 px-3 py-1 rounded-full text-sm font-semibold">
+                          🏠 Basement {typeof propertyDetails.hasBasement === 'string' ? `(${propertyDetails.hasBasement})` : ''}
+                        </span>
+                      )}
+                      {propertyDetails.hasFireplace && (
+                        <span className="bg-orange-100 text-orange-800 px-3 py-1 rounded-full text-sm font-semibold">
+                          🔥 Fireplace
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                )}
               </CardContent>
             </Card>
 
