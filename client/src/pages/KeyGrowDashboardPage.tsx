@@ -173,13 +173,22 @@ export default function KeyGrowDashboardPage() {
               <p className="text-blue-100 text-sm sm:text-base md:text-lg mb-3">
                 Your path from renting to homeownership through platform revenue sharing
               </p>
-              <Button
-                onClick={() => setShowProgramComparison(true)}
-                variant="outline"
-                className="bg-white/10 hover:bg-white/20 text-white border-white/30 text-xs sm:text-sm"
-              >
-                📊 Compare KeyGrow vs Real Estate Investor
-              </Button>
+              <div className="flex flex-wrap gap-2">
+                <Button
+                  onClick={() => navigate('/deals')}
+                  variant="outline"
+                  className="bg-white/10 hover:bg-white/20 text-white border-white/30 text-xs sm:text-sm"
+                >
+                  🏘️ Browse Properties
+                </Button>
+                <Button
+                  onClick={() => setShowProgramComparison(true)}
+                  variant="outline"
+                  className="bg-white/10 hover:bg-white/20 text-white border-white/30 text-xs sm:text-sm"
+                >
+                  📊 Compare Programs
+                </Button>
+              </div>
             </div>
             <div className="flex flex-col items-start sm:items-end space-y-2 w-full sm:w-auto">
               {isWalletReady ? (
