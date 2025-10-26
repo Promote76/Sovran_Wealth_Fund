@@ -36,12 +36,76 @@ class PropertyScraperService {
       if (url.includes('investorlift.com')) {
         console.log(`📸 Using Puppeteer for InvestorLift (extended timeout: 60s)`);
         return await this.scrapeInvestorLiftWithPuppeteer(url);
+      } else if (url.includes('dropbox.com')) {
+        console.log(`📸 Using Puppeteer for Dropbox shared folder`);
+        return await this.scrapeDropboxWithPuppeteer(url);
       } else {
         const scrapedData = await this.scrapeUrl(url);
         return scrapedData;
       }
     } catch (error) {
       console.error(`⚠️ Failed to scrape property URL ${url}:`, error.message);
+      return { images: [], data: {} };
+    }
+  }
+
+  async scrapeDropboxWithPuppeteer(url) {
+    const browser = await this.getBrowser();
+    const page = await browser.newPage();
+    
+    try {
+      await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36');
+      
+      console.log(`🌐 Loading Dropbox shared folder: ${url}`);
+      await page.goto(url, { 
+        waitUntil: 'networkidle2',
+        timeout: 60000 
+      });
+      
+      // Wait for Dropbox to load images
+      await page.waitForTimeout(8000);
+      
+      const scrapedData = await page.evaluate(() => {
+        const images = [];
+        const data = {};
+        
+        // Dropbox uses specific selectors for file previews
+        document.querySelectorAll('img').forEach(img => {
+          const src = img.src || img.getAttribute('data-src');
+          if (src && 
+              !src.includes('logo') && 
+              !src.includes('icon') &&
+              !src.includes('branding') &&
+              !src.includes('sprite') &&
+              (src.includes('dropbox') || 
+               src.includes('preview') ||
+               src.includes('thumb') ||
+               src.includes('image'))) {
+            // Convert thumbnail to full size if possible
+            const fullSrc = src.replace('/thumb/', '/').replace('_thumb', '');
+            images.push(fullSrc);
+          }
+        });
+        
+        // Look for image links in the file list
+        document.querySelectorAll('a[href*=".jpg"], a[href*=".jpeg"], a[href*=".png"], a[href*=".JPG"], a[href*=".JPEG"], a[href*=".PNG"]').forEach(link => {
+          const href = link.href;
+          if (href && !images.includes(href)) {
+            images.push(href);
+          }
+        });
+        
+        return { images: [...new Set(images)], data };
+      });
+      
+      console.log(`✅ Found ${scrapedData.images.length} images in Dropbox folder`);
+      
+      await page.close();
+      return scrapedData;
+      
+    } catch (error) {
+      console.error(`Dropbox scraping error: ${error.message}`);
+      await page.close();
       return { images: [], data: {} };
     }
   }
