@@ -55,10 +55,10 @@ const IELADashboardPage: React.FC = () => {
   };
 
   useEffect(() => {
-    if (isAuthenticated() && isAdmin()) {
+    if (!loading && isAuthenticated() && isAdmin()) {
       loadDeals();
     }
-  }, []);
+  }, [loading, user]);
 
   useEffect(() => {
     filterDeals();

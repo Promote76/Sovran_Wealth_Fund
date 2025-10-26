@@ -217,6 +217,7 @@ class DealService {
       .update(deals)
       .set({
         analysis,
+        status: 'published',
         updatedAt: new Date()
       })
       .where(eq(deals.id, dealId));
@@ -225,6 +226,8 @@ class DealService {
       .select()
       .from(deals)
       .where(eq(deals.id, dealId));
+
+    console.log(`📤 IELA: Deal ${dealId} auto-published to marketplace`);
 
     return this.mapToDeal(updated);
   }

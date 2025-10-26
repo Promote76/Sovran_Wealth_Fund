@@ -43,10 +43,54 @@ class PropertyScraperService {
     const images = [];
     const data = {};
 
+    // Scrape images from img tags (src, data-src, srcset)
     $('img').each((i, elem) => {
       const src = $(elem).attr('src') || $(elem).attr('data-src');
-      if (src && (src.includes('property') || src.includes('photo') || src.includes('image'))) {
+      const srcset = $(elem).attr('srcset');
+      
+      if (src && (src.includes('property') || src.includes('photo') || src.includes('image') || src.includes('cloudinary') || src.includes('cdn'))) {
         images.push(this.resolveUrl(src));
+      }
+      
+      // Parse srcset for higher quality images
+      if (srcset) {
+        const srcsetUrls = srcset.split(',').map(s => s.trim().split(' ')[0]);
+        srcsetUrls.forEach(url => {
+          if (url && !images.includes(url)) {
+            images.push(this.resolveUrl(url));
+          }
+        });
+      }
+    });
+
+    // Scrape from picture elements
+    $('picture source').each((i, elem) => {
+      const srcset = $(elem).attr('srcset');
+      if (srcset) {
+        const srcsetUrls = srcset.split(',').map(s => s.trim().split(' ')[0]);
+        srcsetUrls.forEach(url => {
+          if (url && !images.includes(url)) {
+            images.push(this.resolveUrl(url));
+          }
+        });
+      }
+    });
+
+    // Try to extract JSON-LD data for images
+    $('script[type="application/ld+json"]').each((i, elem) => {
+      try {
+        const json = JSON.parse($(elem).html());
+        if (json.image) {
+          const jsonImages = Array.isArray(json.image) ? json.image : [json.image];
+          jsonImages.forEach(img => {
+            const imgUrl = typeof img === 'string' ? img : img.url;
+            if (imgUrl && !images.includes(imgUrl)) {
+              images.push(this.resolveUrl(imgUrl));
+            }
+          });
+        }
+      } catch (e) {
+        // Ignore JSON parse errors
       }
     });
 
