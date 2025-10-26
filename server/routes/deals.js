@@ -196,4 +196,25 @@ router.put('/:dealId', async (req, res) => {
   }
 });
 
+router.delete('/:dealId', async (req, res) => {
+  try {
+    const { dealId } = req.params;
+
+    await dealService.deleteDeal(dealId);
+
+    console.log(`🗑️ IELA: Deal ${dealId} deleted`);
+
+    res.json({
+      success: true,
+      message: 'Deal deleted successfully'
+    });
+  } catch (error) {
+    console.error('❌ IELA delete error:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
 module.exports = router;

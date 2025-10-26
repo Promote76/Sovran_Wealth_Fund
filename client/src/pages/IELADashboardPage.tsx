@@ -138,6 +138,38 @@ const IELADashboardPage: React.FC = () => {
     }
   };
 
+  const handleDelete = async (dealId: string) => {
+    const deal = deals.find(d => d.id === dealId);
+    
+    const confirmMsg = `⚠️ DELETE THIS DEAL?\n\n` +
+      `${deal?.parsed?.address || 'Unknown property'}\n` +
+      `${deal?.parsed?.city}, ${deal?.parsed?.state}\n\n` +
+      `This action CANNOT be undone.\n\n` +
+      `Click OK to permanently delete.`;
+
+    if (!window.confirm(confirmMsg)) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/deals/${dealId}`, {
+        method: 'DELETE'
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        alert('✅ Deal deleted successfully');
+        loadDeals();
+      } else {
+        alert(`Failed to delete: ${data.error}`);
+      }
+    } catch (err) {
+      console.error('Failed to delete deal:', err);
+      alert('Failed to delete deal. Check console for details.');
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 to-white">
       <div className="container mx-auto p-4 max-w-7xl">
@@ -305,18 +337,27 @@ const IELADashboardPage: React.FC = () => {
                         </span>
                       </td>
                       <td className="px-6 py-4 text-sm">
-                        {deal.status === 'published' ? (
-                          <span className="text-green-600 font-medium">✅ Live</span>
-                        ) : deal.analysis ? (
+                        <div className="flex gap-2">
+                          {deal.status === 'published' ? (
+                            <span className="text-green-600 font-medium">✅ Live</span>
+                          ) : deal.analysis ? (
+                            <button
+                              onClick={() => handlePublish(deal.id)}
+                              className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+                            >
+                              📤 Publish
+                            </button>
+                          ) : (
+                            <span className="text-gray-400">Needs Analysis</span>
+                          )}
                           <button
-                            onClick={() => handlePublish(deal.id)}
-                            className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+                            onClick={() => handleDelete(deal.id)}
+                            className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+                            title="Delete deal permanently"
                           >
-                            📤 Publish to Marketplace
+                            🗑️ Delete
                           </button>
-                        ) : (
-                          <span className="text-gray-400">Needs Analysis</span>
-                        )}
+                        </div>
                       </td>
                     </tr>
                   ))}

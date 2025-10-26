@@ -298,6 +298,25 @@ class DealService {
     return this.getDeal(dealId);
   }
 
+  async deleteDeal(dealId) {
+    const [deal] = await db
+      .select()
+      .from(deals)
+      .where(eq(deals.id, dealId));
+
+    if (!deal) {
+      throw new Error(`Deal not found: ${dealId}`);
+    }
+
+    await db
+      .delete(deals)
+      .where(eq(deals.id, dealId));
+
+    console.log(`🗑️ IELA: Deal ${dealId} permanently deleted`);
+
+    return { success: true, deletedId: dealId };
+  }
+
   mapToDeal(row) {
     return {
       id: row.id,
