@@ -4,6 +4,8 @@ const { eq } = require('drizzle-orm');
 const { parseMessage } = require('../parsing/smsParser');
 const { analyzeProfitability } = require('../analysis/profitability');
 const { analyzeRTOSuitability } = require('../analysis/rtoSuitability');
+const enrichmentService = require('./enrichmentService');
+const mlPredictions = require('../ml/predictions');
 const { randomUUID } = require('crypto');
 
 const DEFAULT_REPAIRS = {
@@ -69,12 +71,62 @@ class DealService {
       throw new Error(`Deal not found: ${dealId}`);
     }
 
-    console.log('⚠️ IELA Enrichment: Geocoding and property data APIs not configured');
-    console.log('To enable: Set GEOCODER_PROVIDER and GEOCODER_API_KEY environment variables');
+    console.log(`🔄 IELA: Enriching deal ${dealId}...`);
+
+    const enrichments = await enrichmentService.enrichDeal(deal);
+
+    const repairPrediction = mlPredictions.predictRepairCost(
+      enrichments.propertyFacts,
+      enrichments.marketData,
+      enrichments.propertyFacts?.condition || 'Fair'
+    );
+
+    const repairs = {
+      estLow: repairPrediction.low,
+      estMid: repairPrediction.estimated,
+      estHigh: repairPrediction.high,
+      mlConfidence: repairPrediction.confidence,
+      notes: [
+        repairPrediction.note,
+        `Based on: ${repairPrediction.factors.size} sqft, ${repairPrediction.factors.age} years old, ${repairPrediction.factors.condition} condition`
+      ]
+    };
+
+    const rentPrediction = mlPredictions.predictRent(
+      enrichments.propertyFacts,
+      enrichments.marketData,
+      enrichments.geocoding
+    );
+
+    const rents = {
+      marketRentEst: rentPrediction.estimated,
+      marketRentLow: rentPrediction.low,
+      marketRentHigh: rentPrediction.high,
+      mlConfidence: rentPrediction.confidence,
+      source: 'ml_prediction',
+      confidence: rentPrediction.confidence
+    };
+
+    const appreciationPrediction = mlPredictions.predictAppreciation(
+      enrichments.marketData,
+      enrichments.neighborhoodScore,
+      enrichments.propertyFacts
+    );
 
     await db
       .update(deals)
       .set({
+        geocoding: enrichments.geocoding,
+        propertyFacts: enrichments.propertyFacts,
+        marketData: enrichments.marketData,
+        neighborhoodScore: enrichments.neighborhoodScore,
+        repairs,
+        rents,
+        predictions: {
+          appreciation: appreciationPrediction,
+          rentEstimate: rentPrediction,
+          repairCost: repairPrediction
+        },
         updatedAt: new Date()
       })
       .where(eq(deals.id, dealId));
@@ -83,6 +135,8 @@ class DealService {
       .select()
       .from(deals)
       .where(eq(deals.id, dealId));
+
+    console.log(`✅ IELA: Deal enriched ${dealId} with ML predictions`);
 
     return this.mapToDeal(updated);
   }

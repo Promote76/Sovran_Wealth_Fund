@@ -815,8 +815,11 @@ app.use('/api/stripe', stripePaymentRouter);
 const featureFlags = require('./server/config/featureFlags');
 if (featureFlags.IELA_ENABLED) {
   const dealsRouter = require('./server/routes/deals');
+  const webhooksRouter = require('./server/routes/webhooks');
   app.use('/api/deals', dealsRouter);
+  app.use('/api/webhooks', webhooksRouter);
   console.log('✅ IELA Pipeline enabled and mounted at /api/deals');
+  console.log('✅ IELA Webhooks enabled and mounted at /api/webhooks');
 } else {
   console.log('ℹ️  IELA Pipeline disabled (set AXIOM_FEATURE_IELA=true to enable)');
 }
