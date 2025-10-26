@@ -709,6 +709,35 @@ const contractEvents = pgTable('contract_events', {
   blockNumberIdx: index('contract_events_block_number_idx').on(table.blockNumber)
 }));
 
+// ============================================
+// IELA (Ingest-Enrich-Analyze-List) PIPELINE
+// ============================================
+
+// Deals table - wholesale property deal intake and analysis
+const deals = pgTable('deals', {
+  id: varchar('id', { length: 36 }).primaryKey(),
+  source: varchar('source', { length: 20 }).notNull(),
+  rawText: text('raw_text').notNull(),
+  parsed: jsonb('parsed').notNull(),
+  geocode: jsonb('geocode'),
+  facts: jsonb('facts'),
+  finance: jsonb('finance'),
+  rents: jsonb('rents'),
+  repairs: jsonb('repairs').notNull(),
+  analysis: jsonb('analysis'),
+  media: jsonb('media').$default(() => []),
+  compliance: jsonb('compliance').notNull(),
+  status: varchar('status', { length: 20 }).default('draft').notNull(),
+  createdBy: varchar('created_by', { length: 255 }),
+  assignedTo: varchar('assigned_to', { length: 255 }),
+  notes: text('notes'),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull()
+}, (table) => ({
+  statusIdx: index('deals_status_idx').on(table.status),
+  createdAtIdx: index('deals_created_at_idx').on(table.createdAt)
+}));
+
 module.exports = {
   users,
   registrationJourney,
@@ -758,5 +787,7 @@ module.exports = {
   // Revenue Router tables
   revenueDistributions,
   // Contract Events
-  contractEvents
+  contractEvents,
+  // IELA Pipeline
+  deals
 };
