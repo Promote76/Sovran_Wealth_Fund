@@ -26,8 +26,23 @@ Preferred communication style: Simple, everyday language.
     - Automatically extracts property photos, price, beds, baths, sqft, address, description
     - System dependencies: Chromium installed for headless browser operations
 
+- **Dropbox Image Integration & Property Details Parsing**: Enhanced property intake with automatic image and detail extraction
+  - **Dropbox URL Conversion**: Automatic conversion of Dropbox share links to direct download URLs
+    - Properly handles multi-parameter URLs using URLSearchParams API
+    - Preserves all existing query parameters while forcing `dl=1` for direct access
+    - Example: `?rlkey=abc&st=xyz&dl=0` → `?rlkey=abc&st=xyz&dl=1`
+  - **Bed/Bath Parsing**: Comprehensive extraction of bedroom and bathroom counts from property text
+    - Supports multiple formats: "3 bed, 2 bath", "4BR/2.5BA", "3bd/2ba", "2bdr/1.5bth"
+    - Covers common MLS abbreviations: bed, bedroom, br, bd, bdr, bath, bathroom, ba, bth, bths
+    - Compact notation support: "3/2", "4BR/2BA"
+  - **PropertyFacts Integration**: Parsed bed/bath data automatically flows into enrichment
+    - Replaces estimated values with parsed data when available
+    - Sets `source: 'parsed_with_estimates'` and `confidence: 'medium'` for transparency
+    - Displays in property detail pages and marketplace listings
+    - Note: "Bed/bath from property listing. Other facts estimated using deterministic heuristics."
+
 - **IELA Pipeline (Ingest-Enrich-Analyze-List)**: ✅ PRODUCTION-READY - Complete wholesale real estate deal management system with 5 production deployment features
-  - **Parsing Engine**: SMS/email text parser extracts property details (address, asking price, ARV, contact info)
+  - **Parsing Engine**: SMS/email text parser extracts property details (address, asking price, ARV, contact info, beds/baths from text patterns)
   - **Enrichment Service**: 
     - Geocoding via OpenStreetMap (lat/long, display name, bounding box)
     - Property facts estimation (beds/baths, sqft, year built, condition, property type)
