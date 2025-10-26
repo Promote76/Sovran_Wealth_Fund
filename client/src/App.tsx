@@ -83,6 +83,7 @@ import MarketingHubPage from './pages/MarketingHubPage';
 import IELAIntakePage from './pages/IELAIntakePage';
 import IELADashboardPage from './pages/IELADashboardPage';
 import DealMarketplacePage from './pages/DealMarketplacePage';
+import DealDetailPage from './pages/DealDetailPage';
 
 // Legacy component for KeyGrow integration
 function KeyGrowPage() {
@@ -467,6 +468,7 @@ function App() {
                               <Route path="/investments" element={<InvestmentsPage />} />
                               <Route path="/real-estate" element={<RealEstatePage />} />
                               <Route path="/deals" element={<DealMarketplacePage />} />
+                              <Route path="/deals/:id" element={<DealDetailPage />} />
                               
                               {/* Smart Contract Features */}
                               <Route path="/keygrow-dashboard" element={<KeyGrowDashboardPage />} />

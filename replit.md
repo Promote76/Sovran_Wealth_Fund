@@ -13,6 +13,14 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Updates (October 26, 2025)
 
+- **Property Listings Integration**: NEW - Live property cards embedded directly in KeyGrow and Real Estate Investor pages
+  - **ROI Calculations**: Added proper ROI calculation to profitability analysis (ROI = (ARV - (Asking + Repairs)) / (Asking + Repairs) * 100)
+  - **Deal Detail Pages**: Full property detail view at `/deals/:id` with images, property facts, investment analysis, pricing, and contact info
+  - **KeyGrow Embedded Listings**: Shows top 3 RTO-ready properties (green badge) with asking price and estimated rent
+  - **Investor Embedded Listings**: Shows top 3 investment opportunities sorted by ROI with asking, ARV, MAO, and ROI metrics
+  - **Functional View Details**: Buttons now route to individual deal detail pages with complete property information
+  - **React Router Integration**: Added `/deals/:id` route for individual property pages
+
 - **IELA Pipeline (Ingest-Enrich-Analyze-List)**: ✅ PRODUCTION-READY - Complete wholesale real estate deal management system with 5 production deployment features
   - **Parsing Engine**: SMS/email text parser extracts property details (address, asking price, ARV, contact info)
   - **Enrichment Service**: 

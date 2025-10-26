@@ -595,7 +595,7 @@ export default function RealEstateInvestorPage() {
                           💎 INVESTOR DEAL
                         </span>
                         <Button
-                          onClick={() => navigate(`/deals`)}
+                          onClick={() => navigate(`/deals/${deal.id}`)}
                           size="sm"
                           className="bg-blue-600 hover:bg-blue-700 text-white text-xs"
                         >

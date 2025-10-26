@@ -24,6 +24,13 @@ function calculateCashOnCash(annualCashFlow, totalInvestment) {
   return (annualCashFlow / totalInvestment) * 100;
 }
 
+function calculateROI(arv, purchasePrice, repairCost) {
+  if (purchasePrice === 0 || arv === 0) return 0;
+  const totalInvestment = purchasePrice + repairCost;
+  const profit = arv - totalInvestment;
+  return (profit / totalInvestment) * 100;
+}
+
 function analyzeProfitability(input) {
   const { asking, arv } = input;
 
@@ -34,9 +41,21 @@ function analyzeProfitability(input) {
   };
 
   const maoByRepair = [
-    { repair: repairs.low, mao: calculateMAO(arv, repairs.low) },
-    { repair: repairs.mid, mao: calculateMAO(arv, repairs.mid) },
-    { repair: repairs.high, mao: calculateMAO(arv, repairs.high) }
+    { 
+      repair: repairs.low, 
+      mao: calculateMAO(arv, repairs.low),
+      roi: parseFloat(calculateROI(arv, asking, repairs.low).toFixed(1))
+    },
+    { 
+      repair: repairs.mid, 
+      mao: calculateMAO(arv, repairs.mid),
+      roi: parseFloat(calculateROI(arv, asking, repairs.mid).toFixed(1))
+    },
+    { 
+      repair: repairs.high, 
+      mao: calculateMAO(arv, repairs.high),
+      roi: parseFloat(calculateROI(arv, asking, repairs.high).toFixed(1))
+    }
   ];
 
   const priceToArvPctWithRepairs = [
@@ -77,6 +96,7 @@ function analyzeProfitability(input) {
 
 module.exports = {
   calculateMAO,
+  calculateROI,
   calculatePriceToARVPercent,
   calculateCapRate,
   calculateCashOnCash,
