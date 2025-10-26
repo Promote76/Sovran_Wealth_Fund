@@ -6,6 +6,8 @@ const { analyzeProfitability } = require('../analysis/profitability');
 const { analyzeRTOSuitability } = require('../analysis/rtoSuitability');
 const enrichmentService = require('./enrichmentService');
 const mlPredictions = require('../ml/predictions');
+const notificationService = require('./notificationService');
+const investorMatching = require('./investorMatchingService');
 const { randomUUID } = require('crypto');
 
 const DEFAULT_REPAIRS = {
@@ -58,7 +60,16 @@ class DealService {
       .from(deals)
       .where(eq(deals.id, dealId));
 
-    return this.mapToDeal(insertedDeal);
+    const mappedDeal = this.mapToDeal(insertedDeal);
+
+    await notificationService.sendNewDealNotification(mappedDeal);
+
+    const matches = await investorMatching.matchDeal(mappedDeal);
+    if (matches.length > 0) {
+      console.log(`🎯 Auto-matched deal to ${matches.length} investors`);
+    }
+
+    return mappedDeal;
   }
 
   async enrichDeal(dealId, options) {

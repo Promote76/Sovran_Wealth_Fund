@@ -1,4 +1,5 @@
 const axios = require('axios');
+const attomData = require('./attomDataService');
 
 class EnrichmentService {
   async geocodeAddress(address, city, state, zip) {
@@ -38,6 +39,14 @@ class EnrichmentService {
 
   async getPropertyFacts(address, city, state, zip) {
     try {
+      if (attomData.isConfigured()) {
+        const attomFacts = await attomData.getPropertyDetails(address, city, state, zip);
+        if (attomFacts) {
+          console.log('✅ Using Attom Data for property facts');
+          return attomFacts;
+        }
+      }
+
       const addressSeed = this.hashAddress(address, city, state);
       
       const estimatedFacts = {
