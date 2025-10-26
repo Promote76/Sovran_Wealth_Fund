@@ -738,6 +738,147 @@ const deals = pgTable('deals', {
   createdAtIdx: index('deals_created_at_idx').on(table.createdAt)
 }));
 
+// ============================================
+// FRACTIONAL REAL ESTATE OWNERSHIP SYSTEM
+// ============================================
+
+// Investor Tiers table - Defines the 4-tier investment system
+const investorTiers = pgTable('investor_tiers', {
+  id: serial('id').primaryKey(),
+  tierName: varchar('tier_name', { length: 20 }).notNull().unique(),
+  minInvestment: decimal('min_investment', { precision: 15, scale: 2 }).notNull(),
+  maxInvestment: decimal('max_investment', { precision: 15, scale: 2 }),
+  maxOwnershipPercent: decimal('max_ownership_percent', { precision: 5, scale: 2 }),
+  revenueShareBonus: decimal('revenue_share_bonus', { precision: 5, scale: 2 }).default('0').notNull(),
+  benefits: jsonb('benefits'),
+  description: text('description'),
+  isActive: boolean('is_active').default(true).notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull()
+});
+
+// Fractional Properties table - Links deals to fractional investment offerings
+const fractionalProperties = pgTable('fractional_properties', {
+  id: serial('id').primaryKey(),
+  dealId: varchar('deal_id', { length: 36 }).notNull().unique(),
+  totalShares: integer('total_shares').default(10000).notNull(),
+  sharePrice: decimal('share_price', { precision: 15, scale: 2 }).notNull(),
+  propertyValue: decimal('property_value', { precision: 15, scale: 2 }).notNull(),
+  sharesSold: integer('shares_sold').default(0).notNull(),
+  minInvestment: decimal('min_investment', { precision: 15, scale: 2 }).default('500').notNull(),
+  maxOwnershipPercent: decimal('max_ownership_percent', { precision: 5, scale: 2 }).default('25').notNull(),
+  lockupMonths: integer('lockup_months').default(6).notNull(),
+  monthlyRent: decimal('monthly_rent', { precision: 15, scale: 2 }),
+  monthlyExpenses: decimal('monthly_expenses', { precision: 15, scale: 2 }),
+  netMonthlyIncome: decimal('net_monthly_income', { precision: 15, scale: 2 }),
+  reserveFundPercent: decimal('reserve_fund_percent', { precision: 5, scale: 2 }).default('10').notNull(),
+  contractAddress: varchar('contract_address', { length: 42 }),
+  tokenId: varchar('token_id', { length: 78 }),
+  status: varchar('status', { length: 20 }).default('active').notNull(),
+  fundingDeadline: timestamp('funding_deadline'),
+  fullyFundedAt: timestamp('fully_funded_at'),
+  metadata: jsonb('metadata'),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull()
+}, (table) => ({
+  dealIdIdx: index('fractional_properties_deal_id_idx').on(table.dealId),
+  statusIdx: index('fractional_properties_status_idx').on(table.status)
+}));
+
+// Investor Shares table - Tracks fractional ownership
+const investorShares = pgTable('investor_shares', {
+  id: serial('id').primaryKey(),
+  propertyId: integer('property_id').notNull(),
+  investorId: integer('investor_id'),
+  walletAddress: varchar('wallet_address', { length: 42 }).notNull(),
+  sharesOwned: integer('shares_owned').notNull(),
+  ownershipPercent: decimal('ownership_percent', { precision: 5, scale: 2 }).notNull(),
+  purchasePrice: decimal('purchase_price', { precision: 15, scale: 2 }).notNull(),
+  totalInvested: decimal('total_invested', { precision: 15, scale: 2 }).notNull(),
+  tier: varchar('tier', { length: 20 }).notNull(),
+  lockupEndsAt: timestamp('lockup_ends_at').notNull(),
+  totalRevenueEarned: decimal('total_revenue_earned', { precision: 15, scale: 2 }).default('0').notNull(),
+  lastDistributionAt: timestamp('last_distribution_at'),
+  status: varchar('status', { length: 20 }).default('active').notNull(),
+  nftTokenId: varchar('nft_token_id', { length: 78 }),
+  metadata: jsonb('metadata'),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull()
+}, (table) => ({
+  propertyIdIdx: index('investor_shares_property_id_idx').on(table.propertyId),
+  walletAddressIdx: index('investor_shares_wallet_address_idx').on(table.walletAddress),
+  investorIdIdx: index('investor_shares_investor_id_idx').on(table.investorId)
+}));
+
+// Share Transactions table - Purchase and transfer history
+const shareTransactions = pgTable('share_transactions', {
+  id: serial('id').primaryKey(),
+  propertyId: integer('property_id').notNull(),
+  fromWallet: varchar('from_wallet', { length: 42 }),
+  toWallet: varchar('to_wallet', { length: 42 }).notNull(),
+  sharesAmount: integer('shares_amount').notNull(),
+  pricePerShare: decimal('price_per_share', { precision: 15, scale: 2 }).notNull(),
+  totalAmount: decimal('total_amount', { precision: 15, scale: 2 }).notNull(),
+  transactionType: varchar('transaction_type', { length: 20 }).notNull(),
+  paymentMethod: varchar('payment_method', { length: 20 }).notNull(),
+  tier: varchar('tier', { length: 20 }),
+  txHash: varchar('tx_hash', { length: 66 }),
+  stripePaymentId: varchar('stripe_payment_id', { length: 100 }),
+  status: varchar('status', { length: 20 }).default('completed').notNull(),
+  metadata: jsonb('metadata'),
+  createdAt: timestamp('created_at').defaultNow().notNull()
+}, (table) => ({
+  propertyIdIdx: index('share_transactions_property_id_idx').on(table.propertyId),
+  toWalletIdx: index('share_transactions_to_wallet_idx').on(table.toWallet),
+  txTypeIdx: index('share_transactions_type_idx').on(table.transactionType)
+}));
+
+// Property Revenue Distributions table - Monthly rental income tracking
+const propertyRevenueDistributions = pgTable('property_revenue_distributions', {
+  id: serial('id').primaryKey(),
+  propertyId: integer('property_id').notNull(),
+  distributionMonth: varchar('distribution_month', { length: 7 }).notNull(),
+  totalRevenue: decimal('total_revenue', { precision: 15, scale: 2 }).notNull(),
+  totalExpenses: decimal('total_expenses', { precision: 15, scale: 2 }).notNull(),
+  reserveFund: decimal('reserve_fund', { precision: 15, scale: 2 }).notNull(),
+  netDistributable: decimal('net_distributable', { precision: 15, scale: 2 }).notNull(),
+  baseDistribution: decimal('base_distribution', { precision: 15, scale: 2 }).notNull(),
+  tierBonusPool: decimal('tier_bonus_pool', { precision: 15, scale: 2 }).notNull(),
+  totalDistributed: decimal('total_distributed', { precision: 15, scale: 2 }).default('0').notNull(),
+  investorsPaid: integer('investors_paid').default(0).notNull(),
+  status: varchar('status', { length: 20 }).default('pending').notNull(),
+  distributedAt: timestamp('distributed_at'),
+  txHash: varchar('tx_hash', { length: 66 }),
+  metadata: jsonb('metadata'),
+  createdAt: timestamp('created_at').defaultNow().notNull()
+}, (table) => ({
+  propertyIdIdx: index('property_revenue_property_id_idx').on(table.propertyId),
+  monthIdx: index('property_revenue_month_idx').on(table.distributionMonth),
+  statusIdx: index('property_revenue_status_idx').on(table.status)
+}));
+
+// Investor Revenue Payments table - Individual investor revenue tracking
+const investorRevenuePayments = pgTable('investor_revenue_payments', {
+  id: serial('id').primaryKey(),
+  distributionId: integer('distribution_id').notNull(),
+  shareRecordId: integer('share_record_id').notNull(),
+  investorId: integer('investor_id'),
+  walletAddress: varchar('wallet_address', { length: 42 }).notNull(),
+  sharesOwned: integer('shares_owned').notNull(),
+  ownershipPercent: decimal('ownership_percent', { precision: 5, scale: 2 }).notNull(),
+  tier: varchar('tier', { length: 20 }).notNull(),
+  baseAmount: decimal('base_amount', { precision: 15, scale: 2 }).notNull(),
+  tierBonus: decimal('tier_bonus', { precision: 15, scale: 2 }).default('0').notNull(),
+  totalAmount: decimal('total_amount', { precision: 15, scale: 2 }).notNull(),
+  status: varchar('status', { length: 20 }).default('pending').notNull(),
+  paidAt: timestamp('paid_at'),
+  txHash: varchar('tx_hash', { length: 66 }),
+  createdAt: timestamp('created_at').defaultNow().notNull()
+}, (table) => ({
+  distributionIdIdx: index('investor_revenue_distribution_id_idx').on(table.distributionId),
+  shareRecordIdIdx: index('investor_revenue_share_record_id_idx').on(table.shareRecordId),
+  walletAddressIdx: index('investor_revenue_wallet_idx').on(table.walletAddress)
+}));
+
 module.exports = {
   users,
   registrationJourney,
@@ -789,5 +930,12 @@ module.exports = {
   // Contract Events
   contractEvents,
   // IELA Pipeline
-  deals
+  deals,
+  // Fractional Real Estate Ownership
+  investorTiers,
+  fractionalProperties,
+  investorShares,
+  shareTransactions,
+  propertyRevenueDistributions,
+  investorRevenuePayments
 };
