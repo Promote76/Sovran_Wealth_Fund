@@ -513,7 +513,7 @@ export default function RealEstateInvestorPage() {
 
               <div className="grid md:grid-cols-2 gap-6">
                 {fractionalProperties.map((property) => {
-                  const fundingPercent = (property.shares_sold / property.total_shares) * 100;
+                  const fundingPercent = (property.sharesSold / property.totalShares) * 100;
                   const minTierInfo = getTierInfo('retail');
                   
                   return (
@@ -521,10 +521,10 @@ export default function RealEstateInvestorPage() {
                       <div className="flex justify-between items-start mb-3">
                         <div>
                           <h3 className="text-xl font-bold text-gray-900">
-                            {property.metadata?.address || `Property #${property.id}`}
+                            {property.deal?.address || `Property #${property.id}`}
                           </h3>
                           <div className="text-sm text-gray-600 mt-1">
-                            {property.metadata?.city}, {property.metadata?.state}
+                            {property.deal?.city}, {property.deal?.state}
                           </div>
                         </div>
                         <div className={`px-3 py-1 rounded-full text-xs font-medium ${
@@ -560,20 +560,20 @@ export default function RealEstateInvestorPage() {
                       <div className="grid grid-cols-2 gap-3 mb-4 text-sm">
                         <div className="bg-blue-50 p-3 rounded">
                           <div className="text-gray-600">Property Value</div>
-                          <div className="font-bold text-blue-600">{formatCurrency(property.property_value)}</div>
+                          <div className="font-bold text-blue-600">{formatCurrency(parseFloat(property.propertyValue))}</div>
                         </div>
                         <div className="bg-green-50 p-3 rounded">
                           <div className="text-gray-600">Share Price</div>
-                          <div className="font-bold text-green-600">{formatCurrency(property.share_price)}</div>
+                          <div className="font-bold text-green-600">{formatCurrency(parseFloat(property.sharePrice))}</div>
                         </div>
                         <div className="bg-purple-50 p-3 rounded">
                           <div className="text-gray-600">Monthly Income</div>
-                          <div className="font-bold text-purple-600">{formatCurrency(property.net_monthly_income)}</div>
+                          <div className="font-bold text-purple-600">{formatCurrency(parseFloat(property.netMonthlyIncome))}</div>
                         </div>
                         <div className="bg-orange-50 p-3 rounded">
                           <div className="text-gray-600">Annual Yield</div>
                           <div className="font-bold text-orange-600">
-                            {((property.net_monthly_income * 12 / property.property_value) * 100).toFixed(1)}%
+                            {property.annualYield.toFixed(1)}%
                           </div>
                         </div>
                       </div>
@@ -594,7 +594,7 @@ export default function RealEstateInvestorPage() {
                       </div>
 
                       {/* Investment Button */}
-                      {property.status === 'active' && property.shares_available > 0 && (
+                      {property.status === 'active' && property.sharesAvailable > 0 && (
                         <Button
                           onClick={() => isConnected ? setSelectedFractional(property) : connectWallet()}
                           className="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold"
