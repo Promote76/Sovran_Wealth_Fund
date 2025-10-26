@@ -103,18 +103,38 @@ const IELADashboardPage: React.FC = () => {
   }
 
   const handlePublish = async (dealId: string) => {
+    const deal = deals.find(d => d.id === dealId);
+    
+    if (!deal?.analysis) {
+      alert('Deal must be analyzed before publishing');
+      return;
+    }
+
+    // Ask user which marketplace to target
+    const target = window.confirm(
+      'Publish this deal:\n\n' +
+      'OK = Investors (wholesale buyers)\n' +
+      'Cancel = Tenant Buyers (rent-to-own)'
+    ) ? 'investor' : 'rto';
+
     try {
-      const response = await fetch(`/api/deals/${dealId}`, {
-        method: 'PUT',
+      const response = await fetch(`/api/deals/${dealId}/publish`, {
+        method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status: 'published' })
+        body: JSON.stringify({ target })
       });
 
-      if (response.ok) {
+      const data = await response.json();
+
+      if (data.success) {
+        alert(`✅ Deal published to marketplace for ${target === 'investor' ? 'Investors' : 'Tenant Buyers'}!`);
         loadDeals();
+      } else {
+        alert(`Failed to publish: ${data.error}`);
       }
     } catch (err) {
       console.error('Failed to publish deal:', err);
+      alert('Failed to publish deal. Check console for details.');
     }
   };
 
@@ -285,13 +305,17 @@ const IELADashboardPage: React.FC = () => {
                         </span>
                       </td>
                       <td className="px-6 py-4 text-sm">
-                        {deal.status !== 'published' && (
+                        {deal.status === 'published' ? (
+                          <span className="text-green-600 font-medium">✅ Live</span>
+                        ) : deal.analysis ? (
                           <button
                             onClick={() => handlePublish(deal.id)}
-                            className="text-purple-600 hover:text-purple-900 font-medium"
+                            className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
                           >
-                            📤 Publish
+                            📤 Publish to Marketplace
                           </button>
+                        ) : (
+                          <span className="text-gray-400">Needs Analysis</span>
                         )}
                       </td>
                     </tr>

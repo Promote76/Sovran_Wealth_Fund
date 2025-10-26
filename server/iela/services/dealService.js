@@ -217,7 +217,7 @@ class DealService {
       .update(deals)
       .set({
         analysis,
-        status: 'published',
+        status: 'analyzed',
         updatedAt: new Date()
       })
       .where(eq(deals.id, dealId));
@@ -227,7 +227,7 @@ class DealService {
       .from(deals)
       .where(eq(deals.id, dealId));
 
-    console.log(`📤 IELA: Deal ${dealId} auto-published to marketplace`);
+    console.log(`✅ IELA: Deal ${dealId} analyzed and ready for manual publishing`);
 
     return this.mapToDeal(updated);
   }
@@ -242,19 +242,26 @@ class DealService {
       throw new Error(`Deal not found: ${dealId}`);
     }
 
-    const newStatus = target === 'investor' ? 'listed_investor' : 'listed_rto';
+    if (!deal.analysis) {
+      throw new Error('Deal must be analyzed before publishing');
+    }
 
     await db
       .update(deals)
       .set({
-        status: newStatus,
+        status: 'published',
+        publishedTarget: target,
+        publishedAt: new Date(),
         updatedAt: new Date()
       })
       .where(eq(deals.id, dealId));
 
+    console.log(`📤 IELA: Deal ${dealId} published to marketplace for ${target}`);
+
     return {
-      cardUrl: `/deals/${dealId}/card/${target}`,
-      publishedAt: new Date().toISOString()
+      cardUrl: `/deals/${dealId}`,
+      publishedAt: new Date().toISOString(),
+      target
     };
   }
 
