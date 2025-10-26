@@ -8,6 +8,7 @@ const enrichmentService = require('./enrichmentService');
 const mlPredictions = require('../ml/predictions');
 const notificationService = require('./notificationService');
 const investorMatching = require('./investorMatchingService');
+const { propertyScraperService } = require('./propertyScraperService');
 const { randomUUID } = require('crypto');
 
 const DEFAULT_REPAIRS = {
@@ -86,6 +87,23 @@ class DealService {
 
     const enrichments = await enrichmentService.enrichDeal(deal);
 
+    let scrapedMedia = [];
+    if (deal.rawText && (deal.rawText.includes('http://') || deal.rawText.includes('https://'))) {
+      const urlMatch = deal.rawText.match(/https?:\/\/[^\s]+/);
+      if (urlMatch) {
+        const url = urlMatch[0];
+        console.log(`📸 Scraping property listing: ${url}`);
+        const scraped = await propertyScraperService.scrapePropertyListing(url);
+        scrapedMedia = scraped.images.map(img => ({
+          type: 'image',
+          url: img,
+          source: 'scraped',
+          scrapedAt: new Date().toISOString()
+        }));
+        console.log(`✅ Scraped ${scrapedMedia.length} images from listing`);
+      }
+    }
+
     const repairPrediction = await mlPredictions.predictRepairCost(
       enrichments.propertyFacts,
       enrichments.marketData,
@@ -134,6 +152,7 @@ class DealService {
         neighborhoodScore: enrichments.neighborhoodScore,
         repairs,
         rents,
+        media: scrapedMedia.length > 0 ? scrapedMedia : (deal.media || []),
         predictions: {
           appreciation: appreciationPrediction,
           rentEstimate: rentPrediction,

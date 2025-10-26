@@ -82,6 +82,7 @@ import UnifiedRegistrationAdminPage from './pages/UnifiedRegistrationAdminPage';
 import MarketingHubPage from './pages/MarketingHubPage';
 import IELAIntakePage from './pages/IELAIntakePage';
 import IELADashboardPage from './pages/IELADashboardPage';
+import DealMarketplacePage from './pages/DealMarketplacePage';
 
 // Legacy component for KeyGrow integration
 function KeyGrowPage() {
@@ -465,6 +466,7 @@ function App() {
                               <Route path="/swf-banking" element={<AXIOMBankingPage />} />
                               <Route path="/investments" element={<InvestmentsPage />} />
                               <Route path="/real-estate" element={<RealEstatePage />} />
+                              <Route path="/deals" element={<DealMarketplacePage />} />
                               
                               {/* Smart Contract Features */}
                               <Route path="/keygrow-dashboard" element={<KeyGrowDashboardPage />} />
