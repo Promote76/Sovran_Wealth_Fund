@@ -54,6 +54,10 @@ export default function KeyGrowDashboardPage() {
     monthlyRent: ''
   });
 
+  // Available RTO Properties from marketplace
+  const [availableDeals, setAvailableDeals] = useState<any[]>([]);
+  const [dealsLoading, setDealsLoading] = useState(true);
+
   // Real-time event listener
   const { latestEvent, isConnected: eventStreamConnected } = useKeygrowEvents({
     personalEventsOnly: true,
@@ -130,6 +134,28 @@ export default function KeyGrowDashboardPage() {
     loadPublicStats();
   }, []);
 
+  // Load available RTO-ready properties
+  useEffect(() => {
+    const loadAvailableDeals = async () => {
+      setDealsLoading(true);
+      try {
+        const response = await fetch('/api/deals?status=published');
+        const data = await response.json();
+        if (data.success) {
+          // Filter for RTO-ready properties (green badge)
+          const rtoReady = data.data.filter((deal: any) => deal.analysis?.rtoBadge === 'green');
+          setAvailableDeals(rtoReady.slice(0, 3)); // Show top 3
+        }
+      } catch (error) {
+        console.error('Failed to load deals:', error);
+      } finally {
+        setDealsLoading(false);
+      }
+    };
+    
+    loadAvailableDeals();
+  }, []);
+
   const handleRegister = async () => {
     await registerAsRenter(selectedTier);
   };
@@ -173,22 +199,13 @@ export default function KeyGrowDashboardPage() {
               <p className="text-blue-100 text-sm sm:text-base md:text-lg mb-3">
                 Your path from renting to homeownership through platform revenue sharing
               </p>
-              <div className="flex flex-wrap gap-2">
-                <Button
-                  onClick={() => navigate('/deals')}
-                  variant="outline"
-                  className="bg-white/10 hover:bg-white/20 text-white border-white/30 text-xs sm:text-sm"
-                >
-                  🏘️ Browse Properties
-                </Button>
-                <Button
-                  onClick={() => setShowProgramComparison(true)}
-                  variant="outline"
-                  className="bg-white/10 hover:bg-white/20 text-white border-white/30 text-xs sm:text-sm"
-                >
-                  📊 Compare Programs
-                </Button>
-              </div>
+              <Button
+                onClick={() => setShowProgramComparison(true)}
+                variant="outline"
+                className="bg-white/10 hover:bg-white/20 text-white border-white/30 text-xs sm:text-sm"
+              >
+                📊 Compare KeyGrow vs Real Estate Investor
+              </Button>
             </div>
             <div className="flex flex-col items-start sm:items-end space-y-2 w-full sm:w-auto">
               {isWalletReady ? (
@@ -1173,6 +1190,88 @@ export default function KeyGrowDashboardPage() {
                 </tbody>
               </table>
             </div>
+          </CardContent>
+        </Card>
+
+        {/* Available RTO-Ready Properties */}
+        <Card className="border-2 border-green-200 bg-gradient-to-br from-green-50 to-white">
+          <CardContent className="p-6">
+            <div className="flex justify-between items-center mb-6">
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900">🏘️ RTO-Ready Properties</h2>
+                <p className="text-gray-600">Properties perfect for KeyGrow participants</p>
+              </div>
+              <Button
+                onClick={() => navigate('/deals')}
+                className="bg-green-600 hover:bg-green-700 text-white"
+              >
+                View All Properties
+              </Button>
+            </div>
+
+            {dealsLoading ? (
+              <div className="text-center py-8">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto mb-4"></div>
+                <p className="text-gray-600">Loading properties...</p>
+              </div>
+            ) : availableDeals.length === 0 ? (
+              <div className="text-center py-8">
+                <div className="text-6xl mb-4">🏚️</div>
+                <p className="text-gray-600">No RTO-ready properties available at the moment</p>
+              </div>
+            ) : (
+              <div className="grid md:grid-cols-3 gap-6">
+                {availableDeals.map((deal) => (
+                  <div key={deal.id} className="bg-white rounded-lg shadow-md border-2 border-green-200 overflow-hidden hover:shadow-lg transition-shadow">
+                    {deal.media?.[0] ? (
+                      <img
+                        src={deal.media[0]}
+                        alt={deal.parsed?.address}
+                        className="w-full h-48 object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-48 bg-gray-200 flex items-center justify-center text-6xl">
+                        🏠
+                      </div>
+                    )}
+                    <div className="p-4">
+                      <h3 className="font-bold text-lg mb-2">{deal.parsed?.address}</h3>
+                      <p className="text-gray-600 text-sm mb-3">
+                        {deal.parsed?.city}, {deal.parsed?.state} {deal.parsed?.zip}
+                      </p>
+                      
+                      <div className="grid grid-cols-2 gap-2 mb-3">
+                        <div>
+                          <div className="text-xs text-gray-500">Asking Price</div>
+                          <div className="font-bold text-blue-600">
+                            ${deal.parsed?.asking?.toLocaleString()}
+                          </div>
+                        </div>
+                        <div>
+                          <div className="text-xs text-gray-500">Est. Rent</div>
+                          <div className="font-bold text-green-600">
+                            ${deal.rents?.marketRentEst?.toLocaleString()}/mo
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center justify-between">
+                        <span className="bg-green-100 text-green-800 text-xs font-semibold px-2 py-1 rounded-full">
+                          ✅ RTO-READY
+                        </span>
+                        <Button
+                          onClick={() => navigate(`/deals`)}
+                          size="sm"
+                          className="bg-green-600 hover:bg-green-700 text-white text-xs"
+                        >
+                          View Details
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>

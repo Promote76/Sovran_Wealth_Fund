@@ -45,12 +45,42 @@ export default function RealEstateInvestorPage() {
     propertyCount: 0
   });
 
+  // Available investment deals from marketplace
+  const [availableDeals, setAvailableDeals] = useState<any[]>([]);
+  const [dealsLoading, setDealsLoading] = useState(true);
+
   useEffect(() => {
     loadProperties();
     if (isConnected && account) {
       loadPortfolio();
     }
   }, [isConnected, account]);
+
+  // Load available investor deals
+  useEffect(() => {
+    const loadAvailableDeals = async () => {
+      setDealsLoading(true);
+      try {
+        const response = await fetch('/api/deals?status=published');
+        const data = await response.json();
+        if (data.success) {
+          // Show all published deals, sorted by ROI
+          const sorted = data.data.sort((a: any, b: any) => {
+            const roiA = a.analysis?.maoByRepair?.[1]?.roi || 0;
+            const roiB = b.analysis?.maoByRepair?.[1]?.roi || 0;
+            return roiB - roiA;
+          });
+          setAvailableDeals(sorted.slice(0, 3)); // Show top 3
+        }
+      } catch (error) {
+        console.error('Failed to load deals:', error);
+      } finally {
+        setDealsLoading(false);
+      }
+    };
+    
+    loadAvailableDeals();
+  }, []);
 
   const loadProperties = async () => {
     try {
@@ -117,16 +147,9 @@ export default function RealEstateInvestorPage() {
           <div className="flex justify-between items-start gap-4">
             <div className="flex-1">
               <h1 className="text-4xl font-bold mb-2">🏢 Real Estate Investor</h1>
-              <p className="text-green-100 text-lg mb-3">
+              <p className="text-green-100 text-lg">
                 Invest in fractional real estate - Earn from rent, appreciation & exits
               </p>
-              <Button
-                onClick={() => navigate('/deals')}
-                variant="outline"
-                className="bg-white/10 hover:bg-white/20 text-white border-white/30 text-sm"
-              >
-                🏘️ Browse Investment Properties
-              </Button>
             </div>
             <div>
               {isConnected ? (
@@ -490,6 +513,100 @@ export default function RealEstateInvestorPage() {
                 Free registration • No fees
               </div>
             </div>
+          </CardContent>
+        </Card>
+
+        {/* Available Investment Opportunities */}
+        <Card className="border-2 border-blue-200 bg-gradient-to-br from-blue-50 to-white">
+          <CardContent className="p-6">
+            <div className="flex justify-between items-center mb-6">
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900">💰 Investment Opportunities</h2>
+                <p className="text-gray-600">High ROI wholesale properties ready for investment</p>
+              </div>
+              <Button
+                onClick={() => navigate('/deals')}
+                className="bg-blue-600 hover:bg-blue-700 text-white"
+              >
+                View All Deals
+              </Button>
+            </div>
+
+            {dealsLoading ? (
+              <div className="text-center py-8">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+                <p className="text-gray-600">Loading opportunities...</p>
+              </div>
+            ) : availableDeals.length === 0 ? (
+              <div className="text-center py-8">
+                <div className="text-6xl mb-4">📊</div>
+                <p className="text-gray-600">No investment opportunities available at the moment</p>
+              </div>
+            ) : (
+              <div className="grid md:grid-cols-3 gap-6">
+                {availableDeals.map((deal) => (
+                  <div key={deal.id} className="bg-white rounded-lg shadow-md border-2 border-blue-200 overflow-hidden hover:shadow-lg transition-shadow">
+                    {deal.media?.[0] ? (
+                      <img
+                        src={deal.media[0]}
+                        alt={deal.parsed?.address}
+                        className="w-full h-48 object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-48 bg-gray-200 flex items-center justify-center text-6xl">
+                        🏢
+                      </div>
+                    )}
+                    <div className="p-4">
+                      <h3 className="font-bold text-lg mb-2">{deal.parsed?.address}</h3>
+                      <p className="text-gray-600 text-sm mb-3">
+                        {deal.parsed?.city}, {deal.parsed?.state} {deal.parsed?.zip}
+                      </p>
+                      
+                      <div className="grid grid-cols-2 gap-2 mb-3">
+                        <div>
+                          <div className="text-xs text-gray-500">Asking Price</div>
+                          <div className="font-bold text-blue-600">
+                            ${deal.parsed?.asking?.toLocaleString()}
+                          </div>
+                        </div>
+                        <div>
+                          <div className="text-xs text-gray-500">ARV</div>
+                          <div className="font-bold text-green-600">
+                            ${deal.parsed?.arv?.toLocaleString()}
+                          </div>
+                        </div>
+                        <div>
+                          <div className="text-xs text-gray-500">MAO</div>
+                          <div className="font-bold text-purple-600">
+                            ${deal.analysis?.maoByRepair?.[1]?.mao?.toLocaleString()}
+                          </div>
+                        </div>
+                        <div>
+                          <div className="text-xs text-gray-500">Est. ROI</div>
+                          <div className="font-bold text-orange-600">
+                            {deal.analysis?.maoByRepair?.[1]?.roi?.toFixed(0)}%
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center justify-between">
+                        <span className="bg-blue-100 text-blue-800 text-xs font-semibold px-2 py-1 rounded-full">
+                          💎 INVESTOR DEAL
+                        </span>
+                        <Button
+                          onClick={() => navigate(`/deals`)}
+                          size="sm"
+                          className="bg-blue-600 hover:bg-blue-700 text-white text-xs"
+                        >
+                          View Details
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>
