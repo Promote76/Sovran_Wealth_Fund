@@ -20,7 +20,7 @@ const DEFAULT_REPAIRS = {
 
 class DealService {
   async ingestDeal(request, userId) {
-    const { source, rawText, url } = request;
+    const { source = 'manual', rawText, url } = request;
 
     const { parsed, confidence, warnings } = parseMessage(rawText, url);
 
@@ -166,18 +166,20 @@ class DealService {
     await db
       .update(deals)
       .set({
-        geocoding: enrichments.geocoding,
-        propertyFacts: enrichments.propertyFacts,
-        marketData: enrichments.marketData,
-        neighborhoodScore: enrichments.neighborhoodScore,
+        geocode: enrichments.geocoding,
+        facts: enrichments.propertyFacts,
+        finance: {
+          marketData: enrichments.marketData,
+          neighborhoodScore: enrichments.neighborhoodScore,
+          predictions: {
+            appreciation: appreciationPrediction,
+            rentEstimate: rentPrediction,
+            repairCost: repairPrediction
+          }
+        },
         repairs,
         rents,
         media: scrapedMedia.length > 0 ? scrapedMedia : (deal.media || []),
-        predictions: {
-          appreciation: appreciationPrediction,
-          rentEstimate: rentPrediction,
-          repairCost: repairPrediction
-        },
         updatedAt: new Date()
       })
       .where(eq(deals.id, dealId));

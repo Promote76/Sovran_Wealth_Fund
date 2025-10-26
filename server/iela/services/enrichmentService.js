@@ -38,12 +38,15 @@ class EnrichmentService {
     }
   }
 
-  async getPropertyFacts(address, city, state, zip) {
+  async getPropertyFacts(address, city, state, zip, parsedBeds = null, parsedBaths = null) {
     try {
       if (attomData.isConfigured()) {
         const attomFacts = await attomData.getPropertyDetails(address, city, state, zip);
         if (attomFacts) {
           console.log('✅ Using Attom Data for property facts');
+          // Merge parsed bed/bath if Attom data is missing them
+          if (parsedBeds && !attomFacts.bedrooms) attomFacts.bedrooms = parsedBeds;
+          if (parsedBaths && !attomFacts.bathrooms) attomFacts.bathrooms = parsedBaths;
           return attomFacts;
         }
       }
@@ -51,8 +54,8 @@ class EnrichmentService {
       const addressSeed = this.hashAddress(address, city, state);
       
       const estimatedFacts = {
-        bedrooms: this.estimateBedrooms(addressSeed),
-        bathrooms: this.estimateBathrooms(addressSeed),
+        bedrooms: parsedBeds || this.estimateBedrooms(addressSeed),
+        bathrooms: parsedBaths || this.estimateBathrooms(addressSeed),
         squareFeet: this.estimateSquareFeet(addressSeed),
         lotSize: this.estimateLotSize(addressSeed),
         yearBuilt: this.estimateYearBuilt(addressSeed),
@@ -61,9 +64,11 @@ class EnrichmentService {
         garage: true,
         pool: false,
         condition: 'Fair',
-        source: 'estimated',
-        confidence: 'low',
-        note: 'Property facts estimated using deterministic heuristics. Connect to Attom Data, CoreLogic, or Zillow API for accurate data.'
+        source: parsedBeds || parsedBaths ? 'parsed_with_estimates' : 'estimated',
+        confidence: parsedBeds || parsedBaths ? 'medium' : 'low',
+        note: parsedBeds || parsedBaths 
+          ? 'Bed/bath from property listing. Other facts estimated using deterministic heuristics.'
+          : 'Property facts estimated using deterministic heuristics. Connect to Attom Data, CoreLogic, or Zillow API for accurate data.'
       };
 
       return estimatedFacts;
@@ -239,7 +244,9 @@ class EnrichmentService {
         dealData.parsed.address,
         dealData.parsed.city,
         dealData.parsed.state,
-        dealData.parsed.zip
+        dealData.parsed.zip,
+        dealData.parsed.beds,
+        dealData.parsed.baths
       );
       enrichments.propertyFacts = propertyFacts;
 

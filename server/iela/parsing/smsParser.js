@@ -37,6 +37,11 @@ function parseMessage(rawText, providedUrl) {
     parsed.zip = parts.zip;
   }
 
+  // Extract beds and baths
+  const bedsBaths = extractBedsBaths(rawText);
+  if (bedsBaths.beds) parsed.beds = bedsBaths.beds;
+  if (bedsBaths.baths) parsed.baths = bedsBaths.baths;
+
   return { parsed, confidence, warnings };
 }
 
@@ -114,13 +119,20 @@ function extractDropboxImages(text) {
   const matches = text.matchAll(dropboxPattern);
   
   for (const match of matches) {
-    let url = match[1];
-    // Convert to direct download URL (dl=0 -> dl=1)
-    url = url.replace(/[?&]dl=0/i, '?dl=1').replace(/[?&]dl=0&/i, '?dl=1&');
-    if (!url.includes('dl=1')) {
-      url += (url.includes('?') ? '&' : '?') + 'dl=1';
+    let urlString = match[1];
+    
+    try {
+      const url = new URL(urlString);
+      // Remove any existing dl parameter
+      url.searchParams.delete('dl');
+      // Add dl=1
+      url.searchParams.set('dl', '1');
+      dropboxImageUrls.push(url.toString());
+    } catch (e) {
+      // Fallback if URL parsing fails
+      console.warn('Failed to parse Dropbox URL:', urlString, e.message);
+      dropboxImageUrls.push(urlString);
     }
-    dropboxImageUrls.push(url);
   }
   
   return dropboxImageUrls;
@@ -161,6 +173,34 @@ function extractContact(text) {
   }
 
   return contact;
+}
+
+function extractBedsBaths(text) {
+  const result = {};
+
+  // Pattern 1: Various bedroom formats - "3 bed", "4 bedrooms", "2BR", "3bd", "4bdr"
+  const bedsPattern = /(\d+(?:\.\d+)?)\s*(?:bed(?:room)?s?|b[rd]r?)\b/i;
+  const bathsPattern = /(\d+(?:\.\d+)?)\s*(?:bath(?:room)?s?|b[at]h?s?)\b/i;
+
+  const bedsMatch = text.match(bedsPattern);
+  if (bedsMatch) {
+    result.beds = parseFloat(bedsMatch[1]);
+  }
+
+  const bathsMatch = text.match(bathsPattern);
+  if (bathsMatch) {
+    result.baths = parseFloat(bathsMatch[1]);
+  }
+
+  // Pattern 2: Compact form "4BR/2.5BA", "3bd/2ba", "3/2"
+  const compactPattern = /(\d+(?:\.\d+)?)\s*(?:bed(?:room)?s?|b[rd]r?)?[/|&]\s*(\d+(?:\.\d+)?)\s*(?:bath(?:room)?s?|b[at]h?s?)?/i;
+  const compactMatch = text.match(compactPattern);
+  if (compactMatch && !result.beds && !result.baths) {
+    result.beds = parseFloat(compactMatch[1]);
+    result.baths = parseFloat(compactMatch[2]);
+  }
+
+  return result;
 }
 
 function parseAddressParts(address) {
