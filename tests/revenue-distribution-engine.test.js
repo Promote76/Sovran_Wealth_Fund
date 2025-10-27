@@ -102,6 +102,73 @@ async function runTests() {
     }
   }
 
+  try {
+    const fractionalInvestors = [
+      { investor_id: 1, wallet_address: '0xAAA', shares_owned: 1250.5, tier: 'retail', revenue_share_bonus: 0 },
+      { investor_id: 2, wallet_address: '0xBBB', shares_owned: 750.25, tier: 'accredited', revenue_share_bonus: 2 },
+      { investor_id: 3, wallet_address: '0xCCC', shares_owned: 500.75, tier: 'premium', revenue_share_bonus: 5 },
+    ];
+
+    const result = revenueEngineService.calculateDistributions(10000, 10, 80, 20, fractionalInvestors);
+    
+    const totalShares = 1250.5 + 750.25 + 500.75;
+    const investor1Ownership = 1250.5 / totalShares;
+    const investor2Ownership = 750.25 / totalShares;
+    const investor3Ownership = 500.75 / totalShares;
+    
+    const distributable = 9000;
+    const basePool = 7200;
+    const tierBonusPool = 1800;
+    
+    const expectedBase1 = basePool * investor1Ownership;
+    const expectedBase2 = basePool * investor2Ownership;
+    const expectedBase3 = basePool * investor3Ownership;
+    
+    if (
+      result.payouts[0].sharesOwned === 1250.5 &&
+      result.payouts[1].sharesOwned === 750.25 &&
+      result.payouts[2].sharesOwned === 500.75 &&
+      Math.abs(result.payouts[0].baseAmount - expectedBase1) < 0.5 &&
+      Math.abs(result.payouts[1].baseAmount - expectedBase2) < 0.5 &&
+      Math.abs(result.payouts[2].baseAmount - expectedBase3) < 0.5
+    ) {
+      console.log('   ✅ Fractional shares distribution: PASSED');
+      passCount++;
+    } else {
+      console.log('   ❌ Fractional shares distribution: FAILED');
+      console.log(`      Investor 1: shares=${result.payouts[0].sharesOwned}, baseAmount=${result.payouts[0].baseAmount}, expected=${expectedBase1.toFixed(2)}`);
+      console.log(`      Investor 2: shares=${result.payouts[1].sharesOwned}, baseAmount=${result.payouts[1].baseAmount}, expected=${expectedBase2.toFixed(2)}`);
+      console.log(`      Investor 3: shares=${result.payouts[2].sharesOwned}, baseAmount=${result.payouts[2].baseAmount}, expected=${expectedBase3.toFixed(2)}`);
+      failCount++;
+    }
+  } catch (error) {
+    console.log('   ❌ Fractional shares distribution: FAILED -', error.message);
+    failCount++;
+  }
+
+  try {
+    const edgeCaseFractional = [
+      { investor_id: 1, wallet_address: '0xAAA', shares_owned: 0.1, tier: 'retail', revenue_share_bonus: 0 },
+      { investor_id: 2, wallet_address: '0xBBB', shares_owned: 0.05, tier: 'accredited', revenue_share_bonus: 2 },
+      { investor_id: 3, wallet_address: '0xCCC', shares_owned: 0.85, tier: 'premium', revenue_share_bonus: 5 },
+    ];
+
+    const result = revenueEngineService.calculateDistributions(10000, 10, 80, 20, edgeCaseFractional);
+    
+    const totalShares = 0.1 + 0.05 + 0.85;
+    
+    if (result.payouts.length === 3 && Math.abs(totalShares - 1.0) < 0.001) {
+      console.log('   ✅ Small fractional shares edge case: PASSED');
+      passCount++;
+    } else {
+      console.log('   ❌ Small fractional shares edge case: FAILED');
+      failCount++;
+    }
+  } catch (error) {
+    console.log('   ❌ Small fractional shares edge case: FAILED -', error.message);
+    failCount++;
+  }
+
   console.log('\n📋 TEST 2: Database Integration\n');
 
   try {

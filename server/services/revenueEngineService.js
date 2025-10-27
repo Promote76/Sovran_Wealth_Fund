@@ -64,14 +64,14 @@ class RevenueEngineService {
     const basePool = distributable * (baseAllocationPercent / 100);
     const tierBonusPool = distributable * (tierBonusPercent / 100);
     
-    const totalShares = investors.reduce((sum, inv) => sum + parseInt(inv.shares_owned), 0);
+    const totalShares = investors.reduce((sum, inv) => sum + parseFloat(inv.shares_owned), 0);
     
     if (totalShares === 0) {
       throw new Error('Total shares cannot be zero');
     }
     
     const payouts = investors.map(investor => {
-      const ownership = parseInt(investor.shares_owned) / totalShares;
+      const ownership = parseFloat(investor.shares_owned) / totalShares;
       const baseAmount = basePool * ownership;
       
       const revenueBonus = parseFloat(investor.revenue_share_bonus || 0);
