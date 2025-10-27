@@ -1170,10 +1170,11 @@ router.post('/generate-manuscript', async (req, res) => {
     console.log(`✅ Codebase scan complete: ${stats.totalLinesOfCode.toLocaleString()} lines of code analyzed`);
 
     // 2. DETERMINE MANUSCRIPT LENGTH & DETAIL LEVEL
+    // Note: ~667 tokens = 1 page, so we need MUCH higher token limits
     const lengthConfig = {
-      'short': { pages: '25-50', tokens: 8000, detail: 'concise' },
-      'medium': { pages: '50-150', tokens: 12000, detail: 'comprehensive' },
-      'long': { pages: '150-300', tokens: 16000, detail: 'exhaustive' }
+      'short': { pages: '25-50', minTokens: 16675, maxTokens: 33350, detail: 'concise', chapters: 5 },
+      'medium': { pages: '50-150', minTokens: 33350, maxTokens: 100050, detail: 'comprehensive', chapters: 10 },
+      'long': { pages: '150-300', minTokens: 100050, maxTokens: 128000, detail: 'exhaustive', chapters: 15 }
     };
     
     const config = lengthConfig[pageLength] || lengthConfig['medium'];
@@ -1289,18 +1290,19 @@ Security: JWT, bcrypt, httpOnly cookies, CORS
 This represents a production-ready, institutional-grade DeFi platform with real-world asset integration.`;
 
     // 4. GENERATE MANUSCRIPT WITH GPT-4
-    console.log(`🤖 Generating ${config.pages} page manuscript...`);
+    console.log(`🤖 Generating ${config.pages} page manuscript with ${config.chapters} chapters...`);
     
     const systemPrompt = `You are a world-class technical writer and documentation specialist with expertise in blockchain, DeFi, fintech, and software architecture. You create comprehensive, professional manuscripts that serve as the "Gold Standard" for technical documentation.
 
 Your manuscripts are:
-- Technically accurate and detailed
-- Well-structured with clear chapters and sections
+- Technically accurate and detailed with EXTENSIVE DEPTH
+- Well-structured with clear chapters and sections spanning MANY PAGES
 - Professional yet accessible to the target audience
 - Written in PURE PROSE without code snippets or programming examples
 - Formatted for publication-quality output suitable for books and professional manuals
+- COMPREHENSIVE and THOROUGH - you write AT LENGTH to fully explore each topic
 
-You excel at explaining complex systems clearly in everyday language while maintaining technical accuracy.`;
+CRITICAL: When asked to write a ${config.pages} page manuscript, you MUST produce content that is truly ${config.pages} pages long. Do NOT produce short summaries. Write extensively, covering every aspect in great detail with multiple paragraphs per section.`;
 
     const userPrompt = `Create a ${config.detail} ${config.pages} page professional manuscript about the following subject for the AXIOM DeFi platform:
 
@@ -1314,28 +1316,51 @@ ${platformContext}
 ${customInstructions ? `\nSPECIFIC REQUIREMENTS:\n${customInstructions}\n` : ''}
 
 MANUSCRIPT REQUIREMENTS:
-- Length: ${config.pages} pages (${config.detail} detail level)
+- **REQUIRED LENGTH**: ${config.pages} PAGES - This is MANDATORY. Write extensively and comprehensively to reach this page count.
+- **Detail Level**: ${config.detail} - Every section should have MULTIPLE PARAGRAPHS with in-depth analysis
 - **CRITICAL**: DO NOT include ANY code snippets, source code, smart contract code, JavaScript, TypeScript, Solidity, or programming examples
 - **CRITICAL**: Write in PURE DOCUMENTATION prose - explain concepts, architecture, and features using everyday language
-- ${includeArchitectureDiagrams !== false ? 'DESCRIBE architecture and system flows using detailed written explanations (no diagrams, just text descriptions)' : 'Minimize architectural discussions'}
+- ${includeArchitectureDiagrams !== false ? 'DESCRIBE architecture and system flows using detailed written explanations spanning multiple pages' : 'Minimize architectural discussions'}
 - Professional tone suitable for ${audience === 'business' ? 'investors and executives' : audience === 'technical' ? 'developers and engineers' : 'both technical and business audiences'}
 - Use statistics, data points, feature descriptions, and business metrics instead of code
 - Reference functions, contracts, and components by NAME only - never show their actual code
+- Write AT LENGTH - each major section should be 3-5 pages minimum
+- Include detailed explanations, examples (non-code), use cases, business implications
+- Add comprehensive tables, feature comparisons, market analysis, financial projections
 
-STRUCTURE (adapt based on subject):
-1. Executive Summary / Introduction
-2. Technical Architecture & System Design (prose descriptions only)
-3. Core Features & Functionality (feature descriptions, not code)
-4. Implementation Details (how it works conceptually, not code)
-5. Business Model & Economics (metrics and financial analysis)
-6. Security & Compliance (security features described in prose)
-7. Performance & Scalability (performance metrics and architecture)
-8. Future Roadmap & Vision
-9. Appendices (tables, statistics, feature lists - NO CODE)
+REQUIRED STRUCTURE (${config.chapters} comprehensive chapters):
+1. Executive Summary & Platform Overview (3-5 pages minimum)
+2. Market Analysis & Competitive Landscape (5-10 pages)
+3. Technical Architecture & System Design (10-20 pages of prose descriptions)
+4. Core Features & Functionality Deep Dive (20-30 pages of feature descriptions)
+5. Smart Contract Layer & Blockchain Integration (10-15 pages conceptual)
+6. Frontend & User Experience Architecture (10-15 pages)
+7. Backend Infrastructure & API Design (10-15 pages)
+8. Database Architecture & Data Management (8-12 pages)
+9. Enterprise Features Suite (15-25 pages covering all 8 features)
+10. Business Model, Revenue Streams & Economics (10-15 pages)
+11. Security, Compliance & Risk Management (10-15 pages)
+12. Performance, Scalability & Infrastructure (8-12 pages)
+13. Integration Ecosystem & Third-Party APIs (8-12 pages)
+14. Deployment, Operations & DevOps (5-10 pages)
+15. Future Roadmap, Vision & Growth Strategy (5-10 pages)
+16. Appendices: Tables, Statistics, Feature Lists, Metrics (10-20 pages)
 
-Create a publication-ready manuscript that reads like a professional technical manual or business book. Use the platform analysis above for REFERENCE DATA (statistics, counts, feature lists) but NEVER copy/paste code snippets into the manuscript.
+WRITING INSTRUCTIONS:
+- Write EXTENSIVELY for each chapter - aim for depth and comprehensive coverage
+- Each subsection should have 2-4 paragraphs minimum
+- Include detailed examples (conceptual, not code)
+- Add business context, market implications, user benefits for every feature
+- Use tables and lists to organize complex information
+- Provide statistical analysis and data-driven insights
+- Explain the "why" and "how" in prose form
+- Make it publication-ready like a professional technical book
 
-Use Markdown formatting with proper headings, tables, and lists. Remember: NO CODE SNIPPETS ALLOWED.`;
+TARGET: Your output should be approximately ${config.minTokens}-${config.maxTokens} tokens (${config.pages} pages).
+
+Create a publication-ready manuscript that reads like a comprehensive professional technical manual or business book. Use Markdown formatting with proper headings, tables, and lists. 
+
+REMEMBER: This must be ${config.pages} PAGES - write at length, be thorough, be comprehensive. NO CODE SNIPPETS ALLOWED.`;
 
     const completion = await openai.chat.completions.create({
       model: 'gpt-4o',
@@ -1344,7 +1369,7 @@ Use Markdown formatting with proper headings, tables, and lists. Remember: NO CO
         { role: 'user', content: userPrompt }
       ],
       temperature: 0.7,
-      max_tokens: parseInt(config.tokens)
+      max_tokens: config.maxTokens
     });
     
     const manuscript = completion.choices[0].message.content;
