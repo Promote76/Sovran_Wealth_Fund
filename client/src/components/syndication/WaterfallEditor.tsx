@@ -69,7 +69,7 @@ const WaterfallEditor: React.FC<Props> = ({ syndicateId }) => {
   };
 
   const deleteTier = async (tierId: number) => {
-    if (!confirm('Delete this tier?')) return;
+    if (!window.confirm('Delete this tier?')) return;
     
     try {
       const response = await fetch(`/api/syndication/waterfall/${tierId}`, {
