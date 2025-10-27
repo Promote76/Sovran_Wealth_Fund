@@ -245,6 +245,323 @@ class ComplianceService {
       client.release();
     }
   }
+
+  async reviewAccreditationVerification(verificationId, reviewerId, approved, rejectionReason = null) {
+    const client = await this.pool.connect();
+    try {
+      await client.query('BEGIN');
+
+      const status = approved ? 'approved' : 'rejected';
+      const now = new Date();
+      
+      const result = await client.query(`
+        UPDATE accreditation_verifications
+        SET status = $1, reviewed_at = $2, reviewed_by = $3,
+            approved_at = $4, rejection_reason = $5
+        WHERE verification_id = $6
+        RETURNING *
+      `, [status, now, reviewerId, approved ? now : null, rejectionReason, verificationId]);
+
+      if (result.rows.length === 0) {
+        throw new Error('Verification not found');
+      }
+
+      const verification = result.rows[0];
+
+      if (approved && verification.wallet_address) {
+        await client.query(`
+          UPDATE investor_shares
+          SET tier = 'accredited'
+          WHERE wallet_address = $1
+        `, [verification.wallet_address]);
+      }
+
+      await this.createAlert(
+        'manual',
+        approved ? 'info' : 'warning',
+        `Accreditation ${approved ? 'Approved' : 'Rejected'}`,
+        approved 
+          ? 'Your accreditation verification has been approved.'
+          : `Rejected: ${rejectionReason}`,
+        verification.investor_id
+      );
+
+      await client.query('COMMIT');
+      return { success: true, verification: result.rows[0] };
+    } catch (error) {
+      await client.query('ROLLBACK');
+      throw error;
+    } finally {
+      client.release();
+    }
+  }
+
+  async reviewAMLCheck(checkId, reviewerId, status, riskLevel, findings, actionTaken = null) {
+    const client = await this.pool.connect();
+    try {
+      await client.query('BEGIN');
+
+      const riskScores = { low: 10, medium: 50, high: 80, critical: 95 };
+      const riskScore = riskScores[riskLevel] || 0;
+
+      const result = await client.query(`
+        UPDATE aml_checks
+        SET status = $1, risk_level = $2, risk_score = $3,
+            findings = $4, reviewed_at = $5, reviewed_by = $6,
+            action_taken = $7, requires_action = $8
+        WHERE check_id = $9
+        RETURNING *
+      `, [
+        status, riskLevel, riskScore, JSON.stringify(findings),
+        new Date(), reviewerId, actionTaken,
+        status === 'flagged' || status === 'rejected',
+        checkId
+      ]);
+
+      if (result.rows.length === 0) {
+        throw new Error('AML check not found');
+      }
+
+      await client.query('COMMIT');
+      return { success: true, amlCheck: result.rows[0] };
+    } catch (error) {
+      await client.query('ROLLBACK');
+      throw error;
+    } finally {
+      client.release();
+    }
+  }
+
+  async getComplianceAlerts(filters = {}) {
+    const {
+      investorId,
+      severity,
+      status = 'open',
+      limit = 50
+    } = filters;
+
+    const conditions = ['1=1'];
+    const params = [];
+    let paramCount = 1;
+
+    if (investorId) {
+      conditions.push(`ca.investor_id = $${paramCount++}`);
+      params.push(investorId);
+    }
+
+    if (severity) {
+      conditions.push(`ca.severity = $${paramCount++}`);
+      params.push(severity);
+    }
+
+    if (status) {
+      conditions.push(`ca.status = $${paramCount++}`);
+      params.push(status);
+    }
+
+    params.push(limit);
+
+    const result = await this.pool.query(`
+      SELECT ca.*, u.email as investor_email, u.full_name as investor_name
+      FROM compliance_alerts ca
+      LEFT JOIN users u ON ca.investor_id = u.id
+      WHERE ${conditions.join(' AND ')}
+      ORDER BY 
+        CASE ca.severity
+          WHEN 'urgent' THEN 1
+          WHEN 'critical' THEN 2
+          WHEN 'warning' THEN 3
+          ELSE 4
+        END,
+        ca.created_at DESC
+      LIMIT $${paramCount}
+    `, params);
+
+    return { success: true, alerts: result.rows };
+  }
+
+  async resolveAlert(alertId, resolvedBy, resolutionNotes) {
+    const result = await this.pool.query(`
+      UPDATE compliance_alerts
+      SET status = 'resolved', resolved_at = NOW(),
+          resolved_by = $1, resolution_notes = $2
+      WHERE alert_id = $3
+      RETURNING *
+    `, [resolvedBy, resolutionNotes, alertId]);
+
+    if (result.rows.length === 0) {
+      throw new Error('Alert not found');
+    }
+
+    return { success: true, alert: result.rows[0] };
+  }
+
+  async getInvestorComplianceStatus(investorId, walletAddress) {
+    const result = await this.pool.query(`
+      SELECT 
+        (SELECT COUNT(*) FROM accreditation_verifications 
+         WHERE investor_id = $1 AND status = 'approved' 
+         AND (expires_at IS NULL OR expires_at > NOW())) as accreditation_count,
+        (SELECT status FROM accreditation_verifications 
+         WHERE investor_id = $1 
+         ORDER BY created_at DESC LIMIT 1) as latest_accreditation_status,
+        (SELECT COUNT(*) FROM aml_checks 
+         WHERE investor_id = $1 AND status = 'clear') as clear_aml_checks,
+        (SELECT COUNT(*) FROM aml_checks 
+         WHERE investor_id = $1 AND status = 'flagged') as flagged_aml_checks,
+        (SELECT risk_level FROM aml_checks 
+         WHERE investor_id = $1 
+         ORDER BY checked_at DESC LIMIT 1) as latest_risk_level,
+        (SELECT COUNT(*) FROM compliance_alerts 
+         WHERE investor_id = $1 AND status = 'open') as open_alerts,
+        (SELECT tier FROM investor_shares 
+         WHERE wallet_address = $2 LIMIT 1) as current_tier
+    `, [investorId, walletAddress]);
+
+    const status = result.rows[0];
+    
+    const isAccredited = parseInt(status.accreditation_count) > 0;
+    const isCompliant = parseInt(status.flagged_aml_checks) === 0 && parseInt(status.open_alerts) === 0;
+    const canInvest = isCompliant && (status.latest_risk_level !== 'critical');
+
+    return {
+      success: true,
+      status: {
+        ...status,
+        isAccredited,
+        isCompliant,
+        canInvest
+      }
+    };
+  }
+
+  async updateFilingStatus(filingId, status, updates = {}) {
+    const client = await this.pool.connect();
+    try {
+      const {
+        filingNumber,
+        confirmationNumber,
+        filingUrl,
+        rejectionReason,
+        reviewedBy
+      } = updates;
+
+      const now = new Date();
+      const filedAt = ['filed', 'accepted'].includes(status) ? now : null;
+      const acceptedAt = status === 'accepted' ? now : null;
+
+      const result = await client.query(`
+        UPDATE regulatory_filings
+        SET filing_status = $1, updated_at = $2,
+            filing_number = COALESCE($3, filing_number),
+            confirmation_number = COALESCE($4, confirmation_number),
+            filing_url = COALESCE($5, filing_url),
+            rejection_reason = $6,
+            reviewed_by = COALESCE($7, reviewed_by),
+            filed_at = COALESCE($8, filed_at),
+            accepted_at = COALESCE($9, accepted_at)
+        WHERE filing_id = $10
+        RETURNING *
+      `, [
+        status, now, filingNumber, confirmationNumber, filingUrl,
+        rejectionReason, reviewedBy, filedAt, acceptedAt, filingId
+      ]);
+
+      if (result.rows.length === 0) {
+        throw new Error('Filing not found');
+      }
+
+      return { success: true, filing: result.rows[0] };
+    } catch (error) {
+      throw error;
+    } finally {
+      client.release();
+    }
+  }
+
+  async getAccreditationVerifications(filters = {}) {
+    const { investorId, status, limit = 50 } = filters;
+    const conditions = ['1=1'];
+    const params = [];
+    let paramCount = 1;
+
+    if (investorId) {
+      conditions.push(`investor_id = $${paramCount++}`);
+      params.push(investorId);
+    }
+
+    if (status) {
+      conditions.push(`status = $${paramCount++}`);
+      params.push(status);
+    }
+
+    params.push(limit);
+
+    const result = await this.pool.query(`
+      SELECT * FROM accreditation_verifications
+      WHERE ${conditions.join(' AND ')}
+      ORDER BY created_at DESC
+      LIMIT $${paramCount}
+    `, params);
+
+    return { success: true, verifications: result.rows };
+  }
+
+  async getAMLChecks(filters = {}) {
+    const { investorId, status, limit = 50 } = filters;
+    const conditions = ['1=1'];
+    const params = [];
+    let paramCount = 1;
+
+    if (investorId) {
+      conditions.push(`investor_id = $${paramCount++}`);
+      params.push(investorId);
+    }
+
+    if (status) {
+      conditions.push(`status = $${paramCount++}`);
+      params.push(status);
+    }
+
+    params.push(limit);
+
+    const result = await this.pool.query(`
+      SELECT * FROM aml_checks
+      WHERE ${conditions.join(' AND ')}
+      ORDER BY checked_at DESC
+      LIMIT $${paramCount}
+    `, params);
+
+    return { success: true, checks: result.rows };
+  }
+
+  async getRegulatoryFilings(filters = {}) {
+    const { propertyId, status, limit = 50 } = filters;
+    const conditions = ['1=1'];
+    const params = [];
+    let paramCount = 1;
+
+    if (propertyId) {
+      conditions.push(`property_id = $${paramCount++}`);
+      params.push(propertyId);
+    }
+
+    if (status) {
+      conditions.push(`filing_status = $${paramCount++}`);
+      params.push(status);
+    }
+
+    params.push(limit);
+
+    const result = await this.pool.query(`
+      SELECT * FROM regulatory_filings
+      WHERE ${conditions.join(' AND ')}
+      ORDER BY created_at DESC
+      LIMIT $${paramCount}
+    `, params);
+
+    return { success: true, filings: result.rows };
+  }
 }
 
 module.exports = new ComplianceService();
