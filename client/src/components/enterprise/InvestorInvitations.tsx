@@ -2,14 +2,19 @@ import React, { useState, useEffect } from 'react';
 
 interface Invitation {
   invitation_id: string;
-  syndicate_id: string;
-  investor_email: string;
-  investor_name: string;
-  invitation_status: string;
-  committed_amount?: number;
-  invited_by: string;
-  created_at: string;
+  syndicate_id: string;  // UUID string
+  invitee_email: string;
+  invitee_wallet?: string;
+  proposed_commitment?: number;
+  custom_message?: string;
+  status: string;
+  invitation_code: string;
+  invited_by: number;
+  invited_at: string;
   expires_at: string;
+  responded_at?: string;
+  syndicate_name?: string;
+  target_raise?: string;
 }
 
 export const InvestorInvitations: React.FC = () => {
@@ -69,10 +74,15 @@ export const InvestorInvitations: React.FC = () => {
     setError(null);
 
     try {
-      const response = await fetch('/api/syndication/invitations', {
+      // Correct API endpoint includes syndicate ID in path
+      const response = await fetch(`/api/syndication/syndicates/${formData.syndicate_id}/invitations`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData)
+        body: JSON.stringify({
+          email: formData.investor_email,
+          investor_name: formData.investor_name,
+          message: formData.message
+        })
       });
 
       const data = await response.json();
@@ -86,6 +96,7 @@ export const InvestorInvitations: React.FC = () => {
           message: ''
         });
         fetchInvitations();
+        alert('Invitation sent successfully!');
       } else {
         setError(data.error || 'Failed to send invitation');
       }
@@ -263,26 +274,28 @@ export const InvestorInvitations: React.FC = () => {
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div>
                         <div className="text-sm font-medium text-gray-900">
-                          {invitation.investor_name}
+                          {invitation.invitee_email}
                         </div>
-                        <div className="text-sm text-gray-500">
-                          {invitation.investor_email}
-                        </div>
+                        {invitation.invitee_wallet && (
+                          <div className="text-xs text-gray-500">
+                            {invitation.invitee_wallet.substring(0, 10)}...
+                          </div>
+                        )}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      Syndicate {invitation.syndicate_id.substring(0, 8)}...
+                      {invitation.syndicate_name || `Syndicate #${invitation.syndicate_id}`}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusBadge(invitation.invitation_status)}`}>
-                        {invitation.invitation_status.charAt(0).toUpperCase() + invitation.invitation_status.slice(1)}
+                      <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusBadge(invitation.status)}`}>
+                        {invitation.status.charAt(0).toUpperCase() + invitation.status.slice(1)}
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {new Date(invitation.created_at).toLocaleDateString()}
+                      {new Date(invitation.invited_at).toLocaleDateString()}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm">
-                      {invitation.invitation_status === 'pending' && (
+                      {invitation.status === 'pending' && (
                         <button className="text-blue-600 hover:text-blue-700">
                           Resend
                         </button>

@@ -419,28 +419,63 @@ router.put('/distributions/:distributionId/execute', async (req, res) => {
 router.post('/syndicates/:syndicateId/invitations', async (req, res) => {
   try {
     const { syndicateId } = req.params;
-    const { investor_id, email, suggested_commitment } = req.body;
+    const { email, investor_name, message, proposed_commitment, wallet_address } = req.body;
     
-    if (!investor_id && !email) {
-      return res.status(400).json({ error: 'Either investor_id or email is required' });
+    if (!email) {
+      return res.status(400).json({ error: 'Email is required' });
     }
 
     const invitationId = uuidv4();
+    const invitationCode = Math.random().toString(36).substring(2, 15); // Simple invitation code
+    const invitedBy = 9; // Default admin user ID
+    const expiresAt = new Date();
+    expiresAt.setDate(expiresAt.getDate() + 30); // Expires in 30 days
     
     const result = await pool.query(
-      `INSERT INTO syndicate_invitations (invitation_id, syndicate_id, investor_id, email, 
-        suggested_commitment, status)
-      VALUES ($1, $2, $3, $4, $5, 'sent')
+      `INSERT INTO syndicate_invitations (invitation_id, syndicate_id, invited_by, invitee_email, 
+        invitee_wallet, proposed_commitment, custom_message, status, invitation_code, expires_at)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, 'pending', $8, $9)
       RETURNING *`,
-      [invitationId, syndicateId, investor_id, email, suggested_commitment]
+      [invitationId, syndicateId, invitedBy, email, wallet_address || null, 
+       proposed_commitment || null, message || null, invitationCode, expiresAt]
     );
 
-    res.json({ success: true, invitation: result.rows[0] });
+    res.json({ success: true, invitation: result.rows[0], message: 'Invitation sent successfully' });
   } catch (error) {
+    console.error('Error sending invitation:', error);
     res.status(500).json({ error: error.message });
   }
 });
 
+// Get all invitations (across all syndicates)
+router.get('/invitations', async (req, res) => {
+  try {
+    const { status } = req.query;
+    
+    let query = `
+      SELECT si.*, s.syndicate_name, s.target_raise
+      FROM syndicate_invitations si
+      LEFT JOIN syndicates s ON si.syndicate_id = s.syndicate_id
+    `;
+    const params = [];
+    
+    if (status) {
+      params.push(status);
+      query += ` WHERE si.status = $${params.length}`;
+    }
+    
+    query += ' ORDER BY si.invited_at DESC';
+
+    const result = await pool.query(query, params);
+
+    res.json({ success: true, invitations: result.rows, count: result.rows.length });
+  } catch (error) {
+    console.error('Error fetching invitations:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Get invitations for a specific syndicate
 router.get('/syndicates/:syndicateId/invitations', async (req, res) => {
   try {
     const { syndicateId } = req.params;
@@ -454,7 +489,7 @@ router.get('/syndicates/:syndicateId/invitations', async (req, res) => {
       query += ` AND status = $${params.length}`;
     }
     
-    query += ' ORDER BY created_at DESC';
+    query += ' ORDER BY invited_at DESC';
 
     const result = await pool.query(query, params);
 

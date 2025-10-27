@@ -373,7 +373,13 @@ export const SyndicateManager: React.FC = () => {
                       </div>
                     </div>
                   </div>
-                  <button className="ml-4 px-4 py-2 text-sm text-blue-600 hover:bg-blue-50 rounded-lg transition">
+                  <button 
+                    onClick={() => {
+                      // Show syndicate details and management options
+                      alert(`Managing syndicate: ${syndicate.syndicate_name}\n\nSyndicate ID: ${syndicate.syndicate_id}\n\nThis will open detailed management view (coming soon).`);
+                    }}
+                    className="ml-4 px-4 py-2 text-sm text-blue-600 hover:bg-blue-50 rounded-lg transition"
+                  >
                     Manage
                   </button>
                 </div>
