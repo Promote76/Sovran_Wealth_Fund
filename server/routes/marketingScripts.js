@@ -1297,10 +1297,10 @@ Your manuscripts are:
 - Technically accurate and detailed
 - Well-structured with clear chapters and sections
 - Professional yet accessible to the target audience
-- Backed by data and code examples when relevant
-- Formatted for publication-quality output
+- Written in PURE PROSE without code snippets or programming examples
+- Formatted for publication-quality output suitable for books and professional manuals
 
-You excel at explaining complex systems clearly while maintaining technical depth.`;
+You excel at explaining complex systems clearly in everyday language while maintaining technical accuracy.`;
 
     const userPrompt = `Create a ${config.detail} ${config.pages} page professional manuscript about the following subject for the AXIOM DeFi platform:
 
@@ -1315,24 +1315,27 @@ ${customInstructions ? `\nSPECIFIC REQUIREMENTS:\n${customInstructions}\n` : ''}
 
 MANUSCRIPT REQUIREMENTS:
 - Length: ${config.pages} pages (${config.detail} detail level)
-- ${includeCodeExamples !== false ? 'INCLUDE code examples, smart contract snippets, and API documentation' : 'Focus on concepts without code'}
-- ${includeArchitectureDiagrams !== false ? 'DESCRIBE architecture diagrams and system flows' : 'Minimize architectural discussions'}
+- **CRITICAL**: DO NOT include ANY code snippets, source code, smart contract code, JavaScript, TypeScript, Solidity, or programming examples
+- **CRITICAL**: Write in PURE DOCUMENTATION prose - explain concepts, architecture, and features using everyday language
+- ${includeArchitectureDiagrams !== false ? 'DESCRIBE architecture and system flows using detailed written explanations (no diagrams, just text descriptions)' : 'Minimize architectural discussions'}
 - Professional tone suitable for ${audience === 'business' ? 'investors and executives' : audience === 'technical' ? 'developers and engineers' : 'both technical and business audiences'}
+- Use statistics, data points, feature descriptions, and business metrics instead of code
+- Reference functions, contracts, and components by NAME only - never show their actual code
 
 STRUCTURE (adapt based on subject):
 1. Executive Summary / Introduction
-2. Technical Architecture & System Design
-3. Core Features & Functionality
-4. Implementation Details
-5. Business Model & Economics
-6. Security & Compliance
-7. Performance & Scalability
+2. Technical Architecture & System Design (prose descriptions only)
+3. Core Features & Functionality (feature descriptions, not code)
+4. Implementation Details (how it works conceptually, not code)
+5. Business Model & Economics (metrics and financial analysis)
+6. Security & Compliance (security features described in prose)
+7. Performance & Scalability (performance metrics and architecture)
 8. Future Roadmap & Vision
-9. Appendices (APIs, contracts, data models)
+9. Appendices (tables, statistics, feature lists - NO CODE)
 
-Create a publication-ready manuscript that comprehensively covers the subject using the complete AXIOM platform analysis above. This should be the "Gold Standard" - professional, thorough, and technically excellent.
+Create a publication-ready manuscript that reads like a professional technical manual or business book. Use the platform analysis above for REFERENCE DATA (statistics, counts, feature lists) but NEVER copy/paste code snippets into the manuscript.
 
-Use Markdown formatting with proper headings, code blocks, tables, and lists.`;
+Use Markdown formatting with proper headings, tables, and lists. Remember: NO CODE SNIPPETS ALLOWED.`;
 
     const completion = await openai.chat.completions.create({
       model: 'gpt-4o',
