@@ -872,6 +872,20 @@ const syndicationRouter = require('./server/routes/syndication');
 app.use('/api/syndication', syndicationRouter);
 console.log('✅ Co-Investment Syndication Portal API enabled at /api/syndication/*');
 
+// ========================================
+// TAX & REPORTING AUTOMATION API
+// ========================================
+const taxReportingRouter = require('./server/routes/taxReporting');
+app.use('/api/tax', taxReportingRouter);
+console.log('✅ Tax & Reporting Automation API enabled at /api/tax/*');
+
+// ========================================
+// MULTI-CHAIN DEPLOYMENT ORCHESTRATOR API
+// ========================================
+const multichainRouter = require('./server/routes/multichain');
+app.use('/api/multichain', multichainRouter);
+console.log('✅ Multi-chain Deployment Orchestrator API enabled at /api/multichain/*');
+
 console.log('✅ New contract routers mounted: KeyGrow, Real Estate Investor, NFT Marketplace, Advanced Staking, Revenue Router, Basket Index, Dynamic APR, Liquidity Vault, PancakeSwap Pools, Axiom Prime, Stripe Payments');
 
 // ========================================
