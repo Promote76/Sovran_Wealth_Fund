@@ -9,6 +9,7 @@ import AlertsDashboard from '../components/riskSentinel/AlertsDashboard';
 import { SyndicateManager } from '../components/enterprise/SyndicateManager';
 import { WaterfallEditor } from '../components/enterprise/WaterfallEditor';
 import { InvestorInvitations } from '../components/enterprise/InvestorInvitations';
+import { SyndicationInfo } from '../components/enterprise/SyndicationInfo';
 
 // Feature #7: Tax & Reporting Automation
 import TaxCenter from '../components/tax/TaxCenter';
@@ -27,7 +28,7 @@ const EnterprisePage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<Tab>('overview');
   const [subTabs, setSubTabs] = useState<SubTab>({
     risk: 'monitor',
-    syndication: 'manager',
+    syndication: 'info',
     tax: 'center',
     multichain: 'deployment'
   });
@@ -273,18 +274,20 @@ const EnterprisePage: React.FC = () => {
           <div className="space-y-6">
             <div className="bg-white rounded-xl shadow-lg p-6">
               <h2 className="text-2xl font-bold text-gray-900 mb-4">🤝 Co-Investment Syndication Portal</h2>
-              <div className="flex gap-2 mb-6">
+              <div className="flex gap-2 mb-6 flex-wrap">
                 {[
-                  { id: 'manager', label: 'Syndicate Manager' },
-                  { id: 'waterfall', label: 'Waterfall Editor' },
-                  { id: 'invitations', label: 'Investor Invitations' }
+                  { id: 'info', label: '📖 Info & Guide', description: 'Comprehensive documentation' },
+                  { id: 'manager', label: '💼 Syndicate Manager', description: 'Create and manage syndicates' },
+                  { id: 'waterfall', label: '💧 Waterfall Editor', description: 'Configure distributions' },
+                  { id: 'invitations', label: '✉️ Investor Invitations', description: 'Send invites' }
                 ].map(tab => (
                   <button
                     key={tab.id}
                     onClick={() => handleSubTabChange('syndication', tab.id)}
-                    className={`px-4 py-2 rounded-lg font-medium text-sm ${
+                    title={tab.description}
+                    className={`px-4 py-2 rounded-lg font-medium text-sm transition ${
                       subTabs.syndication === tab.id
-                        ? 'bg-blue-600 text-white'
+                        ? 'bg-blue-600 text-white shadow-md'
                         : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                     }`}
                   >
@@ -292,6 +295,7 @@ const EnterprisePage: React.FC = () => {
                   </button>
                 ))}
               </div>
+              {subTabs.syndication === 'info' && <SyndicationInfo />}
               {subTabs.syndication === 'manager' && <SyndicateManager />}
               {subTabs.syndication === 'waterfall' && <WaterfallEditor />}
               {subTabs.syndication === 'invitations' && <InvestorInvitations />}
