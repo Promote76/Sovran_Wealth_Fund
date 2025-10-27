@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { SyndicateDetailView } from './SyndicateDetailView';
 
 interface Syndicate {
   syndicate_id: string;
@@ -23,6 +24,7 @@ export const SyndicateManager: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showCreateForm, setShowCreateForm] = useState(false);
+  const [selectedSyndicateId, setSelectedSyndicateId] = useState<string | null>(null);
 
   const [formData, setFormData] = useState({
     lead_investor_id: '9',
@@ -374,10 +376,7 @@ export const SyndicateManager: React.FC = () => {
                     </div>
                   </div>
                   <button 
-                    onClick={() => {
-                      // Show syndicate details and management options
-                      alert(`Managing syndicate: ${syndicate.syndicate_name}\n\nSyndicate ID: ${syndicate.syndicate_id}\n\nThis will open detailed management view (coming soon).`);
-                    }}
+                    onClick={() => setSelectedSyndicateId(syndicate.syndicate_id)}
                     className="ml-4 px-4 py-2 text-sm text-blue-600 hover:bg-blue-50 rounded-lg transition"
                   >
                     Manage
@@ -388,6 +387,14 @@ export const SyndicateManager: React.FC = () => {
           </div>
         )}
       </div>
+
+      {/* Syndicate Detail View Modal */}
+      {selectedSyndicateId && (
+        <SyndicateDetailView
+          syndicateId={selectedSyndicateId}
+          onClose={() => setSelectedSyndicateId(null)}
+        />
+      )}
     </div>
   );
 };
