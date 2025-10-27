@@ -218,6 +218,7 @@ const Layout: React.FC<LayoutProps> = ({
       label: 'Programs', 
       isDropdown: true,
       dropdownItems: [
+        { path: '/enterprise', label: '🏛️ Enterprise Portal', isInternal: true },
         { path: '/investors', label: '📊 Investor Portal', isInternal: true },
         { path: '/axiom-prime', label: '💎 Axiom Prime', isInternal: true },
         { path: '/keygrow-dashboard', label: 'KeyGrow Rent-to-Own', isInternal: true },

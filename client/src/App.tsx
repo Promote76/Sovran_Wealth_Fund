@@ -84,6 +84,7 @@ import IELAIntakePage from './pages/IELAIntakePage';
 import IELADashboardPage from './pages/IELADashboardPage';
 import DealMarketplacePage from './pages/DealMarketplacePage';
 import DealDetailPage from './pages/DealDetailPage';
+import EnterprisePage from './pages/EnterprisePage';
 
 // Legacy component for KeyGrow integration
 function KeyGrowPage() {
@@ -462,6 +463,7 @@ function App() {
                               <Route path="/dashboard" element={<DashboardPage />} />
                               
                               {/* Platform features */}
+                              <Route path="/enterprise" element={<EnterprisePage />} />
                               <Route path="/enhanced-staking" element={<EnhancedStakingPage />} />
                               <Route path="/airdrop" element={<AirdropPage />} />
                               <Route path="/swf-banking" element={<AXIOMBankingPage />} />
