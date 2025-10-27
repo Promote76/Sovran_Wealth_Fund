@@ -41,23 +41,42 @@ A complete wholesale real estate deal management system. It includes a parsing e
 ### Marketing Hub
 Expanded with an AI-powered Social Media Post Generator that analyzes the entire platform and supports 5 social media platforms with platform-specific formatting. It includes a custom instructions field for detailed AI direction. The hub also contains professional video scripts and an AI-powered script generator with customizable templates.
 
-### Liquidity & Redemption Desk (Secondary Market) - IN DEVELOPMENT
-**Status**: Database schema complete, core service implemented
-A managed secondary market system enabling investors to trade fractional property shares before the 6-month lockup expires. Features include:
-- **Order Book System**: Price-time priority matching algorithm for buy/sell orders
-- **Treasury Liquidity Pool**: Platform-managed liquidity to ensure market depth
-- **Compliance Engine**: Automated lockup period verification, ownership cap enforcement (25% max), and KYC/AML checks
-- **Fee Structure**: 2% platform fee on transactions with automated collection
-- **Database Tables**: 
-  - `liquidity_orders` - Buy/sell order management
-  - `order_matches` - Transaction matching and settlement tracking
-  - `treasury_ledger` - Treasury operations and cash management
-  - `compliance_holds` - Share lockup and regulatory holds
-  - `fee_ledger` - Fee collection and revenue tracking
-  - `liquidity_pool_config` - Treasury configuration and rebalancing rules
-- **Matching Algorithm**: Automatically matches orders based on price-time priority, with treasury fallback for unmatched sell orders
-- **Settlement Methods**: Stripe integration for fiat settlements, blockchain support for on-chain transfers
-- **Revenue Stream**: Generates platform fees from secondary market trading volume
+### Enterprise Feature Foundations (2025 Roadmap)
+**Status**: All 8 database schemas and core services complete - Ready for API/UI development
+
+AXIOM has completed the foundational infrastructure for 8 major enterprise features that will transform the platform into an institutional-grade real estate investment platform:
+
+#### Feature #1: Liquidity & Redemption Desk
+**Status**: Database schema + Core service complete
+A managed secondary market system enabling investors to trade fractional property shares before the 6-month lockup expires. Features price-time priority matching, treasury liquidity pool, automated compliance checks, and 2% platform fees. 7 database tables: `liquidity_orders`, `order_matches`, `treasury_ledger`, `compliance_holds`, `fee_ledger`, `liquidity_pool_config`, `liquidity_transactions`.
+
+#### Feature #2: Smart Compliance Orchestrator
+**Status**: Database schema + Core service complete
+Automated KYC/AML, accreditation verification, and regulatory compliance engine. Integrates with Persona/Middesk for automated identity verification, Chainalysis for wallet screening, and handles Form D/Form C SEC filings. 6 database tables: `compliance_rules`, `accreditation_verifications`, `aml_checks`, `regulatory_filings`, `compliance_alerts`, `jurisdiction_rules`.
+
+#### Feature #3: Investor Intelligence Suite
+**Status**: Database schema + Core service complete
+Predictive analytics engine with 12-month cash flow projections, REIT/market benchmarks, cohort analysis, and portfolio risk scoring. Provides investors with professional-grade insights and recommendations. 5 database tables: `cash_flow_projections`, `performance_benchmarks`, `investor_cohorts`, `portfolio_analytics`, `risk_assessments`.
+
+#### Feature #4: Automated Revenue & Distribution Engine
+**Status**: Database schema + Core service complete
+Unified transaction ledger with automated revenue distribution, Stripe Connect integration for instant payouts, and tiered revenue sharing (0%/2%/5%/8% bonuses). Supports pro-rata and waterfall distribution models. 6 database tables: `unified_transaction_ledger`, `distribution_policies`, `payout_batches`, `payout_transactions`, `stripe_connect_accounts`, `revenue_analytics`.
+
+#### Feature #5: Property Risk Sentinel
+**Status**: Database schema + Core service complete
+Real-time property valuation using AVMs, environmental risk monitoring (flood/fire/earthquake), market condition tracking, and automated alert system. Integrates with CoreLogic and HazardHub APIs. 6 database tables: `property_valuations`, `risk_monitoring_events`, `market_conditions`, `property_alerts`, `environmental_risks`, `monitoring_schedules`.
+
+#### Feature #6: Co-Investment Syndication Portal
+**Status**: Database schema + Core service complete
+Enables lead investors to create syndicates with custom waterfall distributions (preferred returns, carried interest, catch-up provisions). Supports blind pools, deal-specific, and permanent syndicates with invite-only access control. 6 database tables: `syndicates`, `syndicate_members`, `waterfall_tiers`, `syndicate_distributions`, `syndicate_invitations`, `syndicate_fees`.
+
+#### Feature #7: Tax & Reporting Automation
+**Status**: Database schema + Core service complete
+Automated generation of 1099-DIV, K-1, and annual investor statements. W-9/W-8 collection, tax lot tracking for capital gains, and TaxBit integration for simplified tax reporting. 6 database tables: `tax_profiles`, `tax_documents`, `tax_line_items`, `investor_statements`, `tax_lot_tracking`, `tax_provider_integrations`.
+
+#### Feature #8: Multi-chain Deployment Orchestrator
+**Status**: Database schema + Core service complete
+Cross-chain contract deployment supporting BSC, Polygon, Arbitrum, and Optimism. Bridge transaction management, gas optimization, and automated contract monitoring across all chains. Pre-seeded with 4 supported chains. 7 database tables: `supported_chains`, `deployed_contracts`, `cross_chain_bridges`, `bridge_transactions`, `deployment_templates`, `chain_monitoring`, `gas_price_history`.
 
 ## External Dependencies
 
