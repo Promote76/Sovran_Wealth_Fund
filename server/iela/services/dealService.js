@@ -20,9 +20,15 @@ const DEFAULT_REPAIRS = {
 
 class DealService {
   async ingestDeal(request, userId) {
-    const { source = 'manual', rawText, url } = request;
+    const { source = 'manual', rawText, url, sellerName, sellerPhone, sellerEmail, sellerNotes } = request;
 
     const { parsed, confidence, warnings } = parseMessage(rawText, url);
+    
+    // Add seller contact information to parsed data
+    if (sellerName) parsed.sellerName = sellerName;
+    if (sellerPhone) parsed.sellerPhone = sellerPhone;
+    if (sellerEmail) parsed.sellerEmail = sellerEmail;
+    if (sellerNotes) parsed.sellerCompany = sellerNotes; // Store in sellerCompany field for now
 
     const compliance = {
       consentLog: [

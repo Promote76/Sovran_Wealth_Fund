@@ -6,7 +6,11 @@ const IELAIntakePage: React.FC = () => {
   const { user, loading, error, login, logout, isAdmin, isAuthenticated } = useAuth();
   const [formData, setFormData] = useState({
     source: 'manual',
-    rawText: ''
+    rawText: '',
+    sellerName: '',
+    sellerPhone: '',
+    sellerEmail: '',
+    sellerNotes: ''
   });
   const [dealResult, setDealResult] = useState<any>(null);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -53,7 +57,11 @@ const IELAIntakePage: React.FC = () => {
   const loadExample = () => {
     setFormData({
       source: 'test',
-      rawText: '247 Howell Drive Southwest, Atlanta GA 30331. Asking 103k, ARV 215k. Contact John 404-555-1234. 3 bed, 2 bath, 1450 sqft. Built 1968.'
+      rawText: '247 Howell Drive Southwest, Atlanta GA 30331. Asking 103k, ARV 215k. Contact John 404-555-1234. 3 bed, 2 bath, 1450 sqft. Built 1968.',
+      sellerName: 'John Smith',
+      sellerPhone: '404-555-1234',
+      sellerEmail: 'john@example.com',
+      sellerNotes: 'Motivated seller, needs quick close'
     });
   };
 
@@ -167,6 +175,65 @@ const IELAIntakePage: React.FC = () => {
               rows={6}
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 font-mono text-sm"
             />
+          </div>
+
+          {/* Seller Contact Information */}
+          <div className="border-t border-gray-200 pt-4 mt-6 mb-4">
+            <h3 className="text-lg font-semibold text-gray-800 mb-4">👤 Seller Contact Information</h3>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Seller Name
+                </label>
+                <input
+                  type="text"
+                  value={formData.sellerName}
+                  onChange={(e) => setFormData({...formData, sellerName: e.target.value})}
+                  placeholder="John Smith"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Seller Phone
+                </label>
+                <input
+                  type="tel"
+                  value={formData.sellerPhone}
+                  onChange={(e) => setFormData({...formData, sellerPhone: e.target.value})}
+                  placeholder="336-933-6930"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Seller Email
+                </label>
+                <input
+                  type="email"
+                  value={formData.sellerEmail}
+                  onChange={(e) => setFormData({...formData, sellerEmail: e.target.value})}
+                  placeholder="seller@example.com"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Other Contact Details
+                </label>
+                <input
+                  type="text"
+                  value={formData.sellerNotes}
+                  onChange={(e) => setFormData({...formData, sellerNotes: e.target.value})}
+                  placeholder="Company name, best time to call, etc."
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                />
+              </div>
+            </div>
           </div>
 
           <div className="flex gap-4">
