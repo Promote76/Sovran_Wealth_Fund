@@ -837,6 +837,13 @@ const fractionalOwnershipRouter = require('./server/routes/fractionalOwnership')
 app.use('/api/fractional', fractionalOwnershipRouter);
 console.log('✅ Fractional Real Estate Ownership enabled and mounted at /api/fractional');
 
+// ========================================
+// LIQUIDITY & REDEMPTION DESK API
+// ========================================
+const liquidityRouter = require('./server/routes/liquidity');
+app.use('/api/liquidity', liquidityRouter);
+console.log('✅ Liquidity & Redemption Desk API enabled at /api/liquidity/*');
+
 console.log('✅ New contract routers mounted: KeyGrow, Real Estate Investor, NFT Marketplace, Advanced Staking, Revenue Router, Basket Index, Dynamic APR, Liquidity Vault, PancakeSwap Pools, Axiom Prime, Stripe Payments');
 
 // ========================================
