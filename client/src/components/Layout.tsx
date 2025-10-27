@@ -218,6 +218,7 @@ const Layout: React.FC<LayoutProps> = ({
       label: 'Programs', 
       isDropdown: true,
       dropdownItems: [
+        { path: '/investors', label: '📊 Investor Portal', isInternal: true },
         { path: '/axiom-prime', label: '💎 Axiom Prime', isInternal: true },
         { path: '/keygrow-dashboard', label: 'KeyGrow Rent-to-Own', isInternal: true },
         { path: '/real-estate-investor', label: 'Real Estate Investor', isInternal: true },
@@ -243,7 +244,6 @@ const Layout: React.FC<LayoutProps> = ({
       label: 'About', 
       isDropdown: true,
       dropdownItems: [
-        { path: '/investors', label: 'Investors', isInternal: true },
         { path: '/user-guide', label: 'User Guide', isInternal: true },
         { path: '/faq', label: 'FAQ', isInternal: true },
         { path: '/team', label: 'Team', isInternal: true },
