@@ -956,6 +956,28 @@ app.post('/api/revenue/stripe/update-status', authenticateWallet, async (req, re
   }
 });
 
+app.get('/api/revenue/stripe/status', authenticateWallet, async (req, res) => {
+  try {
+    const investorId = req.query.investorId || req.userId;
+    const result = await revenueEngineService.getStripeAccountStatus(investorId);
+    
+    if (!result.hasAccount) {
+      return res.status(404).json({
+        hasAccount: false,
+        message: 'No Stripe account found for this investor'
+      });
+    }
+    
+    res.json(result);
+  } catch (error) {
+    console.error('Stripe status check error:', error);
+    res.status(500).json({ 
+      success: false, 
+      error: error.message 
+    });
+  }
+});
+
 app.get('/api/revenue/payouts', authenticateWallet, async (req, res) => {
   try {
     const limit = parseInt(req.query.limit) || 20;
@@ -976,15 +998,12 @@ app.get('/api/revenue/payouts', authenticateWallet, async (req, res) => {
 
 app.get('/api/revenue/batches', authenticateWallet, async (req, res) => {
   try {
-    const status = req.query.status || null;
+    const propertyId = req.query.propertyId ? parseInt(req.query.propertyId) : null;
     const limit = parseInt(req.query.limit) || 50;
     
-    const batches = await revenueEngineService.getAllPayoutBatches(status, limit);
+    const batches = await revenueEngineService.getAllPayoutBatches(propertyId, limit);
     
-    res.json({ 
-      success: true, 
-      batches 
-    });
+    res.json(batches);
   } catch (error) {
     console.error('Get batches error:', error);
     res.status(500).json({ 
@@ -998,13 +1017,6 @@ app.get('/api/revenue/analytics/:propertyId', authenticateWallet, async (req, re
   try {
     const { propertyId } = req.params;
     const { startDate, endDate } = req.query;
-    
-    if (!startDate || !endDate) {
-      return res.status(400).json({ 
-        success: false, 
-        error: 'Start date and end date are required' 
-      });
-    }
 
     const analytics = await revenueEngineService.getRevenueAnalytics(
       parseInt(propertyId),
@@ -1012,10 +1024,7 @@ app.get('/api/revenue/analytics/:propertyId', authenticateWallet, async (req, re
       endDate
     );
     
-    res.json({ 
-      success: true, 
-      analytics 
-    });
+    res.json(analytics);
   } catch (error) {
     console.error('Get analytics error:', error);
     res.status(500).json({ 
