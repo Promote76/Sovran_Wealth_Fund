@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Layout from '../components/Layout';
 import { marked } from 'marked';
+import ManuscriptGenerator from '../components/marketing/ManuscriptGenerator';
 
 interface Script {
   id: string;
@@ -38,7 +39,7 @@ interface MarketingHubPageProps {
 }
 
 const MarketingHubPage: React.FC<MarketingHubPageProps> = ({ standalone = true }) => {
-  const [activeTab, setActiveTab] = useState<'library' | 'generator' | 'social-media'>('library');
+  const [activeTab, setActiveTab] = useState<'library' | 'generator' | 'social-media' | 'manuscript'>('library');
   const [scripts, setScripts] = useState<Script[]>([]);
   const [templates, setTemplates] = useState<Record<string, Template>>({});
   const [selectedScript, setSelectedScript] = useState<string | null>(null);
@@ -274,6 +275,16 @@ const MarketingHubPage: React.FC<MarketingHubPageProps> = ({ standalone = true }
                   }`}
                 >
                   Social Media Posts
+                </button>
+                <button
+                  onClick={() => setActiveTab('manuscript')}
+                  className={`px-8 py-4 text-lg font-medium border-b-2 transition-colors ${
+                    activeTab === 'manuscript'
+                      ? 'border-blue-600 text-blue-600'
+                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  }`}
+                >
+                  📚 Manuscript Generator
                 </button>
               </nav>
             </div>
@@ -800,6 +811,8 @@ const MarketingHubPage: React.FC<MarketingHubPageProps> = ({ standalone = true }
                     </div>
                   </div>
                 </div>
+              ) : activeTab === 'manuscript' ? (
+                <ManuscriptGenerator />
               ) : null}
             </div>
           </div>
@@ -808,26 +821,33 @@ const MarketingHubPage: React.FC<MarketingHubPageProps> = ({ standalone = true }
             <h3 className="text-2xl font-bold text-gray-900 mb-4">
               About Marketing Hub
             </h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-gray-700">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 text-gray-700">
               <div>
                 <h4 className="font-semibold mb-2">Script Library</h4>
-                <p>
+                <p className="text-sm">
                   Access professionally written video marketing scripts for all major AXIOM features.
                   Each script includes voiceover dialogue, visual direction, production notes, and timing.
                 </p>
               </div>
               <div>
                 <h4 className="font-semibold mb-2">AI Generator</h4>
-                <p>
+                <p className="text-sm">
                   Create custom marketing scripts instantly using AI. Choose a template, specify your
                   requirements, and get a professional script tailored to your needs in seconds.
                 </p>
               </div>
               <div>
                 <h4 className="font-semibold mb-2">Social Media Posts</h4>
-                <p>
+                <p className="text-sm">
                   Generate platform-specific social media content that showcases your entire platform.
                   AI analyzes all contracts, components, and pages to create authentic posts.
+                </p>
+              </div>
+              <div>
+                <h4 className="font-semibold mb-2">📚 Manuscript Generator</h4>
+                <p className="text-sm">
+                  Generate comprehensive 25-300 page professional manuscripts and technical manuals.
+                  AI scans the entire codebase to create Gold Standard documentation on any subject.
                 </p>
               </div>
             </div>

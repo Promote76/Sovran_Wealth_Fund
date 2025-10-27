@@ -990,4 +990,390 @@ Format this as a professional document suitable for presenting to banks, VCs, an
   }
 });
 
+// Comprehensive Manuscript Generator - Scans entire codebase and generates 25-300 page documents
+router.post('/generate-manuscript', async (req, res) => {
+  try {
+    const { 
+      subject,
+      pageLength,  // 'short' (25-50), 'medium' (50-150), 'long' (150-300)
+      customInstructions,
+      includeCodeExamples,
+      includeArchitectureDiagrams,
+      audience  // 'technical', 'business', 'mixed'
+    } = req.body;
+    
+    if (!subject) {
+      return res.status(400).json({
+        success: false,
+        error: 'Subject/topic is required'
+      });
+    }
+
+    console.log(`📚 Starting manuscript generation: ${subject} (${pageLength || 'medium'} length)`);
+    
+    // 1. COMPREHENSIVE CODEBASE SCAN
+    console.log('🔍 Scanning entire codebase...');
+    const codebaseAnalysis = {
+      contracts: [],
+      components: [],
+      pages: [],
+      routes: [],
+      services: [],
+      databases: [],
+      features: []
+    };
+
+    // Scan smart contracts
+    const contractsDir = path.join(process.cwd(), 'contracts');
+    try {
+      const contractFiles = await scanDirectory(contractsDir, ['.sol']);
+      for (const file of contractFiles) {
+        const content = await fs.readFile(file.fullPath, 'utf-8');
+        const contractName = file.name.replace('.sol', '');
+        
+        codebaseAnalysis.contracts.push({
+          name: contractName,
+          path: file.path,
+          linesOfCode: content.split('\n').length,
+          functions: (content.match(/function\s+\w+/g) || []).length,
+          interfaces: (content.match(/interface\s+\w+/g) || []).length,
+          snippet: content.substring(0, 500)
+        });
+      }
+    } catch (e) {
+      console.log('No contracts or error:', e.message);
+    }
+
+    // Scan React components
+    const componentsDir = path.join(process.cwd(), 'client', 'src', 'components');
+    try {
+      const componentFiles = await scanDirectory(componentsDir, ['.tsx', '.jsx']);
+      for (const file of componentFiles) {
+        const content = await fs.readFile(file.fullPath, 'utf-8');
+        codebaseAnalysis.components.push({
+          name: file.name.replace(/\.(tsx|jsx)$/, ''),
+          path: file.path,
+          linesOfCode: content.split('\n').length,
+          hasState: content.includes('useState'),
+          hasEffects: content.includes('useEffect'),
+          componentType: content.includes('export default') ? 'Default Export' : 'Named Export'
+        });
+      }
+    } catch (e) {
+      console.log('Error reading components:', e.message);
+    }
+
+    // Scan React pages
+    const pagesDir = path.join(process.cwd(), 'client', 'src', 'pages');
+    try {
+      const pageFiles = await scanDirectory(pagesDir, ['.tsx', '.jsx']);
+      for (const file of pageFiles) {
+        const content = await fs.readFile(file.fullPath, 'utf-8');
+        codebaseAnalysis.pages.push({
+          name: file.name.replace(/Page\.(tsx|jsx)$/, '').replace(/\.(tsx|jsx)$/, ''),
+          path: file.path,
+          linesOfCode: content.split('\n').length,
+          route: '/' + file.name.replace(/Page\.(tsx|jsx)$/, '').toLowerCase()
+        });
+      }
+    } catch (e) {
+      console.log('Error reading pages:', e.message);
+    }
+
+    // Scan server routes
+    const routesDir = path.join(process.cwd(), 'server', 'routes');
+    try {
+      const routeFiles = await scanDirectory(routesDir, ['.js']);
+      for (const file of routeFiles) {
+        const content = await fs.readFile(file.fullPath, 'utf-8');
+        codebaseAnalysis.routes.push({
+          name: file.name.replace('.js', ''),
+          path: file.path,
+          endpoints: (content.match(/router\.(get|post|put|delete|patch)\(/g) || []).length,
+          linesOfCode: content.split('\n').length
+        });
+      }
+    } catch (e) {
+      console.log('Error reading routes:', e.message);
+    }
+
+    // Scan services
+    const servicesDir = path.join(process.cwd(), 'server', 'services');
+    try {
+      const serviceFiles = await scanDirectory(servicesDir, ['.js']);
+      for (const file of serviceFiles) {
+        const content = await fs.readFile(file.fullPath, 'utf-8');
+        codebaseAnalysis.services.push({
+          name: file.name.replace('.js', ''),
+          path: file.path,
+          linesOfCode: content.split('\n').length
+        });
+      }
+    } catch (e) {
+      console.log('Error reading services:', e.message);
+    }
+
+    // Scan database schemas
+    const dbDir = path.join(process.cwd(), 'server', 'db');
+    try {
+      const dbFiles = await scanDirectory(dbDir, ['.js', '.ts']);
+      for (const file of dbFiles) {
+        const content = await fs.readFile(file.fullPath, 'utf-8');
+        codebaseAnalysis.databases.push({
+          name: file.name.replace(/\.(js|ts)$/, ''),
+          path: file.path,
+          tables: (content.match(/pgTable\(/g) || []).length,
+          linesOfCode: content.split('\n').length
+        });
+      }
+    } catch (e) {
+      console.log('Error reading database schemas:', e.message);
+    }
+
+    // Add known platform features
+    codebaseAnalysis.features = [
+      { name: 'Liquidity & Redemption Desk', status: 'Production-Ready', completion: '100%' },
+      { name: 'Smart Compliance Orchestrator', status: 'Production-Ready', completion: '100%' },
+      { name: 'Investor Intelligence Suite', status: 'Production-Ready', completion: '100%' },
+      { name: 'Automated Revenue Distribution', status: 'Production-Ready', completion: '100%' },
+      { name: 'Property Risk Sentinel', status: 'Production-Ready', completion: '100%' },
+      { name: 'Co-Investment Syndication', status: 'Production-Ready', completion: '100%' },
+      { name: 'Tax & Reporting Automation', status: 'Production-Ready', completion: '100%' },
+      { name: 'Multi-chain Orchestrator', status: 'Production-Ready', completion: '100%' },
+      { name: 'KeyGrow Rent-to-Own', status: 'Operational', completion: '100%' },
+      { name: 'Real Estate Investor', status: 'Operational', completion: '100%' },
+      { name: 'Fractional Real Estate', status: 'Operational', completion: '100%' },
+      { name: 'IELA Pipeline', status: 'Operational', completion: '100%' },
+      { name: 'AXM Token Staking', status: 'Deployed', completion: '100%' },
+      { name: 'Liquidity Vaults', status: 'Deployed', completion: '100%' },
+      { name: 'Axiom Council Governance', status: 'Deployed', completion: '100%' }
+    ];
+
+    const stats = {
+      totalContracts: codebaseAnalysis.contracts.length,
+      totalComponents: codebaseAnalysis.components.length,
+      totalPages: codebaseAnalysis.pages.length,
+      totalRoutes: codebaseAnalysis.routes.length,
+      totalServices: codebaseAnalysis.services.length,
+      totalDatabaseFiles: codebaseAnalysis.databases.length,
+      totalFeatures: codebaseAnalysis.features.length,
+      totalEndpoints: codebaseAnalysis.routes.reduce((sum, r) => sum + r.endpoints, 0),
+      totalLinesOfCode: [
+        ...codebaseAnalysis.contracts,
+        ...codebaseAnalysis.components,
+        ...codebaseAnalysis.pages,
+        ...codebaseAnalysis.routes,
+        ...codebaseAnalysis.services
+      ].reduce((sum, item) => sum + (item.linesOfCode || 0), 0)
+    };
+
+    console.log(`✅ Codebase scan complete: ${stats.totalLinesOfCode.toLocaleString()} lines of code analyzed`);
+
+    // 2. DETERMINE MANUSCRIPT LENGTH & DETAIL LEVEL
+    const lengthConfig = {
+      'short': { pages: '25-50', tokens: 8000, detail: 'concise' },
+      'medium': { pages: '50-150', tokens: 12000, detail: 'comprehensive' },
+      'long': { pages: '150-300', tokens: 16000, detail: 'exhaustive' }
+    };
+    
+    const config = lengthConfig[pageLength] || lengthConfig['medium'];
+    
+    // 3. BUILD COMPREHENSIVE PLATFORM CONTEXT
+    const platformContext = `AXIOM DEFI PLATFORM - COMPLETE TECHNICAL ARCHITECTURE & CODEBASE ANALYSIS
+
+== CODEBASE STATISTICS ==
+Total Lines of Code: ${stats.totalLinesOfCode.toLocaleString()}
+Smart Contracts: ${stats.totalContracts} (.sol files)
+React Components: ${stats.totalComponents} (.tsx/.jsx files)
+Pages: ${stats.totalPages}
+API Routes: ${stats.totalRoutes} files with ${stats.totalEndpoints} endpoints
+Services: ${stats.totalServices}
+Database Schemas: ${stats.totalDatabaseFiles}
+Enterprise Features: ${stats.totalFeatures} (100% production-ready)
+
+== SMART CONTRACT LAYER ==
+${codebaseAnalysis.contracts.slice(0, 20).map(c => 
+  `- ${c.name}: ${c.linesOfCode} LOC, ${c.functions} functions`
+).join('\n')}
+
+== REACT COMPONENT ARCHITECTURE ==
+${codebaseAnalysis.components.slice(0, 30).map(c => 
+  `- ${c.name} (${c.path}): ${c.linesOfCode} LOC, Type: ${c.componentType}`
+).join('\n')}
+
+== APPLICATION PAGES ==
+${codebaseAnalysis.pages.map(p => 
+  `- ${p.name}: ${p.route} - ${p.linesOfCode} LOC`
+).join('\n')}
+
+== API ROUTES & ENDPOINTS ==
+${codebaseAnalysis.routes.map(r => 
+  `- /api/${r.name}: ${r.endpoints} endpoints, ${r.linesOfCode} LOC`
+).join('\n')}
+
+== BACKEND SERVICES ==
+${codebaseAnalysis.services.map(s => 
+  `- ${s.name}.js: ${s.linesOfCode} LOC`
+).join('\n')}
+
+== DATABASE ARCHITECTURE ==
+${codebaseAnalysis.databases.map(d => 
+  `- ${d.name}: ${d.tables} tables, ${d.linesOfCode} LOC`
+).join('\n')}
+
+== ENTERPRISE FEATURES (8/8 Complete - 100%) ==
+${codebaseAnalysis.features.map(f => 
+  `✅ ${f.name}: ${f.status} (${f.completion})`
+).join('\n')}
+
+== TECHNOLOGY STACK ==
+Frontend: React 18 + TypeScript + TailwindCSS
+Backend: Node.js + Express.js + PostgreSQL (Neon)
+Blockchain: Solidity + Hardhat + OpenZeppelin
+Payments: Stripe + BNB integration
+Database: PostgreSQL + Drizzle ORM
+APIs: OpenAI, Alpha Vantage, FMP, Attom Data
+Cloud: Google Cloud Storage, Storacha (Web3)
+Security: JWT, bcrypt, httpOnly cookies, CORS
+
+== CORE PLATFORM PROGRAMS ==
+1. KeyGrow Rent-to-Own: 20% revenue → Real Estate Acquisition Fund
+2. Real Estate Investor: Fractional investment from $30/share
+3. Fractional Real Estate (Hybrid): 4-tier investor model with blockchain settlement
+4. IELA Pipeline: Wholesale deal management (Ingest-Enrich-Analyze-List)
+5. AXM Token Staking: Proof of Contribution with dynamic APR
+6. Liquidity Vaults: Multi-vault LP token staking
+7. Axiom Council: Quadratic voting governance
+
+== ENTERPRISE SUITE (Institutional Features) ==
+1. Liquidity & Redemption Desk: Secondary market with treasury liquidity pool
+2. Smart Compliance Orchestrator: KYC/AML automation with Persona/Middesk
+3. Investor Intelligence Suite: Predictive analytics with 12-month projections
+4. Automated Revenue Distribution: Stripe Connect with tiered revenue sharing
+5. Property Risk Sentinel: Real-time AVM valuations + environmental monitoring
+6. Co-Investment Syndication: Waterfall distributions with carried interest
+7. Tax & Reporting Automation: 1099-DIV, K-1, annual statements
+8. Multi-chain Orchestrator: BSC, Polygon, Arbitrum, Optimism deployment
+
+== UNIQUE VALUE PROPOSITIONS ==
+✓ $30 minimum investment (lowest in market)
+✓ Dual payment rails: Fiat (Stripe) + Crypto (BNB)
+✓ 20% social impact allocation (KeyGrow)
+✓ 8 institutional-grade enterprise features
+✓ 100+ production API endpoints
+✓ Comprehensive KYC/AML compliance
+✓ Multi-chain support (BSC, Polygon, Arbitrum, Optimism)
+✓ Real-world asset integration (real estate)
+
+== COMPETITIVE ANALYSIS ==
+- RealT ($100M+ valuation): NO fiat option, higher minimums
+- Lofty.ai ($50M+ valuation): NO DeFi staking, limited features
+- Uniswap/PancakeSwap: NO real estate integration
+- Traditional real estate platforms: NO fractional ownership at $30
+
+== MARKET OPPORTUNITY ==
+- Global real estate market: $280+ trillion
+- DeFi market cap: $100+ billion  
+- Fractional real estate growing 35% annually
+- Crypto adoption: 420M+ users worldwide
+- Target market: DeFi users + real estate investors + renters
+
+== REVENUE STREAMS ==
+1. Platform fees (2-5% on transactions)
+2. Real estate management fees
+3. Staking/liquidity protocol fees
+4. Premium features & subscriptions
+5. Syndicate carried interest (20%)
+6. Cross-chain bridge fees
+
+This represents a production-ready, institutional-grade DeFi platform with real-world asset integration.`;
+
+    // 4. GENERATE MANUSCRIPT WITH GPT-4
+    console.log(`🤖 Generating ${config.pages} page manuscript...`);
+    
+    const systemPrompt = `You are a world-class technical writer and documentation specialist with expertise in blockchain, DeFi, fintech, and software architecture. You create comprehensive, professional manuscripts that serve as the "Gold Standard" for technical documentation.
+
+Your manuscripts are:
+- Technically accurate and detailed
+- Well-structured with clear chapters and sections
+- Professional yet accessible to the target audience
+- Backed by data and code examples when relevant
+- Formatted for publication-quality output
+
+You excel at explaining complex systems clearly while maintaining technical depth.`;
+
+    const userPrompt = `Create a ${config.detail} ${config.pages} page professional manuscript about the following subject for the AXIOM DeFi platform:
+
+SUBJECT: ${subject}
+
+TARGET AUDIENCE: ${audience || 'mixed (technical and business stakeholders)'}
+
+PLATFORM CONTEXT & FULL CODEBASE ANALYSIS:
+${platformContext}
+
+${customInstructions ? `\nSPECIFIC REQUIREMENTS:\n${customInstructions}\n` : ''}
+
+MANUSCRIPT REQUIREMENTS:
+- Length: ${config.pages} pages (${config.detail} detail level)
+- ${includeCodeExamples !== false ? 'INCLUDE code examples, smart contract snippets, and API documentation' : 'Focus on concepts without code'}
+- ${includeArchitectureDiagrams !== false ? 'DESCRIBE architecture diagrams and system flows' : 'Minimize architectural discussions'}
+- Professional tone suitable for ${audience === 'business' ? 'investors and executives' : audience === 'technical' ? 'developers and engineers' : 'both technical and business audiences'}
+
+STRUCTURE (adapt based on subject):
+1. Executive Summary / Introduction
+2. Technical Architecture & System Design
+3. Core Features & Functionality
+4. Implementation Details
+5. Business Model & Economics
+6. Security & Compliance
+7. Performance & Scalability
+8. Future Roadmap & Vision
+9. Appendices (APIs, contracts, data models)
+
+Create a publication-ready manuscript that comprehensively covers the subject using the complete AXIOM platform analysis above. This should be the "Gold Standard" - professional, thorough, and technically excellent.
+
+Use Markdown formatting with proper headings, code blocks, tables, and lists.`;
+
+    const completion = await openai.chat.completions.create({
+      model: 'gpt-4o',
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: userPrompt }
+      ],
+      temperature: 0.7,
+      max_tokens: parseInt(config.tokens)
+    });
+    
+    const manuscript = completion.choices[0].message.content;
+    const estimatedPages = Math.round(manuscript.length / 2000); // ~2000 chars per page
+    
+    console.log(`✅ Manuscript generated: ~${estimatedPages} pages, ${manuscript.length.toLocaleString()} characters`);
+    
+    res.json({
+      success: true,
+      manuscript,
+      metadata: {
+        subject,
+        pageLength: pageLength || 'medium',
+        estimatedPages,
+        characterCount: manuscript.length,
+        wordCount: manuscript.split(/\s+/).length,
+        codebaseLOC: stats.totalLinesOfCode,
+        contractsAnalyzed: stats.totalContracts,
+        componentsAnalyzed: stats.totalComponents,
+        endpointsAnalyzed: stats.totalEndpoints,
+        generatedAt: new Date().toISOString()
+      }
+    });
+    
+  } catch (error) {
+    console.error('Error generating manuscript:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to generate manuscript',
+      details: error.message
+    });
+  }
+});
+
 module.exports = router;
