@@ -362,7 +362,8 @@ class ComplianceService {
     params.push(limit);
 
     const result = await this.pool.query(`
-      SELECT ca.*, u.email as investor_email, u.full_name as investor_name
+      SELECT ca.*, u.email as investor_email, 
+             CONCAT(u.first_name, ' ', u.last_name) as investor_name
       FROM compliance_alerts ca
       LEFT JOIN users u ON ca.investor_id = u.id
       WHERE ${conditions.join(' AND ')}
