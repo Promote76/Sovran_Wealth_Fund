@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 
 interface Syndicate {
   syndicate_id: string;
-  lead_investor_id: string;
+  lead_investor_id: number;
+  lead_wallet_address: string;
   syndicate_name: string;
   syndicate_type: string;
   target_raise: number;
@@ -10,11 +11,11 @@ interface Syndicate {
   maximum_commitment: number;
   waterfall_structure: string;
   description: string;
-  access_type: string;
+  visibility: string;
   status: string;
   created_at: string;
   total_committed?: number;
-  member_count?: number;
+  total_members?: number;
 }
 
 export const SyndicateManager: React.FC = () => {
@@ -24,7 +25,8 @@ export const SyndicateManager: React.FC = () => {
   const [showCreateForm, setShowCreateForm] = useState(false);
 
   const [formData, setFormData] = useState({
-    lead_investor_id: 'INV-' + Math.random().toString(36).substr(2, 9),
+    lead_investor_id: '9',
+    lead_wallet_address: '0x0000000000000000000000000000000000000000',
     syndicate_name: '',
     syndicate_type: 'deal_specific',
     target_raise: '',
@@ -32,7 +34,7 @@ export const SyndicateManager: React.FC = () => {
     maximum_commitment: '',
     waterfall_structure: 'tiered',
     description: '',
-    access_type: 'invite_only'
+    visibility: 'private'
   });
 
   useEffect(() => {
@@ -80,7 +82,8 @@ export const SyndicateManager: React.FC = () => {
       if (data.success) {
         setShowCreateForm(false);
         setFormData({
-          lead_investor_id: 'INV-' + Math.random().toString(36).substr(2, 9),
+          lead_investor_id: '9',
+          lead_wallet_address: '0x0000000000000000000000000000000000000000',
           syndicate_name: '',
           syndicate_type: 'deal_specific',
           target_raise: '',
@@ -88,7 +91,7 @@ export const SyndicateManager: React.FC = () => {
           maximum_commitment: '',
           waterfall_structure: 'tiered',
           description: '',
-          access_type: 'invite_only'
+          visibility: 'private'
         });
         fetchSyndicates();
       } else {
@@ -232,16 +235,15 @@ export const SyndicateManager: React.FC = () => {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Access Type *
+                  Visibility *
                 </label>
                 <select
-                  value={formData.access_type}
-                  onChange={(e) => setFormData({ ...formData, access_type: e.target.value })}
+                  value={formData.visibility}
+                  onChange={(e) => setFormData({ ...formData, visibility: e.target.value })}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 >
-                  <option value="invite_only">Invite Only</option>
-                  <option value="open">Open Access</option>
-                  <option value="whitelist">Whitelist</option>
+                  <option value="private">Private (Invite Only)</option>
+                  <option value="public">Public</option>
                 </select>
               </div>
             </div>
@@ -329,9 +331,9 @@ export const SyndicateManager: React.FC = () => {
                         </p>
                       </div>
                       <div>
-                        <p className="text-xs text-gray-500">Access</p>
+                        <p className="text-xs text-gray-500">Visibility</p>
                         <p className="text-sm font-medium text-gray-900">
-                          {syndicate.access_type.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                          {syndicate.visibility ? syndicate.visibility.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) : 'Private'}
                         </p>
                       </div>
                     </div>

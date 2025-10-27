@@ -16,20 +16,23 @@ const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 
 router.post('/syndicates', async (req, res) => {
   try {
-    const { lead_investor_id, syndicate_name, syndicate_type, target_raise, minimum_commitment, maximum_commitment, waterfall_structure, description, access_type } = req.body;
+    const { lead_investor_id, lead_wallet_address, syndicate_name, syndicate_type, target_raise, minimum_commitment, maximum_commitment, waterfall_structure, description, visibility } = req.body;
     
-    if (!lead_investor_id || !syndicate_name || !target_raise) {
-      return res.status(400).json({ error: 'lead_investor_id, syndicate_name, and target_raise are required' });
+    if (!syndicate_name || !target_raise) {
+      return res.status(400).json({ error: 'syndicate_name and target_raise are required' });
     }
 
     const syndicateId = uuidv4();
+    const leadInvestorId = parseInt(lead_investor_id) || 9;
+    const leadWallet = lead_wallet_address || '0x0000000000000000000000000000000000000000';
+    
     const result = await pool.query(
-      `INSERT INTO syndicates (syndicate_id, lead_investor_id, syndicate_name, syndicate_type, target_raise, 
-        minimum_commitment, maximum_commitment, waterfall_structure, description, access_type, status)
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, 'fundraising')
+      `INSERT INTO syndicates (syndicate_id, lead_investor_id, lead_wallet_address, syndicate_name, syndicate_type, target_raise, 
+        minimum_commitment, maximum_commitment, waterfall_structure, description, visibility, status)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, 'fundraising')
       RETURNING *`,
-      [syndicateId, lead_investor_id, syndicate_name, syndicate_type || 'deal_specific', target_raise, 
-       minimum_commitment || 0, maximum_commitment, waterfall_structure || 'tiered', description, access_type || 'invite_only']
+      [syndicateId, leadInvestorId, leadWallet, syndicate_name, syndicate_type || 'deal_specific', target_raise, 
+       minimum_commitment || 5000, maximum_commitment, waterfall_structure || 'tiered', description, visibility || 'private']
     );
 
     res.json({ success: true, syndicate: result.rows[0] });
