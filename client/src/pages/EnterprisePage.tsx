@@ -6,9 +6,9 @@ import PropertyValuations from '../components/riskSentinel/PropertyValuations';
 import AlertsDashboard from '../components/riskSentinel/AlertsDashboard';
 
 // Feature #6: Co-Investment Syndication Portal
-import SyndicateManager from '../components/syndication/SyndicateManager';
-import WaterfallEditor from '../components/syndication/WaterfallEditor';
-import InvestorInvitations from '../components/syndication/InvestorInvitations';
+import { SyndicateManager } from '../components/enterprise/SyndicateManager';
+import { WaterfallEditor } from '../components/enterprise/WaterfallEditor';
+import { InvestorInvitations } from '../components/enterprise/InvestorInvitations';
 
 // Feature #7: Tax & Reporting Automation
 import TaxCenter from '../components/tax/TaxCenter';
@@ -293,8 +293,8 @@ const EnterprisePage: React.FC = () => {
                 ))}
               </div>
               {subTabs.syndication === 'manager' && <SyndicateManager />}
-              {subTabs.syndication === 'waterfall' && <WaterfallEditor syndicateId="demo" />}
-              {subTabs.syndication === 'invitations' && <InvestorInvitations syndicateId="demo" />}
+              {subTabs.syndication === 'waterfall' && <WaterfallEditor />}
+              {subTabs.syndication === 'invitations' && <InvestorInvitations />}
             </div>
           </div>
         )}
