@@ -1,13 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useStats } from '../contexts/StatsContext';
+import IntelligenceDashboard from '../components/investor/IntelligenceDashboard';
+import CashFlowProjections from '../components/investor/CashFlowProjections';
+import PortfolioAnalytics from '../components/investor/PortfolioAnalytics';
 
 const InvestorPage: React.FC = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('overview');
+  const [intelligenceSubTab, setIntelligenceSubTab] = useState('dashboard');
   const [defiData, setDefiData] = useState<any>(null);
   const [platformMetrics, setPlatformMetrics] = useState<any>(null);
   const { stats, loading: statsLoading, error: statsError } = useStats();
+  
+  const testInvestorId = 1;
 
   const investmentOptions = [
     {
@@ -191,6 +197,7 @@ const InvestorPage: React.FC = () => {
               { id: 'overview', label: 'Investment Overview', icon: '📊' },
               { id: 'opportunities', label: 'Opportunities', icon: '💰' },
               { id: 'analytics', label: 'Performance Analytics', icon: '📈' },
+              { id: 'intelligence', label: 'Intelligence Suite', icon: '🧠' },
               { id: 'calculator', label: 'ROI Calculator', icon: '🧮' },
               { id: 'risks', label: 'Risk Assessment', icon: '⚖️' },
               { id: 'process', label: 'How to Invest', icon: '🎯' }
@@ -462,6 +469,82 @@ const InvestorPage: React.FC = () => {
                     <div className="text-gray-600">Platform Status</div>
                     <div className="text-sm text-green-600 mt-1">Fully Operational</div>
                   </div>
+                </div>
+              </div>
+            )}
+
+            {/* Intelligence Suite Tab */}
+            {activeTab === 'intelligence' && (
+              <div>
+                <h2 className="text-4xl font-bold text-blue-900 mb-8 text-center">
+                  Investor Intelligence Suite
+                </h2>
+                <p className="text-lg text-gray-700 mb-8 text-center max-w-3xl mx-auto">
+                  Comprehensive analytics and predictive insights for data-driven investment decisions
+                </p>
+
+                {/* Sub-tabs for Intelligence components */}
+                <div className="flex flex-wrap justify-center mb-8 bg-gray-100 rounded-lg p-2">
+                  {[
+                    { id: 'dashboard', label: 'Portfolio Dashboard', icon: '📊' },
+                    { id: 'cashflow', label: 'Cash Flow Projections', icon: '💵' },
+                    { id: 'analytics', label: 'Portfolio Analytics', icon: '📈' }
+                  ].map((subTab) => (
+                    <button
+                      key={subTab.id}
+                      onClick={() => setIntelligenceSubTab(subTab.id)}
+                      className={`flex items-center space-x-2 px-4 py-2 rounded-md transition-all font-medium ${
+                        intelligenceSubTab === subTab.id 
+                          ? 'bg-blue-600 text-white shadow-md' 
+                          : 'text-blue-600 hover:bg-blue-100'
+                      }`}
+                    >
+                      <span>{subTab.icon}</span>
+                      <span className="hidden sm:inline">{subTab.label}</span>
+                    </button>
+                  ))}
+                </div>
+
+                {/* Intelligence Component Content */}
+                <div className="mt-8">
+                  {intelligenceSubTab === 'dashboard' && (
+                    <IntelligenceDashboard investorId={testInvestorId} />
+                  )}
+
+                  {intelligenceSubTab === 'cashflow' && (
+                    <CashFlowProjections investorId={testInvestorId} />
+                  )}
+
+                  {intelligenceSubTab === 'analytics' && (
+                    <PortfolioAnalytics investorId={testInvestorId} />
+                  )}
+                </div>
+
+                {/* Information Notice */}
+                <div className="mt-8 bg-blue-50 border border-blue-200 rounded-lg p-6">
+                  <h4 className="text-lg font-semibold text-blue-900 mb-3">About Intelligence Suite</h4>
+                  <p className="text-blue-800 mb-3">
+                    The Intelligence Suite provides institutional-grade analytics powered by predictive algorithms and real-time data. 
+                    Features include:
+                  </p>
+                  <ul className="text-blue-800 space-y-2">
+                    <li className="flex items-start">
+                      <span className="text-blue-600 mr-2">•</span>
+                      <span><strong>12-Month Cash Flow Projections</strong> - Predictive modeling with confidence levels</span>
+                    </li>
+                    <li className="flex items-start">
+                      <span className="text-blue-600 mr-2">•</span>
+                      <span><strong>Portfolio Risk Assessment</strong> - Real-time risk scoring and diversification analysis</span>
+                    </li>
+                    <li className="flex items-start">
+                      <span className="text-blue-600 mr-2">•</span>
+                      <span><strong>Performance Benchmarking</strong> - Compare your returns against platform averages and cohorts</span>
+                    </li>
+                    <li className="flex items-start">
+                      <span className="text-blue-600 mr-2">•</span>
+                      <span><strong>Investor Cohort Analysis</strong> - See how similar investors are performing</span>
+                    </li>
+                  </ul>
                 </div>
               </div>
             )}
