@@ -87,6 +87,56 @@ router.get('/syndicates/:syndicateId', async (req, res) => {
   }
 });
 
+router.put('/syndicates/:syndicateId', async (req, res) => {
+  try {
+    const { syndicateId } = req.params;
+    const { syndicate_name, minimum_commitment, maximum_commitment, visibility, description } = req.body;
+    
+    const updates = [];
+    const values = [];
+    let paramCount = 1;
+
+    if (syndicate_name !== undefined) {
+      updates.push(`syndicate_name = $${paramCount++}`);
+      values.push(syndicate_name);
+    }
+    if (minimum_commitment !== undefined) {
+      updates.push(`minimum_commitment = $${paramCount++}`);
+      values.push(minimum_commitment);
+    }
+    if (maximum_commitment !== undefined) {
+      updates.push(`maximum_commitment = $${paramCount++}`);
+      values.push(maximum_commitment);
+    }
+    if (visibility !== undefined) {
+      updates.push(`visibility = $${paramCount++}`);
+      values.push(visibility);
+    }
+    if (description !== undefined) {
+      updates.push(`description = $${paramCount++}`);
+      values.push(description);
+    }
+
+    if (updates.length === 0) {
+      return res.status(400).json({ error: 'No fields to update' });
+    }
+
+    values.push(syndicateId);
+    const query = `UPDATE syndicates SET ${updates.join(', ')}, updated_at = NOW() WHERE syndicate_id = $${paramCount} RETURNING *`;
+
+    const result = await pool.query(query, values);
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Syndicate not found' });
+    }
+
+    res.json({ success: true, syndicate: result.rows[0] });
+  } catch (error) {
+    console.error('Update syndicate error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 router.put('/syndicates/:syndicateId/status', async (req, res) => {
   try {
     const { syndicateId } = req.params;
@@ -107,6 +157,33 @@ router.put('/syndicates/:syndicateId/status', async (req, res) => {
 
     res.json({ success: true, syndicate: result.rows[0] });
   } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+router.delete('/syndicates/:syndicateId', async (req, res) => {
+  try {
+    const { syndicateId } = req.params;
+    
+    // Delete related data first (cascade)
+    await pool.query('DELETE FROM syndicate_invitations WHERE syndicate_id = $1', [syndicateId]);
+    await pool.query('DELETE FROM waterfall_tiers WHERE syndicate_id = $1', [syndicateId]);
+    await pool.query('DELETE FROM syndicate_members WHERE syndicate_id = $1', [syndicateId]);
+    await pool.query('DELETE FROM syndicate_fees WHERE syndicate_id = $1', [syndicateId]);
+    
+    // Delete the syndicate itself
+    const result = await pool.query(
+      'DELETE FROM syndicates WHERE syndicate_id = $1 RETURNING *',
+      [syndicateId]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Syndicate not found' });
+    }
+
+    res.json({ success: true, deleted: result.rows[0] });
+  } catch (error) {
+    console.error('Delete syndicate error:', error);
     res.status(500).json({ error: error.message });
   }
 });

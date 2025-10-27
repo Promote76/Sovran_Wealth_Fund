@@ -303,11 +303,19 @@ const OverviewTab: React.FC<{ syndicate: Syndicate; metrics: any; investors: Inv
 
 // Investors Tab Component
 const InvestorsTab: React.FC<{ investors: Investor[]; syndicateId: string; onRefresh: () => void }> = ({ investors, syndicateId, onRefresh }) => {
+  const handleInviteInvestor = () => {
+    // Navigate to Enterprise page, Syndication tab, Investor Invitations section
+    window.location.hash = '#/enterprise?tab=syndication&section=invitations&syndicateId=' + syndicateId;
+  };
+
   return (
     <div className="space-y-4">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
         <h3 className="text-lg font-semibold text-gray-900">Investor Management</h3>
-        <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition whitespace-nowrap">
+        <button 
+          onClick={handleInviteInvestor}
+          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition whitespace-nowrap"
+        >
           + Invite New Investor
         </button>
       </div>
@@ -426,7 +434,12 @@ const WaterfallTab: React.FC<{ tiers: WaterfallTier[]; syndicateId: string }> = 
 };
 
 // Distributions Tab Component
-const DistributionsTab: React.FC<{ syndicateId: string }> = () => {
+const DistributionsTab: React.FC<{ syndicateId: string }> = ({ syndicateId }) => {
+  const handleCreateDistribution = () => {
+    // Navigate to distribution creation - could be a new route or modal
+    alert(`Distribution creation coming soon!\n\nSyndicate ID: ${syndicateId}\n\nThis will allow you to:\n• Set distribution amount\n• Configure per-tier allocations\n• Schedule payment dates\n• Track distribution status`);
+  };
+
   return (
     <div className="space-y-4">
       <h3 className="text-lg font-semibold text-gray-900">Distribution History</h3>
@@ -434,7 +447,10 @@ const DistributionsTab: React.FC<{ syndicateId: string }> = () => {
       <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 text-center">
         <p className="text-blue-800 font-medium">💰 No distributions made yet</p>
         <p className="text-sm text-blue-600 mt-2">Distributions will appear here once deals close and profits are distributed</p>
-        <button className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+        <button 
+          onClick={handleCreateDistribution}
+          className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+        >
           Create Distribution
         </button>
       </div>
@@ -462,7 +478,70 @@ const PerformanceTab: React.FC<{ syndicate: Syndicate; metrics: any }> = ({ metr
 };
 
 // Settings Tab Component
-const SettingsTab: React.FC<{ syndicate: Syndicate; onRefresh: () => void }> = ({ syndicate }) => {
+const SettingsTab: React.FC<{ syndicate: Syndicate; onRefresh: () => void }> = ({ syndicate, onRefresh }) => {
+  const [formData, setFormData] = React.useState({
+    syndicate_name: syndicate.syndicate_name,
+    minimum_commitment: syndicate.minimum_commitment,
+    maximum_commitment: syndicate.maximum_commitment,
+    visibility: syndicate.visibility
+  });
+  const [saving, setSaving] = React.useState(false);
+
+  const handleSaveChanges = async () => {
+    setSaving(true);
+    try {
+      const response = await fetch(`/api/syndication/syndicates/${syndicate.syndicate_id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData)
+      });
+
+      const data = await response.json();
+      
+      if (data.success) {
+        alert('✅ Syndicate settings saved successfully!');
+        onRefresh(); // Reload syndicate data
+      } else {
+        alert('❌ Failed to save: ' + (data.error || 'Unknown error'));
+      }
+    } catch (error: any) {
+      alert('❌ Error saving settings: ' + error.message);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleDeleteSyndicate = async () => {
+    const confirmed = window.confirm(
+      `⚠️ DELETE SYNDICATE?\n\nAre you sure you want to delete "${syndicate.syndicate_name}"?\n\nThis will:\n• Remove the syndicate\n• Remove all invitations\n• Remove waterfall configurations\n\nThis action CANNOT be undone!`
+    );
+
+    if (!confirmed) return;
+
+    const doubleConfirm = window.confirm(
+      '⚠️ FINAL CONFIRMATION\n\nType the syndicate name to confirm deletion.\n\nExpected: ' + syndicate.syndicate_name
+    );
+
+    if (!doubleConfirm) return;
+
+    try {
+      const response = await fetch(`/api/syndication/syndicates/${syndicate.syndicate_id}`, {
+        method: 'DELETE'
+      });
+
+      const data = await response.json();
+      
+      if (data.success) {
+        alert('✅ Syndicate deleted successfully!');
+        window.location.hash = '#/enterprise?tab=syndication&section=manager';
+      } else {
+        alert('❌ Failed to delete: ' + (data.error || 'Unknown error'));
+      }
+    } catch (error: any) {
+      alert('❌ Error deleting syndicate: ' + error.message);
+    }
+  };
+
   return (
     <div className="space-y-4">
       <h3 className="text-lg font-semibold text-gray-900">Syndicate Settings</h3>
@@ -472,25 +551,28 @@ const SettingsTab: React.FC<{ syndicate: Syndicate; onRefresh: () => void }> = (
           <label className="block text-sm font-medium text-gray-700 mb-1">Syndicate Name</label>
           <input
             type="text"
-            defaultValue={syndicate.syndicate_name}
+            value={formData.syndicate_name}
+            onChange={(e) => setFormData({ ...formData, syndicate_name: e.target.value })}
             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
           />
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Minimum Commitment</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Minimum Commitment ($)</label>
             <input
               type="number"
-              defaultValue={syndicate.minimum_commitment}
+              value={formData.minimum_commitment}
+              onChange={(e) => setFormData({ ...formData, minimum_commitment: e.target.value })}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Maximum Commitment</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Maximum Commitment ($)</label>
             <input
               type="number"
-              defaultValue={syndicate.maximum_commitment}
+              value={formData.maximum_commitment}
+              onChange={(e) => setFormData({ ...formData, maximum_commitment: e.target.value })}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
             />
           </div>
@@ -499,7 +581,8 @@ const SettingsTab: React.FC<{ syndicate: Syndicate; onRefresh: () => void }> = (
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">Visibility</label>
           <select
-            defaultValue={syndicate.visibility}
+            value={formData.visibility}
+            onChange={(e) => setFormData({ ...formData, visibility: e.target.value })}
             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
           >
             <option value="private">Private - Invite Only</option>
@@ -507,11 +590,18 @@ const SettingsTab: React.FC<{ syndicate: Syndicate; onRefresh: () => void }> = (
           </select>
         </div>
 
-        <div className="flex gap-3 pt-4">
-          <button className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
-            Save Changes
+        <div className="flex flex-col sm:flex-row gap-3 pt-4">
+          <button 
+            onClick={handleSaveChanges}
+            disabled={saving}
+            className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {saving ? 'Saving...' : 'Save Changes'}
           </button>
-          <button className="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition">
+          <button 
+            onClick={handleDeleteSyndicate}
+            className="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition"
+          >
             Delete Syndicate
           </button>
         </div>
