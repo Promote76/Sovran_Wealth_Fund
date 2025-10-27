@@ -41,6 +41,24 @@ A complete wholesale real estate deal management system. It includes a parsing e
 ### Marketing Hub
 Expanded with an AI-powered Social Media Post Generator that analyzes the entire platform and supports 5 social media platforms with platform-specific formatting. It includes a custom instructions field for detailed AI direction. The hub also contains professional video scripts and an AI-powered script generator with customizable templates.
 
+### Liquidity & Redemption Desk (Secondary Market) - IN DEVELOPMENT
+**Status**: Database schema complete, core service implemented
+A managed secondary market system enabling investors to trade fractional property shares before the 6-month lockup expires. Features include:
+- **Order Book System**: Price-time priority matching algorithm for buy/sell orders
+- **Treasury Liquidity Pool**: Platform-managed liquidity to ensure market depth
+- **Compliance Engine**: Automated lockup period verification, ownership cap enforcement (25% max), and KYC/AML checks
+- **Fee Structure**: 2% platform fee on transactions with automated collection
+- **Database Tables**: 
+  - `liquidity_orders` - Buy/sell order management
+  - `order_matches` - Transaction matching and settlement tracking
+  - `treasury_ledger` - Treasury operations and cash management
+  - `compliance_holds` - Share lockup and regulatory holds
+  - `fee_ledger` - Fee collection and revenue tracking
+  - `liquidity_pool_config` - Treasury configuration and rebalancing rules
+- **Matching Algorithm**: Automatically matches orders based on price-time priority, with treasury fallback for unmatched sell orders
+- **Settlement Methods**: Stripe integration for fiat settlements, blockchain support for on-chain transfers
+- **Revenue Stream**: Generates platform fees from secondary market trading volume
+
 ## External Dependencies
 
 ### Blockchain Services
