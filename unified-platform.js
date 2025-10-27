@@ -844,6 +844,13 @@ const liquidityRouter = require('./server/routes/liquidity');
 app.use('/api/liquidity', liquidityRouter);
 console.log('✅ Liquidity & Redemption Desk API enabled at /api/liquidity/*');
 
+// ========================================
+// COMPLIANCE ORCHESTRATOR API
+// ========================================
+const complianceRouter = require('./server/routes/compliance');
+app.use('/api/compliance', complianceRouter);
+console.log('✅ Smart Compliance Orchestrator API enabled at /api/compliance/*');
+
 console.log('✅ New contract routers mounted: KeyGrow, Real Estate Investor, NFT Marketplace, Advanced Staking, Revenue Router, Basket Index, Dynamic APR, Liquidity Vault, PancakeSwap Pools, Axiom Prime, Stripe Payments');
 
 // ========================================
