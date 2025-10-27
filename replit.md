@@ -39,7 +39,11 @@ A comprehensive fractional ownership platform that combines database-backed inve
 A complete wholesale real estate deal management system. It includes a parsing engine for property details, an enrichment service (geocoding, property facts, market data, neighborhood scoring), and an ML prediction engine for repair costs, rent, appreciation, and ROI. Analysis modules provide profitability and RTO suitability. A Deal Management API and Automation Webhooks are provided. A Public Marketplace (`/deals`) allows filtering and searching of investment opportunities and RTO-ready properties. This system integrates Attom Data API, automated tests, email notifications, investor matching, and contract generation.
 
 ### Marketing Hub
-Expanded with an AI-powered Social Media Post Generator that analyzes the entire platform and supports 5 social media platforms with platform-specific formatting. It includes a custom instructions field for detailed AI direction. The hub also contains professional video scripts and an AI-powered script generator with customizable templates.
+Expanded with AI-powered content generation tools:
+1. **Social Media Post Generator**: Analyzes entire platform, supports 5 social media platforms with platform-specific formatting and custom instructions.
+2. **Video Script Generator**: AI-powered script creation with customizable templates for various video types.
+3. **Script Library**: Professional pre-written video marketing scripts.
+4. **Manuscript Generator**: AI-powered 25-300 page manuscript and technical manual generator that scans the entire codebase (contracts, components, APIs, databases) to create Gold Standard professional documentation on any subject with flexible length, audience targeting, and export options.
 
 ### Enterprise Feature Foundations (2025 Roadmap)
 **Status**: 8 of 8 features complete (100%) - ALL FEATURES PRODUCTION-READY ✅
