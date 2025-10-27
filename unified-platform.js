@@ -865,6 +865,13 @@ const riskSentinelRouter = require('./server/routes/riskSentinel');
 app.use('/api/risk-sentinel', riskSentinelRouter);
 console.log('✅ Property Risk Sentinel API enabled at /api/risk-sentinel/*');
 
+// ========================================
+// CO-INVESTMENT SYNDICATION PORTAL API
+// ========================================
+const syndicationRouter = require('./server/routes/syndication');
+app.use('/api/syndication', syndicationRouter);
+console.log('✅ Co-Investment Syndication Portal API enabled at /api/syndication/*');
+
 console.log('✅ New contract routers mounted: KeyGrow, Real Estate Investor, NFT Marketplace, Advanced Staking, Revenue Router, Basket Index, Dynamic APR, Liquidity Vault, PancakeSwap Pools, Axiom Prime, Stripe Payments');
 
 // ========================================
