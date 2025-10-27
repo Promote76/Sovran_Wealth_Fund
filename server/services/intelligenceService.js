@@ -272,6 +272,272 @@ class IntelligenceService {
       return 'Higher risk - consider diversifying';
     }
   }
+
+  async listCashFlowProjections(filters = {}) {
+    const client = await this.pool.connect();
+    
+    try {
+      const conditions = ['1=1'];
+      const params = [];
+      let paramCount = 0;
+      
+      if (filters.propertyId) {
+        paramCount++;
+        conditions.push(`property_id = $${paramCount}`);
+        params.push(filters.propertyId);
+      }
+      
+      if (filters.investorId) {
+        paramCount++;
+        conditions.push(`investor_id = $${paramCount}`);
+        params.push(filters.investorId);
+      }
+      
+      paramCount++;
+      params.push(filters.limit || 10);
+      
+      const result = await client.query(
+        `SELECT cfp.*, fp.deal_id, d.parsed->>'address' as property_address
+         FROM cash_flow_projections cfp
+         LEFT JOIN fractional_properties fp ON cfp.property_id = fp.id
+         LEFT JOIN deals d ON fp.deal_id = d.id
+         WHERE ${conditions.join(' AND ')}
+         ORDER BY cfp.created_at DESC
+         LIMIT $${paramCount}`,
+        params
+      );
+      
+      return result.rows;
+      
+    } finally {
+      client.release();
+    }
+  }
+
+  async getPortfolioHistory(investorId, limit = 30) {
+    const client = await this.pool.connect();
+    
+    try {
+      const result = await client.query(
+        `SELECT * FROM portfolio_analytics
+         WHERE investor_id = $1
+         ORDER BY snapshot_date DESC
+         LIMIT $2`,
+        [investorId, limit]
+      );
+      
+      return result.rows;
+      
+    } finally {
+      client.release();
+    }
+  }
+
+  async createBenchmark(benchmarkData) {
+    const client = await this.pool.connect();
+    
+    try {
+      const benchmarkId = uuidv4();
+      
+      const result = await client.query(
+        `INSERT INTO performance_benchmarks (
+          benchmark_id, benchmark_type, benchmark_name,
+          period_start, period_end, average_roi, average_cash_yield,
+          average_appreciation, median_roi, total_properties,
+          total_investors, total_volume, metadata, data_source
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
+        RETURNING *`,
+        [
+          benchmarkId,
+          benchmarkData.benchmarkType,
+          benchmarkData.benchmarkName,
+          benchmarkData.periodStart,
+          benchmarkData.periodEnd,
+          benchmarkData.averageRoi,
+          benchmarkData.averageCashYield,
+          benchmarkData.averageAppreciation,
+          benchmarkData.medianRoi,
+          benchmarkData.totalProperties,
+          benchmarkData.totalInvestors,
+          benchmarkData.totalVolume,
+          benchmarkData.metadata ? JSON.stringify(benchmarkData.metadata) : null,
+          benchmarkData.dataSource
+        ]
+      );
+      
+      return result.rows[0];
+      
+    } finally {
+      client.release();
+    }
+  }
+
+  async listCohorts(filters = {}) {
+    const client = await this.pool.connect();
+    
+    try {
+      const conditions = ['1=1'];
+      const params = [];
+      let paramCount = 0;
+      
+      if (filters.cohortType) {
+        paramCount++;
+        conditions.push(`cohort_type = $${paramCount}`);
+        params.push(filters.cohortType);
+      }
+      
+      if (filters.isActive !== undefined) {
+        paramCount++;
+        conditions.push(`is_active = $${paramCount}`);
+        params.push(filters.isActive);
+      }
+      
+      const result = await client.query(
+        `SELECT * FROM investor_cohorts
+         WHERE ${conditions.join(' AND ')}
+         ORDER BY member_count DESC`,
+        params
+      );
+      
+      return result.rows;
+      
+    } finally {
+      client.release();
+    }
+  }
+
+  async createRiskAssessment(assessmentData) {
+    const client = await this.pool.connect();
+    
+    try {
+      const assessmentId = uuidv4();
+      const validUntil = new Date(Date.now() + 90 * 24 * 60 * 60 * 1000);
+      
+      const result = await client.query(
+        `INSERT INTO risk_assessments (
+          assessment_id, property_id, investor_id, assessment_type,
+          risk_level, risk_score, risk_factors, mitigation_strategies,
+          valid_until
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+        RETURNING *`,
+        [
+          assessmentId,
+          assessmentData.propertyId || null,
+          assessmentData.investorId || null,
+          assessmentData.assessmentType,
+          assessmentData.riskLevel,
+          assessmentData.riskScore,
+          JSON.stringify(assessmentData.riskFactors),
+          assessmentData.mitigationStrategies ? JSON.stringify(assessmentData.mitigationStrategies) : null,
+          validUntil
+        ]
+      );
+      
+      return result.rows[0];
+      
+    } finally {
+      client.release();
+    }
+  }
+
+  async listRiskAssessments(filters = {}) {
+    const client = await this.pool.connect();
+    
+    try {
+      const conditions = ['1=1'];
+      const params = [];
+      let paramCount = 0;
+      
+      if (filters.propertyId) {
+        paramCount++;
+        conditions.push(`property_id = $${paramCount}`);
+        params.push(filters.propertyId);
+      }
+      
+      if (filters.investorId) {
+        paramCount++;
+        conditions.push(`investor_id = $${paramCount}`);
+        params.push(filters.investorId);
+      }
+      
+      if (filters.assessmentType) {
+        paramCount++;
+        conditions.push(`assessment_type = $${paramCount}`);
+        params.push(filters.assessmentType);
+      }
+      
+      if (filters.riskLevel) {
+        paramCount++;
+        conditions.push(`risk_level = $${paramCount}`);
+        params.push(filters.riskLevel);
+      }
+      
+      paramCount++;
+      params.push(filters.limit || 20);
+      
+      const result = await client.query(
+        `SELECT * FROM risk_assessments
+         WHERE ${conditions.join(' AND ')}
+         ORDER BY assessed_at DESC
+         LIMIT $${paramCount}`,
+        params
+      );
+      
+      return result.rows;
+      
+    } finally {
+      client.release();
+    }
+  }
+
+  async getDashboardData(investorId) {
+    const client = await this.pool.connect();
+    
+    try {
+      const latestAnalytics = await client.query(
+        `SELECT * FROM portfolio_analytics
+         WHERE investor_id = $1
+         ORDER BY snapshot_date DESC
+         LIMIT 1`,
+        [investorId]
+      );
+      
+      const recentProjections = await client.query(
+        `SELECT cfp.*, fp.deal_id, d.parsed->>'address' as property_address
+         FROM cash_flow_projections cfp
+         LEFT JOIN fractional_properties fp ON cfp.property_id = fp.id
+         LEFT JOIN deals d ON fp.deal_id = d.id
+         WHERE cfp.investor_id = $1
+         ORDER BY cfp.created_at DESC
+         LIMIT 5`,
+        [investorId]
+      );
+      
+      const riskAssessments = await client.query(
+        `SELECT * FROM risk_assessments
+         WHERE investor_id = $1 AND assessment_type = 'portfolio_risk'
+         ORDER BY assessed_at DESC
+         LIMIT 1`,
+        [investorId]
+      );
+      
+      const platformBenchmark = await this.getPerformanceBenchmarks('platform_average');
+      
+      return {
+        analytics: latestAnalytics.rows[0] || null,
+        projections: recentProjections.rows,
+        riskAssessment: riskAssessments.rows[0] || null,
+        benchmark: platformBenchmark,
+        insights: {
+          diversificationRecommendation: this.getDiversificationRecommendation(latestAnalytics.rows[0]),
+          riskAssessment: this.getRiskAssessment(latestAnalytics.rows[0])
+        }
+      };
+      
+    } finally {
+      client.release();
+    }
+  }
 }
 
 module.exports = new IntelligenceService();

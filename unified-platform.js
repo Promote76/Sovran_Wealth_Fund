@@ -851,6 +851,13 @@ const complianceRouter = require('./server/routes/compliance');
 app.use('/api/compliance', complianceRouter);
 console.log('✅ Smart Compliance Orchestrator API enabled at /api/compliance/*');
 
+// ========================================
+// INVESTOR INTELLIGENCE SUITE API
+// ========================================
+const intelligenceRouter = require('./server/routes/intelligence');
+app.use('/api/intelligence', intelligenceRouter);
+console.log('✅ Investor Intelligence Suite API enabled at /api/intelligence/*');
+
 console.log('✅ New contract routers mounted: KeyGrow, Real Estate Investor, NFT Marketplace, Advanced Staking, Revenue Router, Basket Index, Dynamic APR, Liquidity Vault, PancakeSwap Pools, Axiom Prime, Stripe Payments');
 
 // ========================================
