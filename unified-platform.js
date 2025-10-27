@@ -13,6 +13,9 @@ require('dotenv').config();
 const PriceOracleService = require('./server/services/priceOracleService');
 const priceOracle = new PriceOracleService();
 
+// Revenue Distribution Engine Service
+const revenueEngineService = require('./server/services/revenueEngineService');
+
 // Database imports - WebSocket mode for transaction support
 const { drizzle } = require('drizzle-orm/neon-serverless');
 const { Pool, neonConfig } = require('@neondatabase/serverless');
@@ -835,6 +838,223 @@ app.use('/api/fractional', fractionalOwnershipRouter);
 console.log('✅ Fractional Real Estate Ownership enabled and mounted at /api/fractional');
 
 console.log('✅ New contract routers mounted: KeyGrow, Real Estate Investor, NFT Marketplace, Advanced Staking, Revenue Router, Basket Index, Dynamic APR, Liquidity Vault, PancakeSwap Pools, Axiom Prime, Stripe Payments');
+
+// ========================================
+// REVENUE DISTRIBUTION ENGINE API
+// ========================================
+
+app.post('/api/revenue/distribute', authenticateWallet, async (req, res) => {
+  try {
+    const { propertyId, totalRevenue, distributionMonth } = req.body;
+    
+    if (!propertyId || !totalRevenue) {
+      return res.status(400).json({ 
+        success: false, 
+        error: 'Property ID and total revenue are required' 
+      });
+    }
+
+    const result = await revenueEngineService.processRentalDistribution(
+      propertyId,
+      parseFloat(totalRevenue),
+      distributionMonth || new Date().toISOString().split('T')[0]
+    );
+
+    res.json(result);
+  } catch (error) {
+    console.error('Revenue distribution error:', error);
+    res.status(500).json({ 
+      success: false, 
+      error: error.message 
+    });
+  }
+});
+
+app.post('/api/revenue/execute-payout', authenticateWallet, async (req, res) => {
+  try {
+    const { batchId } = req.body;
+    
+    if (!batchId) {
+      return res.status(400).json({ 
+        success: false, 
+        error: 'Batch ID is required' 
+      });
+    }
+
+    const result = await revenueEngineService.executeStripePayout(batchId);
+
+    res.json(result);
+  } catch (error) {
+    console.error('Stripe payout execution error:', error);
+    res.status(500).json({ 
+      success: false, 
+      error: error.message 
+    });
+  }
+});
+
+app.post('/api/revenue/stripe/setup', authenticateWallet, async (req, res) => {
+  try {
+    const { email, firstName, lastName } = req.body;
+    
+    if (!email || !firstName || !lastName) {
+      return res.status(400).json({ 
+        success: false, 
+        error: 'Email, first name, and last name are required' 
+      });
+    }
+
+    const result = await revenueEngineService.setupStripeConnect(
+      req.userId,
+      email,
+      firstName,
+      lastName
+    );
+
+    res.json(result);
+  } catch (error) {
+    console.error('Stripe setup error:', error);
+    res.status(500).json({ 
+      success: false, 
+      error: error.message 
+    });
+  }
+});
+
+app.post('/api/revenue/stripe/onboarding', authenticateWallet, async (req, res) => {
+  try {
+    const baseUrl = `${req.protocol}://${req.get('host')}`;
+    const refreshUrl = `${baseUrl}/stripe/onboarding`;
+    const returnUrl = `${baseUrl}/dashboard?stripe=success`;
+
+    const result = await revenueEngineService.createOnboardingLink(
+      req.userId,
+      refreshUrl,
+      returnUrl
+    );
+
+    res.json(result);
+  } catch (error) {
+    console.error('Onboarding link error:', error);
+    res.status(500).json({ 
+      success: false, 
+      error: error.message 
+    });
+  }
+});
+
+app.post('/api/revenue/stripe/update-status', authenticateWallet, async (req, res) => {
+  try {
+    const result = await revenueEngineService.updateStripeAccountStatus(req.userId);
+    res.json(result);
+  } catch (error) {
+    console.error('Stripe status update error:', error);
+    res.status(500).json({ 
+      success: false, 
+      error: error.message 
+    });
+  }
+});
+
+app.get('/api/revenue/payouts', authenticateWallet, async (req, res) => {
+  try {
+    const limit = parseInt(req.query.limit) || 20;
+    const payouts = await revenueEngineService.getInvestorPayouts(req.userId, limit);
+    
+    res.json({ 
+      success: true, 
+      payouts 
+    });
+  } catch (error) {
+    console.error('Get payouts error:', error);
+    res.status(500).json({ 
+      success: false, 
+      error: error.message 
+    });
+  }
+});
+
+app.get('/api/revenue/batches', authenticateWallet, async (req, res) => {
+  try {
+    const status = req.query.status || null;
+    const limit = parseInt(req.query.limit) || 50;
+    
+    const batches = await revenueEngineService.getAllPayoutBatches(status, limit);
+    
+    res.json({ 
+      success: true, 
+      batches 
+    });
+  } catch (error) {
+    console.error('Get batches error:', error);
+    res.status(500).json({ 
+      success: false, 
+      error: error.message 
+    });
+  }
+});
+
+app.get('/api/revenue/analytics/:propertyId', authenticateWallet, async (req, res) => {
+  try {
+    const { propertyId } = req.params;
+    const { startDate, endDate } = req.query;
+    
+    if (!startDate || !endDate) {
+      return res.status(400).json({ 
+        success: false, 
+        error: 'Start date and end date are required' 
+      });
+    }
+
+    const analytics = await revenueEngineService.getRevenueAnalytics(
+      parseInt(propertyId),
+      startDate,
+      endDate
+    );
+    
+    res.json({ 
+      success: true, 
+      analytics 
+    });
+  } catch (error) {
+    console.error('Get analytics error:', error);
+    res.status(500).json({ 
+      success: false, 
+      error: error.message 
+    });
+  }
+});
+
+app.post('/api/revenue/policy/create', authenticateWallet, async (req, res) => {
+  try {
+    const { propertyId, policyConfig } = req.body;
+    
+    if (!propertyId || !policyConfig) {
+      return res.status(400).json({ 
+        success: false, 
+        error: 'Property ID and policy configuration are required' 
+      });
+    }
+
+    const policy = await revenueEngineService.createDistributionPolicy(
+      propertyId,
+      policyConfig
+    );
+    
+    res.json({ 
+      success: true, 
+      policy 
+    });
+  } catch (error) {
+    console.error('Create policy error:', error);
+    res.status(500).json({ 
+      success: false, 
+      error: error.message 
+    });
+  }
+});
+
+console.log('✅ Revenue Distribution Engine API enabled at /api/revenue/*');
 
 // ========================================
 // SAVINGS ACCOUNT API ENDPOINTS
