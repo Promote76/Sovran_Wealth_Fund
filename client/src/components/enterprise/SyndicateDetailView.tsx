@@ -116,26 +116,27 @@ export const SyndicateDetailView: React.FC<SyndicateDetailViewProps> = ({ syndic
   const metrics = calculateMetrics();
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 overflow-y-auto">
-      <div className="bg-white rounded-lg shadow-2xl w-full max-w-6xl my-8">
+    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4" onClick={onClose}>
+      <div className="bg-white rounded-lg shadow-2xl w-full max-w-6xl max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
         {/* Header */}
         <div className="bg-gradient-to-r from-blue-600 to-blue-700 text-white p-6 rounded-t-lg">
           <div className="flex justify-between items-start">
-            <div>
-              <h2 className="text-2xl font-bold">{syndicate.syndicate_name}</h2>
-              <p className="text-blue-100 mt-1">Syndicate ID: {syndicate.syndicate_id}</p>
-              <div className="flex gap-3 mt-3">
-                <span className="px-3 py-1 bg-blue-500 bg-opacity-50 rounded-full text-sm">
+            <div className="flex-1 pr-4">
+              <h2 className="text-2xl font-bold break-words">{syndicate.syndicate_name}</h2>
+              <p className="text-blue-100 mt-1 text-sm break-all">Syndicate ID: {syndicate.syndicate_id}</p>
+              <div className="flex flex-wrap gap-2 mt-3">
+                <span className="px-3 py-1 bg-blue-500 bg-opacity-50 rounded-full text-xs font-medium">
                   {syndicate.syndicate_type.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
                 </span>
-                <span className="px-3 py-1 bg-green-500 bg-opacity-50 rounded-full text-sm">
+                <span className="px-3 py-1 bg-green-500 bg-opacity-50 rounded-full text-xs font-medium">
                   {syndicate.visibility === 'private' ? '🔒 Private' : '🌐 Public'}
                 </span>
               </div>
             </div>
             <button
               onClick={onClose}
-              className="text-white hover:text-gray-200 text-2xl font-bold"
+              className="text-white hover:text-gray-200 text-2xl font-bold flex-shrink-0 w-8 h-8 flex items-center justify-center"
+              aria-label="Close"
             >
               ✕
             </button>
@@ -144,19 +145,19 @@ export const SyndicateDetailView: React.FC<SyndicateDetailViewProps> = ({ syndic
 
         {/* Tabs */}
         <div className="border-b border-gray-200 bg-gray-50">
-          <nav className="flex space-x-8 px-6" aria-label="Tabs">
+          <nav className="flex overflow-x-auto px-6 scrollbar-hide" aria-label="Tabs">
             {[
-              { id: 'overview', label: '📊 Overview', icon: '📊' },
-              { id: 'investors', label: '👥 Investors', icon: '👥' },
-              { id: 'waterfall', label: '💧 Waterfall', icon: '💧' },
-              { id: 'distributions', label: '💰 Distributions', icon: '💰' },
-              { id: 'performance', label: '📈 Performance', icon: '📈' },
-              { id: 'settings', label: '⚙️ Settings', icon: '⚙️' }
+              { id: 'overview', label: '📊 Overview' },
+              { id: 'investors', label: '👥 Investors' },
+              { id: 'waterfall', label: '💧 Waterfall' },
+              { id: 'distributions', label: '💰 Distributions' },
+              { id: 'performance', label: '📈 Performance' },
+              { id: 'settings', label: '⚙️ Settings' }
             ].map(tab => (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id as any)}
-                className={`py-4 px-1 border-b-2 font-medium text-sm transition ${
+                className={`py-4 px-3 border-b-2 font-medium text-sm transition whitespace-nowrap ${
                   activeTab === tab.id
                     ? 'border-blue-500 text-blue-600'
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
@@ -169,7 +170,7 @@ export const SyndicateDetailView: React.FC<SyndicateDetailViewProps> = ({ syndic
         </div>
 
         {/* Content */}
-        <div className="p-6 max-h-[600px] overflow-y-auto">
+        <div className="p-4 md:p-6">
           {activeTab === 'overview' && (
             <OverviewTab syndicate={syndicate} metrics={metrics} investors={investors} />
           )}
@@ -304,15 +305,21 @@ const OverviewTab: React.FC<{ syndicate: Syndicate; metrics: any; investors: Inv
 const InvestorsTab: React.FC<{ investors: Investor[]; syndicateId: string; onRefresh: () => void }> = ({ investors, syndicateId, onRefresh }) => {
   return (
     <div className="space-y-4">
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
         <h3 className="text-lg font-semibold text-gray-900">Investor Management</h3>
-        <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+        <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition whitespace-nowrap">
           + Invite New Investor
         </button>
       </div>
 
-      <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
-        <table className="min-w-full divide-y divide-gray-200">
+      {investors.length === 0 ? (
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-8 text-center">
+          <p className="text-blue-800 font-medium">No investors yet</p>
+          <p className="text-sm text-blue-600 mt-2">Send invitations to get started building your syndicate</p>
+        </div>
+      ) : (
+        <div className="bg-white border border-gray-200 rounded-lg overflow-x-auto">
+          <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Investor</th>
@@ -358,7 +365,8 @@ const InvestorsTab: React.FC<{ investors: Investor[]; syndicateId: string; onRef
             ))}
           </tbody>
         </table>
-      </div>
+        </div>
+      )}
     </div>
   );
 };
@@ -369,9 +377,9 @@ const WaterfallTab: React.FC<{ tiers: WaterfallTier[]; syndicateId: string }> = 
   
   return (
     <div className="space-y-4">
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
         <h3 className="text-lg font-semibold text-gray-900">Waterfall Distribution Structure</h3>
-        <div className={`px-4 py-2 rounded-lg font-semibold ${
+        <div className={`px-4 py-2 rounded-lg font-semibold text-sm ${
           totalAllocation === 100 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
         }`}>
           Total: {totalAllocation}%
@@ -387,25 +395,25 @@ const WaterfallTab: React.FC<{ tiers: WaterfallTier[]; syndicateId: string }> = 
         <div className="space-y-3">
           {tiers.map((tier, index) => (
             <div key={tier.tier_id} className="bg-white border-2 border-gray-200 rounded-lg p-4">
-              <div className="flex items-start justify-between mb-3">
-                <div>
-                  <div className="flex items-center gap-2">
+              <div className="flex flex-col sm:flex-row items-start justify-between gap-3 mb-3">
+                <div className="flex-1">
+                  <div className="flex flex-wrap items-center gap-2">
                     <span className="px-3 py-1 bg-blue-600 text-white rounded-full text-xs font-bold">
                       Tier {tier.distribution_priority}
                     </span>
-                    <h4 className="text-lg font-semibold text-gray-900">{tier.tier_name}</h4>
+                    <h4 className="text-base sm:text-lg font-semibold text-gray-900 break-words">{tier.tier_name}</h4>
                   </div>
                   <p className="text-sm text-gray-600 mt-1">
                     Return threshold: {tier.return_threshold}%
                   </p>
                 </div>
-                <div className="text-right">
+                <div className="text-right flex-shrink-0">
                   <p className="text-2xl font-bold text-blue-600">{tier.allocation_percentage}%</p>
                   <p className="text-xs text-gray-500">Allocation</p>
                 </div>
               </div>
-              <div className="flex items-center gap-2 text-sm">
-                <span className="px-3 py-1 bg-gray-100 text-gray-700 rounded-full">
+              <div className="flex flex-wrap items-center gap-2 text-sm">
+                <span className="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-xs">
                   {tier.beneficiary_type.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
                 </span>
               </div>
