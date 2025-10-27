@@ -1170,14 +1170,16 @@ router.post('/generate-manuscript', async (req, res) => {
     console.log(`✅ Codebase scan complete: ${stats.totalLinesOfCode.toLocaleString()} lines of code analyzed`);
 
     // 2. DETERMINE MANUSCRIPT LENGTH & DETAIL LEVEL
-    // Note: ~667 tokens = 1 page, so we need MUCH higher token limits
+    // Note: OpenAI API has 16,384 token output limit, ~667 tokens per page = ~24 pages max per call
+    // For longer manuscripts, we'll need multi-stage generation
     const lengthConfig = {
-      'short': { pages: '25-50', minTokens: 16675, maxTokens: 33350, detail: 'concise', chapters: 5 },
-      'medium': { pages: '50-150', minTokens: 33350, maxTokens: 100050, detail: 'comprehensive', chapters: 10 },
-      'long': { pages: '150-300', minTokens: 100050, maxTokens: 128000, detail: 'exhaustive', chapters: 15 }
+      'short': { pages: '25-50', tokens: 16000, detail: 'concise', chapters: 5, stages: 2 },
+      'medium': { pages: '50-150', tokens: 16000, detail: 'comprehensive', chapters: 10, stages: 6 },
+      'long': { pages: '150-300', tokens: 16000, detail: 'exhaustive', chapters: 15, stages: 12 }
     };
     
     const config = lengthConfig[pageLength] || lengthConfig['medium'];
+    console.log(`📋 Configuration: ${config.pages} pages via ${config.stages} generation stages`);
     
     // 3. BUILD COMPREHENSIVE PLATFORM CONTEXT
     const platformContext = `AXIOM DEFI PLATFORM - COMPLETE TECHNICAL ARCHITECTURE & CODEBASE ANALYSIS
@@ -1289,10 +1291,21 @@ Security: JWT, bcrypt, httpOnly cookies, CORS
 
 This represents a production-ready, institutional-grade DeFi platform with real-world asset integration.`;
 
-    // 4. GENERATE MANUSCRIPT WITH GPT-4
-    console.log(`🤖 Generating ${config.pages} page manuscript with ${config.chapters} chapters...`);
+    // 4. GENERATE MANUSCRIPT WITH MULTI-STAGE APPROACH
+    console.log(`🤖 Generating ${config.pages} page manuscript via ${config.stages} stages...`);
     
-    const systemPrompt = `You are a world-class technical writer and documentation specialist with expertise in blockchain, DeFi, fintech, and software architecture. You create comprehensive, professional manuscripts that serve as the "Gold Standard" for technical documentation.
+    const manuscriptParts = [];
+    const chaptersPerStage = Math.ceil(config.chapters / config.stages);
+    
+    for (let stage = 0; stage < config.stages; stage++) {
+      const startChapter = stage * chaptersPerStage + 1;
+      const endChapter = Math.min((stage + 1) * chaptersPerStage, config.chapters);
+      const isFirstStage = stage === 0;
+      const isLastStage = stage === config.stages - 1;
+      
+      console.log(`  📝 Stage ${stage + 1}/${config.stages}: Generating chapters ${startChapter}-${endChapter}...`);
+      
+      const systemPrompt = `You are a world-class technical writer and documentation specialist with expertise in blockchain, DeFi, fintech, and software architecture. You create comprehensive, professional manuscripts that serve as the "Gold Standard" for technical documentation.
 
 Your manuscripts are:
 - Technically accurate and detailed with EXTENSIVE DEPTH
@@ -1302,9 +1315,17 @@ Your manuscripts are:
 - Formatted for publication-quality output suitable for books and professional manuals
 - COMPREHENSIVE and THOROUGH - you write AT LENGTH to fully explore each topic
 
-CRITICAL: When asked to write a ${config.pages} page manuscript, you MUST produce content that is truly ${config.pages} pages long. Do NOT produce short summaries. Write extensively, covering every aspect in great detail with multiple paragraphs per section.`;
+CRITICAL: Write extensively with multiple paragraphs per section. Each chapter should be detailed and comprehensive.`;
 
-    const userPrompt = `Create a ${config.detail} ${config.pages} page professional manuscript about the following subject for the AXIOM DeFi platform:
+      const stageContext = isFirstStage 
+        ? `This is the OPENING SECTION (chapters ${startChapter}-${endChapter}) of a ${config.pages} page manuscript. Start with a compelling title and introduction.`
+        : isLastStage
+        ? `This is the FINAL SECTION (chapters ${startChapter}-${endChapter}) of a ${config.pages} page manuscript. Conclude with roadmap, vision, and comprehensive appendices.`
+        : `This is the MIDDLE SECTION (chapters ${startChapter}-${endChapter}) of a ${config.pages} page manuscript. Continue the detailed analysis from previous sections.`;
+
+      const userPrompt = `${stageContext}
+
+Create a ${config.detail} professional manuscript section about the following subject for the AXIOM DeFi platform:
 
 SUBJECT: ${subject}
 
@@ -1346,7 +1367,7 @@ REQUIRED STRUCTURE (${config.chapters} comprehensive chapters):
 15. Future Roadmap, Vision & Growth Strategy (5-10 pages)
 16. Appendices: Tables, Statistics, Feature Lists, Metrics (10-20 pages)
 
-WRITING INSTRUCTIONS:
+WRITING INSTRUCTIONS FOR THIS SECTION (Chapters ${startChapter}-${endChapter}):
 - Write EXTENSIVELY for each chapter - aim for depth and comprehensive coverage
 - Each subsection should have 2-4 paragraphs minimum
 - Include detailed examples (conceptual, not code)
@@ -1355,27 +1376,41 @@ WRITING INSTRUCTIONS:
 - Provide statistical analysis and data-driven insights
 - Explain the "why" and "how" in prose form
 - Make it publication-ready like a professional technical book
+${isFirstStage ? '- Include manuscript title and table of contents' : ''}
+${isLastStage ? '- Include comprehensive appendices and conclusion' : ''}
 
-TARGET: Your output should be approximately ${config.minTokens}-${config.maxTokens} tokens (${config.pages} pages).
+TARGET FOR THIS SECTION: Approximately ${Math.floor(config.tokens * 0.9)} tokens (~20-24 pages).
 
-Create a publication-ready manuscript that reads like a comprehensive professional technical manual or business book. Use Markdown formatting with proper headings, tables, and lists. 
+Create publication-ready content for chapters ${startChapter}-${endChapter}. Use Markdown formatting with proper headings, tables, and lists. 
 
-REMEMBER: This must be ${config.pages} PAGES - write at length, be thorough, be comprehensive. NO CODE SNIPPETS ALLOWED.`;
+REMEMBER: Write extensively, be thorough. NO CODE SNIPPETS ALLOWED.`;
 
-    const completion = await openai.chat.completions.create({
-      model: 'gpt-4o',
-      messages: [
-        { role: 'system', content: systemPrompt },
-        { role: 'user', content: userPrompt }
-      ],
-      temperature: 0.7,
-      max_tokens: config.maxTokens
-    });
+      const completion = await openai.chat.completions.create({
+        model: 'gpt-4o',
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: userPrompt }
+        ],
+        temperature: 0.7,
+        max_tokens: config.tokens
+      });
+      
+      const stagePart = completion.choices[0].message.content;
+      manuscriptParts.push(stagePart);
+      console.log(`  ✅ Stage ${stage + 1} complete: ${stagePart.length.toLocaleString()} characters`);
+      
+      // Small delay between stages to avoid rate limits
+      if (stage < config.stages - 1) {
+        await new Promise(resolve => setTimeout(resolve, 1000));
+      }
+    }
     
-    const manuscript = completion.choices[0].message.content;
+    // 5. COMBINE ALL PARTS INTO FINAL MANUSCRIPT
+    console.log(`📦 Combining ${config.stages} sections into final manuscript...`);
+    const manuscript = manuscriptParts.join('\n\n---\n\n');
     const estimatedPages = Math.round(manuscript.length / 2000); // ~2000 chars per page
     
-    console.log(`✅ Manuscript generated: ~${estimatedPages} pages, ${manuscript.length.toLocaleString()} characters`);
+    console.log(`✅ Manuscript complete: ~${estimatedPages} pages, ${manuscript.length.toLocaleString()} characters`);
     
     res.json({
       success: true,
@@ -1386,6 +1421,7 @@ REMEMBER: This must be ${config.pages} PAGES - write at length, be thorough, be 
         estimatedPages,
         characterCount: manuscript.length,
         wordCount: manuscript.split(/\s+/).length,
+        stages: config.stages,
         codebaseLOC: stats.totalLinesOfCode,
         contractsAnalyzed: stats.totalContracts,
         componentsAnalyzed: stats.totalComponents,
