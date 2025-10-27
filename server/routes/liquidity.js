@@ -18,6 +18,20 @@ router.post('/orders/sell', async (req, res) => {
       });
     }
 
+    if (isNaN(parseInt(propertyId)) || isNaN(parseFloat(shares)) || isNaN(parseFloat(pricePerShare))) {
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid numeric values: propertyId, shares, and pricePerShare must be valid numbers'
+      });
+    }
+
+    if (parseFloat(shares) <= 0 || parseFloat(pricePerShare) <= 0) {
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid values: shares and pricePerShare must be greater than 0'
+      });
+    }
+
     const result = await liquidityService.createSellOrder({
       walletAddress,
       propertyId: parseInt(propertyId),
@@ -47,6 +61,20 @@ router.post('/orders/buy', async (req, res) => {
       });
     }
 
+    if (isNaN(parseInt(propertyId)) || isNaN(parseFloat(shares)) || isNaN(parseFloat(maxPricePerShare))) {
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid numeric values: propertyId, shares, and maxPricePerShare must be valid numbers'
+      });
+    }
+
+    if (parseFloat(shares) <= 0 || parseFloat(maxPricePerShare) <= 0) {
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid values: shares and maxPricePerShare must be greater than 0'
+      });
+    }
+
     const result = await liquidityService.createBuyOrder({
       walletAddress,
       propertyId: parseInt(propertyId),
@@ -68,10 +96,10 @@ router.get('/orderbook/:propertyId', async (req, res) => {
   try {
     const { propertyId } = req.params;
 
-    if (!propertyId) {
+    if (!propertyId || isNaN(parseInt(propertyId))) {
       return res.status(400).json({
         success: false,
-        error: 'Missing required parameter: propertyId'
+        error: 'Invalid propertyId: must be a valid integer'
       });
     }
 
