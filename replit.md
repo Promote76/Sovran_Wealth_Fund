@@ -74,6 +74,7 @@ Predictive analytics engine with 12-month cash flow projections, REIT/market ben
 - Comprehensive test suite (6/6 API endpoints passing at 100%)
 - API routes registered and server-ready at /api/intelligence/*
 - **UI Integration**: Intelligence Suite integrated into InvestorPage (`/investors`) with dedicated "Intelligence Suite" tab featuring sub-tabs for Portfolio Dashboard, Cash Flow Projections, and Portfolio Analytics. Accessible at `/investors` route with brain icon (🧠)
+- **Navigation**: Investor Portal positioned as first item in "Programs" dropdown menu (📊 Investor Portal) for easy access alongside other investor-focused features
 
 #### Feature #4: Automated Revenue & Distribution Engine ✅ 100% COMPLETE
 **Status**: PRODUCTION-READY (October 27, 2025)
