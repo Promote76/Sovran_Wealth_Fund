@@ -333,4 +333,166 @@ router.get('/dashboard/:investorId', async (req, res) => {
   }
 });
 
+router.get('/projections', async (req, res) => {
+  try {
+    const { propertyId, investorId, limit = 12 } = req.query;
+    
+    const projections = await intelligenceService.listCashFlowProjections({
+      propertyId: propertyId ? parseInt(propertyId) : undefined,
+      investorId: investorId ? parseInt(investorId) : undefined,
+      limit: parseInt(limit)
+    });
+    
+    res.json({
+      success: true,
+      projections: projections || []
+    });
+  } catch (error) {
+    console.error('Error listing projections:', error);
+    res.status(500).json({
+      success: false,
+      projections: [],
+      error: error.message
+    });
+  }
+});
+
+router.get('/portfolio-history', async (req, res) => {
+  try {
+    const { investorId, limit = 12 } = req.query;
+    
+    if (!investorId) {
+      return res.status(400).json({
+        success: false,
+        history: [],
+        error: 'Investor ID is required'
+      });
+    }
+    
+    const history = await intelligenceService.getPortfolioHistory(
+      parseInt(investorId),
+      parseInt(limit)
+    );
+    
+    res.json({
+      success: true,
+      history: history || []
+    });
+  } catch (error) {
+    console.error('Error fetching portfolio history:', error);
+    res.status(500).json({
+      success: false,
+      history: [],
+      error: error.message
+    });
+  }
+});
+
+router.get('/benchmarks', async (req, res) => {
+  try {
+    const { benchmarkType = 'platform_average' } = req.query;
+    
+    const benchmark = await intelligenceService.getPerformanceBenchmarks(benchmarkType);
+    
+    res.json({
+      success: true,
+      benchmarks: benchmark ? [benchmark] : []
+    });
+  } catch (error) {
+    console.error('Error fetching benchmarks:', error);
+    res.status(500).json({
+      success: false,
+      benchmarks: [],
+      error: error.message
+    });
+  }
+});
+
+router.get('/cohorts', async (req, res) => {
+  try {
+    const { tier } = req.query;
+    
+    const cohorts = await intelligenceService.listCohorts({
+      tier: tier || undefined
+    });
+    
+    res.json({
+      success: true,
+      cohorts: cohorts || []
+    });
+  } catch (error) {
+    console.error('Error listing cohorts:', error);
+    res.status(500).json({
+      success: false,
+      cohorts: [],
+      error: error.message
+    });
+  }
+});
+
+router.get('/risk-assessment', async (req, res) => {
+  try {
+    const { investorId } = req.query;
+    
+    if (!investorId) {
+      return res.status(400).json({
+        success: false,
+        risk: null,
+        error: 'Investor ID is required'
+      });
+    }
+    
+    const assessments = await intelligenceService.listRiskAssessments({
+      investorId: parseInt(investorId),
+      limit: 1
+    });
+    
+    res.json({
+      success: true,
+      risk: assessments && assessments.length > 0 ? assessments[0] : null
+    });
+  } catch (error) {
+    console.error('Error fetching risk assessment:', error);
+    res.status(500).json({
+      success: false,
+      risk: null,
+      error: error.message
+    });
+  }
+});
+
+router.get('/dashboard', async (req, res) => {
+  try {
+    const { investorId } = req.query;
+    
+    if (!investorId) {
+      return res.status(400).json({
+        success: false,
+        error: 'Investor ID is required'
+      });
+    }
+    
+    const dashboard = await intelligenceService.getDashboardData(parseInt(investorId));
+    
+    res.json(dashboard || {
+      portfolioSummary: { totalInvested: 0, totalValue: 0, totalRevenue: 0, propertyCount: 0, averageROI: 0 },
+      projectedCashFlow: { nextMonth: 0, next3Months: 0, next12Months: 0 },
+      riskScore: { overall: 0, diversification: 0, concentration: 0, level: 'unknown' },
+      topPerformingProperties: [],
+      benchmarkComparison: { platformAverage: 0, yourPerformance: 0, percentile: 0 }
+    });
+  } catch (error) {
+    console.error('Error fetching dashboard data:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message,
+      portfolioSummary: { totalInvested: 0, totalValue: 0, totalRevenue: 0, propertyCount: 0, averageROI: 0 },
+      projectedCashFlow: { nextMonth: 0, next3Months: 0, next12Months: 0 },
+      riskScore: { overall: 0, diversification: 0, concentration: 0, level: 'unknown' },
+      topPerformingProperties: [],
+      benchmarkComparison: { platformAverage: 0, yourPerformance: 0, percentile: 0 }
+    });
+  }
+});
+
 module.exports = router;
