@@ -1,5 +1,8 @@
 const express = require('express');
 const router = express.Router();
+const kycService = require('../services/kycService');
+const walletScreeningService = require('../services/walletScreeningService');
+const escrowService = require('../services/escrowService');
 
 // International Investor Onboarding API (GENIUS Act Edition)
 // Handles KYC/AML, accreditation, wallet screening, and escrow setup
@@ -56,6 +59,28 @@ router.post('/international/onboarding', async (req, res) => {
       });
     }
 
+    // Validate stablecoin selection
+    const validStablecoins = ['usdc', 'usdt', 'busd'];
+    if (!funding.preferredStablecoin || !validStablecoins.includes(funding.preferredStablecoin.toLowerCase())) {
+      return res.status(400).json({
+        success: false,
+        error: `Invalid stablecoin. Must be one of: ${validStablecoins.join(', ').toUpperCase()}`
+      });
+    }
+
+    // Validate escrow provider selection
+    const validEscrowProviders = ['circle', 'anchorage', 'fireblocks'];
+    if (!funding.escrow || !validEscrowProviders.includes(funding.escrow.toLowerCase())) {
+      return res.status(400).json({
+        success: false,
+        error: `Invalid escrow provider. Must be one of: ${validEscrowProviders.join(', ')}`
+      });
+    }
+
+    // Normalize to lowercase for consistency
+    funding.preferredStablecoin = funding.preferredStablecoin.toLowerCase();
+    funding.escrow = funding.escrow.toLowerCase();
+
     if (!disclosures || !disclosures.fatcaCrsSelfCert || !disclosures.understandsRisk || !disclosures.agreesToTerms) {
       return res.status(400).json({
         success: false,
@@ -111,22 +136,87 @@ router.post('/international/onboarding', async (req, res) => {
       updatedAt: new Date().toISOString()
     };
 
-    // TODO: In production, implement these steps:
-    // 1. Save onboardingRecord to database
-    // 2. Trigger Persona KYC session creation
-    // 3. Trigger Chainalysis wallet screening
-    // 4. If accredited investor, trigger Middesk verification
-    // 5. Generate escrow deposit instructions
-    // 6. Send confirmation email with next steps
-    // 7. Create investor dashboard entry
+    // Step 1: Create KYC inquiry
+    const kycInquiry = await kycService.createInquiry({
+      onboardingId,
+      fullName: kyc.fullName,
+      email: kyc.email,
+      nationality: kyc.nationality,
+      country: kyc.country,
+      referenceId: onboardingId
+    });
 
-    // For now, log the onboarding attempt
-    console.log('✅ International investor onboarding received:', {
+    // Step 2: Screen wallet for sanctions/risk
+    const walletScreening = await walletScreeningService.screenWallet({
+      address: wallet.address,
+      chain: wallet.chain,
+      onboardingId
+    });
+
+    // Check if wallet failed screening
+    if (!walletScreening.approved || walletScreening.sanctioned) {
+      return res.status(403).json({
+        success: false,
+        error: 'Wallet failed compliance screening',
+        details: {
+          sanctioned: walletScreening.sanctioned,
+          riskScore: walletScreening.riskScore,
+          message: 'This wallet cannot be used for funding. Please contact compliance@axiomplatform.io'
+        }
+      });
+    }
+
+    // Step 3: Generate escrow deposit instructions
+    let depositInstructions;
+    try {
+      depositInstructions = await escrowService.generateDepositInstructions({
+        onboardingId,
+        amount: funding.amount,
+        stablecoin: funding.preferredStablecoin,
+        chain: wallet.chain,
+        provider: funding.escrow
+      });
+    } catch (escrowError) {
+      // If escrow setup fails but KYC/wallet screening succeeded, still record the attempt
+      console.error('❌ Escrow setup failed:', escrowError);
+      
+      // For institutional providers that need setup, provide helpful error
+      if (escrowError.message.includes('institutional') || escrowError.message.includes('workspace')) {
+        return res.status(503).json({
+          success: false,
+          error: 'Selected escrow provider requires additional setup',
+          details: {
+            message: escrowError.message,
+            alternatives: 'Please select Circle as your escrow provider, which is currently available.',
+            onboardingId,
+            kycInquiryId: kycInquiry.inquiryId,
+            walletApproved: walletScreening.approved
+          }
+        });
+      }
+      
+      throw escrowError;
+    }
+
+    // Update onboarding record with service IDs
+    onboardingRecord.compliance.kycInquiryId = kycInquiry.inquiryId;
+    onboardingRecord.compliance.kycSessionUrl = kycInquiry.sessionUrl;
+    onboardingRecord.compliance.walletScreeningId = walletScreening.screeningId;
+    onboardingRecord.compliance.depositAddress = depositInstructions.depositAddress;
+    onboardingRecord.compliance.depositInstructions = depositInstructions.instructions;
+
+    // TODO: Save onboardingRecord to database
+    // TODO: Send confirmation email with KYC session URL and deposit instructions
+    // TODO: Register wallet for ongoing monitoring
+    
+    console.log('✅ International investor onboarding processed:', {
       onboardingId,
       email: kyc.email,
       country: kyc.country,
       amount: funding.amount,
-      chain: wallet.chain
+      chain: wallet.chain,
+      kycStatus: kycInquiry.status,
+      walletApproved: walletScreening.approved
     });
 
     // Return success response with onboarding ID and next steps
@@ -134,31 +224,46 @@ router.post('/international/onboarding', async (req, res) => {
       success: true,
       data: {
         onboardingId,
-        status: 'pending_compliance',
-        message: 'Onboarding application received. Compliance checks will begin shortly.',
+        status: 'active',
+        message: 'Onboarding application received. Please complete KYC verification and fund your account.',
+        kyc: {
+          inquiryId: kycInquiry.inquiryId,
+          sessionUrl: kycInquiry.sessionUrl,
+          status: kycInquiry.status,
+          message: 'Click the session URL to complete identity verification'
+        },
+        wallet: {
+          screeningId: walletScreening.screeningId,
+          approved: walletScreening.approved,
+          riskScore: walletScreening.riskScore,
+          message: 'Wallet approved for funding'
+        },
+        deposit: {
+          address: depositInstructions.depositAddress,
+          instructions: depositInstructions.instructions,
+          expiresAt: depositInstructions.expiresAt,
+          message: 'Deposit instructions are ready. Fund your account to activate investment opportunities.'
+        },
         nextSteps: [
           {
             step: 'kyc_verification',
-            status: 'pending',
-            description: 'Identity verification via Persona will be initiated via email within 30 minutes'
+            status: 'ready',
+            actionUrl: kycInquiry.sessionUrl,
+            description: 'Complete identity verification (5-10 minutes)'
           },
           {
-            step: 'wallet_screening',
-            status: 'pending',
-            description: 'OFAC and wallet risk screening in progress'
-          },
-          {
-            step: 'escrow_setup',
-            status: 'pending',
-            description: 'Upon approval, you will receive escrow deposit instructions'
+            step: 'fund_account',
+            status: 'ready',
+            depositAddress: depositInstructions.depositAddress,
+            description: `Send ${funding.amount} ${funding.preferredStablecoin.toUpperCase()} to activate your account`
           },
           {
             step: 'investor_dashboard',
             status: 'pending',
-            description: 'Access to your investor dashboard will be granted after compliance clearance'
+            description: 'Access granted after KYC completion and initial deposit'
           }
         ],
-        estimatedCompletionTime: '24-48 hours',
+        estimatedCompletionTime: '15-30 minutes',
         supportEmail: 'compliance@axiomplatform.io'
       }
     });

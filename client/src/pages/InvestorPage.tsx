@@ -4,6 +4,7 @@ import { useStats } from '../contexts/StatsContext';
 import IntelligenceDashboard from '../components/investor/IntelligenceDashboard';
 import CashFlowProjections from '../components/investor/CashFlowProjections';
 import PortfolioAnalytics from '../components/investor/PortfolioAnalytics';
+import InternationalOnboarding from '../components/investor/InternationalOnboarding';
 
 const InvestorPage: React.FC = () => {
   const navigate = useNavigate();
@@ -196,6 +197,7 @@ const InvestorPage: React.FC = () => {
             {[
               { id: 'overview', label: 'Investment Overview', icon: '📊' },
               { id: 'opportunities', label: 'Opportunities', icon: '💰' },
+              { id: 'international', label: 'International Onboarding', icon: '🌍' },
               { id: 'analytics', label: 'Performance Analytics', icon: '📈' },
               { id: 'intelligence', label: 'Intelligence Suite', icon: '🧠' },
               { id: 'calculator', label: 'ROI Calculator', icon: '🧮' },
@@ -386,6 +388,29 @@ const InvestorPage: React.FC = () => {
                     </div>
                   </div>
                 </div>
+              </div>
+            )}
+
+            {/* International Onboarding Tab */}
+            {activeTab === 'international' && (
+              <div>
+                <div className="mb-8 text-center">
+                  <h2 className="text-4xl font-bold text-blue-900 mb-4">
+                    International Investor Onboarding
+                  </h2>
+                  <p className="text-xl text-gray-700 max-w-3xl mx-auto">
+                    GENIUS Act compliant onboarding for international crypto investors, DAOs, and family offices. 
+                    Complete KYC, wallet screening, and stablecoin escrow in one streamlined flow.
+                  </p>
+                </div>
+
+                <InternationalOnboarding 
+                  apiBaseUrl="/api/investors"
+                  onComplete={(data) => {
+                    console.log('Onboarding complete:', data);
+                    alert('Onboarding application submitted successfully! Check your email for next steps.');
+                  }}
+                />
               </div>
             )}
 
