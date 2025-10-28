@@ -45,6 +45,17 @@ Features AI-powered content generation tools:
 -   **Script Library**: Professional pre-written video marketing scripts.
 -   **Manuscript Generator**: AI-powered generator for 25-300 page manuscripts and technical manuals, scanning the entire codebase for professional documentation.
 
+### International Investor Onboarding (GENIUS Act Compliant)
+A comprehensive 6-step onboarding system for international crypto investors, DAOs, and family offices:
+-   **KYC/AML Integration**: Persona API integration for identity verification with simulation mode for development
+-   **Wallet Screening**: Chainalysis API integration for OFAC sanctions screening and risk scoring
+-   **Stablecoin Escrow**: Circle API integration for production escrow, with proper error handling for Anchorage/Fireblocks
+-   **Multi-Chain Support**: BSC, Polygon, and Arbitrum networks with USDC/USDT/BUSD stablecoin support
+-   **Accreditation Verification**: Tiered investor classification (income, net worth, entity-based)
+-   **Compliance Automation**: Integrated FATCA/CRS tax certification, risk disclosures, and terms acceptance
+-   **API Endpoint**: `/api/investors/international/onboarding` orchestrates KYC, wallet screening, and escrow generation
+-   **Frontend Integration**: Accessible via Investor Page → International Onboarding tab with React/TypeScript wizard
+
 ### Enterprise Feature Foundations (Production-Ready)
 All 8 enterprise features are complete and production-ready:
 1.  **Liquidity & Redemption Desk**: A managed secondary market for fractional property shares with price-time priority matching, treasury liquidity, automated compliance, and 2% platform fees.
