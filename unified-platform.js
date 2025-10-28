@@ -831,6 +831,13 @@ if (featureFlags.IELA_ENABLED) {
 }
 
 // ========================================
+// INTERNATIONAL INVESTOR ONBOARDING (GENIUS ACT)
+// ========================================
+const internationalInvestorsRouter = require('./server/routes/internationalInvestors');
+app.use('/api/investors', internationalInvestorsRouter);
+console.log('✅ International Investor Onboarding (GENIUS Act) enabled at /api/investors/international/*');
+
+// ========================================
 // FRACTIONAL REAL ESTATE OWNERSHIP
 // ========================================
 const fractionalOwnershipRouter = require('./server/routes/fractionalOwnership');
