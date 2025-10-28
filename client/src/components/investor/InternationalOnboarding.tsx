@@ -104,9 +104,15 @@ const fundingSchema = z.object({
 });
 
 const disclosuresSchema = z.object({
-  fatcaCrsSelfCert: z.boolean(),
-  understandsRisk: z.boolean(),
-  agreesToTerms: z.boolean(),
+  fatcaCrsSelfCert: z.literal(true, {
+    errorMap: () => ({ message: "You must certify your tax residency status" }),
+  }),
+  understandsRisk: z.literal(true, {
+    errorMap: () => ({ message: "You must acknowledge the investment risks" }),
+  }),
+  agreesToTerms: z.literal(true, {
+    errorMap: () => ({ message: "You must agree to the terms" }),
+  }),
 });
 
 export type InternationalInvestorOnboardingProps = {
