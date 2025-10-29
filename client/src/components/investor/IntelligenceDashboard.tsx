@@ -100,10 +100,17 @@ const IntelligenceDashboard: React.FC<{ investorId?: number }> = ({ investorId }
     );
   }
 
-  if (!data) {
+  if (!data || !data.portfolioSummary) {
     return (
-      <div className="text-center py-12 text-gray-500">
-        No intelligence data available
+      <div className="text-center py-12">
+        <div className="text-gray-500 mb-4">No portfolio data available yet</div>
+        <p className="text-sm text-gray-400 mb-6">Start investing to see your intelligence dashboard</p>
+        <button
+          onClick={loadDashboard}
+          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+        >
+          Retry
+        </button>
       </div>
     );
   }
@@ -126,28 +133,28 @@ const IntelligenceDashboard: React.FC<{ investorId?: number }> = ({ investorId }
         <div className="bg-white rounded-lg shadow p-6">
           <div className="text-sm font-medium text-gray-500">Total Invested</div>
           <div className="mt-2 text-3xl font-bold text-gray-900">
-            {formatCurrency(data.portfolioSummary.totalInvested)}
+            {formatCurrency(data.portfolioSummary?.totalInvested || 0)}
           </div>
         </div>
 
         <div className="bg-white rounded-lg shadow p-6">
           <div className="text-sm font-medium text-gray-500">Portfolio Value</div>
           <div className="mt-2 text-3xl font-bold text-gray-900">
-            {formatCurrency(data.portfolioSummary.totalValue)}
+            {formatCurrency(data.portfolioSummary?.totalValue || 0)}
           </div>
         </div>
 
         <div className="bg-white rounded-lg shadow p-6">
           <div className="text-sm font-medium text-gray-500">Total Revenue</div>
           <div className="mt-2 text-3xl font-bold text-green-600">
-            {formatCurrency(data.portfolioSummary.totalRevenue)}
+            {formatCurrency(data.portfolioSummary?.totalRevenue || 0)}
           </div>
         </div>
 
         <div className="bg-white rounded-lg shadow p-6">
           <div className="text-sm font-medium text-gray-500">Average ROI</div>
           <div className="mt-2 text-3xl font-bold text-blue-600">
-            {formatPercent(data.portfolioSummary.averageROI)}
+            {formatPercent(data.portfolioSummary?.averageROI || 0)}
           </div>
         </div>
       </div>
@@ -159,19 +166,19 @@ const IntelligenceDashboard: React.FC<{ investorId?: number }> = ({ investorId }
           <div className="border-l-4 border-blue-500 pl-4">
             <div className="text-sm text-gray-500">Next Month</div>
             <div className="text-2xl font-bold text-gray-900">
-              {formatCurrency(data.projectedCashFlow.nextMonth)}
+              {formatCurrency(data.projectedCashFlow?.nextMonth || 0)}
             </div>
           </div>
           <div className="border-l-4 border-blue-500 pl-4">
             <div className="text-sm text-gray-500">Next 3 Months</div>
             <div className="text-2xl font-bold text-gray-900">
-              {formatCurrency(data.projectedCashFlow.next3Months)}
+              {formatCurrency(data.projectedCashFlow?.next3Months || 0)}
             </div>
           </div>
           <div className="border-l-4 border-blue-500 pl-4">
             <div className="text-sm text-gray-500">Next 12 Months</div>
             <div className="text-2xl font-bold text-gray-900">
-              {formatCurrency(data.projectedCashFlow.next12Months)}
+              {formatCurrency(data.projectedCashFlow?.next12Months || 0)}
             </div>
           </div>
         </div>
@@ -186,17 +193,17 @@ const IntelligenceDashboard: React.FC<{ investorId?: number }> = ({ investorId }
             <div>
               <div className="flex justify-between items-center mb-2">
                 <span className="text-sm font-medium text-gray-700">Overall Risk Score</span>
-                <span className={`px-3 py-1 rounded-full text-sm font-semibold ${getRiskLevelColor(data.riskScore.level)}`}>
-                  {data.riskScore.level}
+                <span className={`px-3 py-1 rounded-full text-sm font-semibold ${getRiskLevelColor(data.riskScore?.level || 'unknown')}`}>
+                  {data.riskScore?.level || 'N/A'}
                 </span>
               </div>
               <div className="w-full bg-gray-200 rounded-full h-3">
                 <div
                   className="bg-blue-600 h-3 rounded-full"
-                  style={{ width: `${data.riskScore.overall}%` }}
+                  style={{ width: `${data.riskScore?.overall || 0}%` }}
                 ></div>
               </div>
-              <div className="text-right text-sm text-gray-500 mt-1">{data.riskScore.overall}/100</div>
+              <div className="text-right text-sm text-gray-500 mt-1">{data.riskScore?.overall || 0}/100</div>
             </div>
 
             <div>
@@ -206,10 +213,10 @@ const IntelligenceDashboard: React.FC<{ investorId?: number }> = ({ investorId }
               <div className="w-full bg-gray-200 rounded-full h-2">
                 <div
                   className="bg-green-500 h-2 rounded-full"
-                  style={{ width: `${data.riskScore.diversification}%` }}
+                  style={{ width: `${data.riskScore?.diversification || 0}%` }}
                 ></div>
               </div>
-              <div className="text-right text-sm text-gray-500 mt-1">{data.riskScore.diversification}/100</div>
+              <div className="text-right text-sm text-gray-500 mt-1">{data.riskScore?.diversification || 0}/100</div>
             </div>
 
             <div>
@@ -219,10 +226,10 @@ const IntelligenceDashboard: React.FC<{ investorId?: number }> = ({ investorId }
               <div className="w-full bg-gray-200 rounded-full h-2">
                 <div
                   className="bg-yellow-500 h-2 rounded-full"
-                  style={{ width: `${data.riskScore.concentration}%` }}
+                  style={{ width: `${data.riskScore?.concentration || 0}%` }}
                 ></div>
               </div>
-              <div className="text-right text-sm text-gray-500 mt-1">{data.riskScore.concentration}/100</div>
+              <div className="text-right text-sm text-gray-500 mt-1">{data.riskScore?.concentration || 0}/100</div>
             </div>
           </div>
         </div>
@@ -234,19 +241,19 @@ const IntelligenceDashboard: React.FC<{ investorId?: number }> = ({ investorId }
             <div className="flex justify-between items-center p-4 bg-gray-50 rounded-lg">
               <span className="text-gray-700">Platform Average ROI</span>
               <span className="text-xl font-bold text-gray-900">
-                {formatPercent(data.benchmarkComparison.platformAverage)}
+                {formatPercent(data.benchmarkComparison?.platformAverage || 0)}
               </span>
             </div>
             <div className="flex justify-between items-center p-4 bg-blue-50 rounded-lg">
               <span className="text-gray-700">Your Performance</span>
               <span className="text-xl font-bold text-blue-600">
-                {formatPercent(data.benchmarkComparison.yourPerformance)}
+                {formatPercent(data.benchmarkComparison?.yourPerformance || 0)}
               </span>
             </div>
             <div className="text-center p-4 bg-green-50 rounded-lg">
               <div className="text-sm text-gray-600">You're in the</div>
               <div className="text-3xl font-bold text-green-600">
-                {formatPercent(data.benchmarkComparison.percentile)}
+                {formatPercent(data.benchmarkComparison?.percentile || 0)}
               </div>
               <div className="text-sm text-gray-600">percentile</div>
             </div>
@@ -257,7 +264,7 @@ const IntelligenceDashboard: React.FC<{ investorId?: number }> = ({ investorId }
       {/* Top Performing Properties */}
       <div className="bg-white rounded-lg shadow p-6">
         <h3 className="text-lg font-semibold text-gray-900 mb-4">Top Performing Properties</h3>
-        {data.topPerformingProperties.length === 0 ? (
+        {!data.topPerformingProperties || data.topPerformingProperties.length === 0 ? (
           <div className="text-center py-8 text-gray-500">No properties to display</div>
         ) : (
           <div className="overflow-x-auto">
