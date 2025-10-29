@@ -13,7 +13,7 @@ import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Textarea } from "../ui/textarea";
 import { Label } from "../ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
+import { SimpleSelect as Select, SimpleSelectContent as SelectContent, SimpleSelectItem as SelectItem, SimpleSelectTrigger as SelectTrigger, SimpleSelectValue as SelectValue } from "../ui/simple-select";
 import { Checkbox } from "../ui/checkbox";
 import { SimpleRadioGroup as RadioGroup, SimpleRadioGroupItem as RadioGroupItem } from "../ui/simple-radio-group";
 import { Separator } from "../ui/separator";
