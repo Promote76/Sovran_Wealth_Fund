@@ -4,7 +4,6 @@
   "private": true,
   "dependencies": {
     "@heroicons/react": "^1.0.6",
-    "@radix-ui/react-slot": "^1.2.3",
     "@stripe/react-stripe-js": "^4.0.2",
     "@stripe/stripe-js": "^7.9.0",
     "@testing-library/jest-dom": "^5.16.5",
