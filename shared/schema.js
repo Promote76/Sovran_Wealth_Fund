@@ -879,6 +879,28 @@ const investorRevenuePayments = pgTable('investor_revenue_payments', {
   walletAddressIdx: index('investor_revenue_wallet_idx').on(table.walletAddress)
 }));
 
+// Waitlist table for pre-launch validation
+const waitlist = pgTable('waitlist', {
+  id: serial('id').primaryKey(),
+  email: varchar('email', { length: 255 }).notNull().unique(),
+  name: varchar('name', { length: 255 }),
+  investmentRange: varchar('investment_range', { length: 50 }),
+  investorType: varchar('investor_type', { length: 50 }),
+  source: varchar('source', { length: 100 }),
+  foundingMember: boolean('founding_member').default(true),
+  status: varchar('status', { length: 20 }).default('pending'),
+  notified: boolean('notified').default(false),
+  notifiedAt: timestamp('notified_at'),
+  convertedAt: timestamp('converted_at'),
+  notes: text('notes'),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow()
+}, (table) => ({
+  emailIdx: index('waitlist_email_idx').on(table.email),
+  statusIdx: index('waitlist_status_idx').on(table.status),
+  createdAtIdx: index('waitlist_created_at_idx').on(table.createdAt)
+}));
+
 module.exports = {
   users,
   registrationJourney,
@@ -937,5 +959,7 @@ module.exports = {
   investorShares,
   shareTransactions,
   propertyRevenueDistributions,
-  investorRevenuePayments
+  investorRevenuePayments,
+  // Waitlist
+  waitlist
 };

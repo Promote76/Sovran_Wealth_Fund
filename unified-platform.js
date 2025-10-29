@@ -802,6 +802,11 @@ app.use('/api/kyc', kycRouter);
 const marketingScriptsRouter = require('./server/routes/marketingScripts');
 app.use('/api/marketing-scripts', marketingScriptsRouter);
 
+// Waitlist routes (Pre-launch validation)
+const waitlistRouter = require('./server/routes/waitlist');
+app.use('/api/waitlist', waitlistRouter);
+console.log('✅ Waitlist system enabled at /api/waitlist/*');
+
 app.use('/api/keygrow', keygrowRouter);
 app.use('/api/real-estate-investor', realEstateInvestorRouter);
 app.use('/api/nft-marketplace', nftMarketplaceRouter);

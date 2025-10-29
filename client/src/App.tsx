@@ -85,6 +85,8 @@ import IELADashboardPage from './pages/IELADashboardPage';
 import DealMarketplacePage from './pages/DealMarketplacePage';
 import DealDetailPage from './pages/DealDetailPage';
 import EnterprisePage from './pages/EnterprisePage';
+import WaitlistPage from './pages/WaitlistPage';
+import WaitlistDashboard from './components/admin/WaitlistDashboard';
 
 // Legacy component for KeyGrow integration
 function KeyGrowPage() {
@@ -497,6 +499,8 @@ function App() {
                               <Route path="/admin/unified-registration" element={<UnifiedRegistrationAdminPage />} />
                               <Route path="/admin/iela/intake" element={<IELAIntakePage />} />
                               <Route path="/admin/iela/dashboard" element={<IELADashboardPage />} />
+                              <Route path="/admin/waitlist" element={<WaitlistDashboard />} />
+                              <Route path="/waitlist" element={<WaitlistPage />} />
                               <Route path="/liquidity-management" element={<LiquidityManagementPage />} />
                               <Route path="/premium-courses" element={<PremiumCoursesPage />} />
                               <Route path="/learn-how-it-works" element={<LearnHowItWorksPage />} />
