@@ -185,6 +185,7 @@ const Layout: React.FC<LayoutProps> = ({
 
   const navigationItems: NavigationItem[] = [
     { path: '/', label: 'Home' },
+    { path: '/waitlist', label: '🚀 Join Waitlist' },
     { path: '/dashboard', label: 'Dashboard' },
     { 
       path: '#', 
