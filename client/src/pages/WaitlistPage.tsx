@@ -303,13 +303,13 @@ const WaitlistPage: React.FC = () => {
           </h2>
           
           <p className="text-xl md:text-2xl text-blue-100 mb-4">
-            International crypto investors can now legally invest in U.S. real estate
+            Investors + Wholesalers: The only platform connecting <strong>$52B in crypto capital</strong> with wholesale deals
           </p>
           
           <p className="text-lg text-blue-200 mb-8 max-w-3xl mx-auto">
             The <strong>GENIUS Act</strong> unlocks <strong className="text-yellow-300">$52 billion</strong> in 
-            global crypto liquidity for U.S. real estate. AXIOM is the <strong>first-mover platform</strong> to 
-            capture this massive opportunity.
+            global crypto liquidity. AXIOM is the <strong>only platform</strong> giving wholesalers direct access to 
+            international crypto investors + verified U.S. buyers seeking fractional property ownership.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center text-white mb-8">
@@ -346,6 +346,65 @@ const WaitlistPage: React.FC = () => {
               <div>
                 <div className="text-3xl md:text-4xl font-bold text-green-300">50%</div>
                 <div className="text-sm text-blue-100">Lifetime Fee Discount</div>
+              </div>
+            </div>
+          </div>
+
+          {/* Why Founding Members Win Section */}
+          <div className="bg-gradient-to-br from-yellow-400 via-orange-400 to-orange-500 rounded-2xl p-8 mb-12 shadow-2xl">
+            <h3 className="text-3xl font-bold text-gray-900 mb-8 text-center">
+              Why Founding Members Win
+            </h3>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Card 1: Platform Fee */}
+              <div className="bg-white rounded-xl p-6 shadow-lg">
+                <div className="text-4xl mb-3">💵</div>
+                <h4 className="text-xl font-bold text-gray-900 mb-3">
+                  1% Platform Fee (50% Off Forever)
+                </h4>
+                <p className="text-gray-700 text-sm">
+                  Save $5,000 on every $500K investment compared to standard 2% fees. This 
+                  discount applies to <strong>every transaction</strong>, compounding your returns year after year.
+                </p>
+              </div>
+
+              {/* Card 2: First Access */}
+              <div className="bg-white rounded-xl p-6 shadow-lg">
+                <div className="text-4xl mb-3">🎯</div>
+                <h4 className="text-xl font-bold text-gray-900 mb-3">
+                  First Access to Premium Deals
+                </h4>
+                <p className="text-gray-700 text-sm">
+                  Get <strong>48-hour early access</strong> to new tokenized properties before they're available to the 
+                  general public. Best locations, highest yields, lowest entry points.
+                </p>
+              </div>
+
+              {/* Card 3: International Investor Focus */}
+              <div className="bg-white rounded-xl p-6 shadow-lg">
+                <div className="text-4xl mb-3">🌍</div>
+                <h4 className="text-xl font-bold text-gray-900 mb-3">
+                  International Investor Focus
+                </h4>
+                <p className="text-gray-700 text-sm">
+                  Built for DAOs, family offices, and international crypto investors. 
+                  Stablecoin escrow, multi-chain support (BSC, Polygon, Arbitrum), and 
+                  Chainalysis wallet screening for OFAC compliance.
+                </p>
+              </div>
+
+              {/* Card 4: Massive Market Opportunity */}
+              <div className="bg-white rounded-xl p-6 shadow-lg">
+                <div className="text-4xl mb-3">📈</div>
+                <h4 className="text-xl font-bold text-gray-900 mb-3">
+                  Massive Market Opportunity
+                </h4>
+                <p className="text-gray-700 text-sm">
+                  <strong>$52B</strong> crypto liquidity waiting to enter U.S. real estate. AXIOM is the 
+                  <strong> only platform</strong> positioned to capture this GENIUS Act opportunity with 
+                  full regulatory compliance.
+                </p>
               </div>
             </div>
           </div>
@@ -720,29 +779,32 @@ const WaitlistPage: React.FC = () => {
 
         <div className="max-w-6xl mx-auto mt-20 grid grid-cols-1 md:grid-cols-3 gap-8">
           <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 text-white">
-            <div className="text-4xl mb-4">🏠</div>
-            <h3 className="text-xl font-bold mb-2">Fractional Real Estate</h3>
+            <div className="text-4xl mb-4">🌎</div>
+            <h3 className="text-xl font-bold mb-2">Access $52B Global Investor Pool</h3>
             <p className="text-blue-100">
-              Own shares of U.S. rental properties starting at $500. Blockchain-verified ownership, 
-              monthly stablecoin distributions, and full transparency.
+              <strong>Why list on AXIOM?</strong> We're the ONLY platform connecting wholesalers to international 
+              crypto investors + verified U.S. buyers. DAOs, family offices, and accredited investors 
+              actively seeking wholesale deals with stablecoin liquidity.
             </p>
           </div>
 
           <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 text-white">
-            <div className="text-4xl mb-4">💰</div>
-            <h3 className="text-xl font-bold mb-2">Passive Income Streams</h3>
+            <div className="text-4xl mb-4">⚡</div>
+            <h3 className="text-xl font-bold mb-2">Faster Closings, Higher Margins</h3>
             <p className="text-blue-100">
-              Earn 6-12% annual yields from rental income + property appreciation. 
-              Distributions sent directly to your wallet in USDC, USDT, or BUSD.
+              Fractional ownership = <strong>10-50 buyers per property</strong> instead of finding 1 whale. 
+              Wholesale deals close in 48-72 hours with stablecoin escrow. Eliminate wire delays, 
+              bank holds, and financing contingencies.
             </p>
           </div>
 
           <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 text-white">
-            <div className="text-4xl mb-4">🔒</div>
-            <h3 className="text-xl font-bold mb-2">Institutional-Grade Security</h3>
+            <div className="text-4xl mb-4">💎</div>
+            <h3 className="text-xl font-bold mb-2">Invest Your Own Capital Too</h3>
             <p className="text-blue-100">
-              Chainalysis wallet screening, KYC/AML compliance, Circle escrow integration, 
-              and smart contract audits for maximum investor protection.
+              <strong>Wholesalers can invest</strong> in fractional shares of your own deals OR other properties. 
+              Earn 6-12% annual yields + appreciation on capital you keep deployed. Build a rental 
+              portfolio while wholesaling actively.
             </p>
           </div>
         </div>
