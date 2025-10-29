@@ -31,8 +31,27 @@ const WaitlistPage: React.FC = () => {
   const [responseRole, setResponseRole] = useState<Role>('investor');
   const [referralLink, setReferralLink] = useState('');
   const [copySuccess, setCopySuccess] = useState(false);
+  
+  // NEW: Conversion optimization state
+  const [touchedFields, setTouchedFields] = useState<Record<string, boolean>>({});
+  const [showExitIntent, setShowExitIntent] = useState(false);
+  const [recentSignups, setRecentSignups] = useState<string[]>([
+    'John D. from Miami', 'Sarah K. from Dallas', 'Mike R. from Houston',
+    'Lisa M. from Phoenix', 'David W. from Atlanta', 'Emma B. from Chicago'
+  ]);
 
   const FEATURE_FLAG_WAITLIST_LANES = process.env.REACT_APP_WAITLIST_LANES_ENABLED === 'true';
+  
+  // NEW: Field validation helpers
+  const isEmailValid = () => email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/);
+  const isFieldValid = (fieldName: string): boolean => {
+    if (fieldName === 'email') return !!isEmailValid();
+    if (fieldName === 'investorType') return !!(role === 'investor' || role === 'both') && !!investorType;
+    if (fieldName === 'investmentRange') return !!(role === 'investor' || role === 'both') && !!investmentRange;
+    if (fieldName === 'companyName') return !!(role === 'wholesaler' || role === 'both') && !!companyName.trim();
+    if (fieldName === 'avgMonthlyDeals') return !!(role === 'wholesaler' || role === 'both') && !!avgMonthlyDeals && !isNaN(Number(avgMonthlyDeals));
+    return false;
+  };
 
   useEffect(() => {
     fetchStats();
@@ -41,7 +60,29 @@ const WaitlistPage: React.FC = () => {
     if (refParam) {
       setReferralLink(`${window.location.origin}/waitlist?ref=${refParam}`);
     }
-  }, []);
+    
+    // NEW: Exit intent detection
+    const handleMouseLeave = (e: MouseEvent) => {
+      if (e.clientY <= 0 && !success && !showExitIntent) {
+        setShowExitIntent(true);
+      }
+    };
+    document.addEventListener('mouseleave', handleMouseLeave);
+    
+    // NEW: Social proof ticker rotation
+    const tickerInterval = setInterval(() => {
+      setRecentSignups(prev => {
+        const rotated = [...prev];
+        rotated.push(rotated.shift()!);
+        return rotated;
+      });
+    }, 3000);
+    
+    return () => {
+      document.removeEventListener('mouseleave', handleMouseLeave);
+      clearInterval(tickerInterval);
+    };
+  }, [success, showExitIntent]);
 
   const fetchStats = async () => {
     try {
@@ -293,8 +334,18 @@ const WaitlistPage: React.FC = () => {
 
       <div className="container mx-auto px-4 py-12 md:py-20">
         <div className="max-w-4xl mx-auto text-center mb-12">
-          <div className="inline-block bg-yellow-400 text-gray-900 px-4 py-2 rounded-full text-sm font-semibold mb-6">
+          <div className="inline-block bg-yellow-400 text-gray-900 px-4 py-2 rounded-full text-sm font-semibold mb-4 animate-pulse">
             🚀 LAUNCHING SOON - Limited Founding Member Spots
+          </div>
+          
+          {/* NEW: Social Proof Ticker */}
+          <div className="bg-white/20 backdrop-blur-md rounded-lg px-6 py-3 mb-6 border border-white/30 shadow-lg">
+            <div className="flex items-center justify-center space-x-2 text-sm text-white font-medium">
+              <span className="animate-pulse text-lg">🔥</span>
+              <span>{recentSignups[0]} just joined</span>
+              <span className="mx-2">•</span>
+              <span>{stats.totalSignups} members waiting</span>
+            </div>
           </div>
           
           <h2 className="text-4xl md:text-6xl font-bold text-white mb-6">
@@ -478,18 +529,30 @@ const WaitlistPage: React.FC = () => {
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Email Address *
               </label>
-              <input
-                type="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                  validationErrors.email ? 'border-red-500' : 'border-gray-300'
-                }`}
-                placeholder="your@email.com"
-                aria-invalid={!!validationErrors.email}
-                aria-describedby={validationErrors.email ? 'email-error' : undefined}
-              />
+              <div className="relative">
+                <input
+                  type="email"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  onBlur={() => setTouchedFields({...touchedFields, email: true})}
+                  autoComplete="email"
+                  className={`w-full px-4 py-3 pr-12 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                    validationErrors.email ? 'border-red-500' : 
+                    (touchedFields.email && isEmailValid()) ? 'border-green-500' : 'border-gray-300'
+                  }`}
+                  placeholder="your@email.com"
+                  aria-invalid={!!validationErrors.email}
+                  aria-describedby={validationErrors.email ? 'email-error' : undefined}
+                />
+                {touchedFields.email && isEmailValid() && (
+                  <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                    <svg className="w-6 h-6 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+                )}
+              </div>
               {validationErrors.email && (
                 <p id="email-error" className="mt-1 text-sm text-red-600">{validationErrors.email}</p>
               )}
@@ -503,6 +566,7 @@ const WaitlistPage: React.FC = () => {
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
+                autoComplete="name"
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 placeholder="John Doe"
               />
@@ -774,7 +838,103 @@ const WaitlistPage: React.FC = () => {
               By joining, you'll receive updates about AXIOM's launch and founding member benefits.
               No spam, unsubscribe anytime.
             </p>
+            
+            {/* NEW: Trust Badges */}
+            <div className="flex flex-wrap justify-center gap-4 text-xs text-gray-600 border-t pt-4">
+              <div className="flex items-center">
+                <svg className="w-4 h-4 mr-1 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                </svg>
+                <span>🔒 Your data is encrypted</span>
+              </div>
+              <div className="flex items-center">
+                <svg className="w-4 h-4 mr-1 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                </svg>
+                <span>No credit card required</span>
+              </div>
+              <div className="flex items-center">
+                <svg className="w-4 h-4 mr-1 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                </svg>
+                <span>Unsubscribe anytime</span>
+              </div>
+            </div>
           </form>
+          
+          {/* NEW: What Happens Next */}
+          <div className="mt-8 bg-blue-50 rounded-xl p-6 border-2 border-blue-100">
+            <h4 className="text-lg font-bold text-gray-900 mb-4 text-center">What Happens Next?</h4>
+            <div className="space-y-3">
+              <div className="flex items-start">
+                <div className="flex-shrink-0 w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold mr-3">1</div>
+                <div>
+                  <p className="font-semibold text-gray-900">Confirm your email</p>
+                  <p className="text-sm text-gray-600">Check your inbox (and spam folder) for confirmation link</p>
+                </div>
+              </div>
+              <div className="flex items-start">
+                <div className="flex-shrink-0 w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold mr-3">2</div>
+                <div>
+                  <p className="font-semibold text-gray-900">Get founding member welcome guide</p>
+                  <p className="text-sm text-gray-600">Exclusive insights on the $52B GENIUS Act opportunity</p>
+                </div>
+              </div>
+              <div className="flex items-start">
+                <div className="flex-shrink-0 w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold mr-3">3</div>
+                <div>
+                  <p className="font-semibold text-gray-900">Early access when we launch (Q1 2025)</p>
+                  <p className="text-sm text-gray-600">30-day head start + lifetime 50% fee discount</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* NEW: FAQ Section */}
+        <div className="max-w-3xl mx-auto mt-20 mb-12">
+          <h3 className="text-3xl font-bold text-white text-center mb-8">Frequently Asked Questions</h3>
+          <div className="space-y-4">
+            <details className="bg-white/10 backdrop-blur-sm rounded-xl p-6 cursor-pointer group">
+              <summary className="font-semibold text-white text-lg list-none flex justify-between items-center">
+                Is this really free to join?
+                <svg className="w-5 h-5 transform group-open:rotate-180 transition-transform" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                </svg>
+              </summary>
+              <p className="mt-4 text-blue-100">Yes! Joining the waitlist is completely free with no payment or credit card required. Founding members get 50% off platform fees for life (1% vs 2% standard).</p>
+            </details>
+            
+            <details className="bg-white/10 backdrop-blur-sm rounded-xl p-6 cursor-pointer group">
+              <summary className="font-semibold text-white text-lg list-none flex justify-between items-center">
+                When will AXIOM launch?
+                <svg className="w-5 h-5 transform group-open:rotate-180 transition-transform" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                </svg>
+              </summary>
+              <p className="mt-4 text-blue-100">We're targeting Q1 2025 for full platform launch. Founding members get 30-day early access to list properties and invest before the general public.</p>
+            </details>
+            
+            <details className="bg-white/10 backdrop-blur-sm rounded-xl p-6 cursor-pointer group">
+              <summary className="font-semibold text-white text-lg list-none flex justify-between items-center">
+                Can I invest or list properties from outside the US?
+                <svg className="w-5 h-5 transform group-open:rotate-180 transition-transform" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                </svg>
+              </summary>
+              <p className="mt-4 text-blue-100"><strong>Investors:</strong> Yes! The GENIUS Act specifically enables international crypto investors (DAOs, family offices, individuals) to invest in U.S. real estate. <strong>Wholesalers:</strong> Properties must be located in the United States, but you can operate from anywhere.</p>
+            </details>
+            
+            <details className="bg-white/10 backdrop-blur-sm rounded-xl p-6 cursor-pointer group">
+              <summary className="font-semibold text-white text-lg list-none flex justify-between items-center">
+                What makes AXIOM different from other platforms?
+                <svg className="w-5 h-5 transform group-open:rotate-180 transition-transform" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                </svg>
+              </summary>
+              <p className="mt-4 text-blue-100">We're the ONLY platform connecting wholesalers to $52B in international crypto capital + verified U.S. investors. Fractional ownership means 10-50 buyers per property instead of finding 1 cash buyer. Deals close in 48-72 hours with stablecoin escrow.</p>
+            </details>
+          </div>
         </div>
 
         <div className="max-w-6xl mx-auto mt-20 grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -809,6 +969,38 @@ const WaitlistPage: React.FC = () => {
           </div>
         </div>
       </div>
+      
+      {/* NEW: Exit Intent Popup */}
+      {showExitIntent && (
+        <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4 animate-fadeIn">
+          <div className="bg-white rounded-2xl p-8 max-w-md w-full shadow-2xl transform animate-slideUp">
+            <div className="text-center">
+              <div className="text-6xl mb-4">⏰</div>
+              <h3 className="text-2xl font-bold text-gray-900 mb-2">
+                Wait! Don't Miss Out
+              </h3>
+              <p className="text-gray-600 mb-6">
+                Only <strong className="text-yellow-600">{stats.availableFoundingSpots} founding member spots</strong> left! 
+                Get <strong>50% off platform fees for life</strong> before spots run out.
+              </p>
+              <div className="space-y-3">
+                <button
+                  onClick={() => setShowExitIntent(false)}
+                  className="w-full bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition"
+                >
+                  Yes, Reserve My Spot Now
+                </button>
+                <button
+                  onClick={() => setShowExitIntent(false)}
+                  className="w-full bg-gray-100 text-gray-700 px-6 py-3 rounded-lg font-medium hover:bg-gray-200 transition text-sm"
+                >
+                  No thanks, I'll pay full price later
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

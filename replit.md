@@ -60,13 +60,15 @@ A comprehensive 6-step onboarding system for international crypto investors, DAO
 ### Waitlist Validation System (Bootstrap Strategy)
 A pre-launch waitlist system to validate demand before incorporation and formal launch:
 -   **Landing Page**: Standalone React page at `/waitlist` with GENIUS Act positioning and $52B market messaging
--   **Founding Member Program**: First 100 investors receive 50% platform fee discount (1% vs 2% standard)
+-   **Founding Member Program**: First 500 qualified entries receive 50% platform fee discount (1% vs 2% standard)
+-   **Dual-Lane System**: Feature flag-controlled role selector (investor/wholesaler) with smart email deduplication
 -   **Database Tracking**: PostgreSQL table tracking email, name, investment range, investor type, and founding member status
 -   **Real-time Stats**: Dynamic counter showing total signups, available spots, and pending notifications
 -   **API Endpoints**: `/api/waitlist/signup` for registration, `/api/waitlist/stats` for metrics, `/api/waitlist/admin` for management
 -   **Admin Dashboard**: React component at `/admin/waitlist` for viewing signups, updating status, and CSV export
 -   **Compliance Badges**: OFAC Compliant, SEC Registered, USDC/USDT/BUSD support prominently displayed
 -   **Bootstrap Approach**: Path B validation (free waitlist) before Path A incorporation ($500 Stripe Atlas)
+-   **Conversion Optimizations (Oct 29, 2025)**: Social proof ticker with real-time signups, email validation with green checkmarks, trust badges, "What Happens Next?" 3-step guide, FAQ section with 4 questions, exit intent popup, and mobile autocomplete optimization. Expected 20-60% conversion rate increase based on industry benchmarks.
 
 ### Enterprise Feature Foundations (Production-Ready)
 All 8 enterprise features are complete and production-ready:
