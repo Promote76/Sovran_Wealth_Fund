@@ -15,7 +15,7 @@ import { Textarea } from "../ui/textarea";
 import { Label } from "../ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 import { Checkbox } from "../ui/checkbox";
-import { RadioGroup, RadioGroupItem } from "../ui/radio-group";
+import { SimpleRadioGroup as RadioGroup, SimpleRadioGroupItem as RadioGroupItem } from "../ui/simple-radio-group";
 import { Separator } from "../ui/separator";
 import { Badge } from "../ui/badge";
 import { Progress } from "../ui/progress";
