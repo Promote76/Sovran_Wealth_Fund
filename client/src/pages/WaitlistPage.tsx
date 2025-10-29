@@ -303,9 +303,7 @@ const WaitlistPage: React.FC = () => {
           </h2>
           
           <p className="text-xl md:text-2xl text-blue-100 mb-4">
-            {FEATURE_FLAG_WAITLIST_LANES 
-              ? 'For Investors & Wholesalers - Join the revolution in crypto real estate'
-              : 'International crypto investors can now legally invest in U.S. real estate'}
+            International crypto investors can now legally invest in U.S. real estate
           </p>
           
           <p className="text-lg text-blue-200 mb-8 max-w-3xl mx-auto">
@@ -336,26 +334,18 @@ const WaitlistPage: React.FC = () => {
           </div>
 
           <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 mb-12">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-white">
+            <div className="grid grid-cols-3 gap-6 text-white">
               <div>
                 <div className="text-3xl md:text-4xl font-bold text-blue-300">{stats.totalSignups}</div>
-                <div className="text-sm text-blue-100">Total Signups</div>
+                <div className="text-sm text-blue-100">Investors Waiting</div>
               </div>
-              {FEATURE_FLAG_WAITLIST_LANES && (
-                <>
-                  <div>
-                    <div className="text-3xl md:text-4xl font-bold text-green-300">{stats.investors}</div>
-                    <div className="text-sm text-blue-100">Investors</div>
-                  </div>
-                  <div>
-                    <div className="text-3xl md:text-4xl font-bold text-purple-300">{stats.wholesalers}</div>
-                    <div className="text-sm text-blue-100">Wholesalers</div>
-                  </div>
-                </>
-              )}
               <div>
                 <div className="text-3xl md:text-4xl font-bold text-yellow-300">{stats.availableFoundingSpots}</div>
                 <div className="text-sm text-blue-100">Founding Spots Left</div>
+              </div>
+              <div>
+                <div className="text-3xl md:text-4xl font-bold text-green-300">50%</div>
+                <div className="text-sm text-blue-100">Lifetime Fee Discount</div>
               </div>
             </div>
           </div>
@@ -366,9 +356,7 @@ const WaitlistPage: React.FC = () => {
             Join the Waitlist
           </h3>
           <p className="text-gray-600 text-center mb-6">
-            {FEATURE_FLAG_WAITLIST_LANES 
-              ? 'First 500 qualified members get exclusive founding benefits'
-              : 'First 100 investors get 50% off platform fees for life'}
+            First 100 investors get <strong>50% off platform fees for life</strong>
           </p>
 
           {error && (
