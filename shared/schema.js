@@ -879,19 +879,30 @@ const investorRevenuePayments = pgTable('investor_revenue_payments', {
   walletAddressIdx: index('investor_revenue_wallet_idx').on(table.walletAddress)
 }));
 
-// Waitlist table for pre-launch validation
+// Waitlist table for pre-launch validation (dual-lane: investors + wholesalers)
 const waitlist = pgTable('waitlist', {
   id: serial('id').primaryKey(),
   email: varchar('email', { length: 255 }).notNull().unique(),
   name: varchar('name', { length: 255 }),
   country: varchar('country', { length: 100 }),
+  role: varchar('role', { length: 20 }).default('investor'),
   investmentRange: varchar('investment_range', { length: 50 }),
   investorType: varchar('investor_type', { length: 50 }),
+  companyName: varchar('company_name', { length: 255 }),
+  marketsServed: text('markets_served'),
+  avgMonthlyDeals: integer('avg_monthly_deals'),
+  assignmentFeePercent: decimal('assignment_fee_percent', { precision: 5, scale: 2 }),
+  entityType: varchar('entity_type', { length: 50 }),
+  hasEin: boolean('has_ein'),
+  hasEoInsurance: boolean('has_eo_insurance'),
+  tags: text('tags'),
   source: varchar('source', { length: 100 }),
-  foundingMember: boolean('founding_member').default(true),
+  foundingMember: boolean('founding_member').default(false),
   status: varchar('status', { length: 20 }).default('pending'),
   notified: boolean('notified').default(false),
   notifiedAt: timestamp('notified_at'),
+  confirmedAt: timestamp('confirmed_at'),
+  confirmationToken: varchar('confirmation_token', { length: 255 }),
   convertedAt: timestamp('converted_at'),
   notes: text('notes'),
   createdAt: timestamp('created_at').defaultNow().notNull(),
@@ -899,6 +910,7 @@ const waitlist = pgTable('waitlist', {
 }, (table) => ({
   emailIdx: index('waitlist_email_idx').on(table.email),
   statusIdx: index('waitlist_status_idx').on(table.status),
+  roleIdx: index('waitlist_role_idx').on(table.role),
   createdAtIdx: index('waitlist_created_at_idx').on(table.createdAt)
 }));
 
