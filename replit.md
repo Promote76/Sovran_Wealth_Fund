@@ -56,6 +56,17 @@ A comprehensive 6-step onboarding system for international crypto investors, DAO
 -   **API Endpoint**: `/api/investors/international/onboarding` orchestrates KYC, wallet screening, and escrow generation
 -   **Frontend Integration**: Accessible via Investor Page → International Onboarding tab with React/TypeScript wizard
 
+### Waitlist Validation System (Bootstrap Strategy)
+A pre-launch waitlist system to validate demand before incorporation and formal launch:
+-   **Landing Page**: Standalone React page at `/waitlist` with GENIUS Act positioning and $52B market messaging
+-   **Founding Member Program**: First 100 investors receive 50% platform fee discount (1% vs 2% standard)
+-   **Database Tracking**: PostgreSQL table tracking email, name, investment range, investor type, and founding member status
+-   **Real-time Stats**: Dynamic counter showing total signups, available spots, and pending notifications
+-   **API Endpoints**: `/api/waitlist/signup` for registration, `/api/waitlist/stats` for metrics, `/api/waitlist/admin` for management
+-   **Admin Dashboard**: React component at `/admin/waitlist` for viewing signups, updating status, and CSV export
+-   **Compliance Badges**: OFAC Compliant, SEC Registered, USDC/USDT/BUSD support prominently displayed
+-   **Bootstrap Approach**: Path B validation (free waitlist) before Path A incorporation ($500 Stripe Atlas)
+
 ### Enterprise Feature Foundations (Production-Ready)
 All 8 enterprise features are complete and production-ready:
 1.  **Liquidity & Redemption Desk**: A managed secondary market for fractional property shares with price-time priority matching, treasury liquidity, automated compliance, and 2% platform fees.
