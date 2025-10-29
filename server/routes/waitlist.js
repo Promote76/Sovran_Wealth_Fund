@@ -347,6 +347,39 @@ router.get('/stats', async (req, res) => {
 });
 
 /**
+ * GET /api/waitlist/recent
+ * Get recent signups for social proof ticker
+ */
+router.get('/recent', async (req, res) => {
+  try {
+    const recentSignups = await db
+      .select({
+        name: waitlist.name,
+        email: waitlist.email,
+        role: waitlist.role,
+        investor_type: waitlist.investorType,
+        created_at: waitlist.createdAt
+      })
+      .from(waitlist)
+      .where(eq(waitlist.status, 'qualified'))
+      .orderBy(desc(waitlist.createdAt))
+      .limit(6);
+
+    res.json({
+      success: true,
+      recent: recentSignups
+    });
+
+  } catch (error) {
+    console.error('❌ Recent signups fetch error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch recent signups'
+    });
+  }
+});
+
+/**
  * GET /api/waitlist/admin
  * Get all waitlist entries (admin only)
  */

@@ -36,8 +36,8 @@ const WaitlistPage: React.FC = () => {
   const [touchedFields, setTouchedFields] = useState<Record<string, boolean>>({});
   const [showExitIntent, setShowExitIntent] = useState(false);
   const [recentSignups, setRecentSignups] = useState<string[]>([
-    'John D. from Miami', 'Sarah K. from Dallas', 'Mike R. from Houston',
-    'Lisa M. from Phoenix', 'David W. from Atlanta', 'Emma B. from Chicago'
+    'Sarah K. from Dallas', 'Michael R. from Houston', 'Jennifer L. from Phoenix',
+    'David W. from Atlanta', 'Emily B. from Chicago', 'Robert M. from Miami'
   ]);
 
   const FEATURE_FLAG_WAITLIST_LANES = process.env.REACT_APP_WAITLIST_LANES_ENABLED === 'true';
@@ -55,6 +55,7 @@ const WaitlistPage: React.FC = () => {
 
   useEffect(() => {
     fetchStats();
+    fetchRecentSignups();
     const params = new URLSearchParams(window.location.search);
     const refParam = params.get('ref');
     if (refParam) {
@@ -83,6 +84,24 @@ const WaitlistPage: React.FC = () => {
       clearInterval(tickerInterval);
     };
   }, [success, showExitIntent]);
+
+  const fetchRecentSignups = async () => {
+    try {
+      const response = await axios.get('/api/waitlist/recent');
+      if (response.data.success && response.data.recent.length > 0) {
+        // Use real data if available
+        const names = response.data.recent.map((signup: any) => {
+          const firstName = signup.name?.split(' ')[0] || 'Someone';
+          const role = signup.investor_type ? 'investor' : 'wholesaler';
+          return `${firstName} (${role})`;
+        });
+        setRecentSignups(names);
+      }
+    } catch (err) {
+      // Silently fail and use fallback names
+      console.log('Using fallback social proof names');
+    }
+  };
 
   const fetchStats = async () => {
     try {
@@ -883,7 +902,7 @@ const WaitlistPage: React.FC = () => {
               <div className="flex items-start">
                 <div className="flex-shrink-0 w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold mr-3">3</div>
                 <div>
-                  <p className="font-semibold text-gray-900">Early access when we launch (Q1 2025)</p>
+                  <p className="font-semibold text-gray-900">Early access when we launch (Q2 2026)</p>
                   <p className="text-sm text-gray-600">30-day head start + lifetime 50% fee discount</p>
                 </div>
               </div>
@@ -912,7 +931,7 @@ const WaitlistPage: React.FC = () => {
                   <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
                 </svg>
               </summary>
-              <p className="mt-4 text-blue-100">We're targeting Q1 2025 for full platform launch. Founding members get 30-day early access to list properties and invest before the general public.</p>
+              <p className="mt-4 text-blue-100">We're targeting Q2 2026 for full platform launch. Founding members get 30-day early access to list properties and invest before the general public.</p>
             </details>
             
             <details className="bg-white/10 backdrop-blur-sm rounded-xl p-6 cursor-pointer group">
