@@ -4,7 +4,7 @@ import { useStats } from '../contexts/StatsContext';
 import IntelligenceDashboard from '../components/investor/IntelligenceDashboard';
 import CashFlowProjections from '../components/investor/CashFlowProjections';
 import PortfolioAnalytics from '../components/investor/PortfolioAnalytics';
-import InternationalOnboarding from '../components/investor/InternationalOnboarding';
+import InternationalOnboardingV2 from '../components/investor/InternationalOnboardingV2';
 
 const InvestorPage: React.FC = () => {
   const navigate = useNavigate();
@@ -404,13 +404,7 @@ const InvestorPage: React.FC = () => {
                   </p>
                 </div>
 
-                <InternationalOnboarding 
-                  apiBaseUrl="/api/investors"
-                  onComplete={(data) => {
-                    console.log('Onboarding complete:', data);
-                    alert('Onboarding application submitted successfully! Check your email for next steps.');
-                  }}
-                />
+                <InternationalOnboardingV2 />
               </div>
             )}
 
