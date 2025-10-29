@@ -11,7 +11,9 @@ const nextConfig = {
   swcMinify: false,
   images: {
     unoptimized: true
-  }
+  },
+  output: 'export',
+  distDir: 'client/build'
 }
 
 module.exports = nextConfig

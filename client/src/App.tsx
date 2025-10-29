@@ -441,6 +441,7 @@ function App() {
                     <ErrorBoundary level="section">
                       <Routes>
                         {/* Special routes WITHOUT Layout */}
+                        <Route path="/waitlist" element={<WaitlistPage />} />
                         <Route path="/register" element={<UnifiedRegistrationPage />} />
                         <Route path="/onboarding" element={<OnboardingFlow />} />
                         <Route path="/keygrow" element={<KeyGrowDashboardPage />} />
@@ -500,7 +501,6 @@ function App() {
                               <Route path="/admin/iela/intake" element={<IELAIntakePage />} />
                               <Route path="/admin/iela/dashboard" element={<IELADashboardPage />} />
                               <Route path="/admin/waitlist" element={<WaitlistDashboard />} />
-                              <Route path="/waitlist" element={<WaitlistPage />} />
                               <Route path="/liquidity-management" element={<LiquidityManagementPage />} />
                               <Route path="/premium-courses" element={<PremiumCoursesPage />} />
                               <Route path="/learn-how-it-works" element={<LearnHowItWorksPage />} />

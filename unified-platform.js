@@ -2,6 +2,7 @@
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
+const fs = require('fs');
 const bodyParser = require('body-parser');
 const session = require('express-session');
 const rateLimit = require('express-rate-limit');
@@ -4455,8 +4456,17 @@ app.use((req, res, next) => {
   next();
 });
 
-// Handle React Router routes - serve index.html for all non-API routes
+// Handle Next.js static export routes - serve specific HTML files or fall back to index.html
 app.get(/^(?!\/api).*/, (req, res) => {
+  const requestPath = req.path === '/' ? '/index' : req.path;
+  const htmlFilePath = path.join(__dirname, 'client/build', `${requestPath}.html`);
+  
+  // Check if a specific HTML file exists for this route
+  if (fs.existsSync(htmlFilePath)) {
+    return res.sendFile(htmlFilePath);
+  }
+  
+  // Fall back to index.html for client-side routing
   res.sendFile(path.join(__dirname, 'client/build', 'index.html'));
 });
 
