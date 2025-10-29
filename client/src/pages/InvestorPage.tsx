@@ -4,7 +4,7 @@ import { useStats } from '../contexts/StatsContext';
 import IntelligenceDashboard from '../components/investor/IntelligenceDashboard';
 import CashFlowProjections from '../components/investor/CashFlowProjections';
 import PortfolioAnalytics from '../components/investor/PortfolioAnalytics';
-import InternationalOnboardingV2 from '../components/investor/InternationalOnboardingV2';
+import InternationalOnboarding from '../components/investor/InternationalOnboarding';
 
 const InvestorPage: React.FC = () => {
   const navigate = useNavigate();
@@ -404,7 +404,7 @@ const InvestorPage: React.FC = () => {
                   </p>
                 </div>
 
-                <InternationalOnboardingV2 />
+                <InternationalOnboarding />
               </div>
             )}
 
