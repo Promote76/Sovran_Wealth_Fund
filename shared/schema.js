@@ -884,6 +884,7 @@ const waitlist = pgTable('waitlist', {
   id: serial('id').primaryKey(),
   email: varchar('email', { length: 255 }).notNull().unique(),
   name: varchar('name', { length: 255 }),
+  country: varchar('country', { length: 100 }),
   investmentRange: varchar('investment_range', { length: 50 }),
   investorType: varchar('investor_type', { length: 50 }),
   source: varchar('source', { length: 100 }),

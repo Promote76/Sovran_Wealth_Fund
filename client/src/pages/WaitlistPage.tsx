@@ -4,6 +4,7 @@ import axios from 'axios';
 const WaitlistPage: React.FC = () => {
   const [email, setEmail] = useState('');
   const [name, setName] = useState('');
+  const [country, setCountry] = useState('');
   const [investmentRange, setInvestmentRange] = useState('');
   const [investorType, setInvestorType] = useState('');
   const [loading, setLoading] = useState(false);
@@ -36,6 +37,7 @@ const WaitlistPage: React.FC = () => {
       const response = await axios.post('/api/waitlist/signup', {
         email,
         name,
+        country,
         investmentRange,
         investorType,
         source: 'landing_page'
@@ -294,6 +296,43 @@ const WaitlistPage: React.FC = () => {
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 placeholder="John Doe"
               />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Country/Region
+              </label>
+              <select
+                value={country}
+                onChange={(e) => setCountry(e.target.value)}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              >
+                <option value="">Select country...</option>
+                <option value="United States">🇺🇸 United States of America</option>
+                <option value="">───────────────────</option>
+                <option value="United Arab Emirates">🇦🇪 United Arab Emirates</option>
+                <option value="United Kingdom">🇬🇧 United Kingdom</option>
+                <option value="Singapore">🇸🇬 Singapore</option>
+                <option value="Canada">🇨🇦 Canada</option>
+                <option value="Australia">🇦🇺 Australia</option>
+                <option value="Germany">🇩🇪 Germany</option>
+                <option value="France">🇫🇷 France</option>
+                <option value="Switzerland">🇨🇭 Switzerland</option>
+                <option value="Netherlands">🇳🇱 Netherlands</option>
+                <option value="Brazil">🇧🇷 Brazil</option>
+                <option value="Mexico">🇲🇽 Mexico</option>
+                <option value="India">🇮🇳 India</option>
+                <option value="China">🇨🇳 China</option>
+                <option value="Japan">🇯🇵 Japan</option>
+                <option value="South Korea">🇰🇷 South Korea</option>
+                <option value="Nigeria">🇳🇬 Nigeria</option>
+                <option value="South Africa">🇿🇦 South Africa</option>
+                <option value="Argentina">🇦🇷 Argentina</option>
+                <option value="Spain">🇪🇸 Spain</option>
+                <option value="Italy">🇮🇹 Italy</option>
+                <option value="Turkey">🇹🇷 Turkey</option>
+                <option value="Other">🌍 Other</option>
+              </select>
             </div>
 
             <div>

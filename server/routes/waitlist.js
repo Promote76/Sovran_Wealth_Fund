@@ -10,7 +10,7 @@ const { eq, desc, sql } = require('drizzle-orm');
  */
 router.post('/signup', async (req, res) => {
   try {
-    const { email, name, investmentRange, investorType, source } = req.body;
+    const { email, name, country, investmentRange, investorType, source } = req.body;
 
     // Validate email
     if (!email || !email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
@@ -42,6 +42,7 @@ router.post('/signup', async (req, res) => {
       .values({
         email: email.toLowerCase(),
         name: name || null,
+        country: country || null,
         investmentRange: investmentRange || null,
         investorType: investorType || null,
         source: source || 'direct',
