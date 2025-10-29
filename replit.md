@@ -55,6 +55,7 @@ A comprehensive 6-step onboarding system for international crypto investors, DAO
 -   **Compliance Automation**: Integrated FATCA/CRS tax certification, risk disclosures, and terms acceptance
 -   **API Endpoint**: `/api/investors/international/onboarding` orchestrates KYC, wallet screening, and escrow generation
 -   **Frontend Integration**: Accessible via Investor Page → International Onboarding tab with React/TypeScript wizard
+-   **Fixed (Oct 29, 2025)**: Resolved TypeScript validation errors in disclosures schema - changed from `z.literal(true)` to `z.boolean().refine()` pattern
 
 ### Waitlist Validation System (Bootstrap Strategy)
 A pre-launch waitlist system to validate demand before incorporation and formal launch:
