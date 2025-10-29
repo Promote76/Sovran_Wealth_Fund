@@ -104,14 +104,14 @@ const fundingSchema = z.object({
 });
 
 const disclosuresSchema = z.object({
-  fatcaCrsSelfCert: z.literal(true, {
-    errorMap: () => ({ message: "You must certify your tax residency status" }),
+  fatcaCrsSelfCert: z.boolean().refine((val) => val === true, {
+    message: "You must certify your tax residency status",
   }),
-  understandsRisk: z.literal(true, {
-    errorMap: () => ({ message: "You must acknowledge the investment risks" }),
+  understandsRisk: z.boolean().refine((val) => val === true, {
+    message: "You must acknowledge the investment risks",
   }),
-  agreesToTerms: z.literal(true, {
-    errorMap: () => ({ message: "You must agree to the terms" }),
+  agreesToTerms: z.boolean().refine((val) => val === true, {
+    message: "You must agree to the terms",
   }),
 });
 
