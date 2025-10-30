@@ -29,7 +29,7 @@ const DealDetailPage: React.FC = () => {
   const [selectedImage, setSelectedImage] = useState(0);
   const [fractionalProperty, setFractionalProperty] = useState<any>(null);
   const [fractionalLoading, setFractionalLoading] = useState(false);
-  const [investmentAmount, setInvestmentAmount] = useState<string>('30');
+  const [investmentAmount, setInvestmentAmount] = useState<string>('');
   const [calculatedShares, setCalculatedShares] = useState<number>(0);
 
   useEffect(() => {
@@ -94,6 +94,11 @@ const DealDetailPage: React.FC = () => {
 
   useEffect(() => {
     if (fractionalProperty) {
+      // Set default investment amount to the minimum investment if not set
+      if (!investmentAmount) {
+        const minInv = parseFloat(fractionalProperty.minInvestment || fractionalProperty.sharePrice || 40);
+        setInvestmentAmount(minInv.toString());
+      }
       calculateShares(investmentAmount);
     }
   }, [investmentAmount, fractionalProperty]);
@@ -295,7 +300,7 @@ const DealDetailPage: React.FC = () => {
                     💰 Invest in Fractional Shares
                   </h2>
                   <p className="text-lg text-gray-700">
-                    Own a piece of this property starting from just <span className="font-bold text-purple-600">$30</span>
+                    Own a piece of this property starting from just <span className="font-bold text-purple-600">{formatCurrency(parseFloat(fractionalProperty.minInvestment || fractionalProperty.sharePrice || 40))}</span>
                   </p>
                 </div>
                 <span className="bg-purple-600 text-white px-4 py-2 rounded-full text-sm font-semibold">
@@ -316,15 +321,15 @@ const DealDetailPage: React.FC = () => {
                       <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 text-lg">$</span>
                       <input
                         type="number"
-                        min="30"
-                        step="10"
+                        min={fractionalProperty?.minInvestment || fractionalProperty?.sharePrice || 30}
+                        step={fractionalProperty?.sharePrice || 10}
                         value={investmentAmount}
                         onChange={(e) => setInvestmentAmount(e.target.value)}
                         className="w-full pl-8 pr-4 py-3 text-lg font-semibold border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
                         placeholder="Enter amount"
                       />
                     </div>
-                    <p className="text-xs text-gray-500 mt-1">Minimum: $30</p>
+                    <p className="text-xs text-gray-500 mt-1">Minimum: {formatCurrency(parseFloat(fractionalProperty?.minInvestment || fractionalProperty?.sharePrice || 30))}</p>
                   </div>
 
                   <div className="bg-gradient-to-br from-purple-100 to-blue-100 p-4 rounded-lg border border-purple-300">
@@ -400,7 +405,7 @@ const DealDetailPage: React.FC = () => {
                 <div className="bg-white p-4 rounded-lg border border-purple-200">
                   <div className="text-sm text-gray-600 mb-1">Minimum Investment</div>
                   <div className="text-2xl font-bold text-orange-600">
-                    $30
+                    {formatCurrency(parseFloat(fractionalProperty.minInvestment || fractionalProperty.sharePrice || 30))}
                   </div>
                 </div>
               </div>
