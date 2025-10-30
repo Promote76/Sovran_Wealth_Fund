@@ -54,7 +54,7 @@ function convertDropboxUrl(url) {
 function generateMarketplaceMetaTags(baseUrl) {
   const marketplaceUrl = `${baseUrl}/deals`;
   const title = "Wholesale Real Estate Marketplace | AXIOM";
-  const description = "Pre-analyzed investment properties with verified numbers. Fractional ownership starting at $500. OFAC compliant, SEC registered. USDC/USDT/BNB accepted.";
+  const description = "Pre-analyzed investment properties with verified numbers. Fractional ownership starting at $30. OFAC compliant. USDC/USDT/BNB accepted. International investors welcome.";
   const image = `${baseUrl}/og-marketplace.jpg`;
   
   return `

@@ -105,9 +105,6 @@ const DealMarketplacePage: React.FC = () => {
                 ✅ OFAC Compliant
               </div>
               <div className="bg-white bg-opacity-20 backdrop-blur-sm px-4 py-2 rounded-full">
-                🔒 SEC Registered
-              </div>
-              <div className="bg-white bg-opacity-20 backdrop-blur-sm px-4 py-2 rounded-full">
                 🌐 International Investors Welcome
               </div>
               <div className="bg-white bg-opacity-20 backdrop-blur-sm px-4 py-2 rounded-full">
@@ -147,7 +144,7 @@ const DealMarketplacePage: React.FC = () => {
               </div>
               <h3 className="font-bold text-gray-800 mb-2">3. Invest or Purchase</h3>
               <p className="text-sm text-gray-600">
-                Buy fractional shares starting at $500, or acquire entire properties. Crypto and fiat payments accepted.
+                Buy fractional shares starting at $30, or acquire entire properties. Crypto and fiat payments accepted.
               </p>
             </div>
           </div>
@@ -166,7 +163,7 @@ const DealMarketplacePage: React.FC = () => {
               </li>
               <li className="flex items-start">
                 <span className="text-green-500 mr-2">✓</span>
-                <span>Fractional ownership starting at $500</span>
+                <span>Fractional ownership starting at $30</span>
               </li>
               <li className="flex items-start">
                 <span className="text-green-500 mr-2">✓</span>
