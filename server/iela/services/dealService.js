@@ -328,6 +328,77 @@ class DealService {
     return this.getDeal(dealId);
   }
 
+  async updateDeal(dealId, updates) {
+    const [deal] = await db
+      .select()
+      .from(deals)
+      .where(eq(deals.id, dealId));
+
+    if (!deal) {
+      throw new Error(`Deal not found: ${dealId}`);
+    }
+
+    const updateData = {
+      updatedAt: new Date()
+    };
+
+    if (updates.parsed) {
+      updateData.parsed = { ...deal.parsed, ...updates.parsed };
+    }
+
+    if (updates.repairs) {
+      updateData.repairs = { ...deal.repairs, ...updates.repairs };
+    }
+
+    if (updates.media) {
+      updateData.media = updates.media;
+    }
+
+    if (updates.notes) {
+      updateData.notes = updates.notes;
+    }
+
+    await db
+      .update(deals)
+      .set(updateData)
+      .where(eq(deals.id, dealId));
+
+    console.log(`📝 IELA: Deal ${dealId} updated successfully`);
+
+    return this.getDeal(dealId);
+  }
+
+  async addDealImages(dealId, imageUrls) {
+    const [deal] = await db
+      .select()
+      .from(deals)
+      .where(eq(deals.id, dealId));
+
+    if (!deal) {
+      throw new Error(`Deal not found: ${dealId}`);
+    }
+
+    const existingMedia = deal.media || [];
+    const newMedia = imageUrls.map(url => ({
+      url,
+      type: 'image',
+      source: 'manual_upload',
+      addedAt: new Date().toISOString()
+    }));
+
+    await db
+      .update(deals)
+      .set({
+        media: [...existingMedia, ...newMedia],
+        updatedAt: new Date()
+      })
+      .where(eq(deals.id, dealId));
+
+    console.log(`📸 IELA: ${newMedia.length} images added to deal ${dealId}`);
+
+    return this.getDeal(dealId);
+  }
+
   async deleteDeal(dealId) {
     const [deal] = await db
       .select()

@@ -170,18 +170,18 @@ router.get('/', async (req, res) => {
 router.put('/:dealId', async (req, res) => {
   try {
     const { dealId } = req.params;
-    const { status } = req.body;
+    const updates = req.body;
 
-    if (!status) {
+    if (!updates || Object.keys(updates).length === 0) {
       return res.status(400).json({
         success: false,
-        error: 'status is required'
+        error: 'No updates provided'
       });
     }
 
-    const deal = await dealService.updateDealStatus(dealId, status);
+    const deal = await dealService.updateDeal(dealId, updates);
 
-    console.log(`✅ IELA: Deal ${dealId} status updated to ${status}`);
+    console.log(`✅ IELA: Deal ${dealId} updated`);
 
     res.json({
       success: true,
@@ -189,6 +189,35 @@ router.put('/:dealId', async (req, res) => {
     });
   } catch (error) {
     console.error('❌ IELA update error:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+router.post('/:dealId/upload-images', async (req, res) => {
+  try {
+    const { dealId } = req.params;
+    const { images } = req.body;
+
+    if (!images || !Array.isArray(images)) {
+      return res.status(400).json({
+        success: false,
+        error: 'images array is required'
+      });
+    }
+
+    const deal = await dealService.addDealImages(dealId, images);
+
+    console.log(`✅ IELA: ${images.length} images added to deal ${dealId}`);
+
+    res.json({
+      success: true,
+      data: deal
+    });
+  } catch (error) {
+    console.error('❌ IELA upload images error:', error);
     res.status(500).json({
       success: false,
       error: error.message

@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import AdminLoginForm from '../components/AdminLoginForm';
+import DealEditModal from '../components/DealEditModal';
+import { uploadImagesToDropbox } from '../utils/imageUpload';
 
 interface Deal {
   id: string;
   parsed: any;
   repairs: any;
   analysis: any;
+  media: any[];
   status: string;
   createdAt: string;
 }
@@ -18,6 +21,8 @@ const IELADashboardPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
+  const [editingDeal, setEditingDeal] = useState<Deal | null>(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
   // Define functions and effects first (before early returns)
   const loadDeals = async () => {
@@ -135,6 +140,43 @@ const IELADashboardPage: React.FC = () => {
     } catch (err) {
       console.error('Failed to publish deal:', err);
       alert('Failed to publish deal. Check console for details.');
+    }
+  };
+
+  const handleEdit = (deal: Deal) => {
+    setEditingDeal(deal);
+    setIsEditModalOpen(true);
+  };
+
+  const handleSaveDeal = async (dealId: string, updates: any, images: File[]) => {
+    try {
+      let imageUrls: string[] = [];
+      
+      if (images.length > 0) {
+        imageUrls = await uploadImagesToDropbox(images);
+      }
+
+      const response = await fetch(`/api/deals/${dealId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ...updates,
+          media: [...(updates.media || []), ...imageUrls.map(url => ({ url, type: 'image', source: 'manual_upload' }))]
+        })
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        alert('✅ Deal updated successfully!');
+        setIsEditModalOpen(false);
+        loadDeals();
+      } else {
+        throw new Error(data.error || 'Failed to update deal');
+      }
+    } catch (error) {
+      console.error('Failed to save deal:', error);
+      throw error;
     }
   };
 
@@ -367,6 +409,13 @@ const IELADashboardPage: React.FC = () => {
                       </td>
                       <td className="px-6 py-4 text-sm">
                         <div className="flex gap-2">
+                          <button
+                            onClick={() => handleEdit(deal)}
+                            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+                            title="Edit deal details"
+                          >
+                            ✏️ Edit
+                          </button>
                           {deal.status === 'published' ? (
                             <span className="text-green-600 font-medium">✅ Live</span>
                           ) : deal.analysis ? (
@@ -395,6 +444,18 @@ const IELADashboardPage: React.FC = () => {
             )}
           </div>
         </div>
+
+        {editingDeal && (
+          <DealEditModal
+            deal={editingDeal}
+            isOpen={isEditModalOpen}
+            onClose={() => {
+              setIsEditModalOpen(false);
+              setEditingDeal(null);
+            }}
+            onSave={handleSaveDeal}
+          />
+        )}
       </div>
     </div>
   );
