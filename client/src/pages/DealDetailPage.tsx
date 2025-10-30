@@ -195,66 +195,72 @@ const DealDetailPage: React.FC = () => {
         {/* Property Header */}
         <Card className="mb-6">
           <CardContent className="p-6">
-            <div className="flex justify-between items-start mb-4">
-              <div>
-                <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                  {deal.parsed?.address}
-                </h1>
-                <p className="text-xl text-gray-600">
-                  {deal.parsed?.city}, {deal.parsed?.state} {deal.parsed?.zip}
-                </p>
-              </div>
-              <div className="flex flex-col gap-3">
-                <div className="flex gap-2">
-                  {isRTOReady && (
-                    <span className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-semibold">
-                      ✅ RTO-READY
+            <div className="mb-4">
+              <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-4">
+                <div className="flex-1">
+                  <h1 className="text-3xl font-bold text-gray-900 mb-2">
+                    {deal.parsed?.address}
+                  </h1>
+                  <p className="text-xl text-gray-600">
+                    {deal.parsed?.city}, {deal.parsed?.state} {deal.parsed?.zip}
+                  </p>
+                </div>
+                <div className="flex flex-col gap-2">
+                  <div className="flex flex-wrap gap-2">
+                    {isRTOReady && (
+                      <span className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-semibold whitespace-nowrap">
+                        ✅ RTO-READY
+                      </span>
+                    )}
+                    <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-semibold whitespace-nowrap">
+                      💎 INVESTOR DEAL
                     </span>
-                  )}
-                  <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-semibold">
-                    💎 INVESTOR DEAL
-                  </span>
+                  </div>
                 </div>
-                
-                {/* Social Share Buttons */}
-                <div className="flex gap-2">
-                  <Button
-                    onClick={() => {
-                      const url = `${window.location.origin}/deals/${id}`;
-                      const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`;
-                      window.open(facebookUrl, '_blank', 'width=600,height=400');
-                    }}
-                    variant="outline"
-                    className="px-3 py-1 h-8 text-xs bg-blue-600 text-white hover:bg-blue-700 border-0"
-                  >
-                    📘 Share on Facebook
-                  </Button>
-                  <Button
-                    onClick={() => {
-                      const url = `${window.location.origin}/deals/${id}`;
-                      const address = `${deal.parsed?.address}, ${deal.parsed?.city}, ${deal.parsed?.state}`;
-                      const price = formatCurrency(deal.parsed?.asking || 0);
-                      const text = `Check out this investment property: ${address} - ${price}`;
-                      const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`;
-                      window.open(twitterUrl, '_blank', 'width=600,height=400');
-                    }}
-                    variant="outline"
-                    className="px-3 py-1 h-8 text-xs bg-sky-500 text-white hover:bg-sky-600 border-0"
-                  >
-                    🐦 Share on Twitter
-                  </Button>
-                  <Button
-                    onClick={() => {
-                      const url = `${window.location.origin}/deals/${id}`;
-                      const linkedinUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`;
-                      window.open(linkedinUrl, '_blank', 'width=600,height=400');
-                    }}
-                    variant="outline"
-                    className="px-3 py-1 h-8 text-xs bg-blue-700 text-white hover:bg-blue-800 border-0"
-                  >
-                    💼 Share on LinkedIn
-                  </Button>
-                </div>
+              </div>
+              
+              {/* Social Share Buttons - Moved below header */}
+              <div className="flex flex-wrap gap-2 mt-4 pt-4 border-t border-gray-200">
+                <span className="text-sm text-gray-600 mr-2 flex items-center">Share:</span>
+                <Button
+                  onClick={() => {
+                    const url = `${window.location.origin}/deals/${id}`;
+                    const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`;
+                    window.open(facebookUrl, '_blank', 'width=600,height=400');
+                  }}
+                  variant="outline"
+                  className="px-3 py-1.5 h-auto text-xs bg-blue-600 text-white hover:bg-blue-700 border-0"
+                  title="Share on Facebook"
+                >
+                  📘 Facebook
+                </Button>
+                <Button
+                  onClick={() => {
+                    const url = `${window.location.origin}/deals/${id}`;
+                    const address = `${deal.parsed?.address}, ${deal.parsed?.city}, ${deal.parsed?.state}`;
+                    const price = formatCurrency(deal.parsed?.asking || 0);
+                    const text = `Check out this investment property: ${address} - ${price}`;
+                    const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`;
+                    window.open(twitterUrl, '_blank', 'width=600,height=400');
+                  }}
+                  variant="outline"
+                  className="px-3 py-1.5 h-auto text-xs bg-sky-500 text-white hover:bg-sky-600 border-0"
+                  title="Share on Twitter"
+                >
+                  🐦 Twitter
+                </Button>
+                <Button
+                  onClick={() => {
+                    const url = `${window.location.origin}/deals/${id}`;
+                    const linkedinUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`;
+                    window.open(linkedinUrl, '_blank', 'width=600,height=400');
+                  }}
+                  variant="outline"
+                  className="px-3 py-1.5 h-auto text-xs bg-blue-700 text-white hover:bg-blue-800 border-0"
+                  title="Share on LinkedIn"
+                >
+                  💼 LinkedIn
+                </Button>
               </div>
             </div>
           </CardContent>
