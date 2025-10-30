@@ -59,6 +59,7 @@ function generateMarketplaceMetaTags(baseUrl) {
   
   return `
     <!-- Open Graph Meta Tags for Facebook, LinkedIn, WhatsApp -->
+    <meta property="fb:app_id" content="axiom-real-estate-platform" />
     <meta property="og:title" content="${title}" />
     <meta property="og:description" content="${description}" />
     <meta property="og:image" content="${image}" />
@@ -116,6 +117,7 @@ function generateDealMetaTags(deal, dealId, baseUrl) {
   
   return `
     <!-- Open Graph Meta Tags for Facebook, LinkedIn, WhatsApp -->
+    <meta property="fb:app_id" content="axiom-real-estate-platform" />
     <meta property="og:title" content="${title}" />
     <meta property="og:description" content="${description}" />
     <meta property="og:image" content="${mainImage}" />

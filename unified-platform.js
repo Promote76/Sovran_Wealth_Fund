@@ -4416,6 +4416,10 @@ app.post('/api/investor/invest/complete', async (req, res) => {
   }
 });
 
+// Social Media Meta Tags Middleware (MUST be before static file serving)
+const { socialMetaTagsMiddleware } = require('./server/middleware/socialMetaTags');
+app.use(socialMetaTagsMiddleware);
+
 // Serve static files from public folder (IELA dashboards, etc.)
 app.use(express.static(path.join(__dirname, 'public'), {
   setHeaders: (res, path) => {
@@ -4455,10 +4459,6 @@ app.use((req, res, next) => {
   console.log(`⚛️ Serving React app for SPA route: ${req.path}`);
   next();
 });
-
-// Social Media Meta Tags Middleware (must be before SPA routing)
-const { socialMetaTagsMiddleware } = require('./server/middleware/socialMetaTags');
-app.use(socialMetaTagsMiddleware);
 
 // Handle React Router routes - serve index.html for all non-API routes (SPA)
 app.get(/^(?!\/api).*/, (req, res) => {
