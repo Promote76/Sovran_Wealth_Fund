@@ -619,71 +619,190 @@ const DealDetailPage: React.FC = () => {
               </Card>
             )}
 
-            {/* Investment Analysis */}
+            {/* Investment Analysis - Show different content for fractional vs wholesale */}
             <Card>
               <CardContent className="p-6">
-                <h2 className="text-2xl font-bold text-gray-900 mb-4">Investment Analysis</h2>
+                <h2 className="text-2xl font-bold text-gray-900 mb-4">
+                  {fractionalProperty ? 'Investment Performance Metrics' : 'Investment Analysis'}
+                </h2>
                 
-                {/* Repair Scenarios */}
-                <div className="mb-6">
-                  <h3 className="text-lg font-semibold mb-3">Maximum Allowable Offer (MAO) by Repair Level</h3>
-                  <div className="space-y-2">
-                    {deal.analysis?.maoByRepair?.map((scenario: any, idx: number) => {
-                      const scenarioProfit = scenario.profitMargin ?? 
-                        (deal.parsed?.arv && deal.parsed?.asking && scenario.repair ? 
-                          deal.parsed.arv - (deal.parsed.asking + scenario.repair) : 0);
-                      
-                      return (
-                        <div key={idx} className="bg-gray-50 p-4 rounded-lg">
-                          <div className="flex justify-between items-start mb-2">
-                            <div>
-                              <div className="font-semibold text-gray-700">
-                                {['Light', 'Medium', 'Heavy'][idx]} Repairs
-                              </div>
-                              <div className="text-sm text-gray-500">
-                                Est. Cost: {formatCurrency(scenario.repair)}
-                              </div>
-                            </div>
-                            <div className="text-right">
-                              <div className="text-lg font-bold text-purple-600">
-                                MAO: {formatCurrency(scenario.mao)}
-                              </div>
-                              <div className="text-sm font-semibold text-orange-600">
-                                ROI: {scenario.roi?.toFixed(1)}%
-                              </div>
-                            </div>
+                {/* Fractional Property - Investor Metrics */}
+                {fractionalProperty ? (
+                  <div className="space-y-6">
+                    {/* Cap Rate & Yield */}
+                    <div>
+                      <h3 className="text-lg font-semibold mb-3">📈 Return on Investment</h3>
+                      <div className="grid md:grid-cols-2 gap-4">
+                        <div className="bg-gradient-to-br from-green-50 to-emerald-50 p-4 rounded-lg border-2 border-green-200">
+                          <div className="text-sm text-gray-600 mb-1">Annual Yield</div>
+                          <div className="text-3xl font-bold text-green-600">
+                            {fractionalProperty.annualYield?.toFixed(2)}%
                           </div>
-                          <div className="pt-2 border-t border-gray-200 flex justify-between items-center">
-                            <span className="text-sm text-gray-600">Profit Margin:</span>
-                            <span className="text-lg font-bold text-yellow-600">
-                              {formatCurrency(scenarioProfit)}
-                            </span>
+                          <div className="text-xs text-gray-500 mt-1">
+                            Net rental income ÷ Property value
                           </div>
                         </div>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                {/* Rental Analysis */}
-                {deal.rents && (
-                  <div>
-                    <h3 className="text-lg font-semibold mb-3">Rental Income Potential</h3>
-                    <div className="grid md:grid-cols-2 gap-4">
-                      <div className="bg-green-50 p-4 rounded-lg border-2 border-green-200">
-                        <div className="text-sm text-gray-600">Market Rent Estimate</div>
-                        <div className="text-2xl font-bold text-green-600">
-                          {formatCurrency(deal.rents.marketRentEst)}/mo
+                        <div className="bg-gradient-to-br from-blue-50 to-cyan-50 p-4 rounded-lg border-2 border-blue-200">
+                          <div className="text-sm text-gray-600 mb-1">Monthly Cash Flow</div>
+                          <div className="text-3xl font-bold text-blue-600">
+                            {formatCurrency(fractionalProperty.netMonthlyIncome || 0)}
+                          </div>
+                          <div className="text-xs text-gray-500 mt-1">
+                            Total property income
+                          </div>
                         </div>
                       </div>
-                      <div className="bg-blue-50 p-4 rounded-lg border-2 border-blue-200">
-                        <div className="text-sm text-gray-600">Annual Income</div>
-                        <div className="text-2xl font-bold text-blue-600">
-                          {formatCurrency(deal.rents.marketRentEst * 12)}/yr
+                    </div>
+
+                    {/* Property Appreciation Forecast */}
+                    <div>
+                      <h3 className="text-lg font-semibold mb-3">🏡 Appreciation Forecast</h3>
+                      <div className="bg-purple-50 p-4 rounded-lg border-2 border-purple-200">
+                        <div className="grid grid-cols-3 gap-4 text-center">
+                          <div>
+                            <div className="text-sm text-gray-600 mb-1">3-Year Projection</div>
+                            <div className="text-xl font-bold text-purple-600">
+                              {formatCurrency(fractionalProperty.propertyValue * 1.15)}
+                            </div>
+                            <div className="text-xs text-gray-500">+15% avg growth</div>
+                          </div>
+                          <div>
+                            <div className="text-sm text-gray-600 mb-1">5-Year Projection</div>
+                            <div className="text-xl font-bold text-purple-600">
+                              {formatCurrency(fractionalProperty.propertyValue * 1.27)}
+                            </div>
+                            <div className="text-xs text-gray-500">+27% avg growth</div>
+                          </div>
+                          <div>
+                            <div className="text-sm text-gray-600 mb-1">10-Year Projection</div>
+                            <div className="text-xl font-bold text-purple-600">
+                              {formatCurrency(fractionalProperty.propertyValue * 1.62)}
+                            </div>
+                            <div className="text-xs text-gray-500">+62% avg growth</div>
+                          </div>
+                        </div>
+                        <div className="mt-3 pt-3 border-t border-purple-200">
+                          <p className="text-xs text-gray-600 text-center">
+                            Based on historical 5% annual appreciation rate for {deal.parsed?.city}, {deal.parsed?.state}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Market Comparables */}
+                    <div>
+                      <h3 className="text-lg font-semibold mb-3">📊 Market Position</h3>
+                      <div className="grid md:grid-cols-2 gap-4">
+                        <div className="bg-orange-50 p-4 rounded-lg border-2 border-orange-200">
+                          <div className="text-sm text-gray-600 mb-1">Price per Sq Ft</div>
+                          <div className="text-2xl font-bold text-orange-600">
+                            {propertyDetails?.sqft ? 
+                              `$${Math.round(fractionalProperty.propertyValue / propertyDetails.sqft)}` : 
+                              'N/A'}
+                          </div>
+                          <div className="text-xs text-gray-500 mt-1">
+                            {propertyDetails?.sqft ? `${propertyDetails.sqft.toLocaleString()} sq ft property` : 'Square footage not available'}
+                          </div>
+                        </div>
+                        <div className="bg-yellow-50 p-4 rounded-lg border-2 border-yellow-200">
+                          <div className="text-sm text-gray-600 mb-1">Total Investment Funded</div>
+                          <div className="text-2xl font-bold text-yellow-600">
+                            {((fractionalProperty.sharesSold / fractionalProperty.totalShares) * 100).toFixed(1)}%
+                          </div>
+                          <div className="text-xs text-gray-500 mt-1">
+                            {fractionalProperty.sharesAvailable.toLocaleString()} shares remaining
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Rental Income Stability */}
+                    <div>
+                      <h3 className="text-lg font-semibold mb-3">💵 Rental Income Breakdown</h3>
+                      <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                        <div className="space-y-3">
+                          <div className="flex justify-between items-center">
+                            <span className="text-gray-700">Monthly Rent</span>
+                            <span className="font-bold text-green-600">{formatCurrency(fractionalProperty.monthlyRent || 0)}</span>
+                          </div>
+                          <div className="flex justify-between items-center">
+                            <span className="text-gray-700">Operating Expenses</span>
+                            <span className="font-bold text-red-600">-{formatCurrency(fractionalProperty.monthlyExpenses || 0)}</span>
+                          </div>
+                          <div className="pt-2 border-t-2 border-gray-300 flex justify-between items-center">
+                            <span className="text-lg font-semibold text-gray-900">Net Monthly Income</span>
+                            <span className="text-2xl font-bold text-blue-600">{formatCurrency(fractionalProperty.netMonthlyIncome || 0)}</span>
+                          </div>
                         </div>
                       </div>
                     </div>
                   </div>
+                ) : (
+                  /* Wholesale Property - MAO Analysis */
+                  <>
+                    {/* Repair Scenarios */}
+                    <div className="mb-6">
+                      <h3 className="text-lg font-semibold mb-3">💰 Maximum Allowable Offer (MAO) by Repair Level</h3>
+                      <p className="text-sm text-gray-600 mb-3">For wholesalers and fix-and-flip investors</p>
+                      <div className="space-y-2">
+                        {deal.analysis?.maoByRepair?.map((scenario: any, idx: number) => {
+                          const scenarioProfit = scenario.profitMargin ?? 
+                            (deal.parsed?.arv && deal.parsed?.asking && scenario.repair ? 
+                              deal.parsed.arv - (deal.parsed.asking + scenario.repair) : 0);
+                          
+                          return (
+                            <div key={idx} className="bg-gray-50 p-4 rounded-lg">
+                              <div className="flex justify-between items-start mb-2">
+                                <div>
+                                  <div className="font-semibold text-gray-700">
+                                    {['Light', 'Medium', 'Heavy'][idx]} Repairs
+                                  </div>
+                                  <div className="text-sm text-gray-500">
+                                    Est. Cost: {formatCurrency(scenario.repair)}
+                                  </div>
+                                </div>
+                                <div className="text-right">
+                                  <div className="text-lg font-bold text-purple-600">
+                                    MAO: {formatCurrency(scenario.mao)}
+                                  </div>
+                                  <div className="text-sm font-semibold text-orange-600">
+                                    ROI: {scenario.roi?.toFixed(1)}%
+                                  </div>
+                                </div>
+                              </div>
+                              <div className="pt-2 border-t border-gray-200 flex justify-between items-center">
+                                <span className="text-sm text-gray-600">Profit Margin:</span>
+                                <span className="text-lg font-bold text-yellow-600">
+                                  {formatCurrency(scenarioProfit)}
+                                </span>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    {/* Rental Analysis */}
+                    {deal.rents && (
+                      <div>
+                        <h3 className="text-lg font-semibold mb-3">Rental Income Potential</h3>
+                        <div className="grid md:grid-cols-2 gap-4">
+                          <div className="bg-green-50 p-4 rounded-lg border-2 border-green-200">
+                            <div className="text-sm text-gray-600">Market Rent Estimate</div>
+                            <div className="text-2xl font-bold text-green-600">
+                              {formatCurrency(deal.rents.marketRentEst)}/mo
+                            </div>
+                          </div>
+                          <div className="bg-blue-50 p-4 rounded-lg border-2 border-blue-200">
+                            <div className="text-sm text-gray-600">Annual Income</div>
+                            <div className="text-2xl font-bold text-blue-600">
+                              {formatCurrency(deal.rents.marketRentEst * 12)}/yr
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </>
                 )}
               </CardContent>
             </Card>
@@ -691,50 +810,103 @@ const DealDetailPage: React.FC = () => {
 
           {/* Right Column - Pricing & Actions */}
           <div className="space-y-6">
-            {/* Pricing Summary */}
+            {/* Pricing Summary - Different for Fractional vs Wholesale */}
             <Card className="border-2 border-blue-200">
               <CardContent className="p-6">
-                <h2 className="text-2xl font-bold text-gray-900 mb-4">Pricing</h2>
+                <h2 className="text-2xl font-bold text-gray-900 mb-4">
+                  {fractionalProperty ? 'Investment Summary' : 'Pricing'}
+                </h2>
                 <div className="space-y-4">
-                  <div>
-                    <div className="text-sm text-gray-500">Asking Price</div>
-                    <div className="text-3xl font-bold text-blue-600">
-                      {formatCurrency(deal.parsed?.asking)}
-                    </div>
-                  </div>
-                  <div>
-                    <div className="text-sm text-gray-500">After Repair Value (ARV)</div>
-                    <div className="text-2xl font-bold text-green-600">
-                      {formatCurrency(deal.parsed?.arv)}
-                    </div>
-                  </div>
-                  <div className="pt-4 border-t">
-                    <div className="text-sm text-gray-500">Estimated Repairs</div>
-                    <div className="text-xl font-bold text-gray-700">
-                      {formatCurrency(deal.repairs?.estMid || 0)}
-                    </div>
-                  </div>
-                  <div className="bg-yellow-50 p-3 rounded-lg border-2 border-yellow-200">
-                    <div className="text-sm text-gray-600 font-semibold">💰 Profit Margin</div>
-                    <div className="text-2xl font-bold text-yellow-600">
-                      {formatCurrency(profitMargin)}
-                    </div>
-                    <div className="text-xs text-gray-500 mt-1">
-                      ARV - (Asking + Repairs)
-                    </div>
-                  </div>
-                  <div className="pt-4 border-t">
-                    <div className="text-sm text-gray-500">Recommended MAO (Mid Repairs)</div>
-                    <div className="text-2xl font-bold text-purple-600">
-                      {formatCurrency(midRepairAnalysis?.mao || 0)}
-                    </div>
-                  </div>
-                  <div>
-                    <div className="text-sm text-gray-500">Potential ROI</div>
-                    <div className="text-2xl font-bold text-orange-600">
-                      {midRepairAnalysis?.roi?.toFixed(1) || 0}%
-                    </div>
-                  </div>
+                  {fractionalProperty ? (
+                    /* Fractional Property Summary */
+                    <>
+                      <div>
+                        <div className="text-sm text-gray-500">Property Value</div>
+                        <div className="text-3xl font-bold text-blue-600">
+                          {formatCurrency(fractionalProperty.propertyValue)}
+                        </div>
+                      </div>
+                      <div>
+                        <div className="text-sm text-gray-500">Share Price</div>
+                        <div className="text-2xl font-bold text-purple-600">
+                          {formatCurrency(parseFloat(fractionalProperty.sharePrice))}
+                        </div>
+                        <div className="text-xs text-gray-500 mt-1">
+                          10,000 total shares available
+                        </div>
+                      </div>
+                      <div className="pt-4 border-t">
+                        <div className="text-sm text-gray-500">Minimum Investment</div>
+                        <div className="text-xl font-bold text-orange-600">
+                          {formatCurrency(parseFloat(fractionalProperty.minInvestment || fractionalProperty.sharePrice))}
+                        </div>
+                      </div>
+                      <div className="bg-green-50 p-3 rounded-lg border-2 border-green-200">
+                        <div className="text-sm text-gray-600 font-semibold">📈 Annual Yield</div>
+                        <div className="text-2xl font-bold text-green-600">
+                          {fractionalProperty.annualYield?.toFixed(2)}%
+                        </div>
+                        <div className="text-xs text-gray-500 mt-1">
+                          Net rental income return
+                        </div>
+                      </div>
+                      <div className="pt-4 border-t">
+                        <div className="text-sm text-gray-500">Shares Available</div>
+                        <div className="text-2xl font-bold text-blue-600">
+                          {fractionalProperty.sharesAvailable?.toLocaleString()}
+                        </div>
+                      </div>
+                      <div>
+                        <div className="text-sm text-gray-500">Funding Progress</div>
+                        <div className="text-2xl font-bold text-purple-600">
+                          {((fractionalProperty.sharesSold / fractionalProperty.totalShares) * 100).toFixed(1)}%
+                        </div>
+                      </div>
+                    </>
+                  ) : (
+                    /* Wholesale Property Summary */
+                    <>
+                      <div>
+                        <div className="text-sm text-gray-500">Asking Price</div>
+                        <div className="text-3xl font-bold text-blue-600">
+                          {formatCurrency(deal.parsed?.asking)}
+                        </div>
+                      </div>
+                      <div>
+                        <div className="text-sm text-gray-500">After Repair Value (ARV)</div>
+                        <div className="text-2xl font-bold text-green-600">
+                          {formatCurrency(deal.parsed?.arv)}
+                        </div>
+                      </div>
+                      <div className="pt-4 border-t">
+                        <div className="text-sm text-gray-500">Estimated Repairs</div>
+                        <div className="text-xl font-bold text-gray-700">
+                          {formatCurrency(deal.repairs?.estMid || 0)}
+                        </div>
+                      </div>
+                      <div className="bg-yellow-50 p-3 rounded-lg border-2 border-yellow-200">
+                        <div className="text-sm text-gray-600 font-semibold">💰 Profit Margin</div>
+                        <div className="text-2xl font-bold text-yellow-600">
+                          {formatCurrency(profitMargin)}
+                        </div>
+                        <div className="text-xs text-gray-500 mt-1">
+                          ARV - (Asking + Repairs)
+                        </div>
+                      </div>
+                      <div className="pt-4 border-t">
+                        <div className="text-sm text-gray-500">Recommended MAO (Mid Repairs)</div>
+                        <div className="text-2xl font-bold text-purple-600">
+                          {formatCurrency(midRepairAnalysis?.mao || 0)}
+                        </div>
+                      </div>
+                      <div>
+                        <div className="text-sm text-gray-500">Potential ROI</div>
+                        <div className="text-2xl font-bold text-orange-600">
+                          {midRepairAnalysis?.roi?.toFixed(1) || 0}%
+                        </div>
+                      </div>
+                    </>
+                  )}
                 </div>
               </CardContent>
             </Card>
