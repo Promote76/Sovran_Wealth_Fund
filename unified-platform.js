@@ -4456,6 +4456,10 @@ app.use((req, res, next) => {
   next();
 });
 
+// Social Media Meta Tags Middleware (must be before SPA routing)
+const { socialMetaTagsMiddleware } = require('./server/middleware/socialMetaTags');
+app.use(socialMetaTagsMiddleware);
+
 // Handle React Router routes - serve index.html for all non-API routes (SPA)
 app.get(/^(?!\/api).*/, (req, res) => {
   res.sendFile(path.join(__dirname, 'client/build', 'index.html'));

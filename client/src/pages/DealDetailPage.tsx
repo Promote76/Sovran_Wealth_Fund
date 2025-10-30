@@ -204,15 +204,57 @@ const DealDetailPage: React.FC = () => {
                   {deal.parsed?.city}, {deal.parsed?.state} {deal.parsed?.zip}
                 </p>
               </div>
-              <div className="flex gap-2">
-                {isRTOReady && (
-                  <span className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-semibold">
-                    ✅ RTO-READY
+              <div className="flex flex-col gap-3">
+                <div className="flex gap-2">
+                  {isRTOReady && (
+                    <span className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-semibold">
+                      ✅ RTO-READY
+                    </span>
+                  )}
+                  <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-semibold">
+                    💎 INVESTOR DEAL
                   </span>
-                )}
-                <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-semibold">
-                  💎 INVESTOR DEAL
-                </span>
+                </div>
+                
+                {/* Social Share Buttons */}
+                <div className="flex gap-2">
+                  <Button
+                    onClick={() => {
+                      const url = `${window.location.origin}/deals/${id}`;
+                      const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`;
+                      window.open(facebookUrl, '_blank', 'width=600,height=400');
+                    }}
+                    variant="outline"
+                    className="px-3 py-1 h-8 text-xs bg-blue-600 text-white hover:bg-blue-700 border-0"
+                  >
+                    📘 Share on Facebook
+                  </Button>
+                  <Button
+                    onClick={() => {
+                      const url = `${window.location.origin}/deals/${id}`;
+                      const address = `${deal.parsed?.address}, ${deal.parsed?.city}, ${deal.parsed?.state}`;
+                      const price = formatCurrency(deal.parsed?.asking || 0);
+                      const text = `Check out this investment property: ${address} - ${price}`;
+                      const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`;
+                      window.open(twitterUrl, '_blank', 'width=600,height=400');
+                    }}
+                    variant="outline"
+                    className="px-3 py-1 h-8 text-xs bg-sky-500 text-white hover:bg-sky-600 border-0"
+                  >
+                    🐦 Share on Twitter
+                  </Button>
+                  <Button
+                    onClick={() => {
+                      const url = `${window.location.origin}/deals/${id}`;
+                      const linkedinUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`;
+                      window.open(linkedinUrl, '_blank', 'width=600,height=400');
+                    }}
+                    variant="outline"
+                    className="px-3 py-1 h-8 text-xs bg-blue-700 text-white hover:bg-blue-800 border-0"
+                  >
+                    💼 Share on LinkedIn
+                  </Button>
+                </div>
               </div>
             </div>
           </CardContent>
