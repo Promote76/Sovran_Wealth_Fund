@@ -1,0 +1,16 @@
+# Default Open Graph Property Image
+
+This is a placeholder for the default property image used in social media shares.
+
+To create the actual image:
+1. Design a 1200x630px image with:
+   - AXIOM logo
+   - "Investment Property" text
+   - Professional real estate imagery
+   - Blue/white color scheme
+
+2. Save as: public/og-default-property.jpg
+
+3. Use tools like Canva, Figma, or Photoshop
+
+For now, we'll use a programmatic fallback.

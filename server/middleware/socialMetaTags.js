@@ -30,6 +30,27 @@ function formatCurrency(value) {
   }).format(value);
 }
 
+function convertDropboxUrl(url) {
+  if (!url) return null;
+  
+  // Convert Dropbox shared link to direct raw image URL
+  if (url.includes('dropbox.com')) {
+    // For /scl/fi/ format with rlkey parameter:
+    // Change dl=0 or dl=1 to raw=1 while keeping rlkey
+    if (url.includes('/scl/fi/')) {
+      return url
+        .replace('dl=0', 'raw=1')
+        .replace('dl=1', 'raw=1');
+    }
+    
+    // For older /s/ format:
+    // Change dl=0 to raw=1
+    return url.replace('dl=0', 'raw=1');
+  }
+  
+  return url;
+}
+
 function generateDealMetaTags(deal, dealId, baseUrl) {
   const address = deal.parsed?.address || deal.geocoding?.formattedAddress || 'Property';
   const city = deal.parsed?.city || deal.geocoding?.city || '';
@@ -41,9 +62,19 @@ function generateDealMetaTags(deal, dealId, baseUrl) {
   const profitMargin = deal.analysis?.maoByRepair?.[1]?.profitMargin || 0;
   
   // Get main property image (first image from media array)
-  const mainImage = deal.media && deal.media.length > 0 
+  let mainImage = deal.media && deal.media.length > 0 
     ? deal.media[0].url 
-    : `${baseUrl}/default-property.jpg`; // Fallback to default image
+    : null;
+  
+  // Convert Dropbox URLs to direct raw image URLs
+  if (mainImage) {
+    mainImage = convertDropboxUrl(mainImage);
+  }
+  
+  // Fallback to default image if no image available
+  if (!mainImage) {
+    mainImage = `${baseUrl}/og-default-property.jpg`;
+  }
   
   const dealUrl = `${baseUrl}/deals/${dealId}`;
   
