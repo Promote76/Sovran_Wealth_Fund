@@ -29,6 +29,8 @@ const DealDetailPage: React.FC = () => {
   const [selectedImage, setSelectedImage] = useState(0);
   const [fractionalProperty, setFractionalProperty] = useState<any>(null);
   const [fractionalLoading, setFractionalLoading] = useState(false);
+  const [investmentAmount, setInvestmentAmount] = useState<string>('30');
+  const [calculatedShares, setCalculatedShares] = useState<number>(0);
 
   useEffect(() => {
     loadDeal();
@@ -78,6 +80,22 @@ const DealDetailPage: React.FC = () => {
       minimumFractionDigits: 0
     }).format(value);
   };
+
+  const calculateShares = (amount: string) => {
+    const amountNum = parseFloat(amount) || 0;
+    if (fractionalProperty && fractionalProperty.share_price > 0) {
+      const shares = Math.floor(amountNum / fractionalProperty.share_price);
+      setCalculatedShares(shares);
+      return shares;
+    }
+    return 0;
+  };
+
+  useEffect(() => {
+    if (fractionalProperty) {
+      calculateShares(investmentAmount);
+    }
+  }, [investmentAmount, fractionalProperty]);
 
   if (isLoading) {
     return (
@@ -266,25 +284,99 @@ const DealDetailPage: React.FC = () => {
           </CardContent>
         </Card>
 
-        {/* Fractional Investment Status */}
+        {/* Fractional Investment - Primary Purchase Option */}
         {!fractionalLoading && fractionalProperty && (
-          <Card className="mb-6 border-2 border-purple-500 bg-gradient-to-br from-purple-50 to-white">
+          <Card className="mb-6 border-2 border-purple-500 bg-gradient-to-br from-purple-50 to-white shadow-lg">
             <CardContent className="p-6">
-              <div className="flex justify-between items-start mb-4">
+              <div className="flex justify-between items-start mb-6">
                 <div>
-                  <h2 className="text-2xl font-bold text-purple-900 mb-2">
-                    🏢 Fractional Investment Available
+                  <h2 className="text-3xl font-bold text-purple-900 mb-2">
+                    💰 Invest in Fractional Shares
                   </h2>
-                  <p className="text-gray-600">
-                    This property is available for fractional ownership with as little as $500
+                  <p className="text-lg text-gray-700">
+                    Own a piece of this property starting from just <span className="font-bold text-purple-600">$30</span>
                   </p>
                 </div>
-                <span className="bg-purple-100 text-purple-800 px-4 py-2 rounded-full text-sm font-semibold">
-                  ✅ FRACTIONALIZED
+                <span className="bg-purple-600 text-white px-4 py-2 rounded-full text-sm font-semibold">
+                  ✅ AVAILABLE NOW
                 </span>
               </div>
 
-              <div className="grid md:grid-cols-4 gap-4 mb-4">
+              {/* Investment Calculator */}
+              <div className="bg-white rounded-lg border-2 border-purple-300 p-6 mb-6">
+                <h3 className="text-xl font-bold text-gray-800 mb-4">📊 Investment Calculator</h3>
+                
+                <div className="grid md:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Investment Amount
+                    </label>
+                    <div className="relative">
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 text-lg">$</span>
+                      <input
+                        type="number"
+                        min="30"
+                        step="10"
+                        value={investmentAmount}
+                        onChange={(e) => setInvestmentAmount(e.target.value)}
+                        className="w-full pl-8 pr-4 py-3 text-lg font-semibold border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                        placeholder="Enter amount"
+                      />
+                    </div>
+                    <p className="text-xs text-gray-500 mt-1">Minimum: $30</p>
+                  </div>
+
+                  <div className="bg-gradient-to-br from-purple-100 to-blue-100 p-4 rounded-lg border border-purple-300">
+                    <div className="text-sm text-gray-700 mb-1">You will receive:</div>
+                    <div className="text-4xl font-bold text-purple-600 mb-2">
+                      {calculatedShares.toLocaleString()}
+                    </div>
+                    <div className="text-sm text-gray-700">
+                      Share{calculatedShares !== 1 ? 's' : ''} @ {formatCurrency(fractionalProperty.share_price)} each
+                    </div>
+                    {calculatedShares > 0 && (
+                      <div className="mt-3 pt-3 border-t border-purple-300">
+                        <div className="text-xs text-gray-600">Monthly Income Estimate:</div>
+                        <div className="text-lg font-bold text-green-600">
+                          {formatCurrency((fractionalProperty.net_monthly_income / fractionalProperty.total_shares) * calculatedShares)}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {calculatedShares > 0 && (
+                  <div className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
+                    <div className="bg-gray-50 p-3 rounded">
+                      <div className="text-gray-600 text-xs mb-1">Ownership</div>
+                      <div className="font-bold text-purple-600">
+                        {((calculatedShares / fractionalProperty.total_shares) * 100).toFixed(3)}%
+                      </div>
+                    </div>
+                    <div className="bg-gray-50 p-3 rounded">
+                      <div className="text-gray-600 text-xs mb-1">Annual Income</div>
+                      <div className="font-bold text-green-600">
+                        {formatCurrency((fractionalProperty.net_monthly_income / fractionalProperty.total_shares) * calculatedShares * 12)}
+                      </div>
+                    </div>
+                    <div className="bg-gray-50 p-3 rounded">
+                      <div className="text-gray-600 text-xs mb-1">Annual Yield</div>
+                      <div className="font-bold text-orange-600">
+                        {((fractionalProperty.net_monthly_income * 12 / fractionalProperty.property_value) * 100).toFixed(1)}%
+                      </div>
+                    </div>
+                    <div className="bg-gray-50 p-3 rounded">
+                      <div className="text-gray-600 text-xs mb-1">Property Value</div>
+                      <div className="font-bold text-blue-600">
+                        {formatCurrency(fractionalProperty.property_value)}
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Property Stats */}
+              <div className="grid md:grid-cols-4 gap-4 mb-6">
                 <div className="bg-white p-4 rounded-lg border border-purple-200">
                   <div className="text-sm text-gray-600 mb-1">Share Price</div>
                   <div className="text-2xl font-bold text-purple-600">
@@ -299,30 +391,32 @@ const DealDetailPage: React.FC = () => {
                   <div className="text-xs text-gray-500">of {fractionalProperty.total_shares?.toLocaleString()}</div>
                 </div>
                 <div className="bg-white p-4 rounded-lg border border-purple-200">
-                  <div className="text-sm text-gray-600 mb-1">Monthly Income</div>
+                  <div className="text-sm text-gray-600 mb-1">Total Monthly Income</div>
                   <div className="text-2xl font-bold text-green-600">
                     {formatCurrency(fractionalProperty.net_monthly_income || 0)}
                   </div>
                 </div>
                 <div className="bg-white p-4 rounded-lg border border-purple-200">
-                  <div className="text-sm text-gray-600 mb-1">Annual Yield</div>
+                  <div className="text-sm text-gray-600 mb-1">Minimum Investment</div>
                   <div className="text-2xl font-bold text-orange-600">
-                    {((fractionalProperty.net_monthly_income * 12 / fractionalProperty.property_value) * 100).toFixed(1)}%
+                    $30
                   </div>
                 </div>
               </div>
 
-              <div className="flex gap-3">
+              {/* Action Buttons */}
+              <div className="flex flex-col md:flex-row gap-3">
                 <Button
                   onClick={() => navigate('/real-estate-investor')}
                   className="flex-1 bg-purple-600 hover:bg-purple-700 text-white font-bold text-lg py-6"
+                  disabled={calculatedShares === 0}
                 >
-                  🏢 Invest in Fractional Shares
+                  🏢 Purchase {calculatedShares > 0 ? `${calculatedShares.toLocaleString()} Share${calculatedShares !== 1 ? 's' : ''}` : 'Shares'}
                 </Button>
                 <Button
                   onClick={() => navigate('/real-estate-investor')}
                   variant="outline"
-                  className="px-6 border-purple-300 text-purple-700 hover:bg-purple-50"
+                  className="px-6 border-purple-300 text-purple-700 hover:bg-purple-50 py-6"
                 >
                   View All Properties
                 </Button>
