@@ -63,7 +63,7 @@ const DealDetailPage: React.FC = () => {
       const response = await fetch('/api/fractional/properties');
       const data = await response.json();
       if (data.success) {
-        const fractional = (data.properties || []).find((p: any) => p.deal_id === id);
+        const fractional = (data.properties || []).find((p: any) => p.dealId === id);
         setFractionalProperty(fractional);
       }
     } catch (err) {
@@ -83,8 +83,9 @@ const DealDetailPage: React.FC = () => {
 
   const calculateShares = (amount: string) => {
     const amountNum = parseFloat(amount) || 0;
-    if (fractionalProperty && fractionalProperty.share_price > 0) {
-      const shares = Math.floor(amountNum / fractionalProperty.share_price);
+    const sharePrice = parseFloat(fractionalProperty?.sharePrice || 0);
+    if (fractionalProperty && sharePrice > 0) {
+      const shares = Math.floor(amountNum / sharePrice);
       setCalculatedShares(shares);
       return shares;
     }
@@ -332,13 +333,13 @@ const DealDetailPage: React.FC = () => {
                       {calculatedShares.toLocaleString()}
                     </div>
                     <div className="text-sm text-gray-700">
-                      Share{calculatedShares !== 1 ? 's' : ''} @ {formatCurrency(fractionalProperty.share_price)} each
+                      Share{calculatedShares !== 1 ? 's' : ''} @ {formatCurrency(fractionalProperty.sharePrice)} each
                     </div>
                     {calculatedShares > 0 && (
                       <div className="mt-3 pt-3 border-t border-purple-300">
                         <div className="text-xs text-gray-600">Monthly Income Estimate:</div>
                         <div className="text-lg font-bold text-green-600">
-                          {formatCurrency((fractionalProperty.net_monthly_income / fractionalProperty.total_shares) * calculatedShares)}
+                          {formatCurrency((fractionalProperty.netMonthlyIncome / fractionalProperty.totalShares) * calculatedShares)}
                         </div>
                       </div>
                     )}
@@ -350,25 +351,25 @@ const DealDetailPage: React.FC = () => {
                     <div className="bg-gray-50 p-3 rounded">
                       <div className="text-gray-600 text-xs mb-1">Ownership</div>
                       <div className="font-bold text-purple-600">
-                        {((calculatedShares / fractionalProperty.total_shares) * 100).toFixed(3)}%
+                        {((calculatedShares / fractionalProperty.totalShares) * 100).toFixed(3)}%
                       </div>
                     </div>
                     <div className="bg-gray-50 p-3 rounded">
                       <div className="text-gray-600 text-xs mb-1">Annual Income</div>
                       <div className="font-bold text-green-600">
-                        {formatCurrency((fractionalProperty.net_monthly_income / fractionalProperty.total_shares) * calculatedShares * 12)}
+                        {formatCurrency((fractionalProperty.netMonthlyIncome / fractionalProperty.totalShares) * calculatedShares * 12)}
                       </div>
                     </div>
                     <div className="bg-gray-50 p-3 rounded">
                       <div className="text-gray-600 text-xs mb-1">Annual Yield</div>
                       <div className="font-bold text-orange-600">
-                        {((fractionalProperty.net_monthly_income * 12 / fractionalProperty.property_value) * 100).toFixed(1)}%
+                        {((fractionalProperty.netMonthlyIncome * 12 / fractionalProperty.propertyValue) * 100).toFixed(1)}%
                       </div>
                     </div>
                     <div className="bg-gray-50 p-3 rounded">
                       <div className="text-gray-600 text-xs mb-1">Property Value</div>
                       <div className="font-bold text-blue-600">
-                        {formatCurrency(fractionalProperty.property_value)}
+                        {formatCurrency(fractionalProperty.propertyValue)}
                       </div>
                     </div>
                   </div>
@@ -380,20 +381,20 @@ const DealDetailPage: React.FC = () => {
                 <div className="bg-white p-4 rounded-lg border border-purple-200">
                   <div className="text-sm text-gray-600 mb-1">Share Price</div>
                   <div className="text-2xl font-bold text-purple-600">
-                    {formatCurrency(fractionalProperty.share_price)}
+                    {formatCurrency(fractionalProperty.sharePrice)}
                   </div>
                 </div>
                 <div className="bg-white p-4 rounded-lg border border-purple-200">
                   <div className="text-sm text-gray-600 mb-1">Shares Available</div>
                   <div className="text-2xl font-bold text-blue-600">
-                    {fractionalProperty.shares_available?.toLocaleString() || 0}
+                    {fractionalProperty.sharesAvailable?.toLocaleString() || 0}
                   </div>
-                  <div className="text-xs text-gray-500">of {fractionalProperty.total_shares?.toLocaleString()}</div>
+                  <div className="text-xs text-gray-500">of {fractionalProperty.totalShares?.toLocaleString()}</div>
                 </div>
                 <div className="bg-white p-4 rounded-lg border border-purple-200">
                   <div className="text-sm text-gray-600 mb-1">Total Monthly Income</div>
                   <div className="text-2xl font-bold text-green-600">
-                    {formatCurrency(fractionalProperty.net_monthly_income || 0)}
+                    {formatCurrency(fractionalProperty.netMonthlyIncome || 0)}
                   </div>
                 </div>
                 <div className="bg-white p-4 rounded-lg border border-purple-200">
