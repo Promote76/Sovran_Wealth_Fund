@@ -91,14 +91,116 @@ const DealMarketplacePage: React.FC = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50">
       <div className="container mx-auto p-4 max-w-7xl">
-        {/* Header */}
+        {/* Hero Section */}
+        <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg shadow-xl p-8 mb-6 text-white">
+          <div className="max-w-3xl mx-auto text-center">
+            <h1 className="text-5xl font-bold mb-4">
+              🏘️ Wholesale Real Estate Marketplace
+            </h1>
+            <p className="text-xl mb-6 text-blue-100">
+              Pre-analyzed investment properties with verified numbers. Skip the research - start investing today.
+            </p>
+            <div className="flex flex-wrap justify-center gap-4 text-sm">
+              <div className="bg-white bg-opacity-20 backdrop-blur-sm px-4 py-2 rounded-full">
+                ✅ OFAC Compliant
+              </div>
+              <div className="bg-white bg-opacity-20 backdrop-blur-sm px-4 py-2 rounded-full">
+                🔒 SEC Registered
+              </div>
+              <div className="bg-white bg-opacity-20 backdrop-blur-sm px-4 py-2 rounded-full">
+                🌐 International Investors Welcome
+              </div>
+              <div className="bg-white bg-opacity-20 backdrop-blur-sm px-4 py-2 rounded-full">
+                💰 USDC/USDT/BNB Accepted
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* How It Works Section */}
         <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-          <h1 className="text-4xl font-bold text-gray-800 mb-2">
-            🏘️ Investment Property Marketplace
-          </h1>
-          <p className="text-gray-600">
-            Pre-analyzed wholesale real estate deals - ready for investors and rent-to-own participants
-          </p>
+          <h2 className="text-2xl font-bold text-gray-800 mb-4 text-center">
+            How It Works
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="text-center">
+              <div className="bg-blue-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-3">
+                <span className="text-3xl">🔍</span>
+              </div>
+              <h3 className="font-bold text-gray-800 mb-2">1. Browse Deals</h3>
+              <p className="text-sm text-gray-600">
+                Every property is pre-analyzed with repair costs, ARV, ROI, and rental estimates. No guesswork required.
+              </p>
+            </div>
+            <div className="text-center">
+              <div className="bg-purple-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-3">
+                <span className="text-3xl">💡</span>
+              </div>
+              <h3 className="font-bold text-gray-800 mb-2">2. Review Analysis</h3>
+              <p className="text-sm text-gray-600">
+                See complete financials: Maximum Allowable Offer (MAO), profit margins, and rent-to-own eligibility.
+              </p>
+            </div>
+            <div className="text-center">
+              <div className="bg-green-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-3">
+                <span className="text-3xl">🚀</span>
+              </div>
+              <h3 className="font-bold text-gray-800 mb-2">3. Invest or Purchase</h3>
+              <p className="text-sm text-gray-600">
+                Buy fractional shares starting at $500, or acquire entire properties. Crypto and fiat payments accepted.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Value Proposition */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+          <div className="bg-white rounded-lg shadow-md p-6">
+            <h3 className="text-xl font-bold text-gray-800 mb-3">
+              💼 For Investors
+            </h3>
+            <ul className="space-y-2 text-gray-600">
+              <li className="flex items-start">
+                <span className="text-green-500 mr-2">✓</span>
+                <span>Pre-vetted wholesale deals with verified comps</span>
+              </li>
+              <li className="flex items-start">
+                <span className="text-green-500 mr-2">✓</span>
+                <span>Fractional ownership starting at $500</span>
+              </li>
+              <li className="flex items-start">
+                <span className="text-green-500 mr-2">✓</span>
+                <span>Monthly rental income distributions</span>
+              </li>
+              <li className="flex items-start">
+                <span className="text-green-500 mr-2">✓</span>
+                <span>Automated compliance and tax reporting</span>
+              </li>
+            </ul>
+          </div>
+          <div className="bg-white rounded-lg shadow-md p-6">
+            <h3 className="text-xl font-bold text-gray-800 mb-3">
+              🏡 For Future Homeowners
+            </h3>
+            <ul className="space-y-2 text-gray-600">
+              <li className="flex items-start">
+                <span className="text-blue-500 mr-2">✓</span>
+                <span>Rent-to-own ready properties (RTO badge)</span>
+              </li>
+              <li className="flex items-start">
+                <span className="text-blue-500 mr-2">✓</span>
+                <span>KeyGrow program helps with down payments</span>
+              </li>
+              <li className="flex items-start">
+                <span className="text-blue-500 mr-2">✓</span>
+                <span>Build equity while renting</span>
+              </li>
+              <li className="flex items-start">
+                <span className="text-blue-500 mr-2">✓</span>
+                <span>Path to homeownership without traditional barriers</span>
+              </li>
+            </ul>
+          </div>
         </div>
 
         {/* Filters */}

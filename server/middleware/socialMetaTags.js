@@ -51,6 +51,36 @@ function convertDropboxUrl(url) {
   return url;
 }
 
+function generateMarketplaceMetaTags(baseUrl) {
+  const marketplaceUrl = `${baseUrl}/deals`;
+  const title = "Wholesale Real Estate Marketplace | AXIOM";
+  const description = "Pre-analyzed investment properties with verified numbers. Fractional ownership starting at $500. OFAC compliant, SEC registered. USDC/USDT/BNB accepted.";
+  const image = `${baseUrl}/og-marketplace.jpg`;
+  
+  return `
+    <!-- Open Graph Meta Tags for Facebook, LinkedIn, WhatsApp -->
+    <meta property="og:title" content="${title}" />
+    <meta property="og:description" content="${description}" />
+    <meta property="og:image" content="${image}" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:url" content="${marketplaceUrl}" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="AXIOM - Crypto Real Estate Platform" />
+    
+    <!-- Twitter Card Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="${title}" />
+    <meta name="twitter:description" content="${description}" />
+    <meta name="twitter:image" content="${image}" />
+    <meta name="twitter:url" content="${marketplaceUrl}" />
+    
+    <!-- Standard Meta Tags -->
+    <meta name="description" content="${description}" />
+    <meta name="keywords" content="wholesale real estate, investment properties, crypto real estate, fractional ownership, OFAC compliant, SEC registered, international investors" />
+  `;
+}
+
 function generateDealMetaTags(deal, dealId, baseUrl) {
   const address = deal.parsed?.address || deal.geocoding?.formattedAddress || 'Property';
   const city = deal.parsed?.city || deal.geocoding?.city || '';
@@ -161,6 +191,48 @@ async function socialMetaTagsMiddleware(req, res, next) {
     return next();
   }
   
+  // Get base URL from request
+  const protocol = req.headers['x-forwarded-proto'] || req.protocol || 'https';
+  const host = req.headers['x-forwarded-host'] || req.headers.host || 'axiomprotocol.app';
+  const baseUrl = `${protocol}://${host}`;
+  
+  // Check if this is the deals marketplace page
+  if (req.path === '/deals' || req.path === '/deals/') {
+    console.log(`🤖 Social crawler detected (${userAgent.split(' ')[0]}) for marketplace`);
+    
+    const metaTags = generateMarketplaceMetaTags(baseUrl);
+    const html = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Wholesale Real Estate Marketplace | AXIOM</title>
+  
+  ${metaTags}
+  
+  <script>
+    if (!navigator.userAgent.match(/facebookexternalhit|Facebot|Twitterbot|LinkedInBot/i)) {
+      window.location.href = '/deals';
+    }
+  </script>
+</head>
+<body>
+  <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 50px auto; padding: 20px;">
+    <h1>AXIOM Wholesale Real Estate Marketplace</h1>
+    <p>Pre-analyzed investment properties with verified numbers.</p>
+    <p>Loading marketplace...</p>
+    <p><a href="/deals">Click here if not redirected automatically</a></p>
+  </div>
+</body>
+</html>
+    `;
+    
+    res.setHeader('Content-Type', 'text/html');
+    res.send(html);
+    return;
+  }
+  
   // Check if this is a deal detail page
   const dealMatch = req.path.match(/^\/deals\/([a-f0-9\-]+)$/i);
   if (!dealMatch) {
@@ -179,11 +251,6 @@ async function socialMetaTagsMiddleware(req, res, next) {
     }
     
     console.log(`🤖 Social crawler detected (${userAgent.split(' ')[0]}) for deal: ${dealId}`);
-    
-    // Get base URL from request
-    const protocol = req.headers['x-forwarded-proto'] || req.protocol || 'https';
-    const host = req.headers['x-forwarded-host'] || req.headers.host || 'axiomprotocol.app';
-    const baseUrl = `${protocol}://${host}`;
     
     // Generate and serve HTML with meta tags
     const html = generateSocialMetaHTML(deal, dealId, baseUrl);
