@@ -21,9 +21,11 @@ const DealMarketplacePage: React.FC = () => {
   const [filterType, setFilterType] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState('newest');
+  const [fractionalProperties, setFractionalProperties] = useState<any[]>([]);
 
   useEffect(() => {
     loadDeals();
+    loadFractionalProperties();
   }, []);
 
   useEffect(() => {
@@ -43,6 +45,22 @@ const DealMarketplacePage: React.FC = () => {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const loadFractionalProperties = async () => {
+    try {
+      const response = await fetch('/api/fractional/properties');
+      const data = await response.json();
+      if (data.success) {
+        setFractionalProperties(data.properties || []);
+      }
+    } catch (err) {
+      console.error('Failed to load fractional properties:', err);
+    }
+  };
+
+  const getFractionalProperty = (dealId: string) => {
+    return fractionalProperties.find(fp => fp.dealId === dealId);
   };
 
   const filterAndSortDeals = () => {
@@ -307,11 +325,18 @@ const DealMarketplacePage: React.FC = () => {
                       <span className="text-6xl">🏠</span>
                     </div>
                   )}
-                  {deal.analysis?.rtoBadge === 'green' && (
-                    <div className="absolute top-2 right-2 bg-green-500 text-white px-3 py-1 rounded-full text-xs font-semibold">
-                      RTO Ready
-                    </div>
-                  )}
+                  <div className="absolute top-2 right-2 flex flex-col gap-2">
+                    {getFractionalProperty(deal.id) && (
+                      <div className="bg-purple-600 text-white px-3 py-1 rounded-full text-xs font-semibold">
+                        💰 Fractional Shares
+                      </div>
+                    )}
+                    {deal.analysis?.rtoBadge === 'green' && (
+                      <div className="bg-green-500 text-white px-3 py-1 rounded-full text-xs font-semibold">
+                        ✅ RTO Ready
+                      </div>
+                    )}
+                  </div>
                 </div>
 
                 {/* Property Details */}
@@ -323,51 +348,113 @@ const DealMarketplacePage: React.FC = () => {
                     {deal.parsed?.city}, {deal.parsed?.state} {deal.parsed?.zip}
                   </p>
 
-                  <div className="grid grid-cols-2 gap-2 mb-3">
-                    <div className="text-center bg-blue-50 rounded p-2">
-                      <div className="text-xl font-bold text-blue-600">
-                        {formatCurrency(deal.parsed?.asking || 0)}
-                      </div>
-                      <div className="text-xs text-gray-600">Asking Price</div>
-                    </div>
-                    <div className="text-center bg-purple-50 rounded p-2">
-                      <div className="text-xl font-bold text-purple-600">
-                        {formatCurrency(deal.parsed?.arv || 0)}
-                      </div>
-                      <div className="text-xs text-gray-600">ARV</div>
-                    </div>
-                  </div>
+                  {/* Show investor metrics by default */}
+                  {(() => {
+                    const fractionalProp = getFractionalProperty(deal.id);
+                    
+                    if (fractionalProp) {
+                      // Fractionalized property - show investor metrics
+                      return (
+                        <>
+                          <div className="grid grid-cols-2 gap-2 mb-3">
+                            <div className="text-center bg-purple-50 rounded p-2">
+                              <div className="text-xl font-bold text-purple-600">
+                                {formatCurrency(parseFloat(fractionalProp.sharePrice))}
+                              </div>
+                              <div className="text-xs text-gray-600">Per Share</div>
+                            </div>
+                            <div className="text-center bg-green-50 rounded p-2">
+                              <div className="text-xl font-bold text-green-600">
+                                {fractionalProp.annualYield?.toFixed(2)}%
+                              </div>
+                              <div className="text-xs text-gray-600">Annual Yield</div>
+                            </div>
+                          </div>
 
-                  {deal.analysis?.maoByRepair && (
-                    <div className="mb-3">
-                      <div className="text-sm font-semibold text-gray-700 mb-1">
-                        Investment Analysis:
-                      </div>
-                      <div className="bg-green-50 rounded p-2">
-                        <div className="flex justify-between text-xs">
-                          <span className="text-gray-600">MAO (Mid Repairs):</span>
-                          <span className="font-semibold text-green-700">
-                            {formatCurrency(deal.analysis.maoByRepair[1]?.mao || 0)}
-                          </span>
-                        </div>
-                        <div className="flex justify-between text-xs mt-1">
-                          <span className="text-gray-600">Potential ROI:</span>
-                          <span className="font-semibold text-green-700">
-                            {deal.analysis.maoByRepair[1]?.roi || 0}%
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  )}
+                          <div className="mb-3">
+                            <div className="bg-gradient-to-r from-blue-50 to-cyan-50 rounded-lg p-3 border border-blue-200">
+                              <div className="flex justify-between text-sm mb-1">
+                                <span className="text-gray-700">Property Value:</span>
+                                <span className="font-bold text-blue-600">
+                                  {formatCurrency(fractionalProp.propertyValue)}
+                                </span>
+                              </div>
+                              <div className="flex justify-between text-sm mb-1">
+                                <span className="text-gray-700">Monthly Income:</span>
+                                <span className="font-bold text-green-600">
+                                  {formatCurrency(fractionalProp.netMonthlyIncome || 0)}
+                                </span>
+                              </div>
+                              <div className="flex justify-between text-xs pt-2 border-t border-blue-200">
+                                <span className="text-gray-600">Shares Available:</span>
+                                <span className="font-semibold text-gray-800">
+                                  {fractionalProp.sharesAvailable?.toLocaleString()}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
 
-                  {deal.rents && (
-                    <div className="mb-3 text-sm">
-                      <span className="text-gray-600">Estimated Rent:</span>
-                      <span className="ml-2 font-semibold text-gray-800">
-                        {formatCurrency(deal.rents.marketRentEst || 0)}/mo
-                      </span>
-                    </div>
-                  )}
+                          <div className="mb-3 bg-purple-50 rounded p-2 text-center">
+                            <div className="text-xs text-gray-600 mb-1">Minimum Investment</div>
+                            <div className="text-lg font-bold text-purple-600">
+                              {formatCurrency(parseFloat(fractionalProp.minInvestment || fractionalProp.sharePrice))}
+                            </div>
+                          </div>
+                        </>
+                      );
+                    } else {
+                      // Wholesale property - show traditional metrics
+                      return (
+                        <>
+                          <div className="grid grid-cols-2 gap-2 mb-3">
+                            <div className="text-center bg-blue-50 rounded p-2">
+                              <div className="text-xl font-bold text-blue-600">
+                                {formatCurrency(deal.parsed?.asking || 0)}
+                              </div>
+                              <div className="text-xs text-gray-600">Asking Price</div>
+                            </div>
+                            <div className="text-center bg-purple-50 rounded p-2">
+                              <div className="text-xl font-bold text-purple-600">
+                                {formatCurrency(deal.parsed?.arv || 0)}
+                              </div>
+                              <div className="text-xs text-gray-600">ARV</div>
+                            </div>
+                          </div>
+
+                          {deal.analysis?.maoByRepair && (
+                            <div className="mb-3">
+                              <div className="text-xs font-semibold text-gray-600 mb-1">
+                                For Wholesalers:
+                              </div>
+                              <div className="bg-green-50 rounded p-2">
+                                <div className="flex justify-between text-xs">
+                                  <span className="text-gray-600">MAO (Mid Repairs):</span>
+                                  <span className="font-semibold text-green-700">
+                                    {formatCurrency(deal.analysis.maoByRepair[1]?.mao || 0)}
+                                  </span>
+                                </div>
+                                <div className="flex justify-between text-xs mt-1">
+                                  <span className="text-gray-600">Potential ROI:</span>
+                                  <span className="font-semibold text-green-700">
+                                    {deal.analysis.maoByRepair[1]?.roi || 0}%
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+                          )}
+
+                          {deal.rents && (
+                            <div className="mb-3 text-sm">
+                              <span className="text-gray-600">Estimated Rent:</span>
+                              <span className="ml-2 font-semibold text-gray-800">
+                                {formatCurrency(deal.rents.marketRentEst || 0)}/mo
+                              </span>
+                            </div>
+                          )}
+                        </>
+                      );
+                    }
+                  })()}
 
                   <button 
                     onClick={() => navigate(`/deals/${deal.id}`)}
