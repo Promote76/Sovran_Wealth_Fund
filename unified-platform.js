@@ -57,9 +57,9 @@ const limiter = rateLimit({
 });
 app.use(limiter);
 
-// Body parsing middleware
-app.use(bodyParser.json({ limit: '50mb' }));
-app.use(bodyParser.urlencoded({ extended: true, limit: '50mb' }));
+// Body parsing middleware (increased for property photo uploads)
+app.use(bodyParser.json({ limit: '100mb' }));
+app.use(bodyParser.urlencoded({ extended: true, limit: '100mb' }));
 app.use(cookieParser());
 
 // Session configuration
