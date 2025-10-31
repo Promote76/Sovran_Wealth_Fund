@@ -15,6 +15,11 @@ function parseMessage(rawText, providedUrl) {
   parsed.asking = extractAmount(rawText, ['asking', 'price', 'listed']);
   parsed.arv = extractAmount(rawText, ['arv', 'after repair value']);
 
+  // Fallback: Extract leading price for land.com listings (e.g., "$636,000 • 120 Acres")
+  if (!parsed.asking && (providedUrl?.includes('land.com') || /\$[\d,]+\s*[•|]\s*\d+\s*acres?/i.test(rawText))) {
+    parsed.asking = extractLeadingPrice(rawText);
+  }
+
   if (!parsed.asking) {
     warnings.push('Could not extract asking price');
     confidence = 'low';
@@ -130,6 +135,24 @@ function extractAmount(text, labels) {
         const hasK = match[3];
         return normalizeAmount(match[2], hasK);
       }
+    }
+  }
+
+  return undefined;
+}
+
+function extractLeadingPrice(text) {
+  // Land.com format: "$636,000 • 120 Acres" or "$500,000 | 50 acres"
+  const patterns = [
+    /^\s*\$([0-9,]+)(?:\s*[•|]\s*\d+\s*acres?)/i,  // At start of text
+    /\n\s*\$([0-9,]+)(?:\s*[•|]\s*\d+\s*acres?)/i, // After newline
+    /\$([0-9,]+)(?:\s*[•|]\s*\d+\s*acres?)/i        // Anywhere in text
+  ];
+
+  for (const pattern of patterns) {
+    const match = text.match(pattern);
+    if (match) {
+      return parseInt(match[1].replace(/,/g, ''), 10);
     }
   }
 
@@ -463,12 +486,26 @@ function extractRent(text) {
 function extractAnnualIncome(text) {
   // Patterns for annual income from CRP, timber, leases, etc.
   const patterns = [
+    // Standard annual income patterns
     /annual\s+(?:income|payment|revenue)[\s:]+\$?([0-9,]+)/i,
     /\$([0-9,]+)\s+(?:per\s+year|\/yr|\/year|annually)/i,
     /(?:income|payment|revenue)[\s:]+\$?([0-9,]+)\s+(?:per\s+year|\/yr|\/year|annually)/i,
+    /estimated\s+(?:annual\s+)?(?:income|revenue)[\s:]+\$?([0-9,]+)/i,
+    
+    // CRP-specific patterns
     /crp\s+(?:annual\s+)?payment[\s:]+\$?([0-9,]+)/i,
+    /crp[\s:]+\$?([0-9,]+)\s*(?:per\s+year|\/yr|annually)/i,
+    /\$([0-9,]+)\s+crp/i,
+    
+    // Timber-specific patterns
     /timber\s+(?:annual\s+)?income[\s:]+\$?([0-9,]+)/i,
-    /estimated\s+(?:annual\s+)?(?:income|revenue)[\s:]+\$?([0-9,]+)/i
+    /timber\s+(?:sales|revenue|harvest)[\s:]+\$?([0-9,]+)/i,
+    /\$([0-9,]+)\s+(?:from\s+)?timber/i,
+    
+    // Income-producing patterns (land.com style)
+    /income[\s-]producing.*?\$([0-9,]+)/i,
+    /produces?\s+\$?([0-9,]+)\s+annually/i,
+    /generates?\s+\$?([0-9,]+)\s+(?:per\s+year|annually)/i
   ];
 
   for (const pattern of patterns) {
