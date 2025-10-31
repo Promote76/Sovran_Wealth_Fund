@@ -55,7 +55,7 @@ function generateMarketplaceMetaTags(baseUrl) {
   const marketplaceUrl = `${baseUrl}/deals`;
   const title = "Fractionalized Real Estate Shares Marketplace | AXIOM";
   const description = "Own premium real estate for as little as $30 per share. Earn monthly rental income and build wealth through fractional ownership. Powered by the GENIUS Act - Accessing the $52B crypto real estate market.";
-  const image = `${baseUrl}/og-marketplace.png`;
+  const image = `${baseUrl}/og-marketplace.png?v=2`;
   
   return `
     <!-- Open Graph Meta Tags for Facebook, LinkedIn, WhatsApp -->
