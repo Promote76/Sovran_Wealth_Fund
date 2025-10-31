@@ -53,9 +53,9 @@ function convertDropboxUrl(url) {
 
 function generateMarketplaceMetaTags(baseUrl) {
   const marketplaceUrl = `${baseUrl}/deals`;
-  const title = "Wholesale Real Estate Marketplace | AXIOM";
-  const description = "Pre-analyzed investment properties with verified numbers. Fractional ownership starting at $30. OFAC compliant. USDC/USDT/BNB accepted. International investors welcome.";
-  const image = `${baseUrl}/og-marketplace.jpg`;
+  const title = "Fractionalized Real Estate Shares Marketplace | AXIOM";
+  const description = "Own premium real estate for as little as $30 per share. Earn monthly rental income and build wealth through fractional ownership. Powered by the GENIUS Act - Accessing the $52B crypto real estate market.";
+  const image = `${baseUrl}/og-marketplace.png`;
   
   return `
     <!-- Open Graph Meta Tags for Facebook, LinkedIn, WhatsApp -->
@@ -209,7 +209,7 @@ async function socialMetaTagsMiddleware(req, res, next) {
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Wholesale Real Estate Marketplace | AXIOM</title>
+  <title>Fractionalized Real Estate Shares Marketplace | AXIOM</title>
   
   ${metaTags}
   
@@ -221,8 +221,8 @@ async function socialMetaTagsMiddleware(req, res, next) {
 </head>
 <body>
   <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 50px auto; padding: 20px;">
-    <h1>AXIOM Wholesale Real Estate Marketplace</h1>
-    <p>Pre-analyzed investment properties with verified numbers.</p>
+    <h1>AXIOM Fractionalized Real Estate Shares Marketplace</h1>
+    <p>Own premium real estate for as little as $30 per share. Earn monthly income.</p>
     <p>Loading marketplace...</p>
     <p><a href="/deals">Click here if not redirected automatically</a></p>
   </div>
