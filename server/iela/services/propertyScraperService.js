@@ -40,8 +40,8 @@ class PropertyScraperService {
         console.log(`📸 Using Puppeteer for Dropbox shared folder`);
         return await this.scrapeDropboxWithPuppeteer(url);
       } else if (url.includes('land.com')) {
-        console.log(`📸 Using Puppeteer for land.com (extended timeout: 60s)`);
-        return await this.scrapeLandComWithPuppeteer(url);
+        console.log(`📸 Skipping Puppeteer for land.com - using text-based parsing only`);
+        return { images: [], data: {} };  // Parser will handle price extraction from URL text
       } else {
         const scrapedData = await this.scrapeUrl(url);
         return scrapedData;
@@ -208,13 +208,17 @@ class PropertyScraperService {
       await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36');
       
       console.log(`🌐 Loading land.com page: ${url}`);
+      
+      // Set shorter timeout and use domcontentloaded instead of networkidle2
       await page.goto(url, { 
-        waitUntil: 'networkidle2',
-        timeout: 60000 
+        waitUntil: 'domcontentloaded',
+        timeout: 30000 
       });
       
-      await page.waitForTimeout(3000);
+      console.log(`⏳ Waiting for page to settle...`);
+      await page.waitForTimeout(2000);
       
+      console.log(`🔍 Extracting data from page...`);
       const scrapedData = await page.evaluate(() => {
         const images = [];
         const data = {};
