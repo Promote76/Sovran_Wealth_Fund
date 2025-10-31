@@ -89,6 +89,11 @@ function parseMessage(rawText, providedUrl) {
   if (features.stories !== undefined) parsed.stories = features.stories;
   if (features.fireplace !== undefined) parsed.hasFireplace = features.fireplace;
 
+  // Map lotSize to acreage field for land deals
+  if (parsed.lotSize && parsed.lotSize.unit === 'acres' && parsed.lotSize.value) {
+    parsed.acreage = parsed.lotSize.value;
+  }
+
   return { parsed, confidence, warnings };
 }
 
@@ -487,31 +492,39 @@ function extractAnnualIncome(text) {
   // Patterns for annual income from CRP, timber, leases, etc.
   const patterns = [
     // Standard annual income patterns
-    /annual\s+(?:income|payment|revenue)[\s:]+\$?([0-9,]+)/i,
-    /\$([0-9,]+)\s+(?:per\s+year|\/yr|\/year|annually)/i,
-    /(?:income|payment|revenue)[\s:]+\$?([0-9,]+)\s+(?:per\s+year|\/yr|\/year|annually)/i,
-    /estimated\s+(?:annual\s+)?(?:income|revenue)[\s:]+\$?([0-9,]+)/i,
+    /annual\s+(?:income|payment|revenue)[\s:]+~?\$?([0-9,]+)\s*k?/i,
+    /~?\$([0-9,]+)\s*k?\s*(?:per\s+year|\/\s*yr|\/\s*year|annually)/i,
+    /(?:income|payment|revenue)[\s:]+~?\$?([0-9,]+)\s*k?\s*(?:per\s+year|\/\s*yr|\/\s*year|annually)/i,
+    /estimated\s+(?:annual\s+)?(?:income|revenue)[\s:]+~?\$?([0-9,]+)\s*k?/i,
     
     // CRP-specific patterns
-    /crp\s+(?:annual\s+)?payment[\s:]+\$?([0-9,]+)/i,
-    /crp[\s:]+\$?([0-9,]+)\s*(?:per\s+year|\/yr|annually)/i,
-    /\$([0-9,]+)\s+crp/i,
+    /crp\s+\(.*?~?\$([0-9,]+)\s*k?\s*\/\s*yr/i,
+    /crp\s+(?:annual\s+)?payment[\s:]+~?\$?([0-9,]+)\s*k?/i,
+    /crp[\s:]+~?\$?([0-9,]+)\s*k?\s*(?:per\s+year|\/\s*yr|annually)/i,
+    /~?\$([0-9,]+)\s*k?\s+crp/i,
     
     // Timber-specific patterns
-    /timber\s+(?:annual\s+)?income[\s:]+\$?([0-9,]+)/i,
-    /timber\s+(?:sales|revenue|harvest)[\s:]+\$?([0-9,]+)/i,
-    /\$([0-9,]+)\s+(?:from\s+)?timber/i,
+    /timber\s+(?:annual\s+)?income[\s:]+~?\$?([0-9,]+)\s*k?/i,
+    /timber\s+(?:sales|revenue|harvest)[\s:]+~?\$?([0-9,]+)\s*k?/i,
+    /~?\$([0-9,]+)\s*k?\s+(?:from\s+)?timber/i,
     
     // Income-producing patterns (land.com style)
-    /income[\s-]producing.*?\$([0-9,]+)/i,
-    /produces?\s+\$?([0-9,]+)\s+annually/i,
-    /generates?\s+\$?([0-9,]+)\s+(?:per\s+year|annually)/i
+    /income[\s-]producing.*?~?\$([0-9,]+)\s*k?/i,
+    /produces?\s+~?\$?([0-9,]+)\s*k?\s+annually/i,
+    /generates?\s+~?\$?([0-9,]+)\s*k?\s+(?:per\s+year|annually)/i
   ];
 
   for (const pattern of patterns) {
     const match = text.match(pattern);
     if (match) {
-      const value = parseInt(match[1].replace(/,/g, ''), 10);
+      let value = parseInt(match[1].replace(/,/g, ''), 10);
+      
+      // Check if the match includes 'k' or 'K' (thousands)
+      const fullMatch = match[0].toLowerCase();
+      if (fullMatch.includes('k') && !fullMatch.includes('asking')) {
+        value = value * 1000; // Convert K to actual thousands
+      }
+      
       // Sanity check: annual income should be reasonable ($100-$500,000/year)
       if (value >= 100 && value <= 500000) {
         return value;
