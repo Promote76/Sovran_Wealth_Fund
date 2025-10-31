@@ -161,7 +161,7 @@ const AdminDashboardPage: React.FC = () => {
               Manage wholesale real estate deals with automated enrichment, analysis, and investor matching.
             </p>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <a
                 href="/admin/iela/dashboard"
                 className="block bg-gradient-to-br from-blue-50 to-purple-50 rounded-lg p-6 hover:shadow-lg transition-shadow border-2 border-blue-200 hover:border-blue-400"
@@ -182,12 +182,27 @@ const AdminDashboardPage: React.FC = () => {
                 className="block bg-gradient-to-br from-green-50 to-teal-50 rounded-lg p-6 hover:shadow-lg transition-shadow border-2 border-green-200 hover:border-green-400"
               >
                 <div className="text-4xl mb-3">📝</div>
-                <h3 className="text-xl font-bold text-gray-800 mb-2">Create New Deal</h3>
+                <h3 className="text-xl font-bold text-gray-800 mb-2">Wholesale Deal (SMS)</h3>
                 <p className="text-gray-600 mb-4">
-                  Add new wholesale deals manually or load examples. Includes automated enrichment with property data and financial analysis.
+                  Add new wholesale deals via SMS/text submission. Includes automated property data enrichment and analysis.
                 </p>
                 <div className="flex items-center text-green-600 font-medium">
                   <span>Create Deal</span>
+                  <span className="ml-2">→</span>
+                </div>
+              </a>
+
+              <a
+                href="/admin/land/submit"
+                className="block bg-gradient-to-br from-amber-50 to-yellow-50 rounded-lg p-6 hover:shadow-lg transition-shadow border-2 border-amber-200 hover:border-amber-400"
+              >
+                <div className="text-4xl mb-3">🌾</div>
+                <h3 className="text-xl font-bold text-gray-800 mb-2">Land Listing</h3>
+                <p className="text-gray-600 mb-4">
+                  Submit agricultural, recreational, or timber land with CRP income, acreage, and investment analysis.
+                </p>
+                <div className="flex items-center text-amber-600 font-medium">
+                  <span>Submit Land</span>
                   <span className="ml-2">→</span>
                 </div>
               </a>

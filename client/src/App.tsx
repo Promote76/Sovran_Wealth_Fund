@@ -84,6 +84,7 @@ import IELAIntakePage from './pages/IELAIntakePage';
 import IELADashboardPage from './pages/IELADashboardPage';
 import DealMarketplacePage from './pages/DealMarketplacePage';
 import DealDetailPage from './pages/DealDetailPage';
+import LandSubmissionPage from './pages/LandSubmissionPage';
 import EnterprisePage from './pages/EnterprisePage';
 import WaitlistPage from './pages/WaitlistPage';
 import WaitlistDashboard from './components/admin/WaitlistDashboard';
@@ -500,6 +501,7 @@ function App() {
                               <Route path="/admin/unified-registration" element={<UnifiedRegistrationAdminPage />} />
                               <Route path="/admin/iela/intake" element={<IELAIntakePage />} />
                               <Route path="/admin/iela/dashboard" element={<IELADashboardPage />} />
+                              <Route path="/admin/land/submit" element={<LandSubmissionPage />} />
                               <Route path="/admin/waitlist" element={<WaitlistDashboard />} />
                               <Route path="/liquidity-management" element={<LiquidityManagementPage />} />
                               <Route path="/premium-courses" element={<PremiumCoursesPage />} />
