@@ -214,34 +214,72 @@ class DealService {
 
     const parsed = deal.parsed;
     const currentRepairs = deal.repairs;
+    const propertyType = parsed.propertyType?.toLowerCase() || '';
 
-    if (!parsed.asking || !parsed.arv) {
-      throw new Error('Cannot analyze deal: missing asking price or ARV');
+    // Check if asking price exists
+    if (!parsed.asking) {
+      throw new Error('Cannot analyze deal: missing asking price');
     }
 
-    const repairs = {
-      low: customRepairs?.low ?? currentRepairs.estLow,
-      mid: customRepairs?.mid ?? currentRepairs.estMid,
-      high: customRepairs?.high ?? currentRepairs.estHigh
-    };
+    let analysis = {};
 
-    const profitability = analyzeProfitability({
-      asking: parsed.asking,
-      arv: parsed.arv,
-      repairs
-    });
+    // Handle Land deals differently (no ARV needed)
+    if (propertyType.includes('land')) {
+      // For land deals, analyze based on income potential
+      const annualIncome = parsed.annualIncome || 0;
+      const askingPrice = parsed.asking;
+      
+      analysis = {
+        askingPrice,
+        annualIncome,
+        roi: annualIncome > 0 ? ((annualIncome / askingPrice) * 100).toFixed(2) : 0,
+        dealType: 'land',
+        notes: 'Land deal - income based on CRP, timber, leases, etc.'
+      };
 
-    const rents = deal.rents;
-    const rtoAnalysis = analyzeRTOSuitability({
-      monthlyRent: rents?.marketRentEst
-    });
+      // Add RTO analysis if monthly rent is available
+      const rents = deal.rents;
+      if (rents?.marketRentEst) {
+        const rtoAnalysis = analyzeRTOSuitability({
+          monthlyRent: rents.marketRentEst
+        });
+        analysis = {
+          ...analysis,
+          ...rtoAnalysis,
+          dscrByRent: rtoAnalysis.dscrByRent,
+          rtoBadge: rtoAnalysis.badge
+        };
+      }
+    } else {
+      // Handle residential/commercial properties (requires ARV)
+      if (!parsed.arv) {
+        throw new Error('Cannot analyze deal: missing ARV (required for residential/commercial properties)');
+      }
 
-    const analysis = {
-      ...profitability,
-      ...rtoAnalysis,
-      dscrByRent: rtoAnalysis.dscrByRent,
-      rtoBadge: rtoAnalysis.badge
-    };
+      const repairs = {
+        low: customRepairs?.low ?? currentRepairs.estLow,
+        mid: customRepairs?.mid ?? currentRepairs.estMid,
+        high: customRepairs?.high ?? currentRepairs.estHigh
+      };
+
+      const profitability = analyzeProfitability({
+        asking: parsed.asking,
+        arv: parsed.arv,
+        repairs
+      });
+
+      const rents = deal.rents;
+      const rtoAnalysis = analyzeRTOSuitability({
+        monthlyRent: rents?.marketRentEst
+      });
+
+      analysis = {
+        ...profitability,
+        ...rtoAnalysis,
+        dscrByRent: rtoAnalysis.dscrByRent,
+        rtoBadge: rtoAnalysis.badge
+      };
+    }
 
     await db
       .update(deals)

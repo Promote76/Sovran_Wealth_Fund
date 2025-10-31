@@ -57,6 +57,9 @@ function parseMessage(rawText, providedUrl) {
   // Extract rent/rental income
   parsed.monthlyRent = extractRent(rawText);
 
+  // Extract annual income (for land deals with CRP, timber, leases, etc.)
+  parsed.annualIncome = extractAnnualIncome(rawText);
+
   // Extract condition
   parsed.condition = extractCondition(rawText);
 
@@ -449,6 +452,31 @@ function extractRent(text) {
       const value = parseInt(match[1].replace(/,/g, ''), 10);
       // Sanity check: rent should be reasonable ($100-$20,000/month)
       if (value >= 100 && value <= 20000) {
+        return value;
+      }
+    }
+  }
+
+  return undefined;
+}
+
+function extractAnnualIncome(text) {
+  // Patterns for annual income from CRP, timber, leases, etc.
+  const patterns = [
+    /annual\s+(?:income|payment|revenue)[\s:]+\$?([0-9,]+)/i,
+    /\$([0-9,]+)\s+(?:per\s+year|\/yr|\/year|annually)/i,
+    /(?:income|payment|revenue)[\s:]+\$?([0-9,]+)\s+(?:per\s+year|\/yr|\/year|annually)/i,
+    /crp\s+(?:annual\s+)?payment[\s:]+\$?([0-9,]+)/i,
+    /timber\s+(?:annual\s+)?income[\s:]+\$?([0-9,]+)/i,
+    /estimated\s+(?:annual\s+)?(?:income|revenue)[\s:]+\$?([0-9,]+)/i
+  ];
+
+  for (const pattern of patterns) {
+    const match = text.match(pattern);
+    if (match) {
+      const value = parseInt(match[1].replace(/,/g, ''), 10);
+      // Sanity check: annual income should be reasonable ($100-$500,000/year)
+      if (value >= 100 && value <= 500000) {
         return value;
       }
     }
