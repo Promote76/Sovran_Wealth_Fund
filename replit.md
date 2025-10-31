@@ -37,6 +37,7 @@ A hybrid platform combining database-backed investment tracking with blockchain 
 
 ### IELA Pipeline (Ingest-Enrich-Analyze-List)
 A comprehensive wholesale real estate deal management system featuring a parsing engine, an enrichment service (geocoding, market data), and an ML prediction engine for repair costs, rent, appreciation, and ROI. Analysis modules determine profitability and RTO suitability. It includes a Deal Management API, Automation Webhooks, and a Public Marketplace for investment opportunities. Integrations include Attom Data API, automated tests, email notifications, investor matching, and contract generation.
+-   **Land Deal Analysis (Added Oct 31, 2025)**: Expanded IELA intake form to analyze land deals in addition to residential properties. Captures CRP enrollment (acreage, annual payments, contract expiration), timber details (species, age, harvest income), water features (ponds, wells, creeks), pasture acreage, structures, utilities (3-phase power, fiber internet), and multiple income streams (CRP payments, timber sales, pine straw, hunting leases, grazing leases, hay production, land appreciation). Supports mixed-use land including farm, recreational, timber, and development properties.
 
 ### Marketing Hub
 Features AI-powered content generation tools:

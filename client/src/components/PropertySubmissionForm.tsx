@@ -24,6 +24,25 @@ interface PropertySubmissionData {
   lotSize: string;
   yearBuilt: number | '';
   
+  // Land-specific fields
+  acreage: number | '';
+  landUseType: string;
+  crpEnrolled: boolean;
+  crpAcres: number | '';
+  crpAnnualPayment: number | '';
+  crpContractExpires: number | '';
+  timberAcres: number | '';
+  timberSpecies: string;
+  timberAge: number | '';
+  timberAnnualIncome: number | '';
+  waterFeatures: string;
+  pondAcres: number | '';
+  pastureAcres: number | '';
+  structures: string;
+  utilities: string;
+  annualIncomeEstimate: number | '';
+  incomeStreams: string[];
+  
   // Financial data
   purchasePrice: number | '';
   monthlyRent: number | '';
@@ -62,6 +81,25 @@ const initialFormData: PropertySubmissionData = {
   squareFeet: '',
   lotSize: '',
   yearBuilt: '',
+  // Land-specific fields
+  acreage: '',
+  landUseType: 'farm',
+  crpEnrolled: false,
+  crpAcres: '',
+  crpAnnualPayment: '',
+  crpContractExpires: '',
+  timberAcres: '',
+  timberSpecies: '',
+  timberAge: '',
+  timberAnnualIncome: '',
+  waterFeatures: '',
+  pondAcres: '',
+  pastureAcres: '',
+  structures: '',
+  utilities: '',
+  annualIncomeEstimate: '',
+  incomeStreams: [],
+  // Financial data
   purchasePrice: '',
   monthlyRent: '',
   totalShares: '',
@@ -306,7 +344,7 @@ export default function PropertySubmissionForm({ onClose }: { onClose: () => voi
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-1">Property Type</label>
+                  <label className="block text-sm font-medium mb-1">Property Type *</label>
                   <select
                     className="w-full border rounded px-3 py-2"
                     value={formData.propertyType}
@@ -315,6 +353,7 @@ export default function PropertySubmissionForm({ onClose }: { onClose: () => voi
                     <option value="residential">Residential</option>
                     <option value="commercial">Commercial</option>
                     <option value="mixed-use">Mixed Use</option>
+                    <option value="land">Land</option>
                   </select>
                 </div>
               </div>
@@ -371,45 +410,295 @@ export default function PropertySubmissionForm({ onClose }: { onClose: () => voi
                 />
               </div>
 
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div>
-                  <label className="block text-sm font-medium mb-1">Bedrooms</label>
-                  <input
-                    type="number"
-                    className="w-full border rounded px-3 py-2"
-                    value={formData.bedrooms}
-                    onChange={e => handleChange('bedrooms', parseInt(e.target.value) || '')}
-                  />
+              {/* Conditional Fields: Residential/Commercial Properties */}
+              {formData.propertyType !== 'land' && (
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium mb-1">Bedrooms</label>
+                    <input
+                      type="number"
+                      className="w-full border rounded px-3 py-2"
+                      value={formData.bedrooms}
+                      onChange={e => handleChange('bedrooms', parseInt(e.target.value) || '')}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-1">Bathrooms</label>
+                    <input
+                      type="number"
+                      step="0.5"
+                      className="w-full border rounded px-3 py-2"
+                      value={formData.bathrooms}
+                      onChange={e => handleChange('bathrooms', parseFloat(e.target.value) || '')}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-1">Square Feet</label>
+                    <input
+                      type="number"
+                      className="w-full border rounded px-3 py-2"
+                      value={formData.squareFeet}
+                      onChange={e => handleChange('squareFeet', parseInt(e.target.value) || '')}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-1">Year Built</label>
+                    <input
+                      type="number"
+                      className="w-full border rounded px-3 py-2"
+                      value={formData.yearBuilt}
+                      onChange={e => handleChange('yearBuilt', parseInt(e.target.value) || '')}
+                    />
+                  </div>
                 </div>
-                <div>
-                  <label className="block text-sm font-medium mb-1">Bathrooms</label>
-                  <input
-                    type="number"
-                    step="0.5"
-                    className="w-full border rounded px-3 py-2"
-                    value={formData.bathrooms}
-                    onChange={e => handleChange('bathrooms', parseFloat(e.target.value) || '')}
-                  />
+              )}
+
+              {/* Conditional Fields: Land Deals */}
+              {formData.propertyType === 'land' && (
+                <div className="space-y-6">
+                  {/* Land Use & Acreage */}
+                  <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                    <h4 className="font-semibold text-sm mb-3 text-green-800">🌾 Land Details</h4>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium mb-1">Total Acreage *</label>
+                        <input
+                          type="number"
+                          step="0.01"
+                          className="w-full border rounded px-3 py-2"
+                          value={formData.acreage}
+                          onChange={e => handleChange('acreage', parseFloat(e.target.value) || '')}
+                          placeholder="e.g., 120"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium mb-1">Land Use Type</label>
+                        <select
+                          className="w-full border rounded px-3 py-2"
+                          value={formData.landUseType}
+                          onChange={e => handleChange('landUseType', e.target.value)}
+                        >
+                          <option value="farm">Farm / Agricultural</option>
+                          <option value="recreational">Recreational / Hunting</option>
+                          <option value="timber">Timber / Forestry</option>
+                          <option value="pasture">Pasture / Grazing</option>
+                          <option value="development">Development / Residential</option>
+                          <option value="mixed">Mixed Use</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* CRP Program */}
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                    <div className="flex items-center mb-3">
+                      <input
+                        type="checkbox"
+                        id="crpEnrolled"
+                        checked={formData.crpEnrolled}
+                        onChange={e => handleChange('crpEnrolled', e.target.checked)}
+                        className="mr-2 h-4 w-4"
+                      />
+                      <label htmlFor="crpEnrolled" className="font-semibold text-sm text-blue-800">
+                        💰 CRP Program Enrolled (Conservation Reserve Program)
+                      </label>
+                    </div>
+                    {formData.crpEnrolled && (
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                          <label className="block text-sm font-medium mb-1">CRP Acres</label>
+                          <input
+                            type="number"
+                            step="0.01"
+                            className="w-full border rounded px-3 py-2"
+                            value={formData.crpAcres}
+                            onChange={e => handleChange('crpAcres', parseFloat(e.target.value) || '')}
+                            placeholder="e.g., 48"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium mb-1">Annual CRP Payment ($)</label>
+                          <input
+                            type="number"
+                            className="w-full border rounded px-3 py-2"
+                            value={formData.crpAnnualPayment}
+                            onChange={e => handleChange('crpAnnualPayment', parseFloat(e.target.value) || '')}
+                            placeholder="e.g., 4000"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium mb-1">Contract Expires (Year)</label>
+                          <input
+                            type="number"
+                            className="w-full border rounded px-3 py-2"
+                            value={formData.crpContractExpires}
+                            onChange={e => handleChange('crpContractExpires', parseInt(e.target.value) || '')}
+                            placeholder="e.g., 2031"
+                          />
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Timber Details */}
+                  <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
+                    <h4 className="font-semibold text-sm mb-3 text-amber-800">🌲 Timber & Forestry</h4>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium mb-1">Timber Acres</label>
+                        <input
+                          type="number"
+                          step="0.01"
+                          className="w-full border rounded px-3 py-2"
+                          value={formData.timberAcres}
+                          onChange={e => handleChange('timberAcres', parseFloat(e.target.value) || '')}
+                          placeholder="e.g., 48"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium mb-1">Timber Species</label>
+                        <input
+                          type="text"
+                          className="w-full border rounded px-3 py-2"
+                          value={formData.timberSpecies}
+                          onChange={e => handleChange('timberSpecies', e.target.value)}
+                          placeholder="e.g., Longleaf Pine"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium mb-1">Timber Age (Years)</label>
+                        <input
+                          type="number"
+                          className="w-full border rounded px-3 py-2"
+                          value={formData.timberAge}
+                          onChange={e => handleChange('timberAge', parseInt(e.target.value) || '')}
+                          placeholder="e.g., 15"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium mb-1">Est. Annual Timber Income ($)</label>
+                        <input
+                          type="number"
+                          className="w-full border rounded px-3 py-2"
+                          value={formData.timberAnnualIncome}
+                          onChange={e => handleChange('timberAnnualIncome', parseFloat(e.target.value) || '')}
+                          placeholder="e.g., 15000"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Water Features & Pasture */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="bg-cyan-50 border border-cyan-200 rounded-lg p-4">
+                      <h4 className="font-semibold text-sm mb-3 text-cyan-800">💧 Water Features</h4>
+                      <div className="space-y-3">
+                        <div>
+                          <label className="block text-sm font-medium mb-1">Water Features</label>
+                          <textarea
+                            className="w-full border rounded px-3 py-2"
+                            rows={2}
+                            value={formData.waterFeatures}
+                            onChange={e => handleChange('waterFeatures', e.target.value)}
+                            placeholder="e.g., 3 ponds, creeks, multiple wells"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium mb-1">Total Pond Acreage</label>
+                          <input
+                            type="number"
+                            step="0.01"
+                            className="w-full border rounded px-3 py-2"
+                            value={formData.pondAcres}
+                            onChange={e => handleChange('pondAcres', parseFloat(e.target.value) || '')}
+                            placeholder="e.g., 12"
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                      <h4 className="font-semibold text-sm mb-3 text-green-800">🐄 Pasture & Livestock</h4>
+                      <div>
+                        <label className="block text-sm font-medium mb-1">Pasture Acreage</label>
+                        <input
+                          type="number"
+                          step="0.01"
+                          className="w-full border rounded px-3 py-2"
+                          value={formData.pastureAcres}
+                          onChange={e => handleChange('pastureAcres', parseFloat(e.target.value) || '')}
+                          placeholder="e.g., 38"
+                        />
+                        <p className="text-xs text-gray-600 mt-1">For horses, cattle, or other livestock</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Structures & Utilities */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Structures / Buildings</label>
+                      <textarea
+                        className="w-full border rounded px-3 py-2"
+                        rows={2}
+                        value={formData.structures}
+                        onChange={e => handleChange('structures', e.target.value)}
+                        placeholder="e.g., 60x100 steel barn, equipment storage"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Utilities</label>
+                      <textarea
+                        className="w-full border rounded px-3 py-2"
+                        rows={2}
+                        value={formData.utilities}
+                        onChange={e => handleChange('utilities', e.target.value)}
+                        placeholder="e.g., 3-phase power, fiber internet, multiple wells"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Income Streams */}
+                  <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
+                    <h4 className="font-semibold text-sm mb-3 text-purple-800">💵 Income Streams</h4>
+                    <div className="space-y-3">
+                      <div>
+                        <label className="block text-sm font-medium mb-2">Select Income Sources:</label>
+                        <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                          {['CRP Payments', 'Timber Sales', 'Pine Straw', 'Hunting Leases', 'Grazing Leases', 'Hay Production', 'Land Appreciation', 'Other'].map(stream => (
+                            <label key={stream} className="flex items-center text-sm">
+                              <input
+                                type="checkbox"
+                                checked={formData.incomeStreams.includes(stream)}
+                                onChange={e => {
+                                  if (e.target.checked) {
+                                    handleChange('incomeStreams', [...formData.incomeStreams, stream]);
+                                  } else {
+                                    handleChange('incomeStreams', formData.incomeStreams.filter(s => s !== stream));
+                                  }
+                                }}
+                                className="mr-1 h-3 w-3"
+                              />
+                              {stream}
+                            </label>
+                          ))}
+                        </div>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium mb-1">Est. Annual Income ($)</label>
+                        <input
+                          type="number"
+                          className="w-full border rounded px-3 py-2"
+                          value={formData.annualIncomeEstimate}
+                          onChange={e => handleChange('annualIncomeEstimate', parseFloat(e.target.value) || '')}
+                          placeholder="e.g., 19000"
+                        />
+                        <p className="text-xs text-gray-600 mt-1">Combined annual income from all sources</p>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-                <div>
-                  <label className="block text-sm font-medium mb-1">Square Feet</label>
-                  <input
-                    type="number"
-                    className="w-full border rounded px-3 py-2"
-                    value={formData.squareFeet}
-                    onChange={e => handleChange('squareFeet', parseInt(e.target.value) || '')}
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium mb-1">Year Built</label>
-                  <input
-                    type="number"
-                    className="w-full border rounded px-3 py-2"
-                    value={formData.yearBuilt}
-                    onChange={e => handleChange('yearBuilt', parseInt(e.target.value) || '')}
-                  />
-                </div>
-              </div>
+              )}
             </div>
           )}
 
@@ -436,16 +725,21 @@ export default function PropertySubmissionForm({ onClose }: { onClose: () => voi
                   <p className="text-xs text-green-600 mt-1 font-medium">{formatUSD(formData.purchasePrice)} USD</p>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-1">Monthly Rent (BNB) *</label>
+                  <label className="block text-sm font-medium mb-1">
+                    {formData.propertyType === 'land' ? 'Monthly Income (BNB) *' : 'Monthly Rent (BNB) *'}
+                  </label>
                   <input
                     type="number"
                     step="0.01"
                     className="w-full border rounded px-3 py-2"
                     value={formData.monthlyRent}
                     onChange={e => handleChange('monthlyRent', parseFloat(e.target.value) || '')}
-                    placeholder="e.g., 0.5"
+                    placeholder={formData.propertyType === 'land' ? 'e.g., 0.1 (from CRP, timber, etc.)' : 'e.g., 0.5'}
                   />
                   <p className="text-xs text-green-600 mt-1 font-medium">{formatUSD(formData.monthlyRent)} USD/month</p>
+                  {formData.propertyType === 'land' && (
+                    <p className="text-xs text-gray-600 mt-1">From CRP, timber sales, grazing leases, etc.</p>
+                  )}
                 </div>
               </div>
 
@@ -512,7 +806,9 @@ export default function PropertySubmissionForm({ onClose }: { onClose: () => voi
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium mb-1">Estimated Annual Rent (BNB)</label>
+                  <label className="block text-sm font-medium mb-1">
+                    {formData.propertyType === 'land' ? 'Estimated Annual Income (BNB)' : 'Estimated Annual Rent (BNB)'}
+                  </label>
                   <input
                     type="number"
                     step="0.01"
@@ -522,7 +818,9 @@ export default function PropertySubmissionForm({ onClose }: { onClose: () => voi
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-1">Rental Yield (%)</label>
+                  <label className="block text-sm font-medium mb-1">
+                    {formData.propertyType === 'land' ? 'Annual Yield (%)' : 'Rental Yield (%)'}
+                  </label>
                   <input
                     type="number"
                     step="0.1"
