@@ -247,9 +247,11 @@ class DealService {
     const currentRepairs = deal.repairs;
     const propertyType = parsed.propertyType?.toLowerCase() || '';
 
-    // Check if asking price exists
-    if (!parsed.asking) {
-      throw new Error('Cannot analyze deal: missing asking price');
+    // Handle both manual form submissions (purchasePrice) and web-scraped data (asking)
+    const askingPrice = parsed.asking || parsed.purchasePrice;
+    
+    if (!askingPrice) {
+      throw new Error('Cannot analyze deal: missing asking price or purchase price');
     }
 
     let analysis = {};
@@ -257,30 +259,28 @@ class DealService {
     // Handle Land deals differently (no ARV needed)
     if (propertyType.includes('land')) {
       // For land deals, analyze based on income potential
-      const annualIncome = parsed.annualIncome || 0;
-      const askingPrice = parsed.asking;
+      const annualIncome = parsed.annualIncome || parsed.estimatedAnnualRent || 0;
+      const pricePerAcre = parsed.acreage > 0 ? (askingPrice / parsed.acreage).toFixed(0) : 0;
+      
+      const incomeYield = annualIncome > 0 ? ((annualIncome / askingPrice) * 100).toFixed(2) : 0;
+      const totalShares = parsed.totalShares || 10000;
+      const pricePerShare = (askingPrice / totalShares).toFixed(2);
+      const minInvestment = parsed.pricePerShare || pricePerShare;
       
       analysis = {
-        askingPrice,
-        annualIncome,
-        roi: annualIncome > 0 ? ((annualIncome / askingPrice) * 100).toFixed(2) : 0,
         dealType: 'land',
-        notes: 'Land deal - income based on CRP, timber, leases, etc.'
+        askingPrice,
+        pricePerAcre,
+        acreage: parsed.acreage || 0,
+        annualIncome,
+        incomeYield: `${incomeYield}%`,
+        totalShares,
+        pricePerShare: parseFloat(pricePerShare),
+        minInvestment: parseFloat(minInvestment),
+        incomeStreams: parsed.incomeStreams || [],
+        rtoBadge: incomeYield >= 3 ? 'GREEN' : incomeYield >= 1.5 ? 'YELLOW' : 'RED',
+        notes: `Land deal with ${incomeYield}% annual income yield. Shares: ${totalShares} @ $${pricePerShare}/share.`
       };
-
-      // Add RTO analysis if monthly rent is available
-      const rents = deal.rents;
-      if (rents?.marketRentEst) {
-        const rtoAnalysis = analyzeRTOSuitability({
-          monthlyRent: rents.marketRentEst
-        });
-        analysis = {
-          ...analysis,
-          ...rtoAnalysis,
-          dscrByRent: rtoAnalysis.dscrByRent,
-          rtoBadge: rtoAnalysis.badge
-        };
-      }
     } else {
       // Handle residential/commercial properties (requires ARV)
       if (!parsed.arv) {
@@ -294,7 +294,7 @@ class DealService {
       };
 
       const profitability = analyzeProfitability({
-        asking: parsed.asking,
+        asking: askingPrice,
         arv: parsed.arv,
         repairs
       });
