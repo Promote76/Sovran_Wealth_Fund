@@ -101,6 +101,7 @@ class DealService {
     const enrichments = await enrichmentService.enrichDeal(deal);
 
     let scrapedMedia = [];
+    let scrapedData = null;
     
     // Preserve existing media from ingestion (Dropbox images)
     if (deal.media && deal.media.length > 0) {
@@ -118,6 +119,7 @@ class DealService {
         if (!isDropboxImageFile) {
           console.log(`📸 Scraping property listing: ${url}`);
           const scraped = await propertyScraperService.scrapePropertyListing(url);
+          scrapedData = scraped.data || {};
           const scrapedImages = scraped.images.map(img => ({
             type: 'image',
             url: img,
@@ -126,6 +128,35 @@ class DealService {
           }));
           scrapedMedia = [...scrapedMedia, ...scrapedImages];
           console.log(`✅ Scraped ${scrapedImages.length} images from listing`);
+          
+          // Merge scraped data into parsed object (for land.com price, acres, etc.)
+          if (scrapedData.price || scrapedData.acres || scrapedData.annualIncome) {
+            const updatedParsed = { ...deal.parsed };
+            if (scrapedData.price && !updatedParsed.asking) {
+              updatedParsed.asking = scrapedData.price;
+              console.log(`✅ Extracted asking price from scrape: $${scrapedData.price}`);
+            }
+            if (scrapedData.acres && !updatedParsed.lotSize) {
+              updatedParsed.lotSize = { value: scrapedData.acres, unit: 'acres' };
+              console.log(`✅ Extracted acreage from scrape: ${scrapedData.acres} acres`);
+            }
+            if (scrapedData.annualIncome && !updatedParsed.annualIncome) {
+              updatedParsed.annualIncome = scrapedData.annualIncome;
+              console.log(`✅ Extracted annual income from scrape: $${scrapedData.annualIncome}`);
+            }
+            if (scrapedData.address && !updatedParsed.address) {
+              updatedParsed.address = scrapedData.address;
+            }
+            
+            // Update the parsed object in the database
+            await db
+              .update(deals)
+              .set({ parsed: updatedParsed })
+              .where(eq(deals.id, dealId));
+            
+            // Update local deal object for enrichment
+            deal.parsed = updatedParsed;
+          }
         } else {
           console.log(`⏭️  Skipping Puppeteer scrape - Dropbox image already extracted`);
         }

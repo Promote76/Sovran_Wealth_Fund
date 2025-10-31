@@ -39,6 +39,9 @@ class PropertyScraperService {
       } else if (url.includes('dropbox.com')) {
         console.log(`📸 Using Puppeteer for Dropbox shared folder`);
         return await this.scrapeDropboxWithPuppeteer(url);
+      } else if (url.includes('land.com')) {
+        console.log(`📸 Using Puppeteer for land.com (extended timeout: 60s)`);
+        return await this.scrapeLandComWithPuppeteer(url);
       } else {
         const scrapedData = await this.scrapeUrl(url);
         return scrapedData;
@@ -192,6 +195,102 @@ class PropertyScraperService {
       
     } catch (error) {
       console.error(`InvestorLift scraping error: ${error.message}`);
+      await page.close();
+      return { images: [], data: {} };
+    }
+  }
+
+  async scrapeLandComWithPuppeteer(url) {
+    const browser = await this.getBrowser();
+    const page = await browser.newPage();
+    
+    try {
+      await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36');
+      
+      console.log(`🌐 Loading land.com page: ${url}`);
+      await page.goto(url, { 
+        waitUntil: 'networkidle2',
+        timeout: 60000 
+      });
+      
+      await page.waitForTimeout(3000);
+      
+      const scrapedData = await page.evaluate(() => {
+        const images = [];
+        const data = {};
+        
+        // Extract images
+        document.querySelectorAll('img').forEach(img => {
+          const src = img.src || img.getAttribute('data-src');
+          if (src && 
+              !src.includes('logo') && 
+              !src.includes('icon') &&
+              !src.includes('avatar') &&
+              (src.includes('land.com') || 
+               src.includes('photo') ||
+               src.includes('image') ||
+               img.alt?.toLowerCase().includes('property'))) {
+            images.push(src);
+          }
+        });
+        
+        // Extract price and acreage from "$636,000 • 120 Acres" pattern
+        const pricePattern = /\$([0-9,]+)\s*[•|]\s*(\d+)\s*Acres?/i;
+        const bodyText = document.body.textContent;
+        const priceMatch = bodyText.match(pricePattern);
+        if (priceMatch) {
+          data.price = parseInt(priceMatch[1].replace(/,/g, ''));
+          data.acres = parseInt(priceMatch[2]);
+        }
+        
+        // Try to find price in specific elements
+        if (!data.price) {
+          const priceEl = document.querySelector('[class*="price"], [data-testid*="price"]');
+          if (priceEl) {
+            const priceText = priceEl.textContent;
+            const match = priceText.match(/\$([0-9,]+)/);
+            if (match) {
+              data.price = parseInt(match[1].replace(/,/g, ''));
+            }
+          }
+        }
+        
+        // Extract CRP payment amount
+        const crpMatch = bodyText.match(/CRP[\s:]+[^$]*\$([0-9,]+)/i) || 
+                        bodyText.match(/\$([0-9,]+)[^.]*CRP/i);
+        if (crpMatch) {
+          data.crpPayment = parseInt(crpMatch[1].replace(/,/g, ''));
+        }
+        
+        // Extract annual income
+        const incomeMatch = bodyText.match(/annual[\s\w]*income[^$]*\$([0-9,]+)/i) ||
+                           bodyText.match(/\$([0-9,]+)[^.]*(?:per\s+year|annually)/i);
+        if (incomeMatch) {
+          data.annualIncome = parseInt(incomeMatch[1].replace(/,/g, ''));
+        }
+        
+        // Extract address
+        const h1 = document.querySelector('h1');
+        if (h1) {
+          data.address = h1.textContent.trim();
+        }
+        
+        // Extract description
+        const descEl = document.querySelector('[class*="description"], p');
+        if (descEl) {
+          data.description = descEl.textContent.trim().substring(0, 500);
+        }
+        
+        return { images: [...new Set(images)], data };
+      });
+      
+      console.log(`✅ Scraped land.com: ${scrapedData.images.length} images, price: ${scrapedData.data.price}, acres: ${scrapedData.data.acres}`);
+      
+      await page.close();
+      return scrapedData;
+      
+    } catch (error) {
+      console.error(`land.com scraping error: ${error.message}`);
       await page.close();
       return { images: [], data: {} };
     }
